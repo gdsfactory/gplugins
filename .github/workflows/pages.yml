@@ -26,6 +26,9 @@ jobs:
         run: |
           make dev
       - name: make docs
+        env:
+          SIMCLOUD_APIKEY: ${{ secrets.SIMCLOUD_APIKEY }}
+          GDSFACTORY_DISPLAY_TYPE: klayout
         run: |
           make docs
       - name: Upload artifact
