@@ -19,9 +19,10 @@ from starlette.routing import WebSocketRoute
 
 import gdsfactory as gf
 from gplugins.web.middleware import ProxiedHeadersMiddleware
-from gdsfactory.config import PATH, GDSDIR_TEMP, CONF
 from gplugins.web.server import LayoutViewServerEndpoint, get_layout_view
+from gplugins.config import PATH
 
+from gdsfactory.config import GDSDIR_TEMP, CONF
 from gdsfactory.watch import FileWatcher
 from gdsfactory.cell import Settings
 

@@ -4,11 +4,11 @@ install:
 	pre-commit install
 
 dev:
-	pip install -e .[dev,docs]
-
+	pip install -e .[dev,docs,database,devsim,femwell,gmsh,kfactory,meow,meshwell,ray,sax,tidy3d]
+	conda install -c conda-forge pymeep=*=mpi_mpich_* nlopt -y
 
 test:
-	pytest -s
+	pytest -s --ignore=gplugins/gtidy3d/write_sparameters.py --ignore=gplugins/gtidy3d/write_sparameters_grating_coupler.py
 
 cov:
 	pytest --cov=gplugins

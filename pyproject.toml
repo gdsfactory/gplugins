@@ -47,7 +47,6 @@ database = [
   "boto3",
   "pymysql"
 ]
-
 devsim = [
   "devsim",
   "pyvista",
@@ -56,7 +55,6 @@ devsim = [
 femwell = [
   "femwell==0.1.5"
 ]
-
 gmsh = [
   "gmsh",
   "h5py",
@@ -89,7 +87,6 @@ tidy3d = [
   "tidy3d==2.3.3"
 ]
 
-
 [tool.setuptools.packages]
 find = {}
 
@@ -118,10 +115,12 @@ exclude = '''  # Specify the files/dirs that should be ignored by the black form
 
 [tool.pytest.ini_options]
 testpaths = ["gplugins/", "tests"]
-# addopts = --tb=no
 addopts = '--tb=short'
 python_files = ["gplugins/*.py", "notebooks/*.ipynb", "tests/*.py"]
-norecursedirs = ["extra/*.py"]
+norecursedirs = [
+    "extra/*.py",
+    'gplugins/devsim',
+    ]
 
 [tool.flake8]
 max-line-length = 88

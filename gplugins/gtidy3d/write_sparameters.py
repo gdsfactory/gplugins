@@ -290,7 +290,7 @@ if __name__ == "__main__":
     # sp = write_sparameters(c, is_3d=True, port_source_names=None, overwrite=False)
     # gs.plot.plot_sparameters(sp)
     c = gf.components.straight(length=3)
-    sp = write_sparameters_1x1(c, overwrite=True, is_3d=False)
+    sp = write_sparameters_1x1(c, overwrite=False, is_3d=False)
     print(sp)
 
     # t = sp.o1@0,o2@0

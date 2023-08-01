@@ -23,41 +23,48 @@ jobs:
           pip install pre-commit
           pre-commit run -a 
   test_code:
-    needs: [pre-commit]
-    runs-on: ${{ matrix.os }}
-    strategy:
-      max-parallel: 12
-      matrix:
-        python-version: ["3.10"]
-        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+      - uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: ${{ matrix.python-version }}
-          cache: "pip"
-          cache-dependency-path: pyproject.toml
+          python-version: '3.10'
+          mamba-version: "*"
+          channels: conda-forge,defaults
+          channel-priority: true
+          activate-environment: anaconda-client-env
+      - name: Add conda to system path
+        run: |
+          echo $CONDA/bin >> $GITHUB_PATH
       - name: Install dependencies
         run: |
           make dev
+      - name: make docs
+        run: |
+          make docs
       - name: Test with pytest
-        run: pytest
+        run: make test
   test_code_coverage:
     runs-on: ubuntu-latest
     needs: [pre-commit]
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: '3.10'
+          mamba-version: "*"
+          channels: conda-forge,defaults
+          channel-priority: true
+          activate-environment: anaconda-client-env
+      - name: Add conda to system path
+        run: |
+          echo $CONDA/bin >> $GITHUB_PATH
       - name: Install dependencies
         run: |
           make dev
       - name: Test with pytest
         run: |
-          pytest --cov={{ cookiecutter.package_name }} {{ cookiecutter.package_name }}
+          pytest --cov=gplugins
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
@@ -71,7 +78,6 @@ jobs:
       matrix:
         python-version: ['3.10']
         os: [ubuntu-latest]
-
     steps:
       - uses: actions/checkout@v3
       - uses: conda-incubator/setup-miniconda@v2

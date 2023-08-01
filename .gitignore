@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 *.fsp
+*.hdf5
+*.msh
+*.yaml
+*.dat
 
 # Distribution / packaging
 .Python
