@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from itertools import combinations
-from typing import Dict, Optional, Tuple
 
 import numpy as np
 from devsim import (
@@ -32,22 +31,22 @@ um_to_cm = 1e-4
 
 def create_2Duz_simulation(
     component: Component,
-    xsection_bounds: Tuple[Tuple[float, float], Tuple[float, float]],
+    xsection_bounds: tuple[tuple[float, float], tuple[float, float]],
     full_layerstack: LayerStack,
     physical_layerstack: LayerStack,
     doping_info,  # Dict[str, DopingLayerLevel],
     contact_info,
-    resolutions: Optional[Dict[str, Dict]] = None,
+    resolutions: dict[str, dict] | None = None,
     mesh_scaling_factor: float = um_to_cm,
     default_resolution_min: float = 0.001,
     default_resolution_max: float = 0.2,
-    background_tag: Optional[str] = None,
+    background_tag: str | None = None,
     temp_file_name: str = "temp.msh2",
     devsim_mesh_name: str = "temp",
     devsim_device_name: str = "temp",
     devsim_simulation_filename: str = "devsim.dat",
-    global_meshsize_array: Optional[np.array] = None,
-    global_meshsize_interpolant_func: Optional[callable] = NearestNDInterpolator,
+    global_meshsize_array: np.array | None = None,
+    global_meshsize_interpolant_func: callable | None = NearestNDInterpolator,
 ):
     # Replace relevant physical entities by contacts
     simulation_layertack = physical_layerstack

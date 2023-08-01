@@ -1,8 +1,6 @@
-from typing import List, Tuple
-
 from starlette.types import ASGIApp, Receive, Scope, Send
 
-Headers = List[Tuple[bytes, bytes]]
+Headers = list[tuple[bytes, bytes]]
 
 # original developed by researchers at university of cambridge:
 # https://pypi.org/project/fastapi-proxiedheadersmiddleware/

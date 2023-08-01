@@ -5,7 +5,7 @@ from __future__ import annotations
 import concurrent.futures
 import hashlib
 import pathlib
-from typing import Awaitable
+from collections.abc import Awaitable
 
 import gdsfactory as gf
 import tidy3d as td

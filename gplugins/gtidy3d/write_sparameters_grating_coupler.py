@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pathlib
 import time
-from typing import Awaitable, Optional
+from collections.abc import Awaitable
 
 import gdsfactory as gf
 import numpy as np
@@ -32,8 +32,8 @@ from gplugins.gtidy3d.get_simulation_grating_coupler import (
 
 def write_sparameters_grating_coupler(
     component: ComponentSpec,
-    dirpath: Optional[PathType] = None,
-    filepath: Optional[PathType] = None,
+    dirpath: PathType | None = None,
+    filepath: PathType | None = None,
     overwrite: bool = False,
     port_waveguide_name: str = "o1",
     fiber_port_prefix: str = "opt",

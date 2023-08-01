@@ -6,7 +6,6 @@
 # ## Calculations
 
 # +
-from typing import Optional
 
 import gdsfactory as gf
 import numpy as np
@@ -20,12 +19,12 @@ PDK.activate()
 # +
 def mzi(
     wl: np.ndarray,
-    neff: Optional[float],
-    neff1: Optional[float] = None,
-    neff2: Optional[float] = None,
-    delta_length: Optional[float] = None,
-    length1: Optional[float] = 0,
-    length2: Optional[float] = None,
+    neff: float | None,
+    neff1: float | None = None,
+    neff2: float | None = None,
+    delta_length: float | None = None,
+    length1: float | None = 0,
+    length2: float | None = None,
 ) -> np.ndarray:
     """Returns Frequency Domain Response of an MZI interferometer in linear units.
 

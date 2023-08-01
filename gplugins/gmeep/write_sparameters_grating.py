@@ -14,7 +14,6 @@ import shlex
 import shutil
 import subprocess
 import time
-from typing import Dict, Optional, Tuple
 
 import matplotlib.pyplot as plt
 import meep as mp
@@ -33,7 +32,7 @@ nm = 1e-3
 nSi = 3.48
 nSiO2 = 1.44
 
-Floats = Tuple[float, ...]
+Floats = tuple[float, ...]
 
 
 def fiber_core_material(fiber_numerical_aperture, fiber_clad_material):
@@ -45,7 +44,7 @@ def write_sparameters_grating(
     plot_contour: bool = False,
     animate: bool = False,
     overwrite: bool = False,
-    dirpath: Optional[PathType] = sparameters_path,
+    dirpath: PathType | None = sparameters_path,
     decay_by: float = 1e-3,
     verbosity: int = 0,
     **settings,
@@ -240,9 +239,9 @@ def write_sparameters_grating(
 
 
 def write_sparameters_grating_mpi(
-    instance: Dict,
+    instance: dict,
     cores: int = 2,
-    temp_dir: Optional[str] = None,
+    temp_dir: str | None = None,
     temp_file_str: str = "write_sparameters_meep_mpi",
     verbosity: bool = False,
 ):
@@ -300,7 +299,7 @@ def write_sparameters_grating_batch(
     instances,
     cores_per_instance: int = 2,
     total_cores: int = 4,
-    temp_dir: Optional[str] = None,
+    temp_dir: str | None = None,
     delete_temp_files: bool = False,
     verbosity: bool = False,
 ) -> None:

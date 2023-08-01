@@ -3,7 +3,6 @@ from __future__ import annotations
 import pathlib
 import tempfile
 from functools import partial
-from typing import Dict, Optional, Union
 
 import gdsfactory as gf
 import meep as mp
@@ -32,9 +31,9 @@ def get_mode_solver_cross_section(
     nmodes: int = 4,
     wavelength: float = 1.55,
     clad_mat: str = "sio2",
-    layer_stack: Optional[LayerStack] = None,
+    layer_stack: LayerStack | None = None,
     dispersive: bool = False,
-    material_name_to_meep: Optional[Dict[str, Union[str, float]]] = None,
+    material_name_to_meep: dict[str, str | float] | None = None,
     **kwargs,
 ) -> mpb.ModeSolver:
     """Returns a mode_solver simulation.

@@ -3,7 +3,6 @@
 
 import asyncio
 import json
-from typing import Optional
 
 import gdsfactory as gf
 import klayout.db as db
@@ -90,9 +89,7 @@ class LayoutViewServerEndpoint(WebSocketEndpoint):
             )
         return js
 
-    async def connection(
-        self, websocket: WebSocket, path: Optional[str] = None
-    ) -> None:
+    async def connection(self, websocket: WebSocket, path: str | None = None) -> None:
         self.layout_view = lay.LayoutView()
         url = self.url
         self.layout_view.load_layout(url)

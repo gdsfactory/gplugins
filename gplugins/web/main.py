@@ -4,7 +4,6 @@ import os
 import pathlib
 from glob import glob
 from pathlib import Path
-from typing import Optional
 
 import gdsfactory as gf
 import orjson
@@ -127,7 +126,7 @@ LOADED_COMPONENTS = {}
 
 
 @app.get("/view/{cell_name}", response_class=HTMLResponse)
-async def view_cell(request: Request, cell_name: str, variant: Optional[str] = None):
+async def view_cell(request: Request, cell_name: str, variant: str | None = None):
     gds_files = GDSDIR_TEMP.glob("*.gds")
     gds_names = [gdspath.stem for gdspath in gds_files]
 

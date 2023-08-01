@@ -1,6 +1,5 @@
 import copy
 from pathlib import Path
-from typing import Dict, Optional, Union
 
 import jax.numpy as jnp
 import ray
@@ -22,18 +21,16 @@ class Model:
         self,
         trainable_component: callable,
         layerstack: LayerStack,
-        trainable_parameters: Optional[
-            Dict[str, Union[LayerStackThickness, NamedParameter]]
-        ] = None,
-        non_trainable_parameters: Optional[
-            Dict[str, Union[LayerStackThickness, NamedParameter]]
-        ] = None,
-        simulation_settings: Optional[Dict[str, Union[float, str, int, Path]]] = None,
+        trainable_parameters: None
+        | (dict[str, LayerStackThickness | NamedParameter]) = None,
+        non_trainable_parameters: None
+        | (dict[str, LayerStackThickness | NamedParameter]) = None,
+        simulation_settings: dict[str, float | str | int | Path] | None = None,
         num_modes: int = 2,
-        port_symmetries: Optional[PortSymmetries] = None,
-        address: Optional[str] = None,
+        port_symmetries: PortSymmetries | None = None,
+        address: str | None = None,
         dashboard_port: int = 8265,
-        num_cpus: Optional[int] = None,
+        num_cpus: int | None = None,
         num_cpus_per_task: int = 1,
         # num_gpus_per_task: int = 0,
         restart_cluster: bool = False,

@@ -9,7 +9,7 @@
 """
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import meep as mp
 import numpy as np
@@ -28,8 +28,8 @@ def get_simulation_grating_farfield(
     period: float = 0.66,
     fill_factor: float = 0.5,
     n_periods: int = 30,
-    widths: Optional[Floats] = None,
-    gaps: Optional[Floats] = None,
+    widths: Floats | None = None,
+    gaps: Floats | None = None,
     etch_depth: float = 70 * nm,
     fiber_angle_deg: float = 20.0,
     fiber_xposition: float = 1.0,
@@ -47,7 +47,7 @@ def get_simulation_grating_farfield(
     wavelength_min: float = 1.5,
     wavelength_max: float = 1.6,
     wavelength_points: int = 50,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Returns grating coupler far field simulation.
 
     FIXME! needs some more work.

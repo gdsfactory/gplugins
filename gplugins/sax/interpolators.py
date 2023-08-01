@@ -1,5 +1,3 @@
-from typing import List
-
 import jax
 import jax.numpy as jnp
 
@@ -13,7 +11,7 @@ def nd_interpolation(_grid, output_vector):
         return jnp.interp(value, arr1d, jnp.arange(arr1d.shape[0]))
 
     # @jax.jit
-    def _get_coordinates(arrs1d: List[jnp.ndarray], values: jnp.ndarray):
+    def _get_coordinates(arrs1d: list[jnp.ndarray], values: jnp.ndarray):
         return jnp.array([_get_coordinate(a, v) for a, v in zip(arrs1d, values)])
 
     # @jax.jit

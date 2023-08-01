@@ -197,6 +197,8 @@ ignore = [
     "B905",  # `zip()` without an explicit `strict=` parameter
     "C408",  # C408 Unnecessary `dict` call (rewrite as a literal)
     "E402",  # module level import not at top of file
+    "B018",  # found useless expression
+    "B028"   # no explicit stacklevel
 ]
 
 [tool.ruff.per-file-ignores]

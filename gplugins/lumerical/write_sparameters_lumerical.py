@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import shutil
 import time
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING
 
 import gdsfactory as gf
 import numpy as np
@@ -73,13 +73,13 @@ def set_material(session, structure: str, material: MaterialSpec) -> None:
 
 def write_sparameters_lumerical(
     component: ComponentSpec,
-    session: Optional[object] = None,
+    session: object | None = None,
     run: bool = True,
     overwrite: bool = False,
-    dirpath: Optional[PathType] = None,
-    layer_stack: Optional[LayerStack] = None,
+    dirpath: PathType | None = None,
+    layer_stack: LayerStack | None = None,
     simulation_settings: SimulationSettingsLumericalFdtd = SIMULATION_SETTINGS_LUMERICAL_FDTD,
-    material_name_to_lumerical: Optional[Dict[str, MaterialSpec]] = None,
+    material_name_to_lumerical: dict[str, MaterialSpec] | None = None,
     delete_fsp_files: bool = True,
     xmargin: float = 0,
     ymargin: float = 0,

@@ -1,5 +1,4 @@
 import time
-from typing import Tuple
 
 import gdsfactory as gf
 import numpy as np
@@ -89,7 +88,7 @@ def compute_cross_section_modes(
 
 def compute_component_slice_modes(
     component: ComponentSpec,
-    xsection_bounds: Tuple[Tuple[float, float], Tuple[float, float]],
+    xsection_bounds: tuple[tuple[float, float], tuple[float, float]],
     layerstack: LayerStack,
     wavelength: float = 1.55,
     num_modes: int = 4,

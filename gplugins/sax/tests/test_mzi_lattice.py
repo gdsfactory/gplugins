@@ -1,8 +1,6 @@
 """Test hierarchical circuit simulations."""
 from __future__ import annotations
 
-from typing import List
-
 import gdsfactory as gf
 import jax.numpy as jnp
 import numpy as np
@@ -48,7 +46,7 @@ models = {
 }
 
 
-def module(S) -> List[float]:
+def module(S) -> list[float]:
     """rounds to 3 decimals and converts numpy to lists for serialization."""
     for k, v in S.items():
         S[k] = [float(i) for i in np.round(np.abs(v) ** 2, 3)]

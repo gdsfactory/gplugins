@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import pathlib
 import time
+from collections.abc import Awaitable
 from functools import partial
-from typing import Awaitable
 
 import gdsfactory as gf
 import numpy as np

@@ -4,7 +4,6 @@ import hashlib
 import os
 import tempfile
 from functools import lru_cache
-from typing import List, Optional
 
 import boto3
 import boto3.session
@@ -20,7 +19,7 @@ class Session(_Session):
         """adds a model to the database, but ignores it if it's already in there."""
         return self.execute(model.__class__.__table__.insert().prefix_with("IGNORE").values([model.dict()]))  # type: ignore
 
-    def safe_add_all(self, models: List[SQLModel]):
+    def safe_add_all(self, models: list[SQLModel]):
         """adds a model to the database, but ignores it if it's already in there."""
         cls = models[0].__class__
         assert all(model.__class__ is cls for model in models)
@@ -28,7 +27,7 @@ class Session(_Session):
 
 
 class Component(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     function_name: str = Field(min_length=1, max_length=20)
     module: str = Field(min_length=1, max_length=40)
     name: str = Field(min_length=1, max_length=40)
@@ -36,7 +35,7 @@ class Component(SQLModel, table=True):
 
 
 class Simulation(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     function_name: str = Field(min_length=1, max_length=20)
     hash: str = Field(min_length=32, max_length=32, unique=True)
     component_hash: str = Field(min_length=32, max_length=32, unique=True)

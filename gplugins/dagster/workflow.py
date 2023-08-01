@@ -1,5 +1,3 @@
-from typing import Dict
-
 from dagster import ConfigurableResource, Definitions, asset
 
 
@@ -8,7 +6,7 @@ class ReaderResource(ConfigurableResource):
 
 
 @asset
-def design(reader: ReaderResource) -> Dict:
+def design(reader: ReaderResource) -> dict:
     # read_based_on_config()
     return {"design:": reader.value}
 

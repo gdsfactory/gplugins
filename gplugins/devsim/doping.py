@@ -1,4 +1,4 @@
-from typing import Callable
+from collections.abc import Callable
 
 import gdsfactory as gf
 import numpy as np

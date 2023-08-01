@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Optional
 
 from gdsfactory.config import logger
 from tidy3d import web
 
 
-def print_tasks(status: Optional[str] = None) -> None:
+def print_tasks(status: str | None = None) -> None:
     for task in web.get_tasks():
         if status and task["status"] != status:
             continue

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, Iterator, Tuple
+from collections.abc import Iterator
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -25,10 +25,10 @@ from skfem.visuals.matplotlib import draw, plot
 
 def solve_thermal(
     mesh_filename: str,
-    thermal_conductivity: Dict[str, float],
-    specific_conductivity: Dict[str, float],
-    thermal_diffusivity: Dict[str, float],
-    currents: Dict[str, float],
+    thermal_conductivity: dict[str, float],
+    specific_conductivity: dict[str, float],
+    thermal_diffusivity: dict[str, float],
+    currents: dict[str, float],
 ) -> None:
     """Thermal simulation.
 
@@ -151,7 +151,7 @@ def solve_thermal(
 
     def evolve(
         t: float, u: np.ndarray, heating: np.ndarray
-    ) -> Iterator[Tuple[float, np.ndarray]]:
+    ) -> Iterator[tuple[float, np.ndarray]]:
         i = 0
         while True:
             t_temperature[i] = t, np.mean(u)

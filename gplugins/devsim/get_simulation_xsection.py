@@ -12,7 +12,7 @@ From Chrostowski, L., & Hochberg, M. (2015). Silicon Photonics Design: From Devi
 from __future__ import annotations
 
 import warnings
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import devsim
 import matplotlib.pyplot as plt
@@ -450,7 +450,7 @@ class PINWaveguide(BaseModel):
     def plot(
         self,
         tempfile: str = "temp.dat",
-        scalars: Optional[str] = None,
+        scalars: str | None = None,
         log_scale: bool = False,
         cmap: str = "RdBu",
         jupyter_backend: str = "None",
@@ -494,7 +494,7 @@ class PINWaveguide(BaseModel):
         grid_resolution: int = 200,
         perturb: bool = True,
         nmodes: int = 4,
-        bend_radius: Optional[float] = None,
+        bend_radius: float | None = None,
         cache: bool = False,
         precision: Precision = "double",
         core_material: MaterialSpec = "si",

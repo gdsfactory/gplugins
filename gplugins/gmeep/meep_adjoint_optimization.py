@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from types import LambdaType
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import gdsfactory as gf
 import nlopt
@@ -20,14 +21,14 @@ from gplugins.gmeep import get_simulation
 def get_meep_adjoint_optimizer(
     component: Component,
     objective_function: Callable,
-    design_regions: List[DesignRegion],
-    design_variables: List[MaterialGrid],
+    design_regions: list[DesignRegion],
+    design_variables: list[MaterialGrid],
     design_update: np.ndarray,
     TE_mode_number: int = 1,
     resolution: int = 30,
-    cell_size: Optional[Tuple] = None,
-    extend_ports_length: Optional[float] = 10.0,
-    layer_stack: Optional[LayerStack] = None,
+    cell_size: tuple | None = None,
+    extend_ports_length: float | None = 10.0,
+    layer_stack: LayerStack | None = None,
     zmargin_top: float = 3.0,
     zmargin_bot: float = 3.0,
     tpml: float = 1.5,
@@ -43,7 +44,7 @@ def get_meep_adjoint_optimizer(
     port_source_offset: float = 0,
     port_monitor_offset: float = 0,
     dispersive: bool = False,
-    material_name_to_meep: Optional[Dict[str, Union[str, float]]] = None,
+    material_name_to_meep: dict[str, str | float] | None = None,
     **settings,
 ):
     """Return a Meep `OptimizationProblem` object.
@@ -194,9 +195,9 @@ def run_meep_adjoint_optimizer(
     upper_bound: Any = 1,
     maxeval: int = 10,
     get_optimized_component: bool = False,
-    opt: Optional[OptimizationProblem] = None,
+    opt: OptimizationProblem | None = None,
     **kwargs,
-) -> Union[ndarray, Component]:
+) -> ndarray | Component:
     """Run adjoint optimization using Meep.
 
     Args:

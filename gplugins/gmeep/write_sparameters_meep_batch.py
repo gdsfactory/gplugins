@@ -9,7 +9,6 @@ import time
 from functools import partial
 from pathlib import Path
 from pprint import pprint
-from typing import Dict, List, Optional
 
 import gdsfactory as gf
 import numpy as np
@@ -36,15 +35,15 @@ temp_dir_default = Path(sparameters_path) / "temp"
 
 @pydantic.validate_arguments
 def write_sparameters_meep_batch(
-    jobs: List[Dict],
+    jobs: list[dict],
     cores_per_run: int = 2,
     total_cores: int = 4,
     temp_dir: Path = temp_dir_default,
     delete_temp_files: bool = True,
-    dirpath: Optional[Path] = None,
-    layer_stack: Optional[LayerStack] = None,
+    dirpath: Path | None = None,
+    layer_stack: LayerStack | None = None,
     **kwargs,
-) -> List[Path]:
+) -> list[Path]:
     """Write Sparameters for a batch of jobs using MPI and returns results filepaths.
 
     Given a list of write_sparameters_meep keyword arguments `jobs` launches them in

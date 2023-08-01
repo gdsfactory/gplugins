@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Optional, Tuple
 
 import gdsfactory as gf
 import matplotlib.pyplot as plt
@@ -12,7 +11,7 @@ from pandas import DataFrame
 def plot_sparameters(
     df: DataFrame,
     logscale: bool = True,
-    keys: Optional[Tuple[str, ...]] = None,
+    keys: tuple[str, ...] | None = None,
 ) -> None:
     """Plots Sparameters from a pandas DataFrame.
 

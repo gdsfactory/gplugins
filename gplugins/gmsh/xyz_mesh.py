@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import OrderedDict
-from typing import Dict, Optional, Sequence
+from collections.abc import Sequence
 
 import numpy as np
 from gdsfactory.config import get_number_of_cores
@@ -49,21 +49,21 @@ def define_prisms(layer_polygons_dict, layerstack, model):
 def xyz_mesh(
     component: ComponentOrReference,
     layerstack: LayerStack,
-    resolutions: Optional[Dict] = None,
+    resolutions: dict | None = None,
     default_characteristic_length: float = 0.5,
-    background_tag: Optional[str] = None,
+    background_tag: str | None = None,
     background_padding: Sequence[float, float, float, float, float, float] = (2.0,) * 6,
     global_scaling: float = 1,
     global_2D_algorithm: int = 6,
     global_3D_algorithm: int = 1,
-    filename: Optional[str] = None,
-    verbosity: Optional[int] = 0,
+    filename: str | None = None,
+    verbosity: int | None = 0,
     round_tol: int = 3,
     simplify_tol: float = 1e-3,
     n_threads: int = get_number_of_cores(),
     portnames: List[str] = None,
     layer_portname_delimiter: str = "#",
-    gmsh_version: Optional[float] = None,
+    gmsh_version: float | None = None,
 ) -> bool:
     """Full 3D mesh of component.
 

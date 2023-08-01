@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-from typing import List
+from typing import Literal
 
 import numpy as np
 from scipy.optimize import fsolve
-from typing_extensions import Literal
 
 
 def get_effective_indices(
@@ -16,7 +15,7 @@ def get_effective_indices(
     thickness: float,
     wavelength: float,
     polarization: Literal["te", "tm"],
-) -> List[float]:
+) -> list[float]:
     """Returns the effective refractive indices for a 1D mode.
 
     Args:

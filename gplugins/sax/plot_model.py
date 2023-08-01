@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional, Tuple
-
 import matplotlib.pyplot as plt
 import numpy as np
 from pydantic import validate_arguments
@@ -14,7 +12,7 @@ from sax.typing_ import Model
 def plot_model(
     model: Model,
     port1: str = "o1",
-    ports2: Optional[Tuple[str, ...]] = None,
+    ports2: tuple[str, ...] | None = None,
     logscale: bool = True,
     fig=None,
     wavelength_start: float = 1.5,

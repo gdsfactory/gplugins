@@ -8,7 +8,7 @@ import pathlib
 import time
 from functools import partial
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import gdsfactory as gf
 import meep as mp
@@ -35,7 +35,7 @@ from gplugins.gmeep.get_simulation import (
 core_materials = multiprocessing.cpu_count()
 
 
-def remove_simulation_kwargs(d: Dict[str, Any]) -> Dict[str, Any]:
+def remove_simulation_kwargs(d: dict[str, Any]) -> dict[str, Any]:
     """Returns a copy of dict with only simulation settings.
 
     removes all flags for the simulator itself
@@ -52,7 +52,7 @@ def remove_simulation_kwargs(d: Dict[str, Any]) -> Dict[str, Any]:
     return d
 
 
-def parse_port_eigenmode_coeff(port_name: str, ports: Dict[str, Port], sim_dict: Dict):
+def parse_port_eigenmode_coeff(port_name: str, ports: dict[str, Port], sim_dict: dict):
     """Returns the coefficients relative to whether the wavevector is entering or \
             exiting simulation.
 
@@ -114,18 +114,18 @@ def parse_port_eigenmode_coeff(port_name: str, ports: Dict[str, Port], sim_dict:
 @pydantic.validate_arguments
 def write_sparameters_meep(
     component: ComponentSpec,
-    port_source_names: Optional[List[str]] = None,
-    port_symmetries: Optional[PortSymmetries] = None,
+    port_source_names: list[str] | None = None,
+    port_symmetries: PortSymmetries | None = None,
     resolution: int = 30,
     wavelength_start: float = 1.5,
     wavelength_stop: float = 1.6,
     wavelength_points: int = 50,
-    dirpath: Optional[PathType] = None,
-    layer_stack: Optional[LayerStack] = None,
+    dirpath: PathType | None = None,
+    layer_stack: LayerStack | None = None,
     port_margin: float = 2,
     port_monitor_offset: float = -0.1,
     port_source_offset: float = -0.1,
-    filepath: Optional[Path] = None,
+    filepath: Path | None = None,
     overwrite: bool = False,
     animate: bool = False,
     lazy_parallelism: bool = False,
@@ -140,10 +140,10 @@ def write_sparameters_meep(
     decay_by: float = 1e-3,
     is_3d: bool = False,
     z: float = 0,
-    plot_args: Optional[Dict] = None,
+    plot_args: dict | None = None,
     only_return_filepath_sim_settings=False,
     **settings,
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     r"""Returns Sparameters and writes them to npz filepath.
 
     Simulates each time using a different input port (by default, all of them)
@@ -378,17 +378,17 @@ def write_sparameters_meep(
     def sparameter_calculation(
         port_source_name: str,
         component: Component,
-        port_symmetries: Optional[PortSymmetries] = port_symmetries,
-        port_names: List[str] = port_names,
+        port_symmetries: PortSymmetries | None = port_symmetries,
+        port_names: list[str] = port_names,
         wavelength_start: float = wavelength_start,
         wavelength_stop: float = wavelength_stop,
         wavelength_points: int = wavelength_points,
         animate: bool = animate,
-        plot_args: Dict = plot_args,
+        plot_args: dict = plot_args,
         dispersive: bool = dispersive,
         decay_by: float = decay_by,
         **settings,
-    ) -> Dict:
+    ) -> dict:
         """Return Sparameter dict."""
         sim_dict = get_simulation(
             component=component,

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Union
-
 import gdsfactory as gf
 import meep as mp
 import numpy as np
@@ -14,13 +12,13 @@ from gplugins.gmeep.get_material import get_material
 
 def get_meep_geometry_from_component(
     component: ComponentSpec,
-    layer_stack: Optional[LayerStack] = None,
-    material_name_to_meep: Optional[Dict[str, Union[str, float]]] = None,
+    layer_stack: LayerStack | None = None,
+    material_name_to_meep: dict[str, str | float] | None = None,
     wavelength: float = 1.55,
     is_3d: bool = False,
     dispersive: bool = False,
     **kwargs,
-) -> List[mp.GeometricObject]:
+) -> list[mp.GeometricObject]:
     """Returns Meep geometry from a gdsfactory component.
 
     Args:
@@ -77,13 +75,13 @@ def get_meep_geometry_from_component(
 
 def get_meep_geometry_from_cross_section(
     cross_section: CrossSectionSpec,
-    extension_length: Optional[float] = None,
-    layer_stack: Optional[LayerStack] = None,
-    material_name_to_meep: Optional[Dict[str, Union[str, float]]] = None,
+    extension_length: float | None = None,
+    layer_stack: LayerStack | None = None,
+    material_name_to_meep: dict[str, str | float] | None = None,
     wavelength: float = 1.55,
     dispersive: bool = False,
     **kwargs,
-) -> List[mp.GeometricObject]:
+) -> list[mp.GeometricObject]:
     x = gf.get_cross_section(cross_section=cross_section, **kwargs)
 
     x_sections = [

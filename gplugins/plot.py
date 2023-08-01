@@ -1,16 +1,16 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Sequence
 from functools import partial
 from itertools import combinations
-from typing import Dict, Optional, Sequence, Tuple
 
 import gdsfactory as gf
 import matplotlib.pyplot as plt
 import numpy as np
 
 
-def _check_ports(sp: Dict[str, np.ndarray], ports: Sequence[str]):
+def _check_ports(sp: dict[str, np.ndarray], ports: Sequence[str]):
     """Ensure ports exist in Sparameters."""
     for port in ports:
         if port not in sp:
@@ -18,10 +18,10 @@ def _check_ports(sp: Dict[str, np.ndarray], ports: Sequence[str]):
 
 
 def plot_sparameters(
-    sp: Dict[str, np.ndarray],
+    sp: dict[str, np.ndarray],
     logscale: bool = True,
     plot_phase: bool = False,
-    keys: Optional[Tuple[str, ...]] = None,
+    keys: tuple[str, ...] | None = None,
     with_simpler_input_keys: bool = False,
     with_simpler_labels: bool = True,
 ) -> None:
@@ -72,7 +72,7 @@ def plot_sparameters(
 
 
 def plot_imbalance(
-    sp: Dict[str, np.ndarray], ports: Sequence[str], ax: Optional[plt.Axes] = None
+    sp: dict[str, np.ndarray], ports: Sequence[str], ax: plt.Axes | None = None
 ) -> None:
     """Plots imbalance in dB for coupler.
     The imbalance is always defined between two ports, so this function plots the
@@ -105,7 +105,7 @@ def plot_imbalance(
 
 
 def plot_loss(
-    sp: Dict[str, np.ndarray], ports: Sequence[str], ax: Optional[plt.Axes] = None
+    sp: dict[str, np.ndarray], ports: Sequence[str], ax: plt.Axes | None = None
 ) -> None:
     """Plots loss dB for coupler.
 
@@ -135,7 +135,7 @@ def plot_loss(
 
 
 def plot_reflection(
-    sp: Dict[str, np.ndarray], ports: Sequence[str], ax: Optional[plt.Axes] = None
+    sp: dict[str, np.ndarray], ports: Sequence[str], ax: plt.Axes | None = None
 ) -> None:
     """Plots reflection in dB for coupler.
 

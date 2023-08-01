@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Callable, Dict, List, Optional, Union
+from collections.abc import Callable
+from typing import Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -35,15 +36,15 @@ class Mode(BaseModel):
     mode_number: int
     wavelength: float
     neff: float
-    ng: Optional[float] = None
-    fraction_te: Optional[float] = None
-    fraction_tm: Optional[float] = None
-    effective_area: Optional[float] = None
-    E: Optional[Array[float]] = None
-    H: Optional[Array[float]] = None
-    eps: Optional[Array[float]] = None
-    y: Optional[Array[float]] = None
-    z: Optional[Array[float]] = None
+    ng: float | None = None
+    fraction_te: float | None = None
+    fraction_tm: float | None = None
+    effective_area: float | None = None
+    E: Array[float] | None = None
+    H: Array[float] | None = None
+    eps: Array[float] | None = None
+    y: Array[float] | None = None
+    z: Array[float] | None = None
 
     def __repr__(self) -> str:
         """Return a string representation of the object."""
@@ -454,13 +455,13 @@ class Waveguide(BaseModel):
     sz: float = 2.0
     resolution: int = 32
     nmodes: int = 4
-    modes: Optional[Dict[int, Mode]] = None
+    modes: dict[int, Mode] | None = None
 
 
 class WavelengthSweep(BaseModel):
-    wavelength: List[float]
-    neff: Dict[int, List[float]]
-    ng: Dict[int, List[float]]
+    wavelength: list[float]
+    neff: dict[int, list[float]]
+    ng: dict[int, list[float]]
 
 
 ModeSolverFactory = Callable[..., mpb.ModeSolver]

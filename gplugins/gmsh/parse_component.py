@@ -1,8 +1,6 @@
 """Preprocessing involving both the GDS and the LayerStack, or the resulting simulation polygons."""
 from __future__ import annotations
 
-from typing import Dict
-
 import numpy as np
 from gdsfactory.technology import LayerLevel, LayerStack
 from shapely.affinity import scale
@@ -41,7 +39,7 @@ def bufferize(layerstack: LayerStack):
     return layerstack
 
 
-def process_buffers(layer_polygons_dict: Dict, layerstack: LayerStack):
+def process_buffers(layer_polygons_dict: dict, layerstack: LayerStack):
     """Break up layers into sub-layers according to z_to_bias.
 
     Arguments:
@@ -107,7 +105,7 @@ def process_buffers(layer_polygons_dict: Dict, layerstack: LayerStack):
     return extended_layer_polygons_dict, LayerStack(layers=extended_layerstack_layers)
 
 
-def buffers_to_lists(layer_polygons_dict: Dict, layerstack: LayerStack):
+def buffers_to_lists(layer_polygons_dict: dict, layerstack: LayerStack):
     """Break up polygons on each layer into lists of polygons:z tuples according to z_to_bias.
 
     Arguments:
@@ -146,7 +144,7 @@ def buffers_to_lists(layer_polygons_dict: Dict, layerstack: LayerStack):
     return extended_layer_polygons_dict
 
 
-def merge_by_material_func(layer_polygons_dict: Dict, layerstack: LayerStack):
+def merge_by_material_func(layer_polygons_dict: dict, layerstack: LayerStack):
     """Merge polygons of layer_polygons_dict whose layerstack keys share the same material in layerstack values.
 
     Returns new layer_polygons_dict with merged polygons and materials as keys.

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from collections import OrderedDict
 from itertools import combinations, product
-from typing import Dict, Optional
 
 import gmsh
 import meshio
@@ -118,15 +117,15 @@ def tag_interfaces(model, meshtracker, polygons_broken_dict):
 
 def mesh_from_polygons(
     shapes_dict: OrderedDict,
-    resolutions: Optional[Dict[str, float]] = None,
+    resolutions: dict[str, float] | None = None,
     mesh_scaling_factor: float = 1.0,
     default_resolution_min: float = 0.01,
     default_resolution_max: float = 0.5,
-    filename: Optional[str] = None,
-    global_meshsize_array: Optional[np.array] = None,
-    global_meshsize_interpolant_func: Optional[callable] = NearestNDInterpolator,
-    verbosity: Optional[bool] = False,
-    atol: Optional[float] = 1e-4,
+    filename: str | None = None,
+    global_meshsize_array: np.array | None = None,
+    global_meshsize_interpolant_func: callable | None = NearestNDInterpolator,
+    verbosity: bool | None = False,
+    atol: float | None = 1e-4,
 ):
     """Return a 2D mesh from an ordered dict of shapely polygons.
 

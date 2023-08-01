@@ -1,7 +1,7 @@
 import pathlib
 import pprint
 import time
-from typing import Dict, List, Literal, Optional, Tuple
+from typing import Literal
 
 import gdsfactory as gf
 import meow as mw
@@ -22,7 +22,7 @@ from gplugins.get_sparameters_path import (
 )
 from gplugins.gmsh.parse_layerstack import list_unique_layerstack_z
 
-ColorRGB = Tuple[float, float, float]
+ColorRGB = tuple[float, float, float]
 
 material_to_color_default = {
     "si": (0.9, 0, 0, 0.9),
@@ -41,14 +41,14 @@ class MEOW:
         num_modes: int = 4,
         cell_length: float = 0.5,
         spacing_x: float = 2.0,
-        center_x: Optional[float] = None,
+        center_x: float | None = None,
         resolution_x: int = 100,
         spacing_y: float = 2.0,
-        center_y: Optional[float] = None,
+        center_y: float | None = None,
         resolution_y: int = 100,
-        material_to_color: Dict[str, ColorRGB] = material_to_color_default,
-        dirpath: Optional[PathType] = None,
-        filepath: Optional[PathType] = None,
+        material_to_color: dict[str, ColorRGB] = material_to_color_default,
+        dirpath: PathType | None = None,
+        filepath: PathType | None = None,
         overwrite: bool = False,
     ) -> None:
         """Computes multimode 2-port S-parameters for a gdsfactory component.
@@ -273,7 +273,7 @@ class MEOW:
             )
         return extrusions
 
-    def create_cells(self) -> List[mw.Cell]:
+    def create_cells(self) -> list[mw.Cell]:
         """Get meow cells from extruded component.
 
         Args:
@@ -378,7 +378,7 @@ class MEOW:
             modes_in_cs = mw.compute_modes(cs, num_modes=self.num_modes)
             self.modes_per_cell.append(modes_in_cs)
 
-    def compute_sparameters(self) -> Dict[str, np.ndarray]:
+    def compute_sparameters(self) -> dict[str, np.ndarray]:
         """Returns Sparameters using EME."""
         if self.filepath.exists():
             if not self.overwrite:

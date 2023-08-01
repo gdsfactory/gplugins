@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import inspect
 import warnings
-from typing import Any, Dict, Optional, Union
+from typing import Any
 
 import gdsfactory as gf
 import meep as mp
@@ -27,8 +27,8 @@ settings_meep = set(sig.parameters.keys())
 def get_simulation(
     component: Component,
     resolution: int = 30,
-    extend_ports_length: Optional[float] = 10.0,
-    layer_stack: Optional[LayerStack] = None,
+    extend_ports_length: float | None = 10.0,
+    layer_stack: LayerStack | None = None,
     zmargin_top: float = 3.0,
     zmargin_bot: float = 3.0,
     tpml: float = 1.5,
@@ -44,9 +44,9 @@ def get_simulation(
     port_source_offset: float = 0,
     port_monitor_offset: float = 0,
     dispersive: bool = False,
-    material_name_to_meep: Optional[Dict[str, Union[str, float]]] = None,
+    material_name_to_meep: dict[str, str | float] | None = None,
     **settings,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     r"""Returns Simulation dict from gdsfactory Component.
 
     based on meep directional coupler example

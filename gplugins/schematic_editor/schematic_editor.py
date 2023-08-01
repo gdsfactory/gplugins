@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Optional, Union
 
 import bokeh.io
 import gdsfactory as gf
@@ -16,9 +15,7 @@ from gplugins.schematic_editor import circuitviz
 
 
 class SchematicEditor:
-    def __init__(
-        self, filename: Union[str, Path], pdk: Optional[gf.Pdk] = None
-    ) -> None:
+    def __init__(self, filename: str | Path, pdk: gf.Pdk | None = None) -> None:
         """An interactive Schematic editor, meant to be used from a Jupyter Notebook.
 
         Args:
@@ -107,9 +104,7 @@ class SchematicEditor:
         component_selector._row = row
         return row
 
-    def _get_port_selector(
-        self, port_name: Optional[str] = None, port: Optional[str] = None
-    ):
+    def _get_port_selector(self, port_name: str | None = None, port: str | None = None):
         instance_port_selector = widgets.Text(
             placeholder="InstanceName:PortName", disabled=False
         )
@@ -303,9 +298,7 @@ class SchematicEditor:
             insts[inst_name] = self.pdk.get_symbol(component_spec)
         return insts
 
-    def add_instance(
-        self, instance_name: str, component: Union[str, gf.Component]
-    ) -> None:
+    def add_instance(self, instance_name: str, component: str | gf.Component) -> None:
         self._schematic.add_instance(name=instance_name, component=component)
         for callback in self.on_instance_added:
             callback(instance_name=instance_name)
@@ -445,7 +438,7 @@ class SchematicEditor:
         return pic_conf
 
     def save_schematic_html(
-        self, filename: Union[str, Path], title: Optional[str] = None
+        self, filename: str | Path, title: str | None = None
     ) -> None:
         """Saves the schematic visualization to a standalone html file (read-only).
 

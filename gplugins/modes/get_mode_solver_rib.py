@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import pathlib
 import tempfile
-from typing import Optional
 
 import meep as mp
 import numpy as np
@@ -22,12 +21,12 @@ def get_mode_solver_rib(
     slab_thickness: float = 0.0,
     core_material: float = 3.47,
     clad_material: float = 1.44,
-    nslab: Optional[float] = None,
+    nslab: float | None = None,
     sy: float = 2.0,
     sz: float = 2.0,
     resolution: int = 32,
     nmodes: int = 4,
-    sidewall_angle: Optional[float] = None,
+    sidewall_angle: float | None = None,
 ) -> mpb.ModeSolver:
     """Returns a mode_solver simulation.
 

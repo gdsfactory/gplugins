@@ -1,7 +1,7 @@
 import contextlib
 from collections import defaultdict
 from functools import partial
-from typing import Dict, List, NamedTuple, Union
+from typing import NamedTuple
 
 import gdsfactory as gf
 import numpy as np
@@ -65,8 +65,8 @@ class Rect(NamedTuple):
 
 class LayerPolygons(NamedTuple):
     tag: str
-    xs: List[List[List[float]]]
-    ys: List[List[List[float]]]
+    xs: list[list[list[float]]]
+    ys: list[list[list[float]]]
     c: str
     alpha: float
 
@@ -145,7 +145,7 @@ def _get_column_data_sources(srcs):
 
 
 def viz_bk(
-    netlist: Union[SchematicConfiguration, PicYamlConfiguration],
+    netlist: SchematicConfiguration | PicYamlConfiguration,
     instances,
     netlist_filename,
     fig=None,
@@ -369,7 +369,7 @@ def ports_ys(ports, instance_height):
 
 
 def viz_instance(
-    netlist: Union[PicYamlConfiguration, SchematicConfiguration],
+    netlist: PicYamlConfiguration | SchematicConfiguration,
     instance_name,
     component,
     instance_size,
@@ -409,7 +409,7 @@ def viz_instance(
             )
             layer_polys.append(lp)
 
-    ports: List[gf.Port] = inst_ref.ports.values()
+    ports: list[gf.Port] = inst_ref.ports.values()
     ports = [p.copy() for p in ports]
     for p in ports:
         # p.move((x, y))
@@ -462,7 +462,7 @@ def viz_netlist(netlist, instances, instance_size=20):
 
 
 def show_netlist(
-    schematic: SchematicConfiguration, instances: Dict, netlist_filename
+    schematic: SchematicConfiguration, instances: dict, netlist_filename
 ) -> None:
     global data
     data["netlist"] = schematic
@@ -478,7 +478,7 @@ def show_netlist(
 
 
 def update_schematic_plot(
-    schematic: SchematicConfiguration, instances: Dict, *args, **kwargs
+    schematic: SchematicConfiguration, instances: dict, *args, **kwargs
 ) -> None:
     global data
 
@@ -494,7 +494,7 @@ def update_schematic_plot(
 
 
 def _update_schematic_plot(
-    schematic: SchematicConfiguration, instances: Dict, *args, **kwargs
+    schematic: SchematicConfiguration, instances: dict, *args, **kwargs
 ) -> None:
     srcs = _get_sources(viz_netlist(schematic, instances=instances))
     for k in srcs:

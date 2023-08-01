@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import List, Optional, Tuple
 
 import gdsfactory as gf
 import numpy as np
@@ -16,7 +15,7 @@ from gplugins.get_sparameters_path import (
 )
 
 
-def get_ports(line: str) -> Tuple[str, str]:
+def get_ports(line: str) -> tuple[str, str]:
     """Returns 2 port labels strings from interconnect file."""
     line = line.replace('"', "")
     line = line.replace("(", "")
@@ -28,7 +27,7 @@ def get_ports(line: str) -> Tuple[str, str]:
 
 def read_sparameters_file(
     filepath, numports: int
-) -> Tuple[Tuple[str, ...], np.array, np.ndarray]:
+) -> tuple[tuple[str, ...], np.array, np.ndarray]:
     r"""Returns Sparameters from Lumerical interconnect export file.
 
     Args:
@@ -87,13 +86,13 @@ def read_sparameters_file(
 
 
 def read_sparameters_lumerical(
-    component: Optional[Component] = None,
+    component: Component | None = None,
     layer_stack: LayerStack = LAYER_STACK,
-    filepath: Optional[str] = None,
-    numports: Optional[int] = None,
+    filepath: str | None = None,
+    numports: int | None = None,
     dirpath: Path = gf.PATH.sparameters,
     **kwargs,
-) -> Tuple[List[str], np.array, np.ndarray]:
+) -> tuple[list[str], np.array, np.ndarray]:
     r"""Returns Sparameters from Lumerical interconnect .DAT file.
 
     Args:

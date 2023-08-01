@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Dict, Optional, Union
 
 import meep as mp
 import meep.materials as mat
@@ -20,7 +19,7 @@ def get_material(
     name: str = "si",
     wavelength: float = 1.55,
     dispersive: bool = False,
-    material_name_to_meep: Optional[Dict[str, Union[str, float]]] = None,
+    material_name_to_meep: dict[str, str | float] | None = None,
 ) -> mp.Medium:
     """Returns Meep Medium from database.
 

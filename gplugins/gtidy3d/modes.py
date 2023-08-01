@@ -14,7 +14,8 @@ from __future__ import annotations
 import hashlib
 import itertools
 import pathlib
-from typing import Any, Optional, Sequence, Tuple, Union
+from collections.abc import Sequence
+from typing import Any, Literal
 
 import numpy as np
 import pydantic
@@ -26,7 +27,6 @@ from gdsfactory.serialization import clean_value_name
 from gdsfactory.typings import PathType
 from tidy3d.plugins import waveguide
 from tqdm.auto import tqdm
-from typing_extensions import Literal
 
 from gplugins.gtidy3d.materials import get_medium
 
@@ -104,24 +104,24 @@ class Waveguide(pydantic.BaseModel):
         ________________________________________________
     """
 
-    wavelength: Union[float, Sequence[float], Any]
+    wavelength: float | Sequence[float] | Any
     core_width: float
     core_thickness: float
-    core_material: Union[MaterialSpec, td.CustomMedium]
+    core_material: MaterialSpec | td.CustomMedium
     clad_material: MaterialSpec
-    box_material: Optional[MaterialSpec] = None
+    box_material: MaterialSpec | None = None
     slab_thickness: float = 0.0
-    clad_thickness: Optional[float] = None
-    box_thickness: Optional[float] = None
-    side_margin: Optional[float] = None
+    clad_thickness: float | None = None
+    box_thickness: float | None = None
+    side_margin: float | None = None
     sidewall_angle: float = 0.0
     sidewall_thickness: float = 0.0
     sidewall_k: float = 0.0
     surface_thickness: float = 0.0
     surface_k: float = 0.0
-    bend_radius: Optional[float] = None
+    bend_radius: float | None = None
     num_modes: int = 2
-    group_index_step: Union[bool, float] = False
+    group_index_step: bool | float = False
     precision: Precision = "double"
     grid_resolution: int = 20
     max_grid_scaling: float = 1.2
@@ -141,12 +141,12 @@ class Waveguide(pydantic.BaseModel):
         return np.array(value, dtype=float)
 
     @property
-    def cache_path(self) -> Optional[PathType]:
+    def cache_path(self) -> PathType | None:
         """Cache directory"""
         return get_modes_path()
 
     @property
-    def filepath(self) -> Optional[pathlib.Path]:
+    def filepath(self) -> pathlib.Path | None:
         """Cache file path"""
         if not self.cache:
             return None
@@ -484,7 +484,7 @@ class WaveguideCoupler(Waveguide):
         _____________________________________________________________
     """
 
-    core_width: Tuple[float, float]
+    core_width: tuple[float, float]
     gap: float
 
     @property
@@ -823,7 +823,7 @@ def sweep_mode_area(waveguide: Waveguide, **sweep_kwargs) -> np.ndarray:
 
 
 def sweep_bend_mismatch(
-    waveguide: Waveguide, bend_radii: Tuple[float, ...]
+    waveguide: Waveguide, bend_radii: tuple[float, ...]
 ) -> np.ndarray:
     """Overlap integral squared for the bend mode mismatch loss.
 
@@ -850,7 +850,7 @@ def sweep_bend_mismatch(
 
 
 def sweep_coupling_length(
-    coupler: WaveguideCoupler, gaps: Tuple[float, ...], power_ratio: float = 1.0
+    coupler: WaveguideCoupler, gaps: tuple[float, ...], power_ratio: float = 1.0
 ) -> np.ndarray:
     """Calculate coupling length for a series of gap sizes.
 

@@ -13,7 +13,6 @@ output as um/lambda, e.g. 1.5um would correspond to the frequency
 from __future__ import annotations
 
 import pickle
-from typing import Dict
 
 import meep as mp
 import numpy as np
@@ -40,7 +39,7 @@ def find_modes_cross_section(
     cache: bool = True,
     overwrite: bool = False,
     **kwargs,
-) -> Dict[int, Mode]:
+) -> dict[int, Mode]:
     """Computes mode effective and group index for a CrossSection.
 
     Args:

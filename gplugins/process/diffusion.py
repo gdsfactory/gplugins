@@ -1,7 +1,6 @@
 """
 Reference: Selberherr, S. (1984). Process Modeling. In: Analysis and Simulation of Semiconductor Devices. Springer, Vienna. https://doi.org/10.1007/978-3-7091-8752-4_3
 """
-from typing import Optional
 
 import numpy as np
 
@@ -54,8 +53,8 @@ diffusion_in_silicon = {
 def D(
     dopant: str,
     T: float,
-    n: Optional[float] = None,
-    p: Optional[float] = None,
+    n: float | None = None,
+    p: float | None = None,
 ):
     """
     Diffusion coefficient of dopants in silicon.

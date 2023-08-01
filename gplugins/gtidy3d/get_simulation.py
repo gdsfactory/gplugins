@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import warnings
-from typing import Dict, Optional
 
 import gdsfactory as gf
 import matplotlib as mpl
@@ -25,8 +24,8 @@ from gplugins.gtidy3d.materials import get_index, get_medium
 @pydantic.validate_arguments
 def get_simulation(
     component: ComponentSpec,
-    port_extension: Optional[float] = 4.0,
-    layer_stack: Optional[LayerStack] = None,
+    port_extension: float | None = 4.0,
+    layer_stack: LayerStack | None = None,
     thickness_pml: float = 1.0,
     xmargin: float = 0,
     ymargin: float = 0,
@@ -46,11 +45,11 @@ def get_simulation(
     plot_modes: bool = False,
     num_modes: int = 2,
     run_time_ps: float = 10.0,
-    material_name_to_tidy3d: Optional[Dict[str, str]] = None,
+    material_name_to_tidy3d: dict[str, str] | None = None,
     is_3d: bool = True,
     with_all_monitors: bool = False,
-    boundary_spec: Optional[td.BoundarySpec] = None,
-    grid_spec: Optional[td.GridSpec] = None,
+    boundary_spec: td.BoundarySpec | None = None,
+    grid_spec: td.GridSpec | None = None,
     sidewall_angle_deg: float = 0,
     dilation: float = 0.0,
     **kwargs,
@@ -424,7 +423,7 @@ def plot_simulation_yz(
     sim: td.Simulation,
     z: float = 0.0,
     y: float = 0.0,
-    wavelength: Optional[float] = 1.55,
+    wavelength: float | None = 1.55,
     figsize: Float2 = (11, 4),
 ):
     """Returns Simulation visual representation. Returns two views for 3D component and one view for 2D.
@@ -475,7 +474,7 @@ def plot_simulation_xz(
     sim: td.Simulation,
     x: float = 0.0,
     z: float = 0.0,
-    wavelength: Optional[float] = 1.55,
+    wavelength: float | None = 1.55,
     figsize: Float2 = (11, 4),
 ):
     """Returns figure with two axis of the Simulation.

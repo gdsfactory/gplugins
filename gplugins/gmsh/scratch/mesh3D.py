@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Dict, Optional, Tuple
-
 import pygmsh
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
@@ -72,8 +70,8 @@ def surface_loop_from_vertices(model, xmin, xmax, ymin, ymax, zmin, zmax, resolu
 def mesh3D(
     component: ComponentOrReference,
     base_resolution: float = 0.2,
-    refine_resolution: Optional[Dict[Layer, float]] = None,
-    padding: Tuple[float, float, float, float, float, float] = (
+    refine_resolution: dict[Layer, float] | None = None,
+    padding: tuple[float, float, float, float, float, float] = (
         1.0,
         1.0,
         1.0,
@@ -81,8 +79,8 @@ def mesh3D(
         1.0,
         1.0,
     ),
-    layer_stack: Optional[LayerStack] = None,
-    exclude_layers: Optional[Tuple[Layer, ...]] = None,
+    layer_stack: LayerStack | None = None,
+    exclude_layers: tuple[Layer, ...] | None = None,
 ):
     """Returns gmsh 3D geometry of component.
 

@@ -413,14 +413,13 @@ print(f"Path difference (ΔL = {length_delta}, Lπ = {length_pi}):", mzi_deltas)
 
 
 # %%
-from typing import Tuple
 
 
 def mzi_arms(
     mzi_delta: float,
     separation: float = 4.0,
     cross_section: gf.typings.CrossSectionSpec = "strip",
-) -> Tuple[gf.ComponentReference, gf.ComponentReference]:
+) -> tuple[gf.ComponentReference, gf.ComponentReference]:
     bend = gf.components.bend_euler(cross_section=cross_section)
 
     if mzi_delta > 0:

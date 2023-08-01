@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pathlib
 from functools import partial
-from typing import Union
+from typing import Literal, Union
 
 import gdsfactory as gf
 import jax
@@ -11,7 +11,6 @@ import jax.numpy as jnp
 import numpy as np
 import pandas as pd
 from sax.typing_ import Float, Model
-from typing_extensions import Literal
 
 from gplugins.get_sparameters_path import (
     get_sparameters_path_lumerical,
@@ -27,7 +26,7 @@ Simulator = Literal["lumerical", "meep", "tidy3d"]
 
 
 def model_from_npz(
-    filepath: Union[PathType, np.ndarray],
+    filepath: PathType | np.ndarray,
     xkey: str = "wavelengths",
     xunits: float = 1,
     prefix: str = "s",
@@ -76,7 +75,7 @@ def model_from_npz(
 
 
 def model_from_csv(
-    filepath: Union[PathType, pd.DataFrame],
+    filepath: PathType | pd.DataFrame,
     xkey: str = "wavelengths",
     xunits: float = 1,
     prefix: str = "s",

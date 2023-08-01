@@ -15,7 +15,6 @@ import logging
 import sys
 from functools import partial
 from pprint import pprint
-from typing import List
 
 import gdsfactory as gf
 import jax
@@ -72,7 +71,7 @@ coupler_dict = {
     ("o2", "o3"): tau,
     ("o3", "o2"): tau,
 }
-coupler_dict
+print(coupler_dict)
 
 #  it can still be tedious to specify every port in the circuit manually. SAX therefore offers the `reciprocal` function, which auto-fills the reverse connection if the forward connection exist. For example:
 
@@ -578,7 +577,7 @@ def _get_coordinate(arr1d: jnp.ndarray, value: jnp.ndarray):
 
 
 @jax.jit
-def _get_coordinates(arrs1d: List[jnp.ndarray], values: jnp.ndarray):
+def _get_coordinates(arrs1d: list[jnp.ndarray], values: jnp.ndarray):
     # don't use vmap as arrays in arrs1d could have different shapes...
     return jnp.array([_get_coordinate(a, v) for a, v in zip(arrs1d, values)])
 

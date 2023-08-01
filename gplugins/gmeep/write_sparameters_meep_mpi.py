@@ -11,7 +11,6 @@ import sys
 import time
 from functools import partial
 from pathlib import Path
-from typing import Optional
 
 import gdsfactory as gf
 import pydantic
@@ -43,10 +42,10 @@ def _python() -> str:
 @pydantic.validate_arguments
 def write_sparameters_meep_mpi(
     component: ComponentSpec,
-    layer_stack: Optional[LayerStack] = None,
+    layer_stack: LayerStack | None = None,
     cores: int = core_materials,
-    filepath: Optional[PathType] = None,
-    dirpath: Optional[PathType] = None,
+    filepath: PathType | None = None,
+    dirpath: PathType | None = None,
     temp_dir: Path = temp_dir_default,
     temp_file_str: str = "write_sparameters_meep_mpi",
     live_output: bool = False,

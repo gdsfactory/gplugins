@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Dict, Union
 
 import tidy3d as td
 from tidy3d.components.medium import PoleResidue
@@ -15,9 +14,9 @@ MATERIAL_NAME_TO_MEDIUM = {
 
 
 def get_epsilon(
-    name_or_index: Union[str, float],
+    name_or_index: str | float,
     wavelength: float = 1.55,
-    material_name_to_medium: Dict[str, PoleResidue] = MATERIAL_NAME_TO_MEDIUM,
+    material_name_to_medium: dict[str, PoleResidue] = MATERIAL_NAME_TO_MEDIUM,
 ) -> ComplexNumber:
     """Return permittivity from material database.
 
@@ -35,9 +34,9 @@ def get_epsilon(
 
 
 def get_index(
-    name_or_index: Union[str, float],
+    name_or_index: str | float,
     wavelength: float = 1.55,
-    material_name_to_medium: Dict[str, PoleResidue] = MATERIAL_NAME_TO_MEDIUM,
+    material_name_to_medium: dict[str, PoleResidue] = MATERIAL_NAME_TO_MEDIUM,
 ) -> float:
     """Return refractive index from material database.
 
@@ -57,9 +56,9 @@ def get_index(
 
 
 def get_nk(
-    name_or_index: Union[str, float],
+    name_or_index: str | float,
     wavelength: float = 1.55,
-    material_name_to_medium: Dict[str, PoleResidue] = MATERIAL_NAME_TO_MEDIUM,
+    material_name_to_medium: dict[str, PoleResidue] = MATERIAL_NAME_TO_MEDIUM,
 ) -> float:
     """Return refractive index and optical extinction coefficient
     from material database.
@@ -80,8 +79,8 @@ def get_nk(
 
 
 def get_medium(
-    name_or_index: Union[str, float],
-    material_name_to_medium: Dict[str, PoleResidue] = MATERIAL_NAME_TO_MEDIUM,
+    name_or_index: str | float,
+    material_name_to_medium: dict[str, PoleResidue] = MATERIAL_NAME_TO_MEDIUM,
 ) -> td.Medium:
     """Return Medium from materials database.
 

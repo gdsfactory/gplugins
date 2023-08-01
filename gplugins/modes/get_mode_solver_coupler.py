@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import pathlib
 import tempfile
-from typing import Optional, Tuple, Union
 
 import meep as mp
 import numpy as np
@@ -14,25 +13,25 @@ mpb.Verbosity(0)
 tmp = pathlib.Path(tempfile.TemporaryDirectory().name).parent / "meep"
 tmp.mkdir(exist_ok=True)
 
-Floats = Tuple[float, ...]
+Floats = tuple[float, ...]
 
 
 @pydantic.validate_arguments
 def get_mode_solver_coupler(
     core_width: float = 0.5,
     gap: float = 0.2,
-    core_widths: Optional[Floats] = None,
-    gaps: Optional[Floats] = None,
+    core_widths: Floats | None = None,
+    gaps: Floats | None = None,
     core_thickness: float = 0.22,
     slab_thickness: float = 0.0,
     core_material: float = 3.47,
     clad_material: float = 1.44,
-    nslab: Optional[float] = None,
+    nslab: float | None = None,
     ymargin: float = 2.0,
     sz: float = 2.0,
     resolution: int = 32,
     nmodes: int = 4,
-    sidewall_angles: Optional[Union[Tuple[float, ...], float]] = None,
+    sidewall_angles: tuple[float, ...] | float | None = None,
 ) -> mpb.ModeSolver:
     """Returns mode_solver simulation.
 

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from collections import OrderedDict
-from typing import Dict, List, Optional, Tuple, Union
 
 import gdsfactory as gf
 import numpy as np
@@ -25,8 +24,8 @@ from gplugins.gmsh.parse_layerstack import (
 
 
 def get_u_bounds_polygons(
-    polygons: Union[MultiPolygon, List[Polygon]],
-    xsection_bounds: Tuple[Tuple[float, float], Tuple[float, float]],
+    polygons: MultiPolygon | list[Polygon],
+    xsection_bounds: tuple[tuple[float, float], tuple[float, float]],
 ):
     """Performs the bound extraction given a (Multi)Polygon or [Polygon] and cross-sectional line coordinates.
 
@@ -57,8 +56,8 @@ def get_u_bounds_polygons(
 
 
 def get_u_bounds_layers(
-    layer_polygons_dict: Dict[Tuple(str, str, str), MultiPolygon],
-    xsection_bounds: Tuple[Tuple[float, float], Tuple[float, float]],
+    layer_polygons_dict: dict[tuple(str, str, str), MultiPolygon],
+    xsection_bounds: tuple[tuple[float, float], tuple[float, float]],
 ):
     """Given a layer_polygons_dict and two coordinates (x1,y1), (x2,y2), computes the \
         bounding box(es) of each layer in the xsection coordinate system (u).
@@ -92,8 +91,8 @@ def get_u_bounds_layers(
 
 
 def get_uz_bounds_layers(
-    layer_polygons_dict: Dict[str, Tuple[str, MultiPolygon, MultiPolygon]],
-    xsection_bounds: Tuple[Tuple[float, float], Tuple[float, float]],
+    layer_polygons_dict: dict[str, tuple[str, MultiPolygon, MultiPolygon]],
+    xsection_bounds: tuple[tuple[float, float], tuple[float, float]],
     layerstack: LayerStack,
     u_offset: float = 0.0,
 ):
@@ -152,24 +151,24 @@ def get_uz_bounds_layers(
 
 def uz_xsection_mesh(
     component: ComponentOrReference,
-    xsection_bounds: Tuple[Tuple[float, float], Tuple[float, float]],
+    xsection_bounds: tuple[tuple[float, float], tuple[float, float]],
     layerstack: LayerStack,
-    resolutions: Optional[Dict] = None,
+    resolutions: dict | None = None,
     mesh_scaling_factor: float = 1.0,
     default_resolution_min: float = 0.01,
     default_resolution_max: float = 0.5,
-    background_tag: Optional[str] = None,
-    background_padding: Tuple[float, float, float, float] = (2.0, 2.0, 2.0, 2.0),
-    filename: Optional[str] = None,
-    global_meshsize_array: Optional[np.array] = None,
-    global_meshsize_interpolant_func: Optional[callable] = NearestNDInterpolator,
-    extra_shapes_dict: Optional[OrderedDict] = None,
-    merge_by_material: Optional[bool] = False,
-    interface_surfaces: Optional[Dict[str, Tuple(float, float)]] = None,
+    background_tag: str | None = None,
+    background_padding: tuple[float, float, float, float] = (2.0, 2.0, 2.0, 2.0),
+    filename: str | None = None,
+    global_meshsize_array: np.array | None = None,
+    global_meshsize_interpolant_func: callable | None = NearestNDInterpolator,
+    extra_shapes_dict: OrderedDict | None = None,
+    merge_by_material: bool | None = False,
+    interface_surfaces: dict[str, tuple(float, float)] | None = None,
     round_tol: int = 4,
     simplify_tol: float = 1e-4,
     u_offset: float = 0.0,
-    atol: Optional[float] = 1e-5,
+    atol: float | None = 1e-5,
     **kwargs,
 ):
     """Mesh uz cross-section of component along line u = [[x1,y1] , [x2,y2]].

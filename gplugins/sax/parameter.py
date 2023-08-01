@@ -1,5 +1,3 @@
-from typing import Optional
-
 import gdsfactory as gf
 import numpy as np
 import shapely
@@ -12,10 +10,10 @@ from shapely.ops import unary_union
 class Parameter:
     def __init__(
         self,
-        min_value: Optional[float] = None,
-        max_value: Optional[float] = None,
-        nominal_value: Optional[float] = None,
-        step: Optional[float] = None,
+        min_value: float | None = None,
+        max_value: float | None = None,
+        nominal_value: float | None = None,
+        step: float | None = None,
     ) -> None:
         """Generic parameter class for training Component models.
 
@@ -26,7 +24,7 @@ class Parameter:
             step: size of the step going from min_value to max_value when generating data.
         """
 
-    def sample(self, rand_val: Optional[float] = None):
+    def sample(self, rand_val: float | None = None):
         """Return a random value within a parameter allowable values.
 
         User can provide their own random number between 0 and 1 (mapping to a value between min and max), or default to uniform sampling.
@@ -54,8 +52,8 @@ class Parameter:
 class LayerStackThickness(Parameter):
     def __init__(
         self,
-        layerstack: Optional[LayerStack] = None,
-        layername: Optional[str] = "core",
+        layerstack: LayerStack | None = None,
+        layername: str | None = "core",
         **kwargs,
     ) -> None:
         """Layerstack thickness parameter.
@@ -102,8 +100,8 @@ class LithoParameter(Parameter):
     def __init__(
         self,
         type: str = "layer_dilation_erosion",
-        layerstack: Optional[LayerStack] = None,
-        layername: Optional[str] = "core",
+        layerstack: LayerStack | None = None,
+        layername: str | None = "core",
         **kwargs,
     ) -> None:
         """Parameter associated with a morphological transformation of the Component.

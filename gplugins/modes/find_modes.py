@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import pickle
 from functools import partial
-from typing import Dict
 
 import meep as mp
 import numpy as np
@@ -39,7 +38,7 @@ def find_modes_waveguide(
     overwrite: bool = False,
     single_waveguide: bool = True,
     **kwargs,
-) -> Dict[int, Mode]:
+) -> dict[int, Mode]:
     """Computes mode effective and group index for a rectangular waveguide.
 
     single_waveguide=True

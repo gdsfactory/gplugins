@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Dict, Optional, Tuple
-
 import numpy as np
 from devsim import (
     delete_device,
@@ -46,14 +44,14 @@ class DDComponent:
     def __init__(
         self,
         component: Component,
-        xsection_bounds: Tuple[Tuple[float, float], Tuple[float, float]],
+        xsection_bounds: tuple[tuple[float, float], tuple[float, float]],
         full_layerstack: LayerStack,
         physical_layerstack: LayerStack,
-        doping_info: Dict[str, DopingLayerLevel],
-        contact_info=Dict,
-        resolutions: Optional[Dict[str, Dict]] = None,
+        doping_info: dict[str, DopingLayerLevel],
+        contact_info=dict,
+        resolutions: dict[str, dict] | None = None,
         mesh_scaling_factor: float = 1e-4,
-        background_tag: Optional[str] = None,
+        background_tag: str | None = None,
         temp_file_name="temp.msh2",
         devsim_mesh_name="temp",
         devsim_device_name="temp",
@@ -330,8 +328,8 @@ class DDComponent:
     def get_refined_mesh(
         self,
         factor: float = 2.0,
-        refine_dict: Optional[Dict[str, Dict]] = None,
-        refine_regions: Tuple[str, ...] = ("si",),
+        refine_dict: dict[str, dict] | None = None,
+        refine_regions: tuple[str, ...] = ("si",),
     ):
         """Refines the mesh based on simulation result.
 

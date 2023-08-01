@@ -3,7 +3,6 @@ from __future__ import annotations
 import contextlib
 import pathlib
 from collections import OrderedDict
-from typing import Optional, Tuple
 
 import numpy as np
 from gdsfactory import Component
@@ -40,11 +39,11 @@ def add_interconnect_element(
     session: object,
     label: str,
     model: str,
-    loc: Tuple[float, float] = (200.0, 200.0),
+    loc: tuple[float, float] = (200.0, 200.0),
     flip_vert: bool = False,
     flip_horiz: bool = False,
     rotation: float = 0.0,
-    simulation_props: Optional[OrderedDict] = None,
+    simulation_props: OrderedDict | None = None,
 ):
     """Add an element to the Interconnect session.
 
@@ -98,11 +97,11 @@ def get_interconnect_settings(instance):
 def send_to_interconnect(
     component: Component,
     session: object,
-    ports_in: Optional[dict] = None,
-    ports_out: Optional[dict] = None,
-    placements: Optional[dict] = None,
-    simulation_settings: Optional[OrderedDict] = None,
-    drop_port_prefix: Optional[str] = None,
+    ports_in: dict | None = None,
+    ports_out: dict | None = None,
+    placements: dict | None = None,
+    simulation_settings: OrderedDict | None = None,
+    drop_port_prefix: str | None = None,
     component_distance_scaling_x: float = 1,
     component_distance_scaling_y: float = 1,
     setup_mc: bool = False,
@@ -341,16 +340,16 @@ def send_to_interconnect(
 
 def run_wavelength_sweep(
     component: Component,
-    session: Optional[object] = None,
+    session: object | None = None,
     setup_simulation: bool = True,
     is_top_level: bool = False,
-    ports_in: Optional[dict] = None,
-    ports_out: Optional[dict] = None,
+    ports_in: dict | None = None,
+    ports_out: dict | None = None,
     mode: int = 1,
-    wavelength_range: Tuple[float, float] = (1.500, 1.600),
+    wavelength_range: tuple[float, float] = (1.500, 1.600),
     n_points: int = 1000,
-    results: Tuple[str, ...] = ("transmission",),
-    extra_ona_props: Optional[dict] = None,
+    results: tuple[str, ...] = ("transmission",),
+    extra_ona_props: dict | None = None,
     **kwargs,
 ) -> dict:
     """Args are the following.

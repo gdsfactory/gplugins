@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import warnings
-from typing import Dict, Optional
 
 import gdsfactory as gf
 import matplotlib.pyplot as plt
@@ -21,8 +20,8 @@ from gplugins.gtidy3d.materials import get_index, get_medium
 
 def get_simulation_grating_coupler(
     component: Component,
-    port_extension: Optional[float] = 10.0,
-    layer_stack: Optional[LayerStack] = None,
+    port_extension: float | None = 10.0,
+    layer_stack: LayerStack | None = None,
     thickness_pml: float = 1.0,
     xmargin: float = 0,
     ymargin: float = 0,
@@ -38,7 +37,7 @@ def get_simulation_grating_coupler(
     port_waveguide_name: str = "o1",
     port_margin: float = 0.5,
     port_waveguide_offset: float = 0.1,
-    wavelength: Optional[float] = 1.55,
+    wavelength: float | None = 1.55,
     wavelength_start: float = 1.20,
     wavelength_stop: float = 1.80,
     wavelength_points: int = 256,
@@ -50,14 +49,14 @@ def get_simulation_grating_coupler(
     fiber_z: float = 2,
     fiber_mfd: float = 10.4,
     fiber_angle_deg: float = 20.0,
-    material_name_to_tidy3d: Optional[Dict[str, str]] = None,
+    material_name_to_tidy3d: dict[str, str] | None = None,
     is_3d: bool = True,
     with_all_monitors: bool = False,
-    boundary_spec: Optional[td.BoundarySpec] = None,
-    grid_spec: Optional[td.GridSpec] = None,
+    boundary_spec: td.BoundarySpec | None = None,
+    grid_spec: td.GridSpec | None = None,
     sidewall_angle_deg: float = 0,
     dilation: float = 0.0,
-    cross_section: Optional[CrossSectionSpec] = None,
+    cross_section: CrossSectionSpec | None = None,
     **kwargs,
 ) -> td.Simulation:
     r"""Returns Simulation object from a gdsfactory grating coupler component.

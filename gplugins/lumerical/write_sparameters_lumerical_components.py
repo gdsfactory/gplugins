@@ -1,8 +1,6 @@
 """Write Sparameters with for different components."""
 from __future__ import annotations
 
-from typing import Optional
-
 import gdsfactory as gf
 from gdsfactory.typings import ComponentSpec, List
 from tqdm.auto import tqdm
@@ -15,7 +13,7 @@ from gplugins.lumerical.write_sparameters_lumerical import (
 def write_sparameters_lumerical_components(
     components: List[ComponentSpec],
     run: bool = True,
-    session: Optional[object] = None,
+    session: object | None = None,
     **kwargs,
 ) -> None:
     """Writes Sparameters for a list of components using Lumerical FDTD.

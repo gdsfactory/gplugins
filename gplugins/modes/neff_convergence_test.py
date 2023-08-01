@@ -8,8 +8,6 @@ hyperparameters that allowed convergence.
 """
 from __future__ import annotations
 
-from typing import Dict, Tuple
-
 import meep as mp
 import numpy as np
 
@@ -26,7 +24,7 @@ def neff_domain_convergence_test(
     rel_conv_step: float = 2e-1,
     stdout: bool = False,
     **kwargs,
-) -> Tuple[Dict[int, Mode], float, float, int]:
+) -> tuple[dict[int, Mode], float, float, int]:
     """Repeats a find_modes_waveguide increasing hyperparameters sy, sz, and resolution until results are no longer affected by the choice (according to conv_tol).
 
     Args:
@@ -130,7 +128,7 @@ def neff_resolution_convergence_test(
     rel_conv_step: float = 2e-1,
     stdout: bool = False,
     **kwargs,
-) -> Tuple[Dict[int, Mode], float, float, int]:
+) -> tuple[dict[int, Mode], float, float, int]:
     """Repeats a find_modes_waveguide on a mode_solver, increasing hyperparameter resolution until results are no longer affected by the choice (according to conv_tol).
 
     Args:

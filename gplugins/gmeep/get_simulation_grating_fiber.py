@@ -12,7 +12,7 @@ MFD:
 from __future__ import annotations
 
 import hashlib
-from typing import Any, Dict, Optional
+from typing import Any
 
 import meep as mp
 import numpy as np
@@ -32,15 +32,15 @@ def get_simulation_grating_fiber(
     period: float = 0.66,
     fill_factor: float = 0.5,
     n_periods: int = 30,
-    widths: Optional[Floats] = None,
-    gaps: Optional[Floats] = None,
+    widths: Floats | None = None,
+    gaps: Floats | None = None,
     fiber_angle_deg: float = 20.0,
     fiber_xposition: float = 1.0,
     fiber_core_diameter: float = 10.4,
     fiber_numerical_aperture: float = 0.14,
     fiber_clad_material: float = nSiO2,
     nwg: float = nSi,
-    nslab: Optional[float] = None,
+    nslab: float | None = None,
     clad_material: float = nSiO2,
     nbox: float = nSiO2,
     nsubstrate: float = nSi,
@@ -60,9 +60,9 @@ def get_simulation_grating_fiber(
     eps_averaging: bool = False,
     fiber_port_y_offset_from_air: float = 1,
     waveguide_port_x_offset_from_grating_start: float = 10,
-    fiber_port_x_size: Optional[float] = None,
+    fiber_port_x_size: float | None = None,
     xmargin: float = 10.0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     r"""Returns simulation results from grating coupler with fiber.
 
     na**2 = core_material**2 - clad_material**2

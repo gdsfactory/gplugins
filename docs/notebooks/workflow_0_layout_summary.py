@@ -27,7 +27,6 @@
 
 # %%
 from functools import partial
-from typing import Optional
 
 import gdsfactory as gf
 import toolz
@@ -154,10 +153,10 @@ def coupler_ring(
     radius: float = 5.0,
     length_x: float = 4.0,
     coupler90: ComponentSpec = coupler90function,
-    bend: Optional[ComponentSpec] = None,
+    bend: ComponentSpec | None = None,
     coupler_straight: ComponentSpec = coupler_straight_function,
     cross_section: CrossSectionSpec = strip,
-    bend_cross_section: Optional[CrossSectionSpec] = None,
+    bend_cross_section: CrossSectionSpec | None = None,
     **kwargs,
 ) -> Component:
     r"""Coupler for ring.

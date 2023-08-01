@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from collections import OrderedDict
-from typing import Dict, Optional, Tuple
 
 import numpy as np
 from gdsfactory.technology import LayerStack
@@ -26,20 +25,20 @@ def xy_xsection_mesh(
     component: ComponentOrReference,
     z: float,
     layerstack: LayerStack,
-    resolutions: Optional[Dict] = None,
+    resolutions: dict | None = None,
     mesh_scaling_factor: float = 1.0,
     default_resolution_min: float = 0.01,
     default_resolution_max: float = 0.5,
-    background_tag: Optional[str] = None,
-    background_padding: Tuple[float, float, float, float] = (2.0, 2.0, 2.0, 2.0),
-    filename: Optional[str] = None,
-    global_meshsize_array: Optional[np.array] = None,
-    global_meshsize_interpolant_func: Optional[callable] = NearestNDInterpolator,
-    extra_shapes_dict: Optional[OrderedDict] = None,
-    merge_by_material: Optional[bool] = False,
+    background_tag: str | None = None,
+    background_padding: tuple[float, float, float, float] = (2.0, 2.0, 2.0, 2.0),
+    filename: str | None = None,
+    global_meshsize_array: np.array | None = None,
+    global_meshsize_interpolant_func: callable | None = NearestNDInterpolator,
+    extra_shapes_dict: OrderedDict | None = None,
+    merge_by_material: bool | None = False,
     round_tol: int = 4,
     simplify_tol: float = 1e-4,
-    atol: Optional[float] = 1e-5,
+    atol: float | None = 1e-5,
 ):
     """Mesh xy cross-section of component at height z.
 

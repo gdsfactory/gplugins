@@ -4,7 +4,6 @@ import hashlib
 import pathlib
 from functools import partial
 from pathlib import Path
-from typing import Optional
 
 import gdsfactory as gf
 import numpy as np
@@ -29,7 +28,7 @@ def get_component_hash(component: gf.Component) -> str:
 
 def _get_sparameters_path(
     component: ComponentSpec,
-    dirpath: Optional[Path] = None,
+    dirpath: Path | None = None,
     **kwargs,
 ) -> Path:
     """Return Sparameters npz filepath hashing simulation settings for \
