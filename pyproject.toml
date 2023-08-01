@@ -29,6 +29,8 @@ dev = [
     "pytest",
     "pytest-cov",
     "pytest_regressions",
+    "jsondiff",
+    "mypy",
     ]
 docs = [
     "jupytext",

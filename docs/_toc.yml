@@ -42,6 +42,14 @@ parts:
           - file: notebooks/sax_03_variability_analysis
           - file: notebooks/lumerical_2_interconnect
       - file: notebooks/12_database
+  - caption: Workflows
+    chapters:
+      - file: workflow
+        sections:
+          - file: notebooks/workflow_0_layout_summary
+          - file: notebooks/workflow_1_mzi
+          - file: notebooks/workflow_2_ring
+          - file: notebooks/workflow_3_cascaded_mzi
   - caption: Reference
     chapters:
       - file: api
