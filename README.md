@@ -6,7 +6,23 @@
 [![MIT](https://img.shields.io/github/license/gdsfactory/gplugins)](https://choosealicense.com/licenses/mit/)
 [![codecov](https://img.shields.io/codecov/c/github/gdsfactory/gdsfactory)](https://codecov.io/gh/gdsfactory/gdsfactory/tree/main/gdsfactory)
 
-gdsfactory plugins
+gdsfactory plugins:
+
+- `dagster` for data pipelines.
+- `database` for simulation and measurement database.
+- `devsim` TCAD device simulator.
+- `meow` Eigen Mode Expansion (EME).
+- `femwell` Finite Element Method Solver (heaters, modes, TCAD, RF waveguides).
+- `gmsh` mesh structures.
+- `tidy3d` Finite Difference Time Domain (FDTD) simulations on the cloud using GPU.
+- `lumerical` For Ansys FDTD and Circuit interconnect.
+- `kfactory` for fill, dataprep and testing.
+- `ray` for distributed computing and optimization.
+- `sax` S-parameter circuit solver.
+- `schematic_editor`: for bokeh schematic editor.
+- `meep` for FDTD.
+- `mpb` for MPB mode solver.
+- `web`: for gdsfactory webapp
 
 ## Installation
 
@@ -16,20 +32,11 @@ You can install all plugins with:
 pip install "gplugins[database,devsim,femwell,gmsh,kfactory,meow,meshwell,ray,sax,tidy3d]" --upgrade
 ```
 
-Or Install only the plugins you need `pip install gplugins[plugin1,plugin2]` from the available plugins:
+Or Install only the plugins you need `pip install gplugins[database,devsim]` from the available plugins:
 
-- `database` for simulation and measurement database.
-- `devsim` TCAD device simulator.
-- `femwell` Finite Element Method Solver (heaters, modes, TCAD, RF waveguides).
-- `gmsh` mesh structures.
-- `kfactory` for fill, dataprep and testing.
-- `meow` Eigen Mode Expansion (EME).
-- `ray` for distributed computing and optimization.
-- `sax` S-parameter circuit solver.
-- `tidy3d` Finite Difference Time Domain (FDTD) simulations on the cloud using GPU.
+Separate installation (not using pip):
 
-To install open source FDTD Meep you need to use `conda` or `mamba` on MacOS or Linux, so for Windows you need to use the [WSL (Windows Subsystem for Linux)](https://learn.microsoft.com/en-us/windows/wsl/install).
-- `conda install pymeep=*=mpi_mpich_* -c conda-forge -y`
+- For Meep and MPB you need to use `conda` or `mamba` on MacOS, Linux or [Windows WSL (Windows Subsystem for Linux)](https://learn.microsoft.com/en-us/windows/wsl/install) with `conda install pymeep=*=mpi_mpich_* -c conda-forge -y`
 
 ## Getting started
 
