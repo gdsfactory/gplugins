@@ -1,5 +1,5 @@
 """Write Sparameters with Lumerical FDTD."""
-from __future__ import annotations
+
 
 import shutil
 import time

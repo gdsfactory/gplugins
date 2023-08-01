@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from gplugins.gmsh.mesh import create_physical_mesh, mesh_from_polygons
 from gplugins.gmsh.meshtracker import MeshTracker
 from gplugins.gmsh.parse_gds import (

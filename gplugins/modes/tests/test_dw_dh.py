@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from gplugins.modes.find_neff_ng_dw_dh import find_neff_ng_dw_dh
 
 

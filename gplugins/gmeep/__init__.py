@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 try:
     import meep as mp
 except ModuleNotFoundError as e:

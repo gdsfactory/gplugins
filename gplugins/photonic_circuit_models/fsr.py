@@ -1,6 +1,3 @@
-from __future__ import annotations
-
-
 def fsr(
     ng: float = 4.2,
     delta_length: float = 40,

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from gplugins.sax import models, read
 from gplugins.sax.plot_model import plot_model
 

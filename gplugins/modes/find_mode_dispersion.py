@@ -1,6 +1,5 @@
 """Sweep neff over wavelength and returns group index."""
 
-from __future__ import annotations
 
 from functools import partial
 

@@ -5,7 +5,6 @@ solver](https://simulation.cloud/)
 
 """
 
-from __future__ import annotations
 
 try:
     import tidy3d as td

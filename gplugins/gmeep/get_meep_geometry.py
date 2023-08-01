@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import gdsfactory as gf
 import meep as mp
 import numpy as np

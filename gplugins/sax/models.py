@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import jax.numpy as jnp
 from sax.typing_ import SDict
 from sax.utils import reciprocal

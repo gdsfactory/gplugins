@@ -6,7 +6,6 @@ https://www.photonics.intec.ugent.be/contact/people.asp?ID=332
 
 """
 
-from __future__ import annotations
 
 import pathlib
 

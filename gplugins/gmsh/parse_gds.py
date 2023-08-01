@@ -1,5 +1,5 @@
 """Preprocessing involving mostly the GDS polygons."""
-from __future__ import annotations
+
 
 import gdsfactory as gf
 import shapely

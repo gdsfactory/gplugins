@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import numpy as np
 
 from gplugins.modes.find_modes import find_modes_waveguide

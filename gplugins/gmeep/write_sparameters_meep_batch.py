@@ -1,6 +1,5 @@
 """Compute and write Sparameters using Meep in an MPI pool."""
 
-from __future__ import annotations
 
 import multiprocessing
 import pathlib

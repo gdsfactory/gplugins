@@ -1,5 +1,5 @@
 """Preprocessing involving both the GDS and the LayerStack, or the resulting simulation polygons."""
-from __future__ import annotations
+
 
 import numpy as np
 from gdsfactory.technology import LayerLevel, LayerStack

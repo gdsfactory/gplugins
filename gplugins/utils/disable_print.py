@@ -1,5 +1,5 @@
 """Disable print statements for overly verbose simulators."""
-from __future__ import annotations
+
 
 import os
 import sys

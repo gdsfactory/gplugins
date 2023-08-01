@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from gdsfactory import components
 
 from gplugins.config import PATH

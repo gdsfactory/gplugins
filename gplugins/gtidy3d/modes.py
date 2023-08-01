@@ -9,7 +9,6 @@ tidy3d can:
 
 """
 
-from __future__ import annotations
 
 import hashlib
 import itertools
@@ -331,7 +330,7 @@ class Waveguide(pydantic.BaseModel):
         )
         return eps.squeeze(drop=True).T ** 0.5
 
-    def overlap(self, waveguide: Waveguide, conjugate: bool = True):
+    def overlap(self, waveguide: "Waveguide", conjugate: bool = True):
         """Calculate the mode overlap between waveguide modes.
 
         Parameters:

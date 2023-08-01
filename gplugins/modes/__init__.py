@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from gplugins.modes import coupler, waveguide
 from gplugins.modes.find_coupling_vs_gap import (
     find_coupling_vs_gap,
