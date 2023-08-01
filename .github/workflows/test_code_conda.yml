@@ -79,6 +79,8 @@ jobs:
         with:
           path: |
             ~/.gdsfactory/
+          key: 0.0.1
+          restore-keys: 0.0.1
       - uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: '3.10'
