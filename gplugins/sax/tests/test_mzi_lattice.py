@@ -3,11 +3,10 @@ from __future__ import annotations
 
 from typing import List
 
+import gdsfactory as gf
 import jax.numpy as jnp
 import numpy as np
 import sax
-
-import gdsfactory as gf
 
 
 @gf.cell

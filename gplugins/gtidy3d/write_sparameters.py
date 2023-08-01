@@ -1,23 +1,16 @@
 from __future__ import annotations
 
+import pathlib
 import time
 from functools import partial
 from typing import Awaitable
-import pathlib
 
+import gdsfactory as gf
 import numpy as np
 import tidy3d as td
 import yaml
-
-import gdsfactory as gf
 from gdsfactory.config import logger
 from gdsfactory.serialization import clean_value_json
-from gplugins import port_symmetries
-from gplugins.get_sparameters_path import (
-    get_sparameters_path_tidy3d as get_sparameters_path,
-)
-from gplugins.gtidy3d.get_results import _executor, get_results_batch
-from gplugins.gtidy3d.get_simulation import get_simulation, plot_simulation
 from gdsfactory.typings import (
     Any,
     ComponentSpec,
@@ -30,6 +23,13 @@ from gdsfactory.typings import (
     Sparameters,
     Tuple,
 )
+
+from gplugins import port_symmetries
+from gplugins.get_sparameters_path import (
+    get_sparameters_path_tidy3d as get_sparameters_path,
+)
+from gplugins.gtidy3d.get_results import _executor, get_results_batch
+from gplugins.gtidy3d.get_simulation import get_simulation, plot_simulation
 
 
 def parse_port_eigenmode_coeff(

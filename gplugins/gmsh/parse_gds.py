@@ -1,10 +1,9 @@
 """Preprocessing involving mostly the GDS polygons."""
 from __future__ import annotations
 
+import gdsfactory as gf
 import shapely
 from shapely.geometry import LineString, MultiLineString, MultiPolygon, Polygon
-
-import gdsfactory as gf
 
 
 def round_coordinates(geom, ndigits=4):

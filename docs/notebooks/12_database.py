@@ -20,22 +20,18 @@
 # 3. We add simulation data to the database
 
 # +
-from sqlalchemy import text
-from sqlalchemy.orm import Session
-
-import gdsfactory.plugins.database.models as gd
 import gdsfactory as gf
+import gdsfactory.plugins.database.models as gd
 from gdsfactory.generic_tech import get_generic_pdk
+from gdsfactory.plugins.database import models as m
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import Session
 
 gf.config.rich_output()
 PDK = get_generic_pdk()
 PDK.activate()
 
 # +
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
-import gdsfactory as gf
-from gdsfactory.plugins.database import models as m
 
 engine = create_engine("sqlite:///database.db", echo=True, future=True)
 m.metadata.create_all(engine)

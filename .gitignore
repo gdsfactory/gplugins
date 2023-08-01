@@ -10,6 +10,7 @@ __pycache__/
 *.msh
 *.yaml
 *.dat
+*.ipynb
 
 # Distribution / packaging
 .Python

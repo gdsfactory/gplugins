@@ -6,12 +6,12 @@
 
 # +
 import gdsfactory as gf
-from gplugins.gmsh.mesh import create_physical_mesh
-from gplugins.fem import solve_thermal
+import meshio
 from gdsfactory.generic_tech import get_generic_pdk
 from gdsfactory.technology import LayerStack
-import meshio
 from skfem.io import from_meshio
+
+from gplugins.gmsh.mesh import create_physical_mesh
 
 gf.config.rich_output()
 PDK = get_generic_pdk()
@@ -79,14 +79,13 @@ from collections import OrderedDict
 
 import matplotlib.pyplot as plt
 import numpy as np
+from femwell.maxwell.waveguide import compute_modes
+from femwell.mesh import mesh_from_OrderedDict
+from femwell.thermal import solve_thermal
 from shapely.geometry import LineString, Polygon
 from skfem import Basis, ElementTriP0
 from skfem.io import from_meshio
 from tqdm import tqdm
-
-from femwell.maxwell.waveguide import compute_modes
-from femwell.mesh import mesh_from_OrderedDict
-from femwell.thermal import solve_thermal
 
 # +
 w_sim = 8 * 2

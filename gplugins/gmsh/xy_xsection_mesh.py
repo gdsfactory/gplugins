@@ -4,6 +4,8 @@ from collections import OrderedDict
 from typing import Dict, Optional, Tuple
 
 import numpy as np
+from gdsfactory.technology import LayerStack
+from gdsfactory.typings import ComponentOrReference
 from scipy.interpolate import NearestNDInterpolator
 from shapely.geometry import Polygon
 from shapely.ops import unary_union
@@ -18,8 +20,6 @@ from gplugins.gmsh.parse_layerstack import (
     get_layers_at_z,
     order_layerstack,
 )
-from gdsfactory.technology import LayerStack
-from gdsfactory.typings import ComponentOrReference
 
 
 def xy_xsection_mesh(

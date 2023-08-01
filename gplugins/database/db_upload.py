@@ -8,13 +8,11 @@ from typing import List, Optional
 
 import boto3
 import boto3.session
+import gdsfactory as gf
 import numpy as np
 import pandas as pd
-from sqlmodel import Field
+from sqlmodel import Field, SQLModel, create_engine
 from sqlmodel import Session as _Session
-from sqlmodel import SQLModel, create_engine
-
-import gdsfactory as gf
 
 
 class Session(_Session):

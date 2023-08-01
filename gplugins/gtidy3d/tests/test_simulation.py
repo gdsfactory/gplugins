@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import pathlib
 
+import gdsfactory as gf
 from jsondiff import diff
 from omegaconf import OmegaConf
 
-import gdsfactory as gf
 import gplugins.gtidy3d as gt
 
 # from gplugins.gtidy3d.get_results import get_sim_hash

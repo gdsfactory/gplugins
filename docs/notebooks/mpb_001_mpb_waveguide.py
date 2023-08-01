@@ -68,16 +68,17 @@
 # ```
 
 # +
-import pandas as pd
 import pathlib
-from tqdm.auto import tqdm
-import numpy as np
+
+import gdsfactory as gf
 import matplotlib.pyplot as plt
 import meep as mp
-import gplugins.modes as gm
-import gdsfactory as gf
-
+import numpy as np
+import pandas as pd
 from gdsfactory.generic_tech import get_generic_pdk
+from tqdm.auto import tqdm
+
+import gplugins.modes as gm
 
 gf.config.rich_output()
 PDK = get_generic_pdk()
@@ -527,8 +528,8 @@ plt.xlabel("gap (um)")
 dn_dt_si = 1.87e-4
 dn_dt_sio2 = 8.5e-6
 
-core_width = np.arange(0.4, 1.3, 0.2)
-core_width
+core_widths = np.arange(0.4, 1.3, 0.2)
+print(core_widths)
 
 filepath = pathlib.Path("data/mpb_neff_vs_temperature.csv")
 
@@ -539,7 +540,7 @@ if filepath.exists:
 
 else:
     dneffs = []
-    for core_width in tqdm(core_width):
+    for core_width in tqdm(core_widths):
         dt = 0
         modes_t0 = gm.find_modes_waveguide(
             core_width=core_width,
@@ -571,19 +572,19 @@ else:
         dneff = neff_t1 - neff_t0
         dneffs.append(dneff)
 
-    df = pd.DataFrame(dict(core_width=core_width, dneff=dneffs))
+    df = pd.DataFrame(dict(core_widths=core_widths, dneff=dneffs))
     df.to_csv(filepath)
 # -
 
-core_width = df.core_width
+core_widths = df.core_widths
 dneffs = df.dneff
 
-plt.plot(core_width, np.array(dneffs) / dt, ".-")
+plt.plot(core_widths, np.array(dneffs) / dt, ".-")
 plt.xlabel("waveguide width (um)")
 plt.ylabel("dneff / dT")
 
 dndt = np.array(dneffs) / dt
-plt.plot(core_width, dndt / max(dndt) * 100, ".-")
+plt.plot(core_widths, dndt / max(dndt) * 100, ".-")
 plt.title("waveguide dn/dT")
 plt.xlabel("waveguide width (um)")
 plt.ylabel("dn/dT (%)")

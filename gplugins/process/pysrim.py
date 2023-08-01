@@ -125,10 +125,10 @@ def read_ranges(save_path):
     for root, _dirs, files in os.walk(save_path):
         for filename in files:
             if filename == "RANGE_3D.txt":
-                with open(Path(root) / filename, "r", encoding="latin-1") as f:
+                with open(Path(root) / filename, encoding="latin-1") as f:
                     # Find table
                     dataframes.extend(
-                        pd.read_csv(f, sep="\s+", header=None)[[1, 2, 3]]  # noqa: W605
+                        pd.read_csv(f, sep=r"\s+", header=None)[[1, 2, 3]]  # noqa: W605
                         for num, line in enumerate(f, 1)
                         if "----" in line
                     )

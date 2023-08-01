@@ -3,12 +3,14 @@ from __future__ import annotations
 from collections import OrderedDict
 from typing import Dict, List, Optional, Tuple, Union
 
+import gdsfactory as gf
 import numpy as np
+from gdsfactory.technology import LayerStack
+from gdsfactory.typings import ComponentOrReference
 from scipy.interpolate import NearestNDInterpolator
 from shapely.geometry import LineString, MultiPolygon, Point, Polygon
 from shapely.ops import unary_union
 
-import gdsfactory as gf
 from gplugins.gmsh.mesh import mesh_from_polygons
 from gplugins.gmsh.parse_component import (
     create_2D_surface_interface,
@@ -20,8 +22,6 @@ from gplugins.gmsh.parse_layerstack import (
     list_unique_layerstack_z,
     order_layerstack,
 )
-from gdsfactory.technology import LayerStack
-from gdsfactory.typings import ComponentOrReference
 
 
 def get_u_bounds_polygons(

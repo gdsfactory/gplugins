@@ -13,12 +13,14 @@ from functools import partial
 from pathlib import Path
 from typing import Optional
 
-import pydantic
-
 import gdsfactory as gf
+import pydantic
 from gdsfactory.component import Component
 from gdsfactory.config import logger, sparameters_path
 from gdsfactory.pdk import get_layer_stack
+from gdsfactory.technology import LayerStack
+from gdsfactory.typings import ComponentSpec, PathType
+
 from gplugins import port_symmetries
 from gplugins.get_sparameters_path import (
     get_sparameters_path_meep as get_sparameters_path,
@@ -27,8 +29,6 @@ from gplugins.gmeep.write_sparameters_meep import (
     remove_simulation_kwargs,
     settings_write_sparameters_meep,
 )
-from gdsfactory.technology import LayerStack
-from gdsfactory.typings import ComponentSpec, PathType
 
 core_materials = multiprocessing.cpu_count()
 

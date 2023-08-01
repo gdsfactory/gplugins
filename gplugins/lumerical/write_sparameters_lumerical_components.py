@@ -3,13 +3,13 @@ from __future__ import annotations
 
 from typing import Optional
 
+import gdsfactory as gf
+from gdsfactory.typings import ComponentSpec, List
 from tqdm.auto import tqdm
 
-import gdsfactory as gf
 from gplugins.lumerical.write_sparameters_lumerical import (
     write_sparameters_lumerical,
 )
-from gdsfactory.typings import ComponentSpec, List
 
 
 def write_sparameters_lumerical_components(

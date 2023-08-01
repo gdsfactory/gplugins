@@ -3,13 +3,14 @@
 # You can mesh an out of plane `Component` cross-section by supplying the argument `type="uz"` and a `xsection_bounds` under the form `[[x1,y1], [x2,y2]]`, which parametrizes a line in `u`-coordinates
 
 # +
+import gdsfactory as gf
+import meshio
+from gdsfactory.generic_tech import get_generic_pdk
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
-import gdsfactory as gf
-from gplugins.gmsh.mesh import create_physical_mesh
-import meshio
 from skfem.io import from_meshio
-from gdsfactory.generic_tech import get_generic_pdk
+
+from gplugins.gmsh.mesh import create_physical_mesh
 
 gf.config.rich_output()
 PDK = get_generic_pdk()

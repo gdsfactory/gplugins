@@ -9,9 +9,9 @@
 # +
 import gdsfactory as gf
 import matplotlib.pyplot as plt
-import meow as mw
 import numpy as np
 from gdsfactory.generic_tech import get_generic_pdk
+
 from gplugins.eme import MEOW
 
 gf.config.rich_output()
@@ -99,8 +99,6 @@ c.plot()
 # Lets do a convergence tests on the `cell_length` parameter. This depends a lot on the structure.
 
 # +
-import matplotlib.pyplot as plt
-
 trans = []
 cells_lengths = [0.1, 0.25, 0.5, 0.75, 1]
 

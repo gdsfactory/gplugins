@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # ---
 # jupyter:
 #   jupytext:
@@ -107,23 +106,19 @@
 # Running Meep using a single CPU core can be slow as the single core needs to update all the simulation grid points sequentially at each time step.
 
 # %%
-import autograd.numpy as npa
-from autograd import tensor_jacobian_product
-from meep.adjoint import (
-    conic_filter,
-    DesignRegion,
-    get_conic_radius_from_eta_e,
-    tanh_projection,
-)
-from meep import MaterialGrid, Medium, Vector3, Volume
-import meep as mp
+import gdsfactory as gf
 import matplotlib.pyplot as plt
 import numpy as np
-import gplugins.gmeep as gm
-import gplugins as sim
-
-import gdsfactory as gf
+from autograd import tensor_jacobian_product
 from gdsfactory.generic_tech import get_generic_pdk
+from meep import MaterialGrid, Medium, Vector3, Volume
+from meep.adjoint import (
+    DesignRegion,
+    get_conic_radius_from_eta_e,
+)
+
+import gplugins as sim
+import gplugins.gmeep as gm
 
 gf.config.rich_output()
 PDK = get_generic_pdk()

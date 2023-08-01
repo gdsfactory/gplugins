@@ -6,10 +6,10 @@ from __future__ import annotations
 import h5py
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.interpolate import griddata
-
 from gdsfactory.components import straight
 from gdsfactory.config import PATH
+from scipy.interpolate import griddata
+
 from gplugins.gmeep import get_simulation
 from gplugins.gmeep.get_port_eigenmode import get_port_2Dx_eigenmode
 from gplugins.modes import find_modes_waveguide, get_mode_solver_rib

@@ -1,5 +1,5 @@
 
-install: 
+install:
 	pip install -e .[dev]
 	pre-commit install
 
@@ -56,4 +56,3 @@ docs:
 	jb build docs
 
 .PHONY: drc doc docs
-

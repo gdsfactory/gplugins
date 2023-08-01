@@ -1,10 +1,9 @@
 from typing import Callable
 
-import numpy as np
-from pydantic import BaseModel
-
 import gdsfactory as gf
+import numpy as np
 from gdsfactory.typings import Layer
+from pydantic import BaseModel
 
 
 class DopingLayerLevel(BaseModel):

@@ -9,16 +9,15 @@
 
 # +
 from collections import OrderedDict
+
+import gdsfactory as gf
 import matplotlib.pyplot as plt
 import numpy as np
-
-from gplugins.lumerical.interconnect import plot_wavelength_sweep
-from gplugins.lumerical.interconnect import run_wavelength_sweep
+import ubcpdk.components as pdk
 from gdsfactory.get_netlist import get_instance_name_from_alias as get_instance_name
 from gdsfactory.routing import get_route
-import gdsfactory as gf
 
-import ubcpdk.components as pdk
+from gplugins.lumerical.interconnect import plot_wavelength_sweep, run_wavelength_sweep
 
 gf.config.rich_output()
 

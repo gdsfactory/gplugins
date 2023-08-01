@@ -1,9 +1,9 @@
-import numpy as np
-
 import gdsfactory as gf
+import numpy as np
 from gdsfactory.generic_tech import LAYER_STACK
-from gplugins.fem.mode_solver import compute_cross_section_modes, Modes
 from gdsfactory.technology import LayerStack
+
+from gplugins.fem.mode_solver import Modes, compute_cross_section_modes
 
 NUM_MODES = 1
 

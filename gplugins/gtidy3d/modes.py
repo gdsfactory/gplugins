@@ -20,15 +20,15 @@ import numpy as np
 import pydantic
 import tidy3d as td
 import xarray
+from gdsfactory.config import logger
+from gdsfactory.pdk import MaterialSpec, get_modes_path
+from gdsfactory.serialization import clean_value_name
+from gdsfactory.typings import PathType
 from tidy3d.plugins import waveguide
 from tqdm.auto import tqdm
 from typing_extensions import Literal
 
-from gdsfactory.config import logger
-from gdsfactory.pdk import MaterialSpec, get_modes_path
-from gdsfactory.serialization import clean_value_name
 from gplugins.gtidy3d.materials import get_medium
-from gdsfactory.typings import PathType
 
 Precision = Literal["single", "double"]
 nm = 1e-3

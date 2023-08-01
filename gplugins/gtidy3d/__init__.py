@@ -14,6 +14,7 @@ except ModuleNotFoundError as e:
     raise e
 
 from gdsfactory.config import logger
+
 from gplugins.gtidy3d import materials, modes, utils
 from gplugins.gtidy3d.get_results import get_results
 from gplugins.gtidy3d.get_simulation import (

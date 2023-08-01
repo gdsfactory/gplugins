@@ -20,16 +20,16 @@ from devsim import (
     write_devices,
 )
 from devsim.python_packages import model_create, simple_physics
-from pydantic import Extra
-
 from gdsfactory.component import Component
 from gdsfactory.pdk import get_layer_stack
+from gdsfactory.technology import LayerStack
+from pydantic import Extra
+
 from gplugins.devsim.doping import (
     DopingLayerLevel,
     get_doping_info_generic,
 )
 from gplugins.devsim.get_simulation import create_2Duz_simulation
-from gdsfactory.technology import LayerStack
 
 
 def set_universal_parameters(device, region) -> None:

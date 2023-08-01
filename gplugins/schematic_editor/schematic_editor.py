@@ -2,17 +2,17 @@ from pathlib import Path
 from typing import Optional, Union
 
 import bokeh.io
+import gdsfactory as gf
 import ipywidgets as widgets
 import yaml
-
-import gdsfactory as gf
-from gplugins.schematic_editor import circuitviz
 from gdsfactory.picmodel import (
     PicYamlConfiguration,
     Route,
     RouteSettings,
     SchematicConfiguration,
 )
+
+from gplugins.schematic_editor import circuitviz
 
 
 class SchematicEditor:

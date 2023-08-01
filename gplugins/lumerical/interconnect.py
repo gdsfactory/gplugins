@@ -6,10 +6,9 @@ from collections import OrderedDict
 from typing import Optional, Tuple
 
 import numpy as np
-from omegaconf import DictConfig
-
 from gdsfactory import Component
 from gdsfactory.config import PATH
+from omegaconf import DictConfig
 
 c = 2.9979e8
 pi = np.pi

@@ -50,10 +50,11 @@
 # ```
 
 # %%
-import gplugins.gmeep as gm
-import gplugins as sim
 import gdsfactory as gf
 from gdsfactory.generic_tech import get_generic_pdk
+
+import gplugins as sim
+import gplugins.gmeep as gm
 
 gf.config.rich_output()
 PDK = get_generic_pdk()

@@ -13,14 +13,15 @@
 # Tidy3d provides you with a material database of dispersive materials.
 
 # +
+import gdsfactory as gf
 import matplotlib.pyplot as plt
 import numpy as np
+import tidy3d as td
 from gdsfactory.components.taper import taper_sc_nc
+from gdsfactory.config import PATH
+
 import gplugins as sim
 import gplugins.gtidy3d as gt
-import gdsfactory as gf
-from gdsfactory.config import PATH
-import tidy3d as td
 
 gf.config.rich_output()
 PDK = gf.generic_tech.get_generic_pdk()

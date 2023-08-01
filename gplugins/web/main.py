@@ -1,30 +1,26 @@
 import base64
 import importlib
 import os
-from pathlib import Path
 import pathlib
+from glob import glob
+from pathlib import Path
 from typing import Optional
 
-from glob import glob
+import gdsfactory as gf
 import orjson
-
-from fastapi import Form, HTTPException
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, Form, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-
+from gdsfactory.cell import Settings
+from gdsfactory.config import CONF, GDSDIR_TEMP
+from gdsfactory.watch import FileWatcher
 from loguru import logger
 from starlette.routing import WebSocketRoute
 
-import gdsfactory as gf
+from gplugins.config import PATH
 from gplugins.web.middleware import ProxiedHeadersMiddleware
 from gplugins.web.server import LayoutViewServerEndpoint, get_layout_view
-from gplugins.config import PATH
-
-from gdsfactory.config import GDSDIR_TEMP, CONF
-from gdsfactory.watch import FileWatcher
-from gdsfactory.cell import Settings
 
 module_path = Path(__file__).parent.absolute()
 

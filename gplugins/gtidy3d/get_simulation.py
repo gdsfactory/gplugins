@@ -4,22 +4,22 @@ from __future__ import annotations
 import warnings
 from typing import Dict, Optional
 
+import gdsfactory as gf
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pydantic
 import tidy3d as td
-from tidy3d.plugins.mode import ModeSolver
-
-import gdsfactory as gf
 from gdsfactory.component import Component
 from gdsfactory.components.extension import move_polar_rad_copy
 from gdsfactory.config import logger
 from gdsfactory.pdk import get_layer_stack, get_material_index
 from gdsfactory.routing.sort_ports import sort_ports_x, sort_ports_y
-from gplugins.gtidy3d.materials import get_index, get_medium
 from gdsfactory.technology import LayerStack
 from gdsfactory.typings import ComponentSpec, Float2
+from tidy3d.plugins.mode import ModeSolver
+
+from gplugins.gtidy3d.materials import get_index, get_medium
 
 
 @pydantic.validate_arguments

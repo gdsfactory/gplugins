@@ -12,16 +12,15 @@
 # For instance, consider a `straight` component in the generic LayerStack
 
 # +
-import jax.numpy as jnp
-
-from gdsfactory.pdk import get_layer_stack
-
 import gdsfactory as gf
+import jax.numpy as jnp
 from gdsfactory.cross_section import rib
-from gplugins.sax.parameter import LayerStackThickness, NamedParameter
-from gdsfactory.technology import LayerStack
 from gdsfactory.generic_tech import get_generic_pdk
+from gdsfactory.pdk import get_layer_stack
+from gdsfactory.technology import LayerStack
 from loguru import logger
+
+from gplugins.sax.parameter import LayerStackThickness, NamedParameter
 
 logger.remove()
 

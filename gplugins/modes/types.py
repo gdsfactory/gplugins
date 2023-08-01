@@ -4,11 +4,10 @@ from typing import Callable, Dict, List, Optional, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
+from gdsfactory.typings import Array
 from meep import mpb
 from pydantic import BaseModel
 from scipy.interpolate import RectBivariateSpline
-
-from gdsfactory.typings import Array
 
 # cmap_default = 'viridis'
 cmap_default = "RdBu"

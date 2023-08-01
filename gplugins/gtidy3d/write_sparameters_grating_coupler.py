@@ -1,24 +1,15 @@
 from __future__ import annotations
 
+import pathlib
 import time
 from typing import Awaitable, Optional
-import pathlib
 
+import gdsfactory as gf
 import numpy as np
 import tidy3d as td
 import yaml
-
-import gdsfactory as gf
 from gdsfactory.config import logger
 from gdsfactory.serialization import clean_value_json
-from gplugins.get_sparameters_path import (
-    get_sparameters_path_tidy3d as get_sparameters_path,
-)
-from gplugins.gtidy3d.get_results import _executor, get_results
-from gplugins.gtidy3d.get_simulation_grating_coupler import (
-    get_simulation_grating_coupler,
-)
-from gplugins.gtidy3d.get_simulation import plot_simulation
 from gdsfactory.typings import (
     Any,
     Component,
@@ -27,6 +18,15 @@ from gdsfactory.typings import (
     List,
     PathType,
     Sparameters,
+)
+
+from gplugins.get_sparameters_path import (
+    get_sparameters_path_tidy3d as get_sparameters_path,
+)
+from gplugins.gtidy3d.get_results import _executor, get_results
+from gplugins.gtidy3d.get_simulation import plot_simulation
+from gplugins.gtidy3d.get_simulation_grating_coupler import (
+    get_simulation_grating_coupler,
 )
 
 

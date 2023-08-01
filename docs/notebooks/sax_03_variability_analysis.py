@@ -125,10 +125,10 @@ smooth_c
 
 # +
 import gdsfactory as gf
-from gplugins.sax.parameter import NamedParameter
-from gdsfactory.technology import LayerStack
 from gdsfactory.pdk import get_layer_stack
+from gdsfactory.technology import LayerStack
 
+from gplugins.sax.parameter import NamedParameter
 
 # gdsfactory layerstack
 filtered_layerstack = LayerStack(

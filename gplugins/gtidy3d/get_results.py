@@ -2,18 +2,17 @@
 
 from __future__ import annotations
 
-import pathlib
 import concurrent.futures
 import hashlib
+import pathlib
 from typing import Awaitable
 
-import tidy3d as td
-from tidy3d import web
-from tidy3d.exceptions import WebError
-
 import gdsfactory as gf
+import tidy3d as td
 from gdsfactory.config import PATH, logger
 from gdsfactory.typings import PathType
+from tidy3d import web
+from tidy3d.exceptions import WebError
 
 _executor = concurrent.futures.ThreadPoolExecutor()
 

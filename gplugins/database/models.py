@@ -412,10 +412,9 @@ class RelationInfo(Base):
 
 
 if __name__ == "__main__":
+    import gdsfactory as gf
     from sqlalchemy import create_engine
     from sqlalchemy.orm import Session
-
-    import gdsfactory as gf
 
     engine = create_engine("sqlite:///database.db", echo=True, future=True)
     metadata.create_all(engine)

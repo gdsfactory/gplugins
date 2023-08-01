@@ -5,9 +5,8 @@ from __future__ import annotations
 from functools import partial
 from typing import Optional
 
-from tidy3d import web
-
 from gdsfactory.config import logger
+from tidy3d import web
 
 
 def print_tasks(status: Optional[str] = None) -> None:

@@ -10,17 +10,19 @@ from functools import partial
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+import gdsfactory as gf
 import meep as mp
 import numpy as np
 import pydantic
 import yaml
-from tqdm.auto import tqdm
-
-import gdsfactory as gf
 from gdsfactory.component import Component
 from gdsfactory.config import logger
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.serialization import clean_value_json
+from gdsfactory.technology import LayerStack
+from gdsfactory.typings import ComponentSpec, PathType, Port, PortSymmetries
+from tqdm.auto import tqdm
+
 from gplugins import port_symmetries
 from gplugins.get_sparameters_path import (
     get_sparameters_path_meep as get_sparameters_path,
@@ -29,8 +31,6 @@ from gplugins.gmeep.get_simulation import (
     get_simulation,
     settings_get_simulation,
 )
-from gdsfactory.technology import LayerStack
-from gdsfactory.typings import ComponentSpec, PathType, Port, PortSymmetries
 
 core_materials = multiprocessing.cpu_count()
 

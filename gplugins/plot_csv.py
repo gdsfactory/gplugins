@@ -3,11 +3,10 @@ from __future__ import annotations
 from functools import partial
 from typing import Optional, Tuple
 
+import gdsfactory as gf
 import matplotlib.pyplot as plt
 import numpy as np
 from pandas import DataFrame
-
-import gdsfactory as gf
 
 
 def plot_sparameters(

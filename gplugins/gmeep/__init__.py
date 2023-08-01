@@ -7,6 +7,7 @@ except ModuleNotFoundError as e:
     raise e
 
 from gdsfactory.config import logger
+
 from gplugins import plot, port_symmetries
 from gplugins.get_sparameters_path import get_sparameters_data_meep
 from gplugins.gmeep.get_simulation import get_simulation

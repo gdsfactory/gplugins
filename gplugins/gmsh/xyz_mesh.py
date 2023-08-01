@@ -1,26 +1,24 @@
 from __future__ import annotations
 
+from collections import OrderedDict
 from typing import Dict, Optional, Sequence
 
 import numpy as np
+from gdsfactory.config import get_number_of_cores
+from gdsfactory.geometry.union import union
+from gdsfactory.technology import LayerLevel, LayerStack
+from gdsfactory.typings import ComponentOrReference, List
+from meshwell.model import Model
+from meshwell.prism import Prism
 from shapely.geometry import Polygon
 from shapely.ops import unary_union
 
-from gdsfactory.config import get_number_of_cores
 from gplugins.gmsh.parse_component import bufferize
 from gplugins.gmsh.parse_gds import cleanup_component
 from gplugins.gmsh.parse_layerstack import (
-    order_layerstack,
     list_unique_layerstack_z,
+    order_layerstack,
 )
-from gdsfactory.technology import LayerStack, LayerLevel
-from gdsfactory.typings import ComponentOrReference, List
-from gdsfactory.geometry.union import union
-
-from meshwell.prism import Prism
-from meshwell.model import Model
-
-from collections import OrderedDict
 
 
 def define_prisms(layer_polygons_dict, layerstack, model):
@@ -158,9 +156,8 @@ def xyz_mesh(
 
 if __name__ == "__main__":
     import gdsfactory as gf
-
-    from gdsfactory.pdk import get_layer_stack
     from gdsfactory.generic_tech import LAYER
+    from gdsfactory.pdk import get_layer_stack
 
     # Choose some component
     c = gf.component.Component()

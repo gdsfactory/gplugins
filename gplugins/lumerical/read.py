@@ -4,16 +4,16 @@ import re
 from pathlib import Path
 from typing import List, Optional, Tuple
 
-import numpy as np
-
 import gdsfactory as gf
+import numpy as np
 from gdsfactory.component import Component
 from gdsfactory.config import logger
 from gdsfactory.generic_tech import LAYER_STACK
+from gdsfactory.technology import LayerStack
+
 from gplugins.get_sparameters_path import (
     get_sparameters_path_lumerical as get_sparameters_path,
 )
-from gdsfactory.technology import LayerStack
 
 
 def get_ports(line: str) -> Tuple[str, str]:

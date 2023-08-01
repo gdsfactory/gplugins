@@ -5,10 +5,9 @@ from functools import partial
 from itertools import combinations
 from typing import Dict, Optional, Sequence, Tuple
 
+import gdsfactory as gf
 import matplotlib.pyplot as plt
 import numpy as np
-
-import gdsfactory as gf
 
 
 def _check_ports(sp: Dict[str, np.ndarray], ports: Sequence[str]):

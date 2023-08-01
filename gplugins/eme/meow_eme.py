@@ -1,29 +1,26 @@
 import pathlib
+import pprint
 import time
-from typing import Dict, List, Optional, Tuple, Literal
-
-import sax
-import meow as mw
-from meow.base_model import _array as mw_array
-import numpy as np
-import pandas as pd
-from tqdm.auto import tqdm
-import yaml
+from typing import Dict, List, Literal, Optional, Tuple
 
 import gdsfactory as gf
+import meow as mw
+import numpy as np
+import pandas as pd
+import sax
+import yaml
 from gdsfactory.config import logger
 from gdsfactory.generic_tech import LAYER
-from gdsfactory.pdk import get_active_pdk
+from gdsfactory.pdk import get_active_pdk, get_layer_stack
+from gdsfactory.technology import LayerStack
+from gdsfactory.typings import PathType
+from meow.base_model import _array as mw_array
+from tqdm.auto import tqdm
+
 from gplugins.get_sparameters_path import (
     get_sparameters_path_meow as get_sparameters_path,
 )
 from gplugins.gmsh.parse_layerstack import list_unique_layerstack_z
-from gdsfactory.technology import LayerStack
-from gdsfactory.typings import PathType
-
-from gdsfactory.pdk import get_layer_stack
-import pprint
-
 
 ColorRGB = Tuple[float, float, float]
 

@@ -5,18 +5,18 @@ import inspect
 import warnings
 from typing import Any, Dict, Optional, Union
 
+import gdsfactory as gf
 import meep as mp
 import numpy as np
-
-import gdsfactory as gf
 from gdsfactory.component import Component
 from gdsfactory.components.extension import move_polar_rad_copy
 from gdsfactory.pdk import get_layer_stack
+from gdsfactory.technology import LayerStack
+
 from gplugins.gmeep.get_material import get_material
 from gplugins.gmeep.get_meep_geometry import (
     get_meep_geometry_from_component,
 )
-from gdsfactory.technology import LayerStack
 
 mp.verbosity(0)
 

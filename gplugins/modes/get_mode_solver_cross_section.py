@@ -5,17 +5,17 @@ import tempfile
 from functools import partial
 from typing import Dict, Optional, Union
 
+import gdsfactory as gf
 import meep as mp
 import pydantic
+from gdsfactory.technology import LayerStack
+from gdsfactory.typings import CrossSectionSpec
 from meep import mpb
 
-import gdsfactory as gf
 from gplugins.gmeep.get_material import get_material
 from gplugins.gmeep.get_meep_geometry import (
     get_meep_geometry_from_cross_section,
 )
-from gdsfactory.technology import LayerStack
-from gdsfactory.typings import CrossSectionSpec
 
 mpb.Verbosity(0)
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # ---
 # jupyter:
 #   jupytext:
@@ -23,12 +22,11 @@
 # The Jupyter notebook interface allows you to get the best of both worlds of GUI and python driven based flows.
 
 # %%
-from bokeh.io import output_notebook
-
-from gdsfactory.plugins.schematic_editor import SchematicEditor
-from gdsfactory.config import rich_output
 import gdsfactory as gf
+from bokeh.io import output_notebook
+from gdsfactory.config import rich_output
 from gdsfactory.generic_tech import get_generic_pdk
+from gdsfactory.plugins.schematic_editor import SchematicEditor
 
 gf.config.rich_output()
 PDK = get_generic_pdk()
@@ -159,11 +157,12 @@ c.plot()
 # ## Circuit simulations
 
 # %%
-import numpy as np
-import matplotlib.pyplot as plt
-import gplugins.sax as gs
 import jax.numpy as jnp
+import matplotlib.pyplot as plt
+import numpy as np
 import sax
+
+import gplugins.sax as gs
 
 netlist = c.get_netlist()
 

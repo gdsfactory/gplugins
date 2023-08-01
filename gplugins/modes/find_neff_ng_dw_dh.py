@@ -14,9 +14,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pydantic
+from gdsfactory.config import PATH
 from scipy.interpolate import interp2d
 
-from gdsfactory.config import PATH
 from gplugins.modes.find_mode_dispersion import find_mode_dispersion
 
 PATH.modes = pathlib.Path.cwd() / "data"

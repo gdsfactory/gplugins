@@ -9,22 +9,19 @@
 # You can also downsample layers from the LayerStack, and modify both the cross-section and LayerStack  prior to simulation to change the geometry. You can also define refractive indices on the active PDK.
 
 # +
-import matplotlib.pyplot as plt
+import logging
+import sys
+
 import gdsfactory as gf
-from tqdm.auto import tqdm
+import matplotlib.pyplot as plt
 import numpy as np
+from gdsfactory.cross_section import rib
+from gdsfactory.generic_tech import LAYER_STACK, get_generic_pdk
+from gdsfactory.technology import LayerStack
+from rich.logging import RichHandler
+from tqdm.auto import tqdm
 
 from gplugins.fem.mode_solver import compute_cross_section_modes
-from gdsfactory.technology import LayerStack
-from gdsfactory.cross_section import rib
-from gdsfactory.generic_tech import LAYER_STACK
-
-
-import sys
-import logging
-from rich.logging import RichHandler
-import gdsfactory as gf
-from gdsfactory.generic_tech import get_generic_pdk
 
 gf.config.rich_output()
 PDK = get_generic_pdk()

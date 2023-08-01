@@ -4,6 +4,8 @@ from typing import Dict, Optional, Union
 
 import jax.numpy as jnp
 import ray
+from gdsfactory.technology import LayerStack
+from gdsfactory.typings import PortSymmetries
 from tqdm.contrib.itertools import product
 
 from gplugins.sax.interpolators import nd_nd_interpolation
@@ -13,8 +15,6 @@ from gplugins.sax.parameter import (
     LithoParameter,
     NamedParameter,
 )
-from gdsfactory.technology import LayerStack
-from gdsfactory.typings import PortSymmetries
 
 
 class Model:

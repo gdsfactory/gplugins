@@ -1,8 +1,12 @@
 import time
 from typing import Tuple
 
+import gdsfactory as gf
 import numpy as np
-from femwell.maxwell.waveguide import compute_modes, Modes
+from femwell.maxwell.waveguide import Modes, compute_modes
+from gdsfactory.pdk import get_layer_stack, get_material_index
+from gdsfactory.technology import LayerStack
+from gdsfactory.typings import ComponentSpec, CrossSectionSpec, PathType
 from skfem import (
     Basis,
     ElementTriN2,
@@ -10,11 +14,6 @@ from skfem import (
     ElementTriP2,
     Mesh,
 )
-
-import gdsfactory as gf
-from gdsfactory.pdk import get_layer_stack, get_material_index
-from gdsfactory.technology import LayerStack
-from gdsfactory.typings import ComponentSpec, CrossSectionSpec, PathType
 
 mesh_filename = "mesh.msh"
 

@@ -12,7 +12,7 @@ From Chrostowski, L., & Hochberg, M. (2015). Silicon Photonics Design: From Devi
 from __future__ import annotations
 
 import warnings
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 import devsim
 import matplotlib.pyplot as plt

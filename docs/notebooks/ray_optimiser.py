@@ -16,16 +16,16 @@
 # +
 from functools import partial
 
+import gdsfactory as gf
 import numpy as np
 import ray
 import ray.air
 import ray.air.session
-from ray import tune
-
-import gdsfactory as gf
-import gplugins.gmeep as gm
 from gdsfactory.config import PATH
 from gdsfactory.generic_tech import get_generic_pdk
+from ray import tune
+
+import gplugins.gmeep as gm
 
 gf.config.rich_output()
 PDK = get_generic_pdk()
@@ -95,6 +95,8 @@ tune_config = tune.TuneConfig(
 # Here we demonstrate a trainable for S-parameter simulations. The `write_sparameters_meep` returns $\mathbf{S}$ as a function of $\lambda$ given in $\text{µm}$. From this, we select $S_{21}(\lambda)$ and try to optimise for $\min_\text{geometry} \sum_\lambda (S_{21}(\lambda) - \text{target})$. In other words, that the transmission from 1 to 2 would be as close to target as possible for the given wavelength (or range of wavelengths).
 #
 
+use_mpi = False  # change this to true if you have MPI support
+
 
 def trainable_simulations(config):
     """Training step, or `trainable`, function for Ray Tune to run simulations and return results."""
@@ -114,7 +116,7 @@ def trainable_simulations(config):
         wavelength_points=1,
     )
 
-    if use_mpi := True:  # change this to false if no MPI support
+    if use_mpi:  # change this to false if no MPI support
         s_params = gm.write_sparameters_meep_mpi(
             cores=2, **meep_params  # set this to be same as in `tune.Tuner`
         )

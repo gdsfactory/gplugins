@@ -2,14 +2,14 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional, Union
 
+import gdsfactory as gf
 import meep as mp
 import numpy as np
-
-import gdsfactory as gf
 from gdsfactory.pdk import get_layer_stack
-from gplugins.gmeep.get_material import get_material
 from gdsfactory.technology import LayerStack
 from gdsfactory.typings import ComponentSpec, CrossSectionSpec
+
+from gplugins.gmeep.get_material import get_material
 
 
 def get_meep_geometry_from_component(

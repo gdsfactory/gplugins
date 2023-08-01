@@ -6,9 +6,8 @@ from functools import partial
 from pathlib import Path
 from typing import Optional
 
-import numpy as np
-
 import gdsfactory as gf
+import numpy as np
 from gdsfactory.name import clean_value
 from gdsfactory.pdk import get_sparameters_path
 from gdsfactory.typings import ComponentSpec

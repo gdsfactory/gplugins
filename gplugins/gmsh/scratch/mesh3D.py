@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Dict, Optional, Tuple
 
 import pygmsh
-
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 from gdsfactory.typings import ComponentOrReference, Layer

@@ -20,14 +20,14 @@ import matplotlib.pyplot as plt
 import meep as mp
 import numpy as np
 import yaml
-
 from gdsfactory.config import logger, sparameters_path
 from gdsfactory.serialization import clean_value_json, clean_value_name
+from gdsfactory.typings import PathType
+
 from gplugins.gmeep.get_simulation_grating_fiber import (
     get_simulation_grating_fiber,
 )
 from gplugins.gmeep.write_sparameters_meep_mpi import _python
-from gdsfactory.typings import PathType
 
 nm = 1e-3
 nSi = 3.48

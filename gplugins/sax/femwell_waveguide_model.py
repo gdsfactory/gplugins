@@ -1,9 +1,9 @@
 import jax.numpy as jnp
 import numpy as np
 import ray
+from gdsfactory.pdk import get_layer_stack
 from sax.utils import reciprocal
 
-from gdsfactory.pdk import get_layer_stack
 from gplugins.fem.mode_solver import compute_cross_section_modes
 from gplugins.sax.build_model import Model
 
@@ -131,8 +131,9 @@ class FemwellWaveguideModel(Model):
 if __name__ == "__main__":
     import gdsfactory as gf
     from gdsfactory.cross_section import rib
-    from gplugins.sax.parameter import LayerStackThickness, NamedParameter
     from gdsfactory.technology import LayerStack
+
+    from gplugins.sax.parameter import LayerStackThickness, NamedParameter
 
     c = gf.components.straight(
         cross_section=rib(width=2),

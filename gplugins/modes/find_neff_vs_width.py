@@ -7,10 +7,10 @@ import meep as mp
 import numpy as np
 import pandas as pd
 import pydantic
+from gdsfactory.typings import Optional, PathType
 from tqdm.auto import tqdm
 
 from gplugins.modes.find_modes import find_modes_waveguide
-from gdsfactory.typings import Optional, PathType
 
 
 @pydantic.validate_arguments

@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import gdsfactory as gf
 from gdsfactory.pdk import get_layer_stack
+from gdsfactory.technology import LayerStack
+
 from gplugins.gmsh.uz_xsection_mesh import uz_xsection_mesh
 from gplugins.gmsh.xy_xsection_mesh import xy_xsection_mesh
-from gdsfactory.technology import LayerStack
 
 PDK = gf.get_generic_pdk()
 PDK.activate()

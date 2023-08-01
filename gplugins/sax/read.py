@@ -5,6 +5,7 @@ import pathlib
 from functools import partial
 from typing import Union
 
+import gdsfactory as gf
 import jax
 import jax.numpy as jnp
 import numpy as np
@@ -12,7 +13,6 @@ import pandas as pd
 from sax.typing_ import Float, Model
 from typing_extensions import Literal
 
-import gdsfactory as gf
 from gplugins.get_sparameters_path import (
     get_sparameters_path_lumerical,
     get_sparameters_path_meep,

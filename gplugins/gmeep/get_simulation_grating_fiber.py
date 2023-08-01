@@ -16,7 +16,6 @@ from typing import Any, Dict, Optional
 
 import meep as mp
 import numpy as np
-
 from gdsfactory.serialization import clean_value_name
 from gdsfactory.typings import Floats
 

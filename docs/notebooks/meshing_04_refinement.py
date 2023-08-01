@@ -11,15 +11,16 @@
 
 # +
 from itertools import product
-import numpy as np
-import gdsfactory as gf
-from gplugins.gmsh.mesh import create_physical_mesh
-from gdsfactory.technology import LayerStack
-from gdsfactory.pdk import get_layer_stack
 
+import gdsfactory as gf
 import meshio
-from skfem.io import from_meshio
+import numpy as np
 from gdsfactory.generic_tech import get_generic_pdk
+from gdsfactory.pdk import get_layer_stack
+from gdsfactory.technology import LayerStack
+from skfem.io import from_meshio
+
+from gplugins.gmsh.mesh import create_physical_mesh
 
 PDK = get_generic_pdk()
 PDK.activate()

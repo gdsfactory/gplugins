@@ -3,25 +3,25 @@ from __future__ import annotations
 
 import shutil
 import time
-from typing import Dict, Optional, TYPE_CHECKING
-
-import numpy as np
-import yaml
+from typing import TYPE_CHECKING, Dict, Optional
 
 import gdsfactory as gf
+import numpy as np
+import yaml
 from gdsfactory.config import __version__, logger
-from gdsfactory.pdk import get_layer_stack
-from gplugins.get_sparameters_path import (
-    get_sparameters_path_lumerical as get_sparameters_path,
-)
-from gdsfactory.technology import LayerStack
 from gdsfactory.generic_tech.simulation_settings import (
     SIMULATION_SETTINGS_LUMERICAL_FDTD,
     SimulationSettingsLumericalFdtd,
 )
+from gdsfactory.pdk import get_layer_stack
+from gdsfactory.technology import LayerStack
+
+from gplugins.get_sparameters_path import (
+    get_sparameters_path_lumerical as get_sparameters_path,
+)
 
 if TYPE_CHECKING:
-    from gdsfactory.typings import ComponentSpec, PathType, MaterialSpec
+    from gdsfactory.typings import ComponentSpec, MaterialSpec, PathType
 
 run_false_warning = """
 You have passed run=False to debug the simulation

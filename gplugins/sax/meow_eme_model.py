@@ -1,4 +1,5 @@
 from gdsfactory.pdk import get_layer_stack
+
 from gplugins.eme.meow_eme import MEOW
 from gplugins.sax.build_model import Model
 
@@ -53,8 +54,9 @@ class MeowEMEModel(Model):
 if __name__ == "__main__":
     import gdsfactory as gf
     from gdsfactory.cross_section import rib, strip
-    from gplugins.sax.parameter import LayerStackThickness, NamedParameter
     from gdsfactory.technology import LayerStack
+
+    from gplugins.sax.parameter import LayerStackThickness, NamedParameter
 
     PDK = gf.get_generic_pdk()
     PDK.activate()

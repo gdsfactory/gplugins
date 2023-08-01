@@ -34,16 +34,14 @@
 
 # %%
 from functools import partial
-import numpy as np
-
-import pyswarms as ps
-from pyswarms.utils.plotters import plot_cost_history
-import matplotlib.pyplot as plt
 
 import gdsfactory as gf
-import gplugins.gmeep as gm
+import numpy as np
+import pyswarms as ps
 from gdsfactory.config import PATH
 from gdsfactory.generic_tech import get_generic_pdk
+
+import gplugins.gmeep as gm
 
 # Set up GDSFactory and PDK
 gf.config.rich_output()

@@ -4,12 +4,12 @@ from __future__ import annotations
 from typing import Dict
 
 import numpy as np
+from gdsfactory.technology import LayerLevel, LayerStack
 from shapely.affinity import scale
 from shapely.geometry import MultiPolygon
 from shapely.ops import unary_union
 
 from gplugins.gmsh.parse_gds import to_polygons
-from gdsfactory.technology import LayerLevel, LayerStack
 
 
 def bufferize(layerstack: LayerStack):

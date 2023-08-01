@@ -11,32 +11,28 @@
 # ```
 
 # +
-from tqdm import trange
-from tqdm.notebook import trange
-
-from numpy.fft import fft2, fftfreq, fftshift, ifft2
-from typing import List
-from functools import partial
+import logging
 import sys
+from functools import partial
 from pprint import pprint
-import numpy as np
-from sklearn.linear_model import LinearRegression
-from scipy import constants
+from typing import List
+
+import gdsfactory as gf
+import jax
 import jax.example_libraries.optimizers as opt
 import jax.numpy as jnp
-import jax
+import matplotlib.pyplot as plt
+import numpy as np
+import sax
+from gdsfactory.generic_tech import get_generic_pdk
+from numpy.fft import fft2, fftfreq, fftshift, ifft2
+from rich.logging import RichHandler
+from scipy import constants
+from sklearn.linear_model import LinearRegression
+from tqdm.notebook import trange
 
 import gplugins.gtidy3d as gt
-import gdsfactory as gf
 import gplugins.sax as gs
-
-import matplotlib.pyplot as plt
-import sax
-
-import sys
-import logging
-from rich.logging import RichHandler
-from gdsfactory.generic_tech import get_generic_pdk
 
 gf.config.rich_output()
 PDK = get_generic_pdk()

@@ -1,9 +1,9 @@
-import numpy as np
-
 import gdsfactory as gf
+import numpy as np
 from gdsfactory.pdk import get_layer_stack
-from gplugins.eme import MEOW
 from gdsfactory.technology import LayerStack
+
+from gplugins.eme import MEOW
 
 PDK = gf.get_generic_pdk()
 PDK.activate()

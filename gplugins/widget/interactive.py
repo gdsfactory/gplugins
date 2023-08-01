@@ -4,6 +4,7 @@ try:
     from pathlib import Path
     from typing import Any
 
+    from gdsfactory.config import CONF
     from ipyevents import Event  # type: ignore[import]
     from IPython.display import Image as IPImage  # type: ignore[import]
     from IPython.display import display
@@ -23,10 +24,8 @@ try:
         ToggleButtons,
         VBox,
     )
-
-    from gdsfactory.config import CONF
-    from kfactory.kcell import KCell
     from kfactory import kdb, lay
+    from kfactory.kcell import KCell
 
 
 except ImportError as e:

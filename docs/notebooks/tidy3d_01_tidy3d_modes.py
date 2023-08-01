@@ -11,10 +11,11 @@
 # For a 220 nm height x 450 nm width the effective index is 2.466
 
 # +
-import numpy as np
-import gplugins.gtidy3d as gt
-import matplotlib.pyplot as plt
 import gdsfactory as gf
+import matplotlib.pyplot as plt
+import numpy as np
+
+import gplugins.gtidy3d as gt
 
 gf.config.rich_output()
 PDK = gf.generic_tech.get_generic_pdk()

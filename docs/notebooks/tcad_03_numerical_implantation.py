@@ -11,8 +11,9 @@
 # You can install the Windows executable yourself (using Wine on MacOS/Linux), or use a Docker image.
 # [The issues contain good information if you run into problems.](https://gitlab.com/costrouc/pysrim/-/issues/7)
 
-from shutil import rmtree
 from pathlib import Path
+from shutil import rmtree
+
 from srim import Ion, Layer, Target
 
 # [The following example follows the tutorial from PySRIM](https://gitlab.com/costrouc/pysrim/-/blob/master/examples/notebooks/Analysis.ipynb), adapted for silicon photonic applications.

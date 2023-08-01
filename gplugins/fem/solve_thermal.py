@@ -212,9 +212,9 @@ def solve_thermal(
 
 
 if __name__ == "__main__":
+    import gdsfactory as gf
     import gmsh
 
-    import gdsfactory as gf
     from gplugins.gmsh.mesh2D import mesh2D
 
     gf.generic_tech.LAYER_STACK.layers["heater"].thickness = 0.13

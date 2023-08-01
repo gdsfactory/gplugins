@@ -5,9 +5,8 @@ import re
 
 import numpy as np
 import pandas as pd
-from tqdm.auto import tqdm
-
 from gdsfactory.typings import PathType
+from tqdm.auto import tqdm
 
 
 def pandas_to_float64(

@@ -33,11 +33,12 @@
 # You can change waveguide geometry (core thickness, slab thickness, core width), doping configuration (dopant level, dopant positions), as well as hyperparameters like adaptive mesh resolution at all the interfaces.
 
 # +
-import numpy as np
+import gdsfactory as gf
 import matplotlib.pyplot as plt
+import numpy as np
+
 from gplugins.devsim import get_simulation_xsection
 from gplugins.devsim.get_simulation_xsection import k_to_alpha
-import gdsfactory as gf
 
 gf.config.rich_output()
 PDK = gf.get_generic_pdk()

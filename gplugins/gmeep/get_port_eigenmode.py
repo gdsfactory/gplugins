@@ -3,8 +3,8 @@ from __future__ import annotations
 import matplotlib.pyplot as plt
 import meep as mp
 import numpy as np
-
 from gdsfactory.components import straight
+
 from gplugins.gmeep import get_simulation
 from gplugins.modes.types import Mode
 

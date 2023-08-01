@@ -11,8 +11,8 @@
 # [1] Selberherr, S. (1984). Process Modeling. In: Analysis and Simulation of Semiconductor Devices. Springer, Vienna. https://doi.org/10.1007/978-3-7091-8752-4_3
 
 # +
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 from gplugins.process.implant_tables import *
 

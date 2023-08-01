@@ -36,10 +36,10 @@
 #
 
 # +
-from gdsfactory.generic_tech import LAYER_STACK
-import gplugins.lumerical as sim
 import gdsfactory as gf
-from gdsfactory.generic_tech import get_generic_pdk
+from gdsfactory.generic_tech import LAYER_STACK, get_generic_pdk
+
+import gplugins.lumerical as sim
 
 gf.config.rich_output()
 PDK = get_generic_pdk()

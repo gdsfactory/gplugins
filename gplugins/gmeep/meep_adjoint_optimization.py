@@ -3,18 +3,18 @@ from __future__ import annotations
 from types import LambdaType
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
+import gdsfactory as gf
 import nlopt
 import numpy as np
+from gdsfactory import Component
+from gdsfactory.technology import LayerStack
+from gdsfactory.typings import Layer
 from meep import Block, EigenModeSource, MaterialGrid, Simulation, Vector3, Volume
 from meep.adjoint import DesignRegion, EigenmodeCoefficient, OptimizationProblem
 from meep.visualization import get_2D_dimensions
 from numpy import ndarray
 
-import gdsfactory as gf
-from gdsfactory import Component
 from gplugins.gmeep import get_simulation
-from gdsfactory.technology import LayerStack
-from gdsfactory.typings import Layer
 
 
 def get_meep_adjoint_optimizer(

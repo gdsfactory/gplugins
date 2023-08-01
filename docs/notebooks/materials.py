@@ -6,10 +6,9 @@
 # You can define a material by name, real refractive index, complex refractive index (for loss) or by a function of wavelength.
 
 # +
-import numpy as np
-
 import gdsfactory as gf
 import gdsfactory.simulation.gtidy3d as gt
+import numpy as np
 from gdsfactory.components.taper import taper_sc_nc
 from gdsfactory.pdk import Pdk
 

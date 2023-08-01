@@ -1,10 +1,10 @@
 from pathlib import Path
 
 import ray
-
 from gdsfactory.config import sparameters_path
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.read import import_gds
+
 from gplugins.gmeep import write_sparameters_meep
 from gplugins.sax.build_model import Model
 
@@ -102,8 +102,9 @@ class MeepFDTDModel(Model):
 
 if __name__ == "__main__":
     import gdsfactory as gf
-    from gplugins.sax.parameter import LithoParameter, NamedParameter
     from gdsfactory.technology import LayerStack
+
+    from gplugins.sax.parameter import LithoParameter, NamedParameter
 
     c = gf.components.coupler_full(
         coupling_length=0.1, dx=10.0, dy=5.0, gap=0.5, dw=0.0, cross_section="strip"

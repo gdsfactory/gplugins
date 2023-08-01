@@ -3,12 +3,10 @@ from collections import defaultdict
 from functools import partial
 from typing import Dict, List, NamedTuple, Union
 
+import gdsfactory as gf
 import numpy as np
 import pandas as pd
 import yaml
-
-
-import gdsfactory as gf
 from gdsfactory.picmodel import PicYamlConfiguration, Placement, SchematicConfiguration
 
 try:

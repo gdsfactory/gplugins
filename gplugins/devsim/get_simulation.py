@@ -16,16 +16,16 @@ from devsim import (
     set_node_values,
     write_devices,
 )
+from gdsfactory import Component
+from gdsfactory.technology import LayerLevel, LayerStack
 from scipy.interpolate import NearestNDInterpolator
 
-from gdsfactory import Component
 from gplugins.devsim.doping import get_doping_info_generic
 from gplugins.gmsh import (
     fuse_polygons,
     get_u_bounds_polygons,
     uz_xsection_mesh,
 )
-from gdsfactory.technology import LayerLevel, LayerStack
 
 um_to_cm = 1e-4
 

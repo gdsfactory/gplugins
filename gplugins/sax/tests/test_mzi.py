@@ -1,10 +1,9 @@
 """Demo of non-hierarchical circuit simulations."""
 from __future__ import annotations
 
+import gdsfactory as gf
 import jax.numpy as jnp
 import sax
-
-import gdsfactory as gf
 
 
 def straight(wl=1.5, length=10.0, neff=2.4) -> sax.SDict:

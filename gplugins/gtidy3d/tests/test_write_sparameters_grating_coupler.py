@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import gdsfactory as gf
 import numpy as np
 
-import gdsfactory as gf
 import gplugins.gtidy3d as gt
 
 fiber_port_name = "o2"

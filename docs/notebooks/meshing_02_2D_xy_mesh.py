@@ -3,13 +3,14 @@
 # You can supply the argument `type="xy"` and a `z`-value, to mesh arbitrary `Component` planar cross-sections.
 
 # +
+import gdsfactory as gf
+import meshio
+from gdsfactory.generic_tech import get_generic_pdk
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
-from gplugins.gmsh.mesh import create_physical_mesh
-import meshio
 from skfem.io import from_meshio
-import gdsfactory as gf
-from gdsfactory.generic_tech import get_generic_pdk
+
+from gplugins.gmsh.mesh import create_physical_mesh
 
 gf.config.rich_output()
 PDK = get_generic_pdk()
