@@ -1,6 +1,7 @@
 API
 ===================================
 
+
 ************************
 Mode solver Plugins
 ************************
@@ -56,13 +57,15 @@ Mode solver Plugins
     MEOW
 
 
+
+
 ************************
 FDTD Simulation Plugins
 ************************
 
-.. rubric:: common FDTD functions
+.. rubric:: Sparameter utils
 
-.. currentmodule:: gplugins.plot
+.. currentmodule:: gplugins.utils.plot
 
 .. autosummary::
    :toctree: _autosummary/
@@ -71,13 +74,32 @@ FDTD Simulation Plugins
    plot_imbalance2x2
    plot_loss2x2
 
-.. currentmodule:: gplugins
+.. rubric:: common FDTD functions
+
+.. currentmodule:: gplugins.utils.get_effective_indices
 
 .. autosummary::
    :toctree: _autosummary/
 
    get_effective_indices
 
+.. currentmodule:: gplugins.utils.port_symmetries
+
+.. autosummary::
+   :toctree: _autosummary/
+
+.. currentmodule:: gplugins.utils.convert_sparameters
+
+.. autosummary::
+   :toctree: _autosummary/
+
+   pandas_to_float64
+   pandas_to_numpy
+   csv_to_npz
+   convert_directory_csv_to_npz
+
+.. autosummary::
+   :toctree: _autosummary/
 
 .. currentmodule:: gplugins.gmeep
 
@@ -145,3 +167,14 @@ Circuit solver Plugins
     send_to_interconnect
     run_wavelength_sweep
     plot_wavelength_sweep
+
+****************************
+Gmsh
+****************************
+
+.. currentmodule:: gplugins.gmsh
+
+.. rubric:: Gmsh
+
+.. autosummary::
+   :toctree: _autosummary/

@@ -12,6 +12,7 @@ __pycache__/
 *.dat
 *.ipynb
 test-data/
+_autosummary/
 
 # Distribution / packaging
 .Python

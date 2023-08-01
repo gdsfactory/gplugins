@@ -10,8 +10,6 @@ output as um/lambda, e.g. 1.5um would correspond to the frequency
 1/1.5 = 0.6667.
 
 """
-from __future__ import annotations
-
 import pickle
 from functools import partial
 
@@ -20,10 +18,10 @@ import numpy as np
 from gdsfactory.pdk import get_modes_path
 from meep import mpb
 
-from gplugins.disable_print import disable_print, enable_print
 from gplugins.modes.get_mode_solver_coupler import get_mode_solver_coupler
 from gplugins.modes.get_mode_solver_rib import get_mode_solver_rib
 from gplugins.modes.types import Mode
+from gplugins.utils.disable_print import disable_print, enable_print
 from gplugins.utils.get_sparameters_path import get_kwargs_hash
 
 mpb.Verbosity(0)

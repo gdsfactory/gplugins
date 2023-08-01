@@ -17,6 +17,11 @@ def pandas_to_float64(
     """Converts a pandas CSV sparameters from complex128 format to 2x float64 format.
 
     Adds magnitude_suffix (default m) and phase_suffix (default a) to original keys.
+
+    Args:
+        df: pandas DataFrame.
+        magnitude_suffix: m for module.
+        phase_suffix: a for angle.
     """
     new_df = pd.DataFrame()
 
@@ -67,6 +72,7 @@ def pandas_to_numpy(df: pd.DataFrame, port_map=None) -> np.ndarray:
 
 
 def csv_to_npz(filepath: PathType) -> pathlib.Path:
+    """Convert CSV files into numpy."""
     df = pd.read_csv(filepath)
     sp = pandas_to_numpy(df)
     filepath_npz = pathlib.Path(filepath).with_suffix(".npz")
@@ -75,6 +81,7 @@ def csv_to_npz(filepath: PathType) -> pathlib.Path:
 
 
 def convert_directory_csv_to_npz(dirpath: PathType) -> None:
+    """Convert CSV files from directory dirpath into numpy."""
     dirpath = pathlib.Path(dirpath)
     for filepath in tqdm(dirpath.glob("**/*.csv")):
         try:
