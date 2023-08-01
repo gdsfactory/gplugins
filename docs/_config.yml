@@ -8,12 +8,24 @@ author: gdsfactory
 # See https://jupyterbook.org/content/execute.html
 execute:
   execute_notebooks: cache
-  timeout: -1
-  allow_errors: true
+  timeout: 600
+  allow_errors: false
   # execute_notebooks: force
   # execute_notebooks: "off"
   # exclude_patterns:
   #   - '*notebooks/devsim/01_pin_waveguide*'
+  exclude_patterns:
+    - "*01_pin_waveguide*"
+    - "*1_fdtd_sparameters*"
+    - "*2_interconnect*"
+    - "*ray_optimiser*"
+    - "*03_numerical_implantation*"
+    - "*02_model_extraction*"
+    # - "*20_schematic_driven_layout*"
+    # - "*001_meep_sparameters*"
+    # - "*00_tidy3d.ipynb"
+    # - "*03_cascaded_mzi*"
+    # - "*jupyter_notebooks*"
 
 latex:
   latex_engine: pdflatex # one of 'pdflatex', 'xelatex' (recommended for unicode), 'luatex', 'platex', 'uplatex'
