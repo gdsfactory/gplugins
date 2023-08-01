@@ -1,38 +1,12 @@
 # gplugins 0.0.2
 
+[![docs](https://github.com/gdsfactory/gplugins/actions/workflows/pages.yml/badge.svg)](https://gdsfactory.github.io/gplugins/)
+[![PyPI](https://img.shields.io/pypi/v/gplugins)](https://pypi.org/project/plugins/)
+[![PyPI Python](https://img.shields.io/pypi/pyversions/plugins.svg)](https://pypi.python.org/pypi/plugins)
+[![MIT](https://img.shields.io/github/license/gdsfactory/gplugins)](https://choosealicense.com/licenses/mit/)
+[![codecov](https://img.shields.io/codecov/c/github/gdsfactory/gdsfactory)](https://codecov.io/gh/gdsfactory/gdsfactory/tree/main/gdsfactory)
+
 gdsfactory plugins
-
-* [Optimization](https://gdsfactory.github.io/gplugins/plugins_optimization.html)
-  - [Ray Tune Generic Black-Box Optimiser](https://gdsfactory.github.io/gplugins/notebooks/ray/optimiser.html)
-
-* [Meshing](https://gdsfactory.github.io/gplugins/notebooks/devsim/01_pin_waveguide.html#Meshing)
-
-* [Device Simulators](https://gdsfactory.github.io/gplugins/plugins_process.html)
-  - [Thermal Simulation](https://gdsfactory.github.io/gplugins/notebooks/thermal/thermal.html)
-  - [DEVSIM TCAD Simulation](https://gdsfactory.github.io/gplugins/notebooks/devsim/01_pin_waveguide.html)
-  - [Analytical Process Simulation](https://gdsfactory.github.io/gplugins/notebooks/tcad/02_analytical_process.html)
-  - [Montecarlo Implant Simulation](https://gdsfactory.github.io/gplugins/notebooks/tcad/03_numerical_implantation.html)
-
-* [Mode Solvers & Eigenmode Expansion (EME)](https://gdsfactory.github.io/gplugins/plugins_mode_solver.html)
-  - Finite Element Mode Solvers
-    - [Femwell](https://gdsfactory.github.io/gplugins/notebooks/fem/01_mode_solving.html)
-  - Finite Difference Mode Solvers
-    - [tidy3d](https://gdsfactory.github.io/gplugins/notebooks/tidy3d/01_tidy3d_modes.html)
-    - [MPB](https://gdsfactory.github.io/gplugins/notebooks/mpb/001_mpb_waveguide.html)
-  - Eigenmode Expansion (EME)
-    - [MEOW](https://gdsfactory.github.io/gplugins/notebooks/eme/01_meow.html)
-
-* [Electromagnetic Wave Solvers using Finite Difference Time Domain (FDTD)](https://gdsfactory.github.io/gplugins/plugins_fdtd.html)
-  - [tidy3d](https://gdsfactory.github.io/gplugins/notebooks/tidy3d/00_tidy3d.html)
-  - [MEEP](https://gdsfactory.github.io/gplugins/notebooks/meep/001_meep_sparameters.html)
-  - [Ansys Lumerical FDTD](https://gdsfactory.github.io/gplugins/notebooks/lumerical/1_fdtd_sparameters.html)
-
-* [S-Parameter Circuit Solvers](https://gdsfactory.github.io/gplugins/plugins_circuits.html)
-  - [SAX](https://gdsfactory.github.io/gplugins/notebooks/sax/sax.html)
-  - [Ansys Lumerical INTERCONNECT](https://gdsfactory.github.io/gplugins/notebooks/lumerical/2_interconnect.html)
-
-* [Database](https://gdsfactory.github.io/gplugins/notebooks/12_database.html)
-
 
 ## Installation
 
@@ -56,3 +30,9 @@ Or Install only the plugins you need `pip install gplugins[plugin1,plugin2]` fro
 
 To install open source FDTD Meep you need to use `conda` or `mamba` on MacOS or Linux, so for Windows you need to use the [WSL (Windows Subsystem for Linux)](https://learn.microsoft.com/en-us/windows/wsl/install).
 - `conda install pymeep=*=mpi_mpich_* -c conda-forge -y`
+
+## Getting started
+
+- [Read docs](https://gdsfactory.github.io/gplugins/)
+- [Read gdsfactory docs](https://gdsfactory.github.io/gdsfactory/)
+- [![Join the chat at https://gitter.im/gdsfactory-dev/community](https://badges.gitter.im/gdsfactory-dev/community.svg)](https://gitter.im/gdsfactory-dev/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
