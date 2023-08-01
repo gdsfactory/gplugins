@@ -99,7 +99,7 @@ def convert_to_db_format(sp: dict) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    import gdsfactory.simulation.gmeep as gm
+    import gplugins.gmeep as gm
 
     component = gf.components.taper(length=100)
     component_yaml = component.to_yaml()
