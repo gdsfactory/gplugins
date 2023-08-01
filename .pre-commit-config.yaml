@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: "9260cbc9c84c06022993bfbcc42fdbf0305c5b8e"
+    rev: "v4.4.0"
     hooks:
       - id: check-added-large-files
       - id: check-case-conflict
@@ -15,28 +15,28 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: "6a0ba1854991b693612486cc84a2254de82d071d"
+    rev: "v0.0.282"
     hooks:
       - id: ruff
 
   - repo: https://github.com/psf/black
-    rev: "d9b8a6407e2f46304a8d36b18e4a73d8e0613519"
+    rev: "23.7.0"
     hooks:
       - id: black
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: ddb39ad37166dbc938d853cc77606526a0b1622a
+    rev: v3.10.1
     hooks:
       - id: pyupgrade
-        args: [--py37-plus, --keep-runtime-typing]
+        args: [--py310-plus, --keep-runtime-typing]
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: 953faa6870f6663ac0121ab4a800f1ce76bca31f
+    rev: v0.9.0.5
     hooks:
       - id: shellcheck
 
   - repo: https://github.com/PyCQA/bandit
-    rev: fe1361fdcc274850d4099885a802f2c9f28aca08
+    rev: 1.7.5
     hooks:
       - id: bandit
         args: [--exit-zero]
