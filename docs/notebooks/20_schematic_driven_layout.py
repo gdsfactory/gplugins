@@ -26,7 +26,8 @@ import gdsfactory as gf
 from bokeh.io import output_notebook
 from gdsfactory.config import rich_output
 from gdsfactory.generic_tech import get_generic_pdk
-from gdsfactory.plugins.schematic_editor import SchematicEditor
+
+from gplugins.schematic_editor import SchematicEditor
 
 gf.config.rich_output()
 PDK = get_generic_pdk()

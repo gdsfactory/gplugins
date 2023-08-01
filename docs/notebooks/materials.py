@@ -7,10 +7,11 @@
 
 # +
 import gdsfactory as gf
-import gdsfactory.simulation.gtidy3d as gt
 import numpy as np
 from gdsfactory.components.taper import taper_sc_nc
 from gdsfactory.pdk import Pdk
+
+import gplugins.gtidy3d as gt
 
 gf.config.rich_output()
 PDK = gf.generic_tech.get_generic_pdk()

@@ -21,11 +21,12 @@
 
 # +
 import gdsfactory as gf
-import gdsfactory.plugins.database.models as gd
 from gdsfactory.generic_tech import get_generic_pdk
-from gdsfactory.plugins.database import models as m
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session
+
+import gplugins.database.models as gd
+from gplugins.database import models as m
 
 gf.config.rich_output()
 PDK = get_generic_pdk()
