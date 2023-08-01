@@ -1,0 +1,198 @@
+# https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name="gplugins"
+description="gdsfactory plugins"
+classifiers = [
+	"Programming Language :: Python :: 3.10",
+	"Programming Language :: Python :: 3.11",
+	"Operating System :: OS Independent",
+]
+version="0.0.1"
+authors = [
+    {name = "gdsfactory", email = "contact@gdsfactory.com"},
+]
+keywords = ["python"]
+license = {file = "LICENSE"}
+dependencies = [
+    "gdsfactory[cad]",
+]
+readme = "README.md"
+requires-python = ">=3.10"
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit",
+    "pytest",
+    "pytest-cov",
+    "pytest_regressions",
+    ]
+docs = [
+    "jupytext",
+    "autodoc_pydantic",
+    "matplotlib",
+    "jupyter-book==0.15.1",
+    "sphinx-autodoc-typehints",
+    "sphinx-click",
+    ]
+database = [
+  "sqlalchemy",
+  "sqlalchemy-utils",
+  "dagster",
+  "dagit",
+  "sqlmodel",
+  "boto3",
+  "pymysql"
+]
+
+devsim = [
+  "devsim",
+  "pyvista",
+  "tidy3d"
+]
+femwell = [
+  "femwell==0.1.5"
+]
+
+gmsh = [
+  "gmsh",
+  "h5py",
+  "mapbox_earcut",
+  "meshio",
+  "pygmsh",
+  "pyvista",
+  "trimesh",
+  "shapely"
+]
+kfactory = [
+  "kfactory[git,ipy]==0.7.5"
+]
+meow = [
+  "meow-sim==0.7.1"
+]
+meshwell = [
+  "meshwell==0.0.9"
+]
+ray = [
+  "ray[tune,air]",
+  "hyperopt"
+]
+sax = [
+  "sax==0.8.8",
+  "jaxlib",
+  "jax"
+]
+tidy3d = [
+  "tidy3d==2.3.3"
+]
+
+
+[tool.setuptools.packages]
+find = {}
+
+# [project.scripts]
+# gplugins = "gplugins.cli:cli"
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+include = '\.pyi?$'
+exclude = '''  # Specify the files/dirs that should be ignored by the black formatter
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | env
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["gplugins/", "tests"]
+# addopts = --tb=no
+addopts = '--tb=short'
+python_files = ["gplugins/*.py", "notebooks/*.ipynb", "tests/*.py"]
+norecursedirs = ["extra/*.py"]
+
+[tool.flake8]
+max-line-length = 88
+max-complexity = 57
+select = ["B","C","E","F","W","T4","B9"]
+ignore = [ "E501", "E503", "E722", "W503", "W503", "E203", "B950", "B305", "B018", "B902", "B020", "B905"]
+extend-ignore = "RST303"
+
+exclude = [
+    ".git",
+    "__pycache__",
+    "lib",
+    "docs/source/conf.py",
+    "build",
+    "dist",
+    ".ipynb_checkpoints",
+    ".tox",
+    "extra",
+    "deprecated",
+    ".mypy_cache",
+    "venv",
+    "devsim"
+    ]
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.1.0"
+version_files = [
+    "pyproject.toml:version",
+]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+
+[tool.pylsp-mypy]
+enabled = true
+live_mode = true
+strict = true
+
+[tool.isort]
+multi_line_output = 3
+line_length = 88
+include_trailing_comma = true
+# skip = "gplugins/__init__.py"
+
+[tool.setuptools.package-data]
+mypkg = ["*.csv", "*.yaml"]
+
+[tool.codespell]
+ignore-words-list = "te, te/tm, te, ba, fpr, fpr_spacing, ro, nd, donot, schem"
+
+[tool.pydocstyle]
+inherit = false
+match = "(?!test).*\\.py"
+add-ignore = ["D100","D101","D102","D103","D104","D203","D405","D417"]
+convention = "google"
+
+[tool.ruff]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+    "B905",  # `zip()` without an explicit `strict=` parameter
+    "C408",  # C408 Unnecessary `dict` call (rewrite as a literal)
+]
