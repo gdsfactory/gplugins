@@ -9,7 +9,6 @@ except ModuleNotFoundError as e:
 from gdsfactory.config import logger
 
 from gplugins import plot, port_symmetries
-from gplugins.get_sparameters_path import get_sparameters_data_meep
 from gplugins.gmeep.get_simulation import get_simulation
 from gplugins.gmeep.meep_adjoint_optimization import (
     get_meep_adjoint_optimizer,
@@ -35,6 +34,7 @@ from gplugins.gmeep.write_sparameters_meep_mpi import (
     write_sparameters_meep_mpi_1x1,
     write_sparameters_meep_mpi_1x1_bend90,
 )
+from gplugins.utils.get_sparameters_path import get_sparameters_data_meep
 
 logger.info(f"Meep {mp.__version__!r} installed at {mp.__path__!r}")
 

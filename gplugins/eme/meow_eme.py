@@ -17,10 +17,10 @@ from gdsfactory.typings import PathType
 from meow.base_model import _array as mw_array
 from tqdm.auto import tqdm
 
-from gplugins.get_sparameters_path import (
+from gplugins.gmsh.parse_layerstack import list_unique_layerstack_z
+from gplugins.utils.get_sparameters_path import (
     get_sparameters_path_meow as get_sparameters_path,
 )
-from gplugins.gmsh.parse_layerstack import list_unique_layerstack_z
 
 ColorRGB = tuple[float, float, float]
 

@@ -21,10 +21,10 @@ from gdsfactory.pdk import get_modes_path
 from meep import mpb
 
 from gplugins.disable_print import disable_print, enable_print
-from gplugins.get_sparameters_path import get_kwargs_hash
 from gplugins.modes.get_mode_solver_coupler import get_mode_solver_coupler
 from gplugins.modes.get_mode_solver_rib import get_mode_solver_rib
 from gplugins.modes.types import Mode
+from gplugins.utils.get_sparameters_path import get_kwargs_hash
 
 mpb.Verbosity(0)
 

@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 from sax.typing_ import Float, Model
 
-from gplugins.get_sparameters_path import (
+from gplugins.utils.get_sparameters_path import (
     get_sparameters_path_lumerical,
     get_sparameters_path_meep,
     get_sparameters_path_tidy3d,
