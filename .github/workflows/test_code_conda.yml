@@ -39,9 +39,6 @@ jobs:
       - name: Install dependencies
         run: |
           make dev
-      - name: make docs
-        run: |
-          make docs
       - name: Test with pytest
         run: make test
   test_code_coverage:
