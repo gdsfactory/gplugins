@@ -13,7 +13,7 @@ test:
 	pytest -s --ignore=gplugins/gtidy3d/write_sparameters.py --ignore=gplugins/gtidy3d/write_sparameters_grating_coupler.py
 
 cov:
-	pytest --cov=gplugins
+	pytest --cov=gplugins --ignore=gplugins/gtidy3d/write_sparameters.py --ignore=gplugins/gtidy3d/write_sparameters_grating_coupler.py
 
 mypy:
 	mypy . --ignore-missing-imports

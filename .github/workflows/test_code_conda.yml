@@ -60,7 +60,7 @@ jobs:
           make dev
       - name: Test with pytest
         run: |
-          pytest --cov=gplugins
+          make cov
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
