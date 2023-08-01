@@ -12,6 +12,10 @@ jobs:
     name: Sphinx docs to gh-pages
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gdsfactory/
       - uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: '3.10'
