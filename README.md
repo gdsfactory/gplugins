@@ -1,38 +1,43 @@
-# gplugins 0.0.1
+# gplugins 0.0.1 gdsfactory plugins
 
-gdsfactory plugins
+* [Optimization](https://gdsfactory.github.io/gplugins/plugins_optimization.html)
+  - [Ray Tune Generic Black-Box Optimiser](https://gdsfactory.github.io/gplugins/notebooks/ray/optimiser.html)
 
-* [Optimization](https://gdsfactory.github.io/gdsfactory/plugins_optimization.html)
-  - [Ray Tune Generic Black-Box Optimiser](https://gdsfactory.github.io/gdsfactory/notebooks/ray/optimiser.html)
-* [Meshing](https://gdsfactory.github.io/gdsfactory/notebooks/devsim/01_pin_waveguide.html#Meshing)
-* [Device Simulators](https://gdsfactory.github.io/gdsfactory/plugins_process.html)
-  - [Thermal Simulation](https://gdsfactory.github.io/gdsfactory/notebooks/thermal/thermal.html)
-  - [DEVSIM TCAD Simulation](https://gdsfactory.github.io/gdsfactory/notebooks/devsim/01_pin_waveguide.html)
-  - [Analytical Process Simulation](https://gdsfactory.github.io/gdsfactory/notebooks/tcad/02_analytical_process.html)
-  - [Montecarlo Implant Simulation](https://gdsfactory.github.io/gdsfactory/notebooks/tcad/03_numerical_implantation.html)
-* [Mode Solvers & Eigenmode Expansion (EME)](https://gdsfactory.github.io/gdsfactory/plugins_mode_solver.html)
+* [Meshing](https://gdsfactory.github.io/gplugins/notebooks/devsim/01_pin_waveguide.html#Meshing)
+
+* [Device Simulators](https://gdsfactory.github.io/gplugins/plugins_process.html)
+  - [Thermal Simulation](https://gdsfactory.github.io/gplugins/notebooks/thermal/thermal.html)
+  - [DEVSIM TCAD Simulation](https://gdsfactory.github.io/gplugins/notebooks/devsim/01_pin_waveguide.html)
+  - [Analytical Process Simulation](https://gdsfactory.github.io/gplugins/notebooks/tcad/02_analytical_process.html)
+  - [Montecarlo Implant Simulation](https://gdsfactory.github.io/gplugins/notebooks/tcad/03_numerical_implantation.html)
+
+* [Mode Solvers & Eigenmode Expansion (EME)](https://gdsfactory.github.io/gplugins/plugins_mode_solver.html)
   - Finite Element Mode Solvers
-    - [Femwell](https://gdsfactory.github.io/gdsfactory/notebooks/fem/01_mode_solving.html)
+    - [Femwell](https://gdsfactory.github.io/gplugins/notebooks/fem/01_mode_solving.html)
   - Finite Difference Mode Solvers
-    - [tidy3d](https://gdsfactory.github.io/gdsfactory/notebooks/tidy3d/01_tidy3d_modes.html)
-    - [MPB](https://gdsfactory.github.io/gdsfactory/notebooks/mpb/001_mpb_waveguide.html)
+    - [tidy3d](https://gdsfactory.github.io/gplugins/notebooks/tidy3d/01_tidy3d_modes.html)
+    - [MPB](https://gdsfactory.github.io/gplugins/notebooks/mpb/001_mpb_waveguide.html)
   - Eigenmode Expansion (EME)
-    - [MEOW](https://gdsfactory.github.io/gdsfactory/notebooks/eme/01_meow.html)
-* [Electromagnetic Wave Solvers using Finite Difference Time Domain (FDTD)](https://gdsfactory.github.io/gdsfactory/plugins_fdtd.html)
-  - [tidy3d](https://gdsfactory.github.io/gdsfactory/notebooks/tidy3d/00_tidy3d.html)
-  - [MEEP](https://gdsfactory.github.io/gdsfactory/notebooks/meep/001_meep_sparameters.html)
-  - [Ansys Lumerical FDTD](https://gdsfactory.github.io/gdsfactory/notebooks/lumerical/1_fdtd_sparameters.html)
-* [S-Parameter Circuit Solvers](https://gdsfactory.github.io/gdsfactory/plugins_circuits.html)
-  - [SAX](https://gdsfactory.github.io/gdsfactory/notebooks/sax/sax.html)
-  - [Ansys Lumerical INTERCONNECT](https://gdsfactory.github.io/gdsfactory/notebooks/lumerical/2_interconnect.html)
-* [Database](https://gdsfactory.github.io/gdsfactory/notebooks/12_database.html)
+    - [MEOW](https://gdsfactory.github.io/gplugins/notebooks/eme/01_meow.html)
+
+* [Electromagnetic Wave Solvers using Finite Difference Time Domain (FDTD)](https://gdsfactory.github.io/gplugins/plugins_fdtd.html)
+  - [tidy3d](https://gdsfactory.github.io/gplugins/notebooks/tidy3d/00_tidy3d.html)
+  - [MEEP](https://gdsfactory.github.io/gplugins/notebooks/meep/001_meep_sparameters.html)
+  - [Ansys Lumerical FDTD](https://gdsfactory.github.io/gplugins/notebooks/lumerical/1_fdtd_sparameters.html)
+
+* [S-Parameter Circuit Solvers](https://gdsfactory.github.io/gplugins/plugins_circuits.html)
+  - [SAX](https://gdsfactory.github.io/gplugins/notebooks/sax/sax.html)
+  - [Ansys Lumerical INTERCONNECT](https://gdsfactory.github.io/gplugins/notebooks/lumerical/2_interconnect.html)
+
+* [Database](https://gdsfactory.github.io/gplugins/notebooks/12_database.html)
+
 
 ## Installation
 
 You can install all plugins with:
 
 ```
-pip install "gplugins[full]" --upgrade
+pip install "gplugins[database,devsim,femwell,gmsh,kfactory,meow,meshwell,ray,sax,tidy3d]" --upgrade
 ```
 
 Or Install only the plugins you need `pip install gplugins[plugin1,plugin2]` from the available plugins:

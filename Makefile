@@ -11,12 +11,12 @@ dev: test-data
 
 test:
 	pytest \
-		--ignore=gplugins/gtidy3d/tests/test_write_sparameters_grating_coupler.py \
+		--ignore=gplugins/gtidy3d/tests/test_write_sparameters.py \
    		--ignore=gplugins/gtidy3d/tests/test_write_sparameters_grating_coupler.py
 
 cov:
 	pytest --cov=gplugins \
-		--ignore=gplugins/gtidy3d/tests/test_write_sparameters_grating_coupler.py \
+		--ignore=gplugins/gtidy3d/tests/test_write_sparameters.py \
    		--ignore=gplugins/gtidy3d/tests/test_write_sparameters_grating_coupler.py
 
 test-data:
