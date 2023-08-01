@@ -3,17 +3,24 @@ install:
 	pip install -e .[dev]
 	pre-commit install
 
-dev:
+dev: test-data
 	pip install -e .[dev,docs,database,devsim,femwell,gmsh,kfactory,meow,meshwell,ray,sax,tidy3d]
 	conda install -c conda-forge pymeep=*=mpi_mpich_* nlopt -y
 	sudo apt-get install -y python3-gmsh gmsh
 	sudo apt install libglu1-mesa libxi-dev libxmu-dev libglu1-mesa-dev
 
 test:
-	pytest -s --ignore=gplugins/gtidy3d/write_sparameters.py --ignore=gplugins/gtidy3d/write_sparameters_grating_coupler.py
+	pytest \
+		--ignore=gplugins/gtidy3d/tests/test_write_sparameters_grating_coupler.py \
+   		--ignore=gplugins/gtidy3d/tests/test_write_sparameters_grating_coupler.py
 
 cov:
-	pytest --cov=gplugins --ignore=gplugins/gtidy3d/write_sparameters.py --ignore=gplugins/gtidy3d/write_sparameters_grating_coupler.py
+	pytest --cov=gplugins \
+		--ignore=gplugins/gtidy3d/tests/test_write_sparameters_grating_coupler.py \
+   		--ignore=gplugins/gtidy3d/tests/test_write_sparameters_grating_coupler.py
+
+test-data:
+	git clone https://github.com/gdsfactory/gdsfactory-test-data.git -b test-data test-data
 
 mypy:
 	mypy . --ignore-missing-imports

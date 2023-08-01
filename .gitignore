@@ -11,6 +11,7 @@ __pycache__/
 *.yaml
 *.dat
 *.ipynb
+test-data/
 
 # Distribution / packaging
 .Python

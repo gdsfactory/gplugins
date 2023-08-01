@@ -159,10 +159,10 @@ ng
 
 import gdsfactory as gf
 import gdsfactory.components as pdk
-from gdsfactory.config import PATH
 
 import gplugins as sim
 import gplugins.gtidy3d as gt
+from gplugins.config import PATH
 
 c = pdk.mmi1x2()
 c.plot()

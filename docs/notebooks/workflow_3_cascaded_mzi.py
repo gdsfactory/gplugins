@@ -31,9 +31,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sax
 import tidy3d as td
-from gdsfactory.config import PATH
 
 import gplugins.gtidy3d as gt
+from gplugins.config import PATH
 
 # %% [markdown]
 # We start by loading the desired PDK and setting the main geometry and filter parameters, such as DC gap and central wavelength.

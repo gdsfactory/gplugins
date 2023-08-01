@@ -89,5 +89,8 @@ jobs:
         run: |
           make dev
       - name: Test documentation
+        env:
+          SIMCLOUD_APIKEY: ${{ secrets.SIMCLOUD_APIKEY }}
+          GDSFACTORY_DISPLAY_TYPE: klayout
         run: |
           make docs

@@ -20,6 +20,8 @@ class Path:
     repo = repo_path
     web = module / "web"
     results_tidy3d = home / ".tidy3d"
+    test_data = repo / "test-data"
+    sparameters_repo = test_data / "sp"
 
 
 PATH = Path()
