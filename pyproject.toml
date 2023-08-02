@@ -41,7 +41,8 @@ dev = [
   "pytest_regressions",
   "jsondiff",
   "mypy",
-  "pyswarms"
+  "pyswarms",
+  "autograd"
 ]
 devsim = [
   "devsim",
