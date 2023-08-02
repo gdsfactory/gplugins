@@ -17,6 +17,8 @@ gplugins/path_length_analysis/test_pathlength_reporting/
 docs/notebooks/rib_strip_pathlengths/
 docs/notebooks/rib_strip_pathlengths/
 
+Pipfile
+Pipefile.lock
 
 # Distribution / packaging
 .Python

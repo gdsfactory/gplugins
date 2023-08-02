@@ -30,7 +30,7 @@ try:
 
 except ImportError as e:
     print(
-        "You need install jupyter notebook plugin with `pip install gdsfactory[kfactory]`"
+        "You need install jupyter notebook plugin with `pip install gplugins[kfactory]`"
     )
     raise e
 

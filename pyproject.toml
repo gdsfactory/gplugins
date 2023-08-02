@@ -14,7 +14,7 @@ classifiers = [
   "Operating System :: OS Independent"
 ]
 dependencies = [
-  "gdsfactory[cad]"
+  "gdsfactory>6"
 ]
 description = "gdsfactory plugins"
 keywords = ["python"]
@@ -69,9 +69,6 @@ gmsh = [
   "trimesh",
   "shapely"
 ]
-kfactory = [
-  "kfactory[git,ipy]==0.7.5"
-]
 meow = [
   "meow-sim==0.7.1"
 ]
@@ -85,10 +82,21 @@ ray = [
 sax = [
   "sax==0.8.8",
   "jaxlib",
-  "jax"
+  "jax",
+  "scikit-learn"
+]
+schematic = [
+  'bokeh',
+  "natsort"
 ]
 tidy3d = [
   "tidy3d==2.3.3"
+]
+web = [
+  "jinja2",
+  "python-multipart",
+  "fastapi",
+  "uvicorn[standard]"
 ]
 
 [tool.black]
@@ -118,12 +126,6 @@ ignore-words-list = "te, te/tm, te, ba, fpr, fpr_spacing, ro, nd, donot, schem"
 python_version = "3.10"
 strict = true
 
-[tool.pydocstyle]
-add-ignore = ["D100", "D101", "D102", "D103", "D104", "D203", "D405", "D417"]
-convention = "google"
-inherit = false
-match = "(?!test).*\\.py"
-
 [tool.pylsp-mypy]
 enabled = true
 live_mode = true
@@ -139,6 +141,7 @@ python_files = ["gplugins/*.py", "notebooks/*.ipynb", "tests/*.py"]
 testpaths = ["gplugins/", "tests"]
 
 [tool.ruff]
+fix = true
 ignore = [
   "E501",  # line too long, handled by black
   "B008",  # do not perform function calls in argument defaults
