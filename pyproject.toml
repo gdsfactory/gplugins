@@ -41,7 +41,8 @@ dev = [
   "pytest_regressions",
   "jsondiff",
   "mypy",
-  "pyswarms"
+  "pyswarms",
+  "autograd"
 ]
 devsim = [
   "devsim",
@@ -52,9 +53,7 @@ docs = [
   "jupytext",
   "autodoc_pydantic",
   "matplotlib",
-  "jupyter-book==0.15.1",
-  "sphinx-autodoc-typehints",
-  "sphinx-click"
+  "jupyter-book==0.15.1"
 ]
 femwell = [
   "femwell==0.1.5"
