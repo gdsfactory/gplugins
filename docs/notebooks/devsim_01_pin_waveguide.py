@@ -24,7 +24,7 @@
 #
 # ## Install DEVSIM
 #
-# To install DEVSIM you can run `pip install devsim` or `pip install gdsfactory[full]`.
+# To install DEVSIM you can run `pip install devsim` or `pip install gplugins[devsim]`.
 
 # ## DC Drift-diffusion simulation
 #
