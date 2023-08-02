@@ -29,7 +29,7 @@ gdsfactory plugins:
 You can install all plugins with:
 
 ```
-pip install "gplugins[database,devsim,femwell,gmsh,kfactory,meow,meshwell,ray,sax,tidy3d]" --upgrade
+pip install "gplugins[database,devsim,femwell,gmsh,schematic,meow,meshwell,ray,sax,tidy3d]" --upgrade
 ```
 
 Or Install only the plugins you need `pip install gplugins[database,devsim]` from the available plugins:
