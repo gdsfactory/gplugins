@@ -77,6 +77,8 @@ def xyz_mesh(
         background_tag: name of the background layer to add (default: no background added). This will be used as the material as well.
         background_padding: [-x, -y, -z, +x, +y, +z] distances to add to the components and to fill with ``background_tag``
         global_scaling: factor to scale all mesh coordinates by (e.g. 1E-6 to go from um to m)
+        global_scaling_premesh: factor to scale all mesh coordinates by (e.g. 1E-6 to go from um to m).
+            Instead of using a gmsh-option which is only applied to meshes, this parameter can scale cad-exported files, e.g. .step files
         global_2D_algorithm: gmsh surface default meshing algorithm, see https://gmsh.info/doc/texinfo/gmsh.html#Mesh-options
         global_3D_algorithm: gmsh volume default meshing algorithm, see https://gmsh.info/doc/texinfo/gmsh.html#Mesh-options
         filename: where to save the .msh file
