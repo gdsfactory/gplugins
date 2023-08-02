@@ -10,9 +10,9 @@ from gdsfactory.technology import LayerLevel, LayerStack
 from gdsfactory.typings import ComponentOrReference, List
 from meshwell.model import Model
 from meshwell.prism import Prism
+from shapely.affinity import scale
 from shapely.geometry import Polygon
 from shapely.ops import unary_union
-from shapely.affinity import scale
 
 from gplugins.gmsh.parse_component import bufferize
 from gplugins.gmsh.parse_gds import cleanup_component
@@ -34,12 +34,16 @@ def define_prisms(layer_polygons_dict, layerstack, model, scale_factor):
             coords * buffered_layerstack.layers[layername].thickness * scale_factor
             + buffered_layerstack.layers[layername].zmin * scale_factor
         )
-        buffers = np.array(buffered_layerstack.layers[layername].z_to_bias[1]) * scale_factor
+        buffers = (
+            np.array(buffered_layerstack.layers[layername].z_to_bias[1]) * scale_factor
+        )
 
         buffer_dict = dict(zip(zs, buffers))
 
         prisms_dict[layername] = Prism(
-            polygons=scale(layer_polygons_dict[layername], *(scale_factor,)*2, origin=(0,0,0)),
+            polygons=scale(
+                layer_polygons_dict[layername], *(scale_factor,) * 2, origin=(0, 0, 0)
+            ),
             buffers=buffer_dict,
             model=model,
         )
@@ -116,22 +120,40 @@ def xyz_mesh(
         zmin, zmax = np.min(zs), np.max(zs)
 
         # create Polygon encompassing simulation environment
-        layer_polygons_dict[background_tag] = scale(Polygon(
-            [
-                [bounds[0] - background_padding[0], bounds[1] - background_padding[1]],
-                [bounds[0] - background_padding[0], bounds[3] + background_padding[4]],
-                [bounds[2] + background_padding[3], bounds[3] + background_padding[4]],
-                [bounds[2] + background_padding[3], bounds[1] - background_padding[1]],
-            ]
-        ), *(global_scaling_premesh,)*2, origin=(0,0,0))
+        layer_polygons_dict[background_tag] = scale(
+            Polygon(
+                [
+                    [
+                        bounds[0] - background_padding[0],
+                        bounds[1] - background_padding[1],
+                    ],
+                    [
+                        bounds[0] - background_padding[0],
+                        bounds[3] + background_padding[4],
+                    ],
+                    [
+                        bounds[2] + background_padding[3],
+                        bounds[3] + background_padding[4],
+                    ],
+                    [
+                        bounds[2] + background_padding[3],
+                        bounds[1] - background_padding[1],
+                    ],
+                ]
+            ),
+            *(global_scaling_premesh,) * 2,
+            origin=(0, 0, 0),
+        )
         layerstack = LayerStack(
             layers=layerstack.layers
             | {
                 background_tag: LayerLevel(
                     layer=(9999, 0),  # TODO something like LAYERS.BACKGROUND?
-                    thickness=((zmax + background_padding[5])
-                    - (zmin - background_padding[2]))*global_scaling_premesh,
-                    zmin=(zmin - background_padding[2])*global_scaling_premesh,
+                    thickness=(
+                        (zmax + background_padding[5]) - (zmin - background_padding[2])
+                    )
+                    * global_scaling_premesh,
+                    zmin=(zmin - background_padding[2]) * global_scaling_premesh,
                     material=background_tag,
                     mesh_order=2**63 - 1,
                 )
@@ -140,14 +162,17 @@ def xyz_mesh(
 
     # Meshwell Prisms from gdsfactory polygons and layerstack
     model = Model(n_threads=n_threads)
-    prisms_dict = define_prisms(layer_polygons_dict, layerstack, model, global_scaling_premesh)
+    prisms_dict = define_prisms(
+        layer_polygons_dict, layerstack, model, global_scaling_premesh
+    )
 
     import copy
+
     resolutions = copy.deepcopy(resolutions)
 
     if resolutions:
         for r in resolutions.values():
-            r['resolution'] *= global_scaling_premesh
+            r["resolution"] *= global_scaling_premesh
 
     # Mesh
     mesh_out = model.mesh(
