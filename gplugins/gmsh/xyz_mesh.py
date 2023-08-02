@@ -5,11 +5,11 @@ from collections.abc import Sequence
 
 import numpy as np
 from gdsfactory.config import get_number_of_cores
-from gdsfactory.geometry.union import union
 from gdsfactory.technology import LayerLevel, LayerStack
-from gdsfactory.typings import ComponentOrReference, List
+from gdsfactory.typings import ComponentOrReference
 from meshwell.model import Model
 from meshwell.prism import Prism
+from shapely.affinity import scale
 from shapely.geometry import Polygon
 from shapely.ops import unary_union
 
@@ -21,7 +21,7 @@ from gplugins.gmsh.parse_layerstack import (
 )
 
 
-def define_prisms(layer_polygons_dict, layerstack, model):
+def define_prisms(layer_polygons_dict, layerstack, model, scale_factor):
     """Define meshwell prism dimtags from gdsfactory information."""
     prisms_dict = OrderedDict()
     buffered_layerstack = bufferize(layerstack)
@@ -30,15 +30,19 @@ def define_prisms(layer_polygons_dict, layerstack, model):
     for layername in ordered_layerstack:
         coords = np.array(buffered_layerstack.layers[layername].z_to_bias[0])
         zs = (
-            coords * buffered_layerstack.layers[layername].thickness
-            + buffered_layerstack.layers[layername].zmin
+            coords * buffered_layerstack.layers[layername].thickness * scale_factor
+            + buffered_layerstack.layers[layername].zmin * scale_factor
         )
-        buffers = buffered_layerstack.layers[layername].z_to_bias[1]
+        buffers = (
+            np.array(buffered_layerstack.layers[layername].z_to_bias[1]) * scale_factor
+        )
 
         buffer_dict = dict(zip(zs, buffers))
 
         prisms_dict[layername] = Prism(
-            polygons=layer_polygons_dict[layername],
+            polygons=scale(
+                layer_polygons_dict[layername], *(scale_factor,) * 2, origin=(0, 0, 0)
+            ),
             buffers=buffer_dict,
             model=model,
         )
@@ -54,6 +58,7 @@ def xyz_mesh(
     background_tag: str | None = None,
     background_padding: Sequence[float, float, float, float, float, float] = (2.0,) * 6,
     global_scaling: float = 1,
+    global_scaling_premesh: float = 1,
     global_2D_algorithm: int = 6,
     global_3D_algorithm: int = 1,
     filename: str | None = None,
@@ -61,9 +66,6 @@ def xyz_mesh(
     round_tol: int = 3,
     simplify_tol: float = 1e-3,
     n_threads: int = get_number_of_cores(),
-    portnames: List[str] = None,
-    layer_portname_delimiter: str = "#",
-    gmsh_version: float | None = None,
 ) -> bool:
     """Full 3D mesh of component.
 
@@ -71,7 +73,7 @@ def xyz_mesh(
         component: gdsfactory component to mesh
         layerstack: gdsfactory LayerStack to parse
         resolutions: Pairs {"layername": {"resolution": float, "distance": "float}} to roughly control mesh refinement
-            default_characteristic_length: gmsh maximum edge length
+        default_characteristic_length: gmsh maximum edge length
         background_tag: name of the background layer to add (default: no background added). This will be used as the material as well.
         background_padding: [-x, -y, -z, +x, +y, +z] distances to add to the components and to fill with ``background_tag``
         global_scaling: factor to scale all mesh coordinates by (e.g. 1E-6 to go from um to m)
@@ -80,24 +82,8 @@ def xyz_mesh(
         filename: where to save the .msh file
         round_tol: during gds --> mesh conversion cleanup, number of decimal points at which to round the gdsfactory/shapely points before introducing to gmsh
         simplify_tol: during gds --> mesh conversion cleanup, shapely "simplify" tolerance (make it so all points are at least separated by this amount)
-        n_threads: for gmsh parallelization
-        portnames: list or port polygons to converts into new layers (useful for boundary conditions)
-        layer_portname_delimiter: delimiter for the new layername/portname physicals, formatted as {layername}{delimiter}{portname}
-        gmsh_version: Gmsh mesh format version. For example, Palace requires an older version of 2.2,
-            see https://mfem.org/mesh-formats/#gmsh-mesh-formats.
     """
-    if portnames:
-        mesh_component = gf.Component()
-        mesh_component << union(component, by_layer=True)
-        mesh_component.add_ports(component.get_ports_list())
-        component = layerstack.get_component_with_net_layers(
-            mesh_component,
-            portnames=portnames,
-            delimiter=layer_portname_delimiter,
-        )
-
     # Fuse and cleanup polygons of same layer in case user overlapped them
-    # TODO: some duplication with union above, although this also does some useful offsetting
     layer_polygons_dict = cleanup_component(
         component, layerstack, round_tol, simplify_tol
     )
@@ -112,22 +98,40 @@ def xyz_mesh(
         zmin, zmax = np.min(zs), np.max(zs)
 
         # create Polygon encompassing simulation environment
-        layer_polygons_dict[background_tag] = Polygon(
-            [
-                [bounds[0] - background_padding[0], bounds[1] - background_padding[1]],
-                [bounds[0] - background_padding[0], bounds[3] + background_padding[4]],
-                [bounds[2] + background_padding[3], bounds[3] + background_padding[4]],
-                [bounds[2] + background_padding[3], bounds[1] - background_padding[1]],
-            ]
+        layer_polygons_dict[background_tag] = scale(
+            Polygon(
+                [
+                    [
+                        bounds[0] - background_padding[0],
+                        bounds[1] - background_padding[1],
+                    ],
+                    [
+                        bounds[0] - background_padding[0],
+                        bounds[3] + background_padding[4],
+                    ],
+                    [
+                        bounds[2] + background_padding[3],
+                        bounds[3] + background_padding[4],
+                    ],
+                    [
+                        bounds[2] + background_padding[3],
+                        bounds[1] - background_padding[1],
+                    ],
+                ]
+            ),
+            *(global_scaling_premesh,) * 2,
+            origin=(0, 0, 0),
         )
         layerstack = LayerStack(
             layers=layerstack.layers
             | {
                 background_tag: LayerLevel(
                     layer=(9999, 0),  # TODO something like LAYERS.BACKGROUND?
-                    thickness=(zmax + background_padding[5])
-                    - (zmin - background_padding[2]),
-                    zmin=zmin - background_padding[2],
+                    thickness=(
+                        (zmax + background_padding[5]) - (zmin - background_padding[2])
+                    )
+                    * global_scaling_premesh,
+                    zmin=(zmin - background_padding[2]) * global_scaling_premesh,
                     material=background_tag,
                     mesh_order=2**63 - 1,
                 )
@@ -136,7 +140,17 @@ def xyz_mesh(
 
     # Meshwell Prisms from gdsfactory polygons and layerstack
     model = Model(n_threads=n_threads)
-    prisms_dict = define_prisms(layer_polygons_dict, layerstack, model)
+    prisms_dict = define_prisms(
+        layer_polygons_dict, layerstack, model, global_scaling_premesh
+    )
+
+    import copy
+
+    resolutions = copy.deepcopy(resolutions)
+
+    if resolutions:
+        for r in resolutions.values():
+            r["resolution"] *= global_scaling_premesh
 
     # Mesh
     mesh_out = model.mesh(
@@ -146,7 +160,6 @@ def xyz_mesh(
         global_scaling=global_scaling,
         global_2D_algorithm=global_2D_algorithm,
         global_3D_algorithm=global_3D_algorithm,
-        gmsh_version=gmsh_version,
         filename=filename,
         verbosity=verbosity,
     )
@@ -169,6 +182,11 @@ if __name__ == "__main__":
 
     # Generate a new component and layerstack with new logical layers
     layerstack = get_layer_stack()
+    c = layerstack.get_component_with_net_layers(
+        c,
+        portnames=["r_e2", "l_e4"],
+        delimiter="#",
+    )
 
     # FIXME: .filtered returns all layers
     # filtered_layerstack = layerstack.filtered_from_layerspec(layerspecs=c.get_layers())
@@ -180,10 +198,12 @@ if __name__ == "__main__":
                 "box",
                 "clad",
                 # "metal2",
+                "metal3#l_e4",
                 "heater",
                 "via2",
                 "core",
-                "metal3",
+                "metal3#r_e2",
+                # "metal3",
                 # "via_contact",
                 # "metal1"
             )
@@ -200,5 +220,4 @@ if __name__ == "__main__":
         filename="mesh.msh",
         default_characteristic_length=5,
         verbosity=5,
-        portnames=["r_e2", "l_e4"],
     )
