@@ -85,7 +85,8 @@ ray = [
 sax = [
   "sax==0.8.8",
   "jaxlib",
-  "jax"
+  "jax",
+  "scikit-learn"
 ]
 tidy3d = [
   "tidy3d==2.3.3"
