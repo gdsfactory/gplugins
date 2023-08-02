@@ -91,6 +91,12 @@ sax = [
 tidy3d = [
   "tidy3d==2.3.3"
 ]
+web = [
+  "jinja2",
+  "python-multipart",
+  "fastapi",
+  "uvicorn[standard]"
+]
 
 [tool.black]
 exclude = '''  # Specify the files/dirs that should be ignored by the black formatter
