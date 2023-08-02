@@ -189,13 +189,6 @@ sim.plot.plot_loss1x2(sp)
 #
 # We will be using SAX which is an open source circuit simulator.
 #
-#
-# ```
-# set PIP_FIND_LINKS="https://whls.blob.core.windows.net/unstable/index.html"
-# pip install sax jax
-# pip install "jaxlib[cuda111]" -f https://whls.blob.core.windows.net/unstable/index.html --use-deprecated legacy-resolver
-# pip install "gdsfactory[tidy3d,sax]"
-# ```
 
 mzi10 = gf.components.mzi(splitter=c, delta_length=10)
 mzi10
