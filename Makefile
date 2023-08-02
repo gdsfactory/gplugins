@@ -4,7 +4,7 @@ install:
 	pre-commit install
 
 dev: test-data
-	pip install -e .[dev,docs,database,devsim,femwell,gmsh,kfactory,meow,meshwell,ray,sax,tidy3d,web]
+	pip install -e .[dev,docs,database,devsim,femwell,gmsh,meow,meshwell,ray,sax,schematic,tidy3d,web]
 	conda install -c conda-forge pymeep=*=mpi_mpich_* nlopt -y
 	sudo apt-get install -y python3-gmsh gmsh
 	sudo apt install libglu1-mesa libxi-dev libxmu-dev libglu1-mesa-dev
