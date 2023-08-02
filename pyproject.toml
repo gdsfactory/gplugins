@@ -14,7 +14,7 @@ classifiers = [
   "Operating System :: OS Independent"
 ]
 dependencies = [
-  "gdsfactory"
+  "gdsfactory[cad]"
 ]
 description = "gdsfactory plugins"
 keywords = ["python"]
@@ -95,7 +95,8 @@ web = [
   "jinja2",
   "python-multipart",
   "fastapi",
-  "uvicorn[standard]"
+  "uvicorn[standard]",
+  'bokeh'
 ]
 
 [tool.black]

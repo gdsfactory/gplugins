@@ -5,7 +5,7 @@
 # The interface employs [SQLAlchemy](https://www.sqlalchemy.org/), which is installed if you supplied the `[database]` option during gdsfactory installation.
 #
 # ```
-# pip install "gdsfactory[database]"
+# pip install "gplugins[database]"
 # ```
 #
 # The idea is to store simulation, fabrication and measurement data.

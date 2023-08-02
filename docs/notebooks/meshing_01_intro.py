@@ -38,7 +38,7 @@
 #
 # ## Installation
 #
-# You can install the meshing plugins with `pip install gdsfactory[gmsh]`.
+# You can install the meshing plugins with `pip install gplugins[gmsh]`.
 #
 # Because PyVista does not work properly on headless systems we use Meshio.
 
