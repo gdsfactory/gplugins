@@ -78,9 +78,7 @@ sax = [
   "sax==0.8.8",
   "jaxlib",
   "jax",
-  "scikit-learn",
-  "femwell==0.1.6",
-  "meow-sim==0.7.1"
+  "scikit-learn"
 ]
 schematic = [
   'bokeh',
@@ -132,7 +130,8 @@ strict = true
 addopts = '--tb=short'
 norecursedirs = [
   "extra/*.py",
-  'gplugins/devsim'
+  'gplugins/devsim',
+  'gplugins/sax/integrations'
 ]
 python_files = ["gplugins/*.py", "notebooks/*.ipynb", "tests/*.py"]
 testpaths = ["gplugins/", "tests"]

@@ -30,6 +30,8 @@ jobs:
         python-version: ['3.10']
         os: [ubuntu-latest]
         plugin: [femwell, gmsh, meow, sax, tidy3d]
+        fail-fast: false
+
     name: Test ${{ matrix.plugin }} on ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
