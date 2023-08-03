@@ -57,8 +57,6 @@ Mode solver Plugins
     MEOW
 
 
-
-
 ************************
 FDTD Simulation Plugins
 ************************

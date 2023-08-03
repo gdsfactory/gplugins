@@ -42,6 +42,8 @@ parts:
           - file: notebooks/sax_03_variability_analysis
           - file: notebooks/lumerical_2_interconnect
       - file: notebooks/12_database
+      - file: notebooks/20_schematic_driven_layout
+      - file: notebooks/path_length_analysis.py
   - caption: Workflows
     chapters:
       - file: workflow
