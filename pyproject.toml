@@ -58,7 +58,7 @@ docs = [
   "jupyter-book==0.15.1"
 ]
 femwell = [
-  "femwell==0.1.5"
+  "femwell==0.1.6"
 ]
 gmsh = [
   "gmsh",
@@ -68,19 +68,18 @@ gmsh = [
   "pygmsh",
   "pyvista",
   "trimesh",
-  "shapely"
+  "shapely",
+  "meshwell==0.0.9"
 ]
 meow = [
   "meow-sim==0.7.1"
-]
-meshwell = [
-  "meshwell==0.0.9"
 ]
 sax = [
   "sax==0.8.8",
   "jaxlib",
   "jax",
-  "scikit-learn"
+  "scikit-learn",
+  "femwell==0.1.6"
 ]
 schematic = [
   'bokeh',

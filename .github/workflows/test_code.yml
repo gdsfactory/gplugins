@@ -29,7 +29,7 @@ jobs:
       matrix:
         python-version: ['3.10']
         os: [ubuntu-latest, windows-latest, macos-latest]
-        plugin: [database, femwell, meow, sax, tidy3d]
+        plugin: [database, femwell, gmsh, meow, sax, tidy3d]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/cache@v3
@@ -43,6 +43,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
+          make gmsh
           pip install -e .[${{ matrix.plugin }},dev]
       - name: Test with pytest
         run: pytest gplugins/${{ matrix.plugin }}

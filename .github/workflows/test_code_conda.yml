@@ -27,4 +27,4 @@ jobs:
       - name: Test with pytest
         run: |
           make meep
-          pytest gplugins/gmeep gplugins/mode
+          pytest gplugins/gmeep gplugins/modes
