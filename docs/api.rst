@@ -20,7 +20,7 @@ Mode solver Plugins
    sweep_bend_mismatch
    sweep_coupling_length
 
-.. currentmodule:: gplugins.fem.mode_solver
+.. currentmodule:: gplugins.femwell.mode_solver
 
 .. rubric:: Mode solver Femwell
 
@@ -47,7 +47,7 @@ Mode solver Plugins
     plot_neff_vs_width
     plot_coupling_vs_gap
 
-.. currentmodule:: gplugins.eme
+.. currentmodule:: gplugins.meow
 
 .. rubric:: EME (Eigen Mode Expansion)
 

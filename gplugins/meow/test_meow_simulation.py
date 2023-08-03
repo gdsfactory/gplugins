@@ -3,7 +3,7 @@ import numpy as np
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 
-from gplugins.eme import MEOW
+from gplugins.meow import MEOW
 
 PDK = gf.get_generic_pdk()
 PDK.activate()

@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from gdsfactory.generic_tech import get_generic_pdk
 
-from gplugins.eme import MEOW
+from gplugins.meow import MEOW
 
 gf.config.rich_output()
 PDK = get_generic_pdk()

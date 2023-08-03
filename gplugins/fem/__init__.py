@@ -1,5 +1,8 @@
-from __future__ import annotations
+import sys
+import warnings
 
-from .solve_thermal import solve_thermal
+from gplugins import femwell
 
-__all__ = ("solve_thermal",)
+message = "gplugins.fem has been renamed to gplugins.femwell. Please update your code."
+warnings.warn(message)
+sys.modules["gplugins.fem"] = femwell

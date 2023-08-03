@@ -42,7 +42,9 @@ dev = [
   "jsondiff",
   "mypy",
   "pyswarms",
-  "autograd"
+  "autograd",
+  "ray[tune,air]",
+  "hyperopt"
 ]
 devsim = [
   "devsim",
@@ -73,10 +75,6 @@ meow = [
 ]
 meshwell = [
   "meshwell==0.0.9"
-]
-ray = [
-  "ray[tune,air]",
-  "hyperopt"
 ]
 sax = [
   "sax==0.8.8",

@@ -1,4 +1,4 @@
-name: Test MEEP and MPB
+name: Test coverage
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
       - main
 
 jobs:
-  test_code:
+  test_code_coverage:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -23,8 +23,12 @@ jobs:
           echo $CONDA/bin >> $GITHUB_PATH
       - name: Install dependencies
         run: |
-          pip install -e .
+          make dev
       - name: Test with pytest
         run: |
-          make meep
-          pytest gplugins/gmeep gplugins/mode
+          make cov
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false

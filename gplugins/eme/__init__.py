@@ -1,5 +1,8 @@
-from gplugins.eme.meow_eme import MEOW
+import sys
+import warnings
 
-__all__ = [
-    "MEOW",
-]
+from gplugins import meow
+
+message = "gplugins.eme has been renamed to gplugins.meow. Please update your code."
+warnings.warn(message)
+sys.modules["gplugins.eme"] = meow

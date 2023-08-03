@@ -4,7 +4,7 @@ import ray
 from gdsfactory.pdk import get_layer_stack
 from sax.utils import reciprocal
 
-from gplugins.fem.mode_solver import compute_cross_section_modes
+from gplugins.femwell.mode_solver import compute_cross_section_modes
 from gplugins.sax.build_model import Model
 
 

@@ -3,11 +3,15 @@ install:
 	pip install -e .[dev]
 	pre-commit install
 
-dev: test-data
+dev: test-data meep gmsh
 	pip install -e .[dev,docs,database,devsim,femwell,gmsh,meow,meshwell,ray,sax,schematic,tidy3d,web]
-	conda install -c conda-forge pymeep=*=mpi_mpich_* nlopt -y
+
+gmsh:
 	sudo apt-get install -y python3-gmsh gmsh
 	sudo apt install libglu1-mesa libxi-dev libxmu-dev libglu1-mesa-dev
+
+meep:
+	conda install -c conda-forge pymeep=*=mpi_mpich_* nlopt -y
 
 test:
 	pytest \
