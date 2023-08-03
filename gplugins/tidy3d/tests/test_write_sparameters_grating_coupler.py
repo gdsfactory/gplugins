@@ -4,6 +4,7 @@ import gdsfactory as gf
 import numpy as np
 
 import gplugins.tidy3d as gt
+from gplugins.config import PATH
 
 fiber_port_name = "o2"
 
@@ -23,6 +24,7 @@ def test_sparameters_grating_coupler(overwrite=False) -> None:
             fiber_angle_deg=fiber_angle_deg,
             fiber_xoffset=fiber_xoffset,
             overwrite=overwrite,
+            dirpath=PATH.sparameters_repo,
         )
         for fiber_xoffset in offsets
     ]
