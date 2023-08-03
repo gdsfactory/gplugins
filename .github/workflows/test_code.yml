@@ -47,7 +47,7 @@ jobs:
       - name: Install dependencies
         run: |
           make gmsh
-          pip install -e .[${{ matrix.plugin }},dev] --ignore=gplugins/tidy3d/tests/test_write_sparameters.py --ignore=gplugins/tidy3d/tests/test_write_sparameters_grating_coupler.py
+          pip install -e .[${{ matrix.plugin }},dev]
       - name: Test with pytest
         env:
           SIMCLOUD_APIKEY: ${{ secrets.SIMCLOUD_APIKEY }}

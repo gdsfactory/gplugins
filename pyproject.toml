@@ -132,7 +132,8 @@ addopts = '--tb=short'
 norecursedirs = [
   "extra/*.py",
   'gplugins/devsim',
-  'gplugins/sax/integrations'
+  'gplugins/sax/integrations',
+  'gplugins/tidy3d/tests/tests_sparameters'
 ]
 python_files = ["gplugins/*.py", "notebooks/*.ipynb", "tests/*.py"]
 testpaths = ["gplugins/", "tests"]
