@@ -35,7 +35,7 @@ def get_simulation_grating_coupler(
     zmargin: float = 1.0,
     clad_material: str = "sio2",
     box_material: str = "sio2",
-    box_thickness: float = 2.0,
+    box_thickness: float = 3.0,
     substrate_material: str = "si",
     port_waveguide_name: str = "o1",
     port_margin: float = 0.5,
@@ -413,7 +413,7 @@ def get_simulation_grating_coupler(
         center=waveguide_port_center,
         size=waveguide_port_size,
         freqs=freqs,
-        mode_spec=td.ModeSpec(num_modes=1),
+        mode_spec=td.ModeSpec(num_modes=1, precision="double"),
         name="waveguide",
     )
 
