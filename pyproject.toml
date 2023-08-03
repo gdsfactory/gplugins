@@ -14,7 +14,7 @@ classifiers = [
   "Operating System :: OS Independent"
 ]
 dependencies = [
-  "gdsfactory[cad]>=7.0.1"
+  "gdsfactory[cad]>=7.0.2"
 ]
 description = "gdsfactory plugins"
 keywords = ["python"]

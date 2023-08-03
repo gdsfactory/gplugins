@@ -30,6 +30,7 @@ jobs:
         python-version: ['3.10']
         os: [ubuntu-latest, windows-latest, macos-latest]
         plugin: [database, femwell, gmsh, meow, sax, tidy3d]
+    name: Test ${{ matrix.plugin }} on ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/cache@v3
