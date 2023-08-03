@@ -14,7 +14,7 @@ classifiers = [
   "Operating System :: OS Independent"
 ]
 dependencies = [
-  "gdsfactory>6"
+  "gdsfactory[cad]>=7.0.1"
 ]
 description = "gdsfactory plugins"
 keywords = ["python"]
@@ -79,7 +79,8 @@ sax = [
   "jaxlib",
   "jax",
   "scikit-learn",
-  "femwell==0.1.6"
+  "femwell==0.1.6",
+  "meow-sim==0.7.1"
 ]
 schematic = [
   'bokeh',
