@@ -23,7 +23,7 @@ jobs:
           echo $CONDA/bin >> $GITHUB_PATH
       - name: Install dependencies
         run: |
-          pip install -e .
+          pip install -e .[dev]
       - name: Test with pytest
         run: |
           make meep

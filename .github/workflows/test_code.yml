@@ -43,6 +43,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          pip install -e .[${{ matrix.plugin }}]
+          pip install -e .[${{ matrix.plugin }},dev]
       - name: Test with pytest
         run: pytest gplugins/${{ matrix.plugin }}
