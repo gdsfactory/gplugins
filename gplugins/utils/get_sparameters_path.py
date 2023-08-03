@@ -9,7 +9,7 @@ import gdsfactory as gf
 import numpy as np
 from gdsfactory.name import clean_value
 from gdsfactory.pdk import get_sparameters_path
-from gdsfactory.typings import ComponentSpec
+from gdsfactory.typings import ComponentSpec, PathType
 
 
 def get_kwargs_hash(**kwargs) -> str:
@@ -28,7 +28,7 @@ def get_component_hash(component: gf.Component) -> str:
 
 def _get_sparameters_path(
     component: ComponentSpec,
-    dirpath: Path | None = None,
+    dirpath: PathType | None = None,
     **kwargs,
 ) -> Path:
     """Return Sparameters npz filepath hashing simulation settings for \

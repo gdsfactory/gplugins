@@ -100,7 +100,8 @@ def write_sparameters_grating_coupler(
 
     """
     component = gf.get_component(component)
-    assert isinstance(component, Component)
+    if not isinstance(component, Component):
+        raise ValueError(f"component should be a gdsfactory.Component not {component}")
 
     filepath = filepath or get_sparameters_path(
         component=component,
@@ -199,23 +200,22 @@ def write_sparameters_grating_coupler_batch(
 
 
 if __name__ == "__main__":
-    from gdsfactory.config import PATH
-
     c = gf.components.grating_coupler_elliptical_lumerical()  # inverse design grating
     offsets = [0, 5]
     offsets = [0]
     fiber_angle_deg = 8
+    sp = write_sparameters_grating_coupler(c, is_3d=False)
 
-    dfs = [
-        write_sparameters_grating_coupler(
-            component=c,
-            is_3d=False,
-            fiber_angle_deg=fiber_angle_deg,
-            fiber_xoffset=fiber_xoffset,
-            filepath=PATH.sparameters_repo / f"gc_offset{fiber_xoffset}.npz",
-        )
-        for fiber_xoffset in offsets
-    ]
+    # dfs = [
+    #     write_sparameters_grating_coupler(
+    #         component=c,
+    #         is_3d=False,
+    #         fiber_angle_deg=fiber_angle_deg,
+    #         fiber_xoffset=fiber_xoffset,
+    #         filepath=PATH.sparameters_repo / f"gc_offset{fiber_xoffset}.npz",
+    #     )
+    #     for fiber_xoffset in offsets
+    # ]
 
     # jobs = [
     #     dict(

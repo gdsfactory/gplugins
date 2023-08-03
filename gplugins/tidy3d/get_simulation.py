@@ -184,7 +184,8 @@ def get_simulation(
 
     """
     component = gf.get_component(component)
-    assert isinstance(component, Component)
+    if not isinstance(component, Component):
+        raise ValueError(f"component should be a gdsfactory.Component not {component}")
 
     layer_stack = layer_stack or get_layer_stack()
     if is_3d:
@@ -205,9 +206,6 @@ def get_simulation(
     layer_to_zmin = layer_stack.get_layer_to_zmin()
     # layer_to_sidewall_angle = layer_stack.get_layer_to_sidewall_angle()
 
-    assert isinstance(
-        component, Component
-    ), f"component needs to be a gf.Component, got Type {type(component)}"
     if port_source_name not in component.ports:
         warnings.warn(
             f"port_source_name={port_source_name!r} not in {list(component.ports.keys())}"
