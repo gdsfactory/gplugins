@@ -27,9 +27,9 @@ def test_simulation(overwrite: bool = False) -> None:
     run_path = dirpath / "sim_run.yaml"
 
     if overwrite:
-        sim.to_file(ref_path)  # uncomment to overwrite material
+        sim.to_file(str(ref_path))  # uncomment to overwrite material
 
-    sim.to_file(run_path)
+    sim.to_file(str(run_path))
 
     dref = OmegaConf.load(ref_path)
     drun = OmegaConf.load(run_path)
