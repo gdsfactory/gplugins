@@ -3,8 +3,8 @@ from __future__ import annotations
 import gdsfactory as gf
 from gdsfactory.config import PATH
 
-import gplugins.gtidy3d as gt
-from gplugins.gtidy3d.get_results import get_results
+import gplugins.tidy3d as gt
+from gplugins.tidy3d.get_results import get_results
 
 # def test_results_run(data_regression) -> None:
 #     """Run simulations and checks local results."""

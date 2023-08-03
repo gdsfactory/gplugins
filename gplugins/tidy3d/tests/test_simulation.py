@@ -6,9 +6,9 @@ import gdsfactory as gf
 from jsondiff import diff
 from omegaconf import OmegaConf
 
-import gplugins.gtidy3d as gt
+import gplugins.tidy3d as gt
 
-# from gplugins.gtidy3d.get_results import get_sim_hash
+# from gplugins.tidy3d.get_results import get_sim_hash
 # def test_simulation_hash() -> None:
 #     component = gf.components.straight(length=3)
 #     sim = gt.get_simulation(component=component)

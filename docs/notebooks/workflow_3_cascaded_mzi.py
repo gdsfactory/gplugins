@@ -32,7 +32,7 @@ import numpy as np
 import sax
 import tidy3d as td
 
-import gplugins.gtidy3d as gt
+import gplugins.tidy3d as gt
 from gplugins.config import PATH
 
 # %% [markdown]

@@ -23,8 +23,8 @@ from devsim.python_packages import model_create, simple_physics
 from pydantic import BaseModel, Extra
 from scipy.interpolate import griddata
 
-from gplugins.gtidy3d.materials import get_nk
-from gplugins.gtidy3d.modes import Precision, Waveguide
+from gplugins.tidy3d.materials import get_nk
+from gplugins.tidy3d.modes import Precision, Waveguide
 from gplugins.utils.disable_print import disable_print, enable_print
 
 if TYPE_CHECKING:

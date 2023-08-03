@@ -3,10 +3,10 @@ from __future__ import annotations
 import gdsfactory as gf
 import numpy as np
 
-import gplugins.gtidy3d as gt
+import gplugins.tidy3d as gt
 
 
-def test_sparameters_straight_3d(overwrite=True) -> None:
+def test_sparameters_straight_3d(overwrite=False) -> None:
     """Checks Sparameters for a straight waveguide in 2D."""
     c = gf.components.straight(length=2)
     sp = gt.write_sparameters_1x1(c, overwrite=overwrite, is_3d=True)
@@ -15,7 +15,7 @@ def test_sparameters_straight_3d(overwrite=True) -> None:
     assert 0 < np.abs(sp["o1@0,o1@0"]).max() < 0.1, np.abs(sp["o1@0,o1@0"]).max()
 
 
-def test_sparameters_straight_2d(overwrite=True) -> None:
+def test_sparameters_straight_2d(overwrite=False) -> None:
     """Checks Sparameters for a straight waveguide in 2D."""
     c = gf.components.straight(length=2)
     sp = gt.write_sparameters_1x1(c, overwrite=overwrite, is_3d=False)

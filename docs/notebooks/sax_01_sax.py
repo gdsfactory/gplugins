@@ -30,8 +30,8 @@ from scipy import constants
 from sklearn.linear_model import LinearRegression
 from tqdm.notebook import trange
 
-import gplugins.gtidy3d as gt
 import gplugins.sax as gs
+import gplugins.tidy3d as gt
 
 gf.config.rich_output()
 PDK = get_generic_pdk()

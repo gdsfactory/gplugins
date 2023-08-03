@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 
-import gplugins.gtidy3d as gt
+import gplugins.tidy3d as gt
 
 
 def test_neff() -> None:

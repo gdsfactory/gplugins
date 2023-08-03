@@ -132,7 +132,7 @@ def get_results_batch(
 
 
 if __name__ == "__main__":
-    import gplugins.gtidy3d as gt
+    import gplugins.tidy3d as gt
 
     component = gf.components.straight(length=3)
     sim = gt.get_simulation(component=component)

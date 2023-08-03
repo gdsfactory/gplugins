@@ -18,7 +18,7 @@ from gdsfactory.technology import LayerStack
 from gdsfactory.typings import ComponentSpec, Float2
 from tidy3d.plugins.mode import ModeSolver
 
-from gplugins.gtidy3d.materials import get_index, get_medium
+from gplugins.tidy3d.materials import get_index, get_medium
 
 
 @pydantic.validate_arguments

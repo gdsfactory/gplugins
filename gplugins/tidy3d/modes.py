@@ -28,7 +28,7 @@ from gdsfactory.typings import PathType
 from tidy3d.plugins import waveguide
 from tqdm.auto import tqdm
 
-from gplugins.gtidy3d.materials import get_medium
+from gplugins.tidy3d.materials import get_medium
 
 Precision = Literal["single", "double"]
 nm = 1e-3

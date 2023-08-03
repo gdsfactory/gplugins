@@ -53,7 +53,7 @@ def mzi(
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
-    import gplugins.gtidy3d as gt
+    import gplugins.tidy3d as gt
 
     nm = 1e-3
     strip = gt.modes.Waveguide(
@@ -130,7 +130,7 @@ if __name__ == "__main__":
 import matplotlib.pyplot as plt
 import numpy as np
 
-import gplugins.gtidy3d as gt
+import gplugins.tidy3d as gt
 
 nm = 1e-3
 strip = gt.modes.Waveguide(
@@ -160,7 +160,7 @@ import gdsfactory as gf
 import gdsfactory.components as pdk
 
 import gplugins as sim
-import gplugins.gtidy3d as gt
+import gplugins.tidy3d as gt
 from gplugins.config import PATH
 
 c = pdk.mmi1x2()

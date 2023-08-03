@@ -15,7 +15,7 @@ from gdsfactory.technology import LayerStack
 from gdsfactory.typings import CrossSectionSpec
 from tidy3d.plugins.mode import ModeSolver
 
-from gplugins.gtidy3d.materials import get_index, get_medium
+from gplugins.tidy3d.materials import get_index, get_medium
 
 
 def get_simulation_grating_coupler(
@@ -205,7 +205,7 @@ def get_simulation_grating_coupler(
 
         import matplotlib.pyplot as plt
         import gdsfactory as gf
-        import gplugins.gtidy3d as gt
+        import gplugins.tidy3d as gt
 
         c = gf.components.grating_coupler_elliptical_arbitrary(
             widths=[0.343] * 25, gaps=[0.345] * 25
@@ -511,7 +511,7 @@ def get_simulation_grating_coupler(
 
 
 if __name__ == "__main__":
-    import gplugins.gtidy3d as gt
+    import gplugins.tidy3d as gt
 
     c = gf.components.grating_coupler_elliptical_trenches()
 

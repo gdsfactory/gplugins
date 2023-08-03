@@ -6,7 +6,7 @@ API
 Mode solver Plugins
 ************************
 
-.. currentmodule:: gplugins.gtidy3d.modes
+.. currentmodule:: gplugins.tidy3d.modes
 
 .. rubric:: Mode solver tidy3d
 
@@ -113,7 +113,7 @@ FDTD Simulation Plugins
    write_sparameters_grating_mpi
    write_sparameters_grating_batch
 
-.. currentmodule:: gplugins.gtidy3d
+.. currentmodule:: gplugins.tidy3d
 
 .. rubric:: FDTD tidy3d
 

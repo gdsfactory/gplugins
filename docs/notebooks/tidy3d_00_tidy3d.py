@@ -36,7 +36,7 @@ import numpy as np
 import tidy3d as td
 from gdsfactory.components.taper import taper_sc_nc
 
-import gplugins.gtidy3d as gt
+import gplugins.tidy3d as gt
 from gplugins import utils
 from gplugins.config import PATH
 

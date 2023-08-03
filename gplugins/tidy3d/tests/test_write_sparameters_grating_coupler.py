@@ -3,12 +3,12 @@ from __future__ import annotations
 import gdsfactory as gf
 import numpy as np
 
-import gplugins.gtidy3d as gt
+import gplugins.tidy3d as gt
 
 fiber_port_name = "o2"
 
 
-def test_sparameters_grating_coupler(overwrite=True) -> None:
+def test_sparameters_grating_coupler(overwrite=False) -> None:
     """Checks Sparameters for a grating_coupler_elliptical_arbitrary in 2D."""
     c = gf.components.grating_coupler_elliptical_arbitrary(
         widths=[0.343] * 25, gaps=[0.345] * 25
@@ -37,7 +37,7 @@ def test_sparameters_grating_coupler(overwrite=True) -> None:
 
 
 if __name__ == "__main__":
-    overwrite = False
+    overwrite = True
     c = gf.components.grating_coupler_elliptical_arbitrary(
         widths=[0.343] * 25, gaps=[0.345] * 25
     )

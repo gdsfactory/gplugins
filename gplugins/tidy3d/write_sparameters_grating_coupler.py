@@ -20,9 +20,9 @@ from gdsfactory.typings import (
     Sparameters,
 )
 
-from gplugins.gtidy3d.get_results import _executor, get_results
-from gplugins.gtidy3d.get_simulation import plot_simulation
-from gplugins.gtidy3d.get_simulation_grating_coupler import (
+from gplugins.tidy3d.get_results import _executor, get_results
+from gplugins.tidy3d.get_simulation import plot_simulation
+from gplugins.tidy3d.get_simulation_grating_coupler import (
     get_simulation_grating_coupler,
 )
 from gplugins.utils.get_sparameters_path import (
