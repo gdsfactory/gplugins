@@ -7,7 +7,7 @@ from gdsfactory.technology import LayerStack
 
 def list_unique_layerstack_z(
     layerstack: LayerStack,
-):
+) -> list[float]:
     """List all unique LayerStack z coordinates.
 
     Args:
