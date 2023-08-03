@@ -25,12 +25,12 @@ jobs:
   test_code:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       max-parallel: 12
       matrix:
         python-version: ['3.10']
         os: [ubuntu-latest]
         plugin: [femwell, gmsh, meow, sax, tidy3d]
-        fail-fast: false
 
     name: Test ${{ matrix.plugin }} on ${{ matrix.os }}
     steps:
