@@ -18,18 +18,21 @@ import gplugins.tidy3d as gt
 
 
 def test_simulation(overwrite: bool = False) -> None:
-    """export sim in JSON, and then load it again."""
+    """Export sim in JSON, and then load it again."""
+    dirpath = pathlib.Path(__file__).parent
     component = gf.components.straight(length=3)
     sim = gt.get_simulation(component=component)
 
+    ref_path = dirpath / "sim_ref.yaml"
+    run_path = dirpath / "sim_run.yaml"
+
     if overwrite:
-        sim.to_file("sim_ref.yaml")  # uncomment to overwrite material
+        sim.to_file(ref_path)  # uncomment to overwrite material
 
-    sim.to_file("sim_run.yaml")
+    sim.to_file(run_path)
 
-    dirpath = pathlib.Path(__file__).parent
-    dref = OmegaConf.load(dirpath / "sim_ref.yaml")
-    drun = OmegaConf.load(dirpath / "sim_run.yaml")
+    dref = OmegaConf.load(ref_path)
+    drun = OmegaConf.load(run_path)
 
     d = diff(dref, drun)
     assert len(d) == 0, d
