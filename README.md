@@ -8,8 +8,7 @@
 
 gdsfactory plugins:
 
-- `dagster` for data pipelines.
-- `database` for simulation and measurement database.
+- `database` for simulation and measurement database and dagster for data pipelines.
 - `devsim` TCAD device simulator.
 - `meow` Eigen Mode Expansion (EME).
 - `femwell` Finite Element Method Solver (heaters, modes, TCAD, RF waveguides).
@@ -19,7 +18,7 @@ gdsfactory plugins:
 - `kfactory` for fill, dataprep and testing.
 - `ray` for distributed computing and optimization.
 - `sax` S-parameter circuit solver.
-- `schematic`: for bokeh schematic editor.
+- `schematic`: for bokeh schematic editor and `path_length_analysis`
 - `meep` for FDTD.
 - `mpb` for MPB mode solver.
 - `web`: for gdsfactory webapp
