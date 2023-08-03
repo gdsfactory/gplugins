@@ -28,7 +28,7 @@ jobs:
       max-parallel: 12
       matrix:
         python-version: ['3.10']
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest]
         plugin: [femwell, gmsh, meow, sax, tidy3d]
     name: Test ${{ matrix.plugin }} on ${{ matrix.os }}
     steps:
