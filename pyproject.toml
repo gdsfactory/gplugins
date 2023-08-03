@@ -56,7 +56,7 @@ docs = [
   "jupyter-book==0.15.1"
 ]
 femwell = [
-  "femwell==0.1.5"
+  "femwell==0.1.6"
 ]
 gmsh = [
   "gmsh",
