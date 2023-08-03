@@ -10,12 +10,16 @@ import tidy3d as td
 from gdsfactory.component import Component
 from gdsfactory.components.extension import move_polar_rad_copy
 from gdsfactory.config import logger
-from gdsfactory.pdk import get_layer_stack, get_material_index
+from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 from gdsfactory.typings import CrossSectionSpec
 from tidy3d.plugins.mode import ModeSolver
 
-from gplugins.tidy3d.materials import get_index, get_medium
+from gplugins.tidy3d.materials import (
+    get_index,
+    get_medium,
+    material_name_to_tidy3d_default,
+)
 
 
 def get_simulation_grating_coupler(
@@ -49,7 +53,7 @@ def get_simulation_grating_coupler(
     fiber_z: float = 2,
     fiber_mfd: float = 10.4,
     fiber_angle_deg: float = 20.0,
-    material_name_to_tidy3d: dict[str, str] | None = None,
+    material_name_to_tidy3d: dict[str, str] = material_name_to_tidy3d_default,
     is_3d: bool = True,
     with_all_monitors: bool = False,
     boundary_spec: td.BoundarySpec | None = None,
@@ -297,18 +301,9 @@ def get_simulation_grating_coupler(
         sim_ysize,
         sim_zsize,
     ]
-    material_name_to_tidy3d = material_name_to_tidy3d or {}
-
-    if material_name_to_tidy3d:
-        clad_material_name_or_index = material_name_to_tidy3d[clad_material]
-        box_material_name_or_index = material_name_to_tidy3d[box_material]
-        substrate_material_name_or_index = material_name_to_tidy3d[substrate_material]
-    else:
-        clad_material_name_or_index = get_material_index(clad_material, wavelength)
-        box_material_name_or_index = get_material_index(box_material, wavelength)
-        substrate_material_name_or_index = get_material_index(
-            substrate_material, wavelength
-        )
+    clad_material_name_or_index = material_name_to_tidy3d[clad_material]
+    box_material_name_or_index = material_name_to_tidy3d[box_material]
+    substrate_material_name_or_index = material_name_to_tidy3d[substrate_material]
 
     clad = td.Structure(
         geometry=td.Box(
@@ -344,18 +339,13 @@ def get_simulation_grating_coupler(
             zmax = zmin + thickness
             material_name = layer_to_material[layer]
 
-            if material_name in material_name_to_tidy3d:
-                name_or_index = material_name_to_tidy3d[material_name]
-                medium = get_medium(name_or_index=name_or_index)
-                index = get_index(name_or_index=name_or_index)
-                logger.debug(
-                    f"Add {layer}, {name_or_index!r}, index = {index:.3f}, "
-                    f"thickness = {thickness}, zmin = {zmin}, zmax = {zmax}"
-                )
-
-            else:
-                material_index = get_material_index(material_name, wavelength)
-                medium = get_medium(material_index)
+            name_or_index = material_name_to_tidy3d[material_name]
+            medium = get_medium(name_or_index=name_or_index)
+            index = get_index(name_or_index=name_or_index)
+            logger.debug(
+                f"Add {layer}, {name_or_index!r}, index = {index:.3f}, "
+                f"thickness = {thickness}, zmin = {zmin}, zmax = {zmax}"
+            )
 
             polygons = td.PolySlab.from_gds(
                 gds_cell=component_extended._cell,

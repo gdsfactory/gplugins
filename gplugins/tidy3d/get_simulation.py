@@ -12,13 +12,17 @@ import tidy3d as td
 from gdsfactory.component import Component
 from gdsfactory.components.extension import move_polar_rad_copy
 from gdsfactory.config import logger
-from gdsfactory.pdk import get_layer_stack, get_material_index
+from gdsfactory.pdk import get_layer_stack
 from gdsfactory.routing.sort_ports import sort_ports_x, sort_ports_y
 from gdsfactory.technology import LayerStack
 from gdsfactory.typings import ComponentSpec, Float2
 from tidy3d.plugins.mode import ModeSolver
 
-from gplugins.tidy3d.materials import get_index, get_medium
+from gplugins.tidy3d.materials import (
+    get_index,
+    get_medium,
+    material_name_to_tidy3d_default,
+)
 
 
 @pydantic.validate_arguments
@@ -45,7 +49,7 @@ def get_simulation(
     plot_modes: bool = False,
     num_modes: int = 2,
     run_time_ps: float = 10.0,
-    material_name_to_tidy3d: dict[str, str] | None = None,
+    material_name_to_tidy3d: dict[str, str] = material_name_to_tidy3d_default,
     is_3d: bool = True,
     with_all_monitors: bool = False,
     boundary_spec: td.BoundarySpec | None = None,
@@ -240,11 +244,7 @@ def get_simulation(
 
     material_name_to_tidy3d = material_name_to_tidy3d or {}
 
-    if material_name_to_tidy3d:
-        clad_material_name_or_index = material_name_to_tidy3d[clad_material]
-    else:
-        clad_material_name_or_index = get_material_index(clad_material, wavelength)
-
+    clad_material_name_or_index = material_name_to_tidy3d[clad_material]
     clad = td.Structure(
         geometry=td.Box(
             size=(td.inf, td.inf, td.inf),
@@ -277,17 +277,13 @@ def get_simulation(
 
             material_name = layer_to_material[layer]
 
-            if material_name in material_name_to_tidy3d:
-                name_or_index = material_name_to_tidy3d[material_name]
-                medium = get_medium(name_or_index=name_or_index)
-                index = get_index(name_or_index=name_or_index)
-                logger.debug(
-                    f"Add {layer}, {name_or_index!r}, index = {index:.3f}, "
-                    f"thickness = {thickness}, zmin = {zmin}, zmax = {zmax}"
-                )
-            else:
-                material_index = get_material_index(material_name, wavelength)
-                medium = get_medium(material_index)
+            name_or_index = material_name_to_tidy3d[material_name]
+            medium = get_medium(name_or_index=name_or_index)
+            index = get_index(name_or_index=name_or_index)
+            logger.debug(
+                f"Add {layer}, {name_or_index!r}, index = {index:.3f}, "
+                f"thickness = {thickness}, zmin = {zmin}, zmax = {zmax}"
+            )
 
             polygons = td.PolySlab.from_gds(
                 gds_cell=component_extended._cell,
@@ -527,7 +523,7 @@ if __name__ == "__main__":
     # filepath.write_text(sim.json())
 
     # sim.plotly(z=0)
-    plot_simulation_yz(s, wavelength=1.55, y=1)
+    # plot_simulation_yz(s, wavelength=1.55, y=1)
     # fig = plt.figure(figsize=(11, 4))
     # gs = mpl.gridspec.GridSpec(1, 2, figure=fig, width_ratios=[1, 1.4])
     # ax1 = fig.add_subplot(gs[0, 0])

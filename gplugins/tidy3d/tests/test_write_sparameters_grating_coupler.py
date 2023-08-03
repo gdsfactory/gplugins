@@ -37,7 +37,7 @@ def test_sparameters_grating_coupler(overwrite=False) -> None:
 
 
 if __name__ == "__main__":
-    overwrite = True
+    overwrite = False
     c = gf.components.grating_coupler_elliptical_arbitrary(
         widths=[0.343] * 25, gaps=[0.345] * 25
     )

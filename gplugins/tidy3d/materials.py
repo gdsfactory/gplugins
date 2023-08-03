@@ -111,11 +111,13 @@ sin = partial(get_index, "sin")
 
 materials = dict(si=si, sio2=sio2, sin=sin)
 
+material_name_to_tidy3d_default = dict(si="si", sio2="sio2", sin="sin")
+
 
 if __name__ == "__main__":
     print(si(1.55))
-    print(si(1.31))
-    # print(get_index(name_or_index="cSi"))
+    # print(si(1.31))
+    # print(get_index(name_or_index="si"))
     # print(get_index(name_or_index=3.4))
     # m = get_medium(name_or_index="SiO2")
     # m = td.Medium(permittivity=1.45 ** 2)
