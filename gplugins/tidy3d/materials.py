@@ -109,9 +109,7 @@ si = partial(get_index, "si")
 sio2 = partial(get_index, "sio2")
 sin = partial(get_index, "sin")
 
-materials = dict(si=si, sio2=sio2, sin=sin)
-
-material_name_to_tidy3d_default = dict(si="si", sio2="sio2", sin="sin")
+material_name_to_function_non_dispersive = dict(si=si, sio2=sio2, sin=sin)
 
 
 if __name__ == "__main__":

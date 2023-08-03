@@ -21,7 +21,6 @@ from tidy3d.plugins.mode import ModeSolver
 from gplugins.tidy3d.materials import (
     get_index,
     get_medium,
-    material_name_to_tidy3d_default,
 )
 
 
@@ -49,7 +48,7 @@ def get_simulation(
     plot_modes: bool = False,
     num_modes: int = 2,
     run_time_ps: float = 10.0,
-    material_name_to_tidy3d: dict[str, str] = material_name_to_tidy3d_default,
+    material_name_to_tidy3d: None | dict[str, str] = None,
     is_3d: bool = True,
     with_all_monitors: bool = False,
     boundary_spec: td.BoundarySpec | None = None,
@@ -242,7 +241,13 @@ def get_simulation(
 
     material_name_to_tidy3d = material_name_to_tidy3d or {}
 
-    clad_material_name_or_index = material_name_to_tidy3d[clad_material]
+    if material_name_to_tidy3d:
+        clad_material_name_or_index = material_name_to_tidy3d[clad_material]
+    else:
+        clad_material_name_or_index = (
+            clad_material(wavelength) if callable(clad_material) else clad_material
+        )
+
     clad = td.Structure(
         geometry=td.Box(
             size=(td.inf, td.inf, td.inf),
@@ -275,13 +280,21 @@ def get_simulation(
 
             material_name = layer_to_material[layer]
 
-            name_or_index = material_name_to_tidy3d[material_name]
-            medium = get_medium(name_or_index=name_or_index)
-            index = get_index(name_or_index=name_or_index)
-            logger.debug(
-                f"Add {layer}, {name_or_index!r}, index = {index:.3f}, "
-                f"thickness = {thickness}, zmin = {zmin}, zmax = {zmax}"
-            )
+            if material_name in material_name_to_tidy3d:
+                name_or_index = material_name_to_tidy3d[material_name]
+                medium = get_medium(name_or_index=name_or_index)
+                index = get_index(name_or_index=name_or_index)
+                logger.debug(
+                    f"Add {layer}, {name_or_index!r}, index = {index:.3f}, "
+                    f"thickness = {thickness}, zmin = {zmin}, zmax = {zmax}"
+                )
+            else:
+                material_index = (
+                    material_name(wavelength)
+                    if callable(material_name)
+                    else material_name
+                )
+                medium = get_medium(material_index)
 
             polygons = td.PolySlab.from_gds(
                 gds_cell=component_extended._cell,

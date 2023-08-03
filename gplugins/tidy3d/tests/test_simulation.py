@@ -37,7 +37,7 @@ def test_simulation(overwrite: bool = False) -> None:
 
 if __name__ == "__main__":
     # test_simulation_hash()
-    test_simulation()
+    test_simulation(overwrite=True)
     # test_simulation(overwrite=True)
 
     # test_simulation()
