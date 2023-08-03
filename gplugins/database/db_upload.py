@@ -3,7 +3,7 @@
 import hashlib
 import os
 import tempfile
-from functools import lru_cache
+from functools import cache
 
 import boto3
 import boto3.session
@@ -46,7 +46,7 @@ class Simulation(SQLModel, table=True):
     angle: float
 
 
-@lru_cache(maxsize=None)
+@cache
 def get_database_engine():
     host = os.getenv("PS_HOST", "")
     database = os.getenv("PS_DATABASE", "")
@@ -59,7 +59,7 @@ def get_database_engine():
     )
 
 
-@lru_cache(maxsize=None)
+@cache
 def s3_client():
     return boto3.client("s3")
 

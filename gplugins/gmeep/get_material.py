@@ -47,7 +47,7 @@ def get_material(
 
     meep_name = material_name_to_meep[name]
 
-    if isinstance(meep_name, (int, float)):
+    if isinstance(meep_name, int | float):
         # if material is only a number, we can return early regardless of dispersion
         return mp.Medium(index=meep_name)
 

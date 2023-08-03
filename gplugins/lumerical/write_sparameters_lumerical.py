@@ -46,14 +46,14 @@ def set_material(session, structure: str, material: MaterialSpec) -> None:
     """
     if isinstance(material, str):
         session.setnamed(structure, "material", material)
-    elif isinstance(material, (int, float)):
+    elif isinstance(material, int | float):
         session.setnamed(structure, "index", material)
     elif isinstance(material, complex):
         mat = session.addmaterial("(n,k) Material")
         session.setmaterial(mat, "Refractive Index", material.real)
         session.setmaterial(mat, "Imaginary Refractive Index", material.imag)
         session.setnamed(structure, "material", mat)
-    elif isinstance(material, (tuple, list)):
+    elif isinstance(material, tuple | list):
         if len(material) != 2:
             raise ValueError(
                 "Complex material requires a tuple or list of two numbers "

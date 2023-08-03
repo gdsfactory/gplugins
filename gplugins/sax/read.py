@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pathlib
 from functools import partial
-from typing import Literal, Union
+from typing import Literal
 
 import gdsfactory as gf
 import jax
@@ -20,7 +20,7 @@ from gplugins.utils.get_sparameters_path import (
 
 wl_cband = np.linspace(1.500, 1.600, 128)
 
-PathType = Union[str, pathlib.Path]
+PathType = str | pathlib.Path
 
 Simulator = Literal["lumerical", "meep", "tidy3d"]
 
@@ -29,7 +29,6 @@ def model_from_npz(
     filepath: PathType | np.ndarray,
     xkey: str = "wavelengths",
     xunits: float = 1,
-    prefix: str = "s",
 ) -> Model:
     """Returns a SAX Sparameters Model from a npz file.
 
@@ -40,10 +39,9 @@ def model_from_npz(
         wl: wavelength to interpolate (um).
         xkey: key for wavelengths in file.
         xunits: x units in um from the loaded file (um). 1 means 1um.
-        prefix: for the sparameters column names in file.
 
     """
-    sp = np.load(filepath) if isinstance(filepath, (pathlib.Path, str)) else filepath
+    sp = np.load(filepath) if isinstance(filepath, pathlib.Path | str) else filepath
     keys = list(sp.keys())
 
     if xkey not in keys:
@@ -65,8 +63,8 @@ def model_from_npz(
         for key in sp:
             if not key.startswith("wav"):
                 port_mode0, port_mode1 = key.split(",")
-                port0, mode0 = port_mode0.split("@")
-                port1, mode1 = port_mode1.split("@")
+                port0, _ = port_mode0.split("@")
+                port1, _ = port_mode1.split("@")
                 S[(port0, port1)] = jnp.interp(wl, x, sp.get(key, zero))
 
         return S

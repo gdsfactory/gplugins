@@ -24,12 +24,6 @@ repos:
     hooks:
       - id: black
 
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.10.1
-    hooks:
-      - id: pyupgrade
-        args: [--py310-plus, --keep-runtime-typing]
-
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.9.0.5
     hooks:

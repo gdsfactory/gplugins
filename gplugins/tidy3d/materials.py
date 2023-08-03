@@ -93,7 +93,7 @@ def get_medium(
         name_or_index.lower() if isinstance(name_or_index, str) else name_or_index
     )
 
-    if isinstance(name_or_index, (int, float)):
+    if isinstance(name_or_index, int | float):
         m = td.Medium(permittivity=name_or_index**2)
     elif name_or_index in material_name_to_medium:
         m = material_name_to_medium[name_or_index]

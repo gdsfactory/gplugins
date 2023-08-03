@@ -156,7 +156,8 @@ select = [
   "F",  # pyflakes
   "I",  # isort
   "C",  # flake8-comprehensions
-  "B"  # flake8-bugbear
+  "B",  # flake8-bugbear
+  "UP"
 ]
 
 [tool.ruff.per-file-ignores]

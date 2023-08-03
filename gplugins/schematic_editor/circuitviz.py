@@ -155,7 +155,7 @@ def viz_bk(
     if fig is None:
         fig = bp.figure()
 
-    if isinstance(netlist, (PicYamlConfiguration, SchematicConfiguration)):
+    if isinstance(netlist, PicYamlConfiguration | SchematicConfiguration):
         objs = viz_netlist(netlist, instances, **kwargs)
     else:
         objs = netlist
