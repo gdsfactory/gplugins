@@ -17,10 +17,27 @@ from gdsfactory.typings import PathType
 from meow.base_model import _array as mw_array
 from tqdm.auto import tqdm
 
-from gplugins.gmsh.parse_layerstack import list_unique_layerstack_z
 from gplugins.utils.get_sparameters_path import (
     get_sparameters_path_meow as get_sparameters_path,
 )
+
+
+def list_unique_layerstack_z(
+    layerstack: LayerStack,
+) -> list[float]:
+    """List all unique LayerStack z coordinates.
+
+    Args:
+        layerstack: LayerStack
+    Returns:
+        Sorted set of z-coordinates for this layerstack
+    """
+    thicknesses = [layer.thickness for layer in layerstack.layers.values()]
+    zmins = [layer.zmin for layer in layerstack.layers.values()]
+    zmaxs = [sum(value) for value in zip(zmins, thicknesses)]
+
+    return sorted(set(zmins + zmaxs))
+
 
 ColorRGB = tuple[float, float, float]
 

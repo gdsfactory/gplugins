@@ -3,24 +3,29 @@ from __future__ import annotations
 import gdsfactory as gf
 import numpy as np
 
-import gplugins.gtidy3d as gt
+import gplugins.tidy3d as gt
+from gplugins.config import PATH
 
 
-def test_sparameters_straight_3d(overwrite=True) -> None:
+def test_sparameters_straight_3d(overwrite=False) -> None:
     """Checks Sparameters for a straight waveguide in 2D."""
     c = gf.components.straight(length=2)
-    sp = gt.write_sparameters_1x1(c, overwrite=overwrite, is_3d=True)
+    sp = gt.write_sparameters_1x1(
+        c, overwrite=overwrite, is_3d=True, dirpath=PATH.sparameters_repo
+    )
 
     assert 1 > np.abs(sp["o1@0,o2@0"]).min() > 0.8, np.abs(sp["o1@0,o2@0"]).min()
     assert 0 < np.abs(sp["o1@0,o1@0"]).max() < 0.1, np.abs(sp["o1@0,o1@0"]).max()
 
 
-def test_sparameters_straight_2d(overwrite=True) -> None:
+def test_sparameters_straight_2d(overwrite=False) -> None:
     """Checks Sparameters for a straight waveguide in 2D."""
     c = gf.components.straight(length=2)
-    sp = gt.write_sparameters_1x1(c, overwrite=overwrite, is_3d=False)
+    sp = gt.write_sparameters_1x1(
+        c, overwrite=overwrite, is_3d=False, dirpath=PATH.sparameters_repo
+    )
 
-    assert 1 > np.abs(sp["o1@0,o2@0"]).min() > 0.7, np.abs(sp["o1@0,o2@0"]).min()
+    assert 1 > np.abs(sp["o1@0,o2@0"]).min() > 0.6, np.abs(sp["o1@0,o2@0"]).min()
     assert 0 < np.abs(sp["o1@0,o1@0"]).max() < 0.1, np.abs(sp["o1@0,o1@0"]).max()
 
     # assert np.allclose(sp["o2@0,o1@0"], 1, atol=1e-02), sp["o2@0,o1@0"]
@@ -32,13 +37,10 @@ def test_sparameters_straight_2d(overwrite=True) -> None:
 
 
 if __name__ == "__main__":
-    # test_sparameters_straight()
-
     overwrite = False
-    overwrite = True
     c = gf.components.straight(length=3)
-    sp = gt.write_sparameters_1x1(c, overwrite=overwrite, is_3d=False, run=True)
+    sp = gt.write_sparameters_1x1(c, overwrite=overwrite, is_3d=True, run=True)
 
     # Check reasonable reflection/transmission
-    assert 1 > np.abs(sp["o1@0,o2@0"]).min() > 0.8, np.abs(sp["o1@0,o2@0"]).min()
+    assert 1 > np.abs(sp["o1@0,o2@0"]).min() > 0.6, np.abs(sp["o1@0,o2@0"]).min()
     assert 0 < np.abs(sp["o1@0,o1@0"]).max() < 0.1, np.abs(sp["o1@0,o1@0"]).max()

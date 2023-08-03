@@ -3,7 +3,7 @@ import numpy as np
 from gdsfactory.generic_tech import LAYER_STACK
 from gdsfactory.technology import LayerStack
 
-from gplugins.fem.mode_solver import Modes, compute_cross_section_modes
+from gplugins.femwell.mode_solver import Modes, compute_cross_section_modes
 
 NUM_MODES = 1
 

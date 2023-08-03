@@ -6,7 +6,7 @@ API
 Mode solver Plugins
 ************************
 
-.. currentmodule:: gplugins.gtidy3d.modes
+.. currentmodule:: gplugins.tidy3d.modes
 
 .. rubric:: Mode solver tidy3d
 
@@ -20,7 +20,7 @@ Mode solver Plugins
    sweep_bend_mismatch
    sweep_coupling_length
 
-.. currentmodule:: gplugins.fem.mode_solver
+.. currentmodule:: gplugins.femwell.mode_solver
 
 .. rubric:: Mode solver Femwell
 
@@ -47,7 +47,7 @@ Mode solver Plugins
     plot_neff_vs_width
     plot_coupling_vs_gap
 
-.. currentmodule:: gplugins.eme
+.. currentmodule:: gplugins.meow
 
 .. rubric:: EME (Eigen Mode Expansion)
 
@@ -113,7 +113,7 @@ FDTD Simulation Plugins
    write_sparameters_grating_mpi
    write_sparameters_grating_batch
 
-.. currentmodule:: gplugins.gtidy3d
+.. currentmodule:: gplugins.tidy3d
 
 .. rubric:: FDTD tidy3d
 

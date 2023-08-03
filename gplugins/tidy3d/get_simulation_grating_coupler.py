@@ -10,17 +10,20 @@ import tidy3d as td
 from gdsfactory.component import Component
 from gdsfactory.components.extension import move_polar_rad_copy
 from gdsfactory.config import logger
-from gdsfactory.pdk import get_layer_stack, get_material_index
+from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 from gdsfactory.typings import CrossSectionSpec
 from tidy3d.plugins.mode import ModeSolver
 
-from gplugins.gtidy3d.materials import get_index, get_medium
+from gplugins.tidy3d.materials import (
+    get_index,
+    get_medium,
+)
 
 
 def get_simulation_grating_coupler(
     component: Component,
-    port_extension: float | None = 10.0,
+    port_extension: float = 10.0,
     layer_stack: LayerStack | None = None,
     thickness_pml: float = 1.0,
     xmargin: float = 0,
@@ -32,12 +35,12 @@ def get_simulation_grating_coupler(
     zmargin: float = 1.0,
     clad_material: str = "sio2",
     box_material: str = "sio2",
-    box_thickness: float = 2.0,
+    box_thickness: float = 3.0,
     substrate_material: str = "si",
     port_waveguide_name: str = "o1",
     port_margin: float = 0.5,
     port_waveguide_offset: float = 0.1,
-    wavelength: float | None = 1.55,
+    wavelength: float = 1.55,
     wavelength_start: float = 1.20,
     wavelength_stop: float = 1.80,
     wavelength_points: int = 256,
@@ -49,7 +52,7 @@ def get_simulation_grating_coupler(
     fiber_z: float = 2,
     fiber_mfd: float = 10.4,
     fiber_angle_deg: float = 20.0,
-    material_name_to_tidy3d: dict[str, str] | None = None,
+    material_name_to_tidy3d: None | dict[str, str] = None,
     is_3d: bool = True,
     with_all_monitors: bool = False,
     boundary_spec: td.BoundarySpec | None = None,
@@ -205,7 +208,7 @@ def get_simulation_grating_coupler(
 
         import matplotlib.pyplot as plt
         import gdsfactory as gf
-        import gplugins.gtidy3d as gt
+        import gplugins.tidy3d as gt
 
         c = gf.components.grating_coupler_elliptical_arbitrary(
             widths=[0.343] * 25, gaps=[0.345] * 25
@@ -233,9 +236,8 @@ def get_simulation_grating_coupler(
 
     grid_spec = grid_spec or td.GridSpec.auto(wavelength=wavelength)
 
-    assert isinstance(
-        component, Component
-    ), f"component needs to be a gf.Component, got Type {type(component)}"
+    if not isinstance(component, Component):
+        raise ValueError(f"component should be a gdsfactory.Component not {component}")
 
     if port_waveguide_name not in component.ports:
         warnings.warn(
@@ -304,10 +306,16 @@ def get_simulation_grating_coupler(
         box_material_name_or_index = material_name_to_tidy3d[box_material]
         substrate_material_name_or_index = material_name_to_tidy3d[substrate_material]
     else:
-        clad_material_name_or_index = get_material_index(clad_material, wavelength)
-        box_material_name_or_index = get_material_index(box_material, wavelength)
-        substrate_material_name_or_index = get_material_index(
-            substrate_material, wavelength
+        clad_material_name_or_index = (
+            clad_material(wavelength) if callable(clad_material) else clad_material
+        )
+        box_material_name_or_index = (
+            box_material(wavelength) if callable(box_material) else box_material
+        )
+        substrate_material_name_or_index = (
+            substrate_material(wavelength)
+            if callable(substrate_material)
+            else substrate_material
         )
 
     clad = td.Structure(
@@ -354,7 +362,11 @@ def get_simulation_grating_coupler(
                 )
 
             else:
-                material_index = get_material_index(material_name, wavelength)
+                material_index = (
+                    material_name(wavelength)
+                    if callable(material_name)
+                    else material_name
+                )
                 medium = get_medium(material_index)
 
             polygons = td.PolySlab.from_gds(
@@ -401,7 +413,7 @@ def get_simulation_grating_coupler(
         center=waveguide_port_center,
         size=waveguide_port_size,
         freqs=freqs,
-        mode_spec=td.ModeSpec(num_modes=1),
+        mode_spec=td.ModeSpec(num_modes=1, precision="double"),
         name="waveguide",
     )
 
@@ -511,8 +523,6 @@ def get_simulation_grating_coupler(
 
 
 if __name__ == "__main__":
-    import gplugins.gtidy3d as gt
-
     c = gf.components.grating_coupler_elliptical_trenches()
 
     # c = gf.components.grating_coupler_elliptical_arbitrary(
@@ -524,7 +534,7 @@ if __name__ == "__main__":
         is_3d=False,
         fiber_angle_deg=20,
     )
-    gt.plot_simulation(sim)  # make sure simulations looks good
+    # gt.plot_simulation(sim)  # make sure simulations looks good
 
     # c = gf.components.grating_coupler_elliptical_lumerical()  # inverse design grating
     # sim = get_simulation_grating_coupler(c, plot_modes=False, fiber_angle_deg=-5)

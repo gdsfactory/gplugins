@@ -4,7 +4,7 @@
 format: jb-book
 root: index
 parts:
-  - caption: Plugins
+  - caption: Design
     chapters:
       - file: plugins_optimization
         sections:
@@ -41,9 +41,13 @@ parts:
           - file: notebooks/sax_02_model_extraction
           - file: notebooks/sax_03_variability_analysis
           - file: notebooks/lumerical_2_interconnect
-      - file: notebooks/12_database
       - file: notebooks/20_schematic_driven_layout
+  - caption: Verification
+    chapters:
       - file: notebooks/path_length_analysis.py
+  - caption: Validation
+    chapters:
+      - file: notebooks/12_database
   - caption: Workflows
     chapters:
       - file: workflow

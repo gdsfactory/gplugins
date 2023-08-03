@@ -21,7 +21,7 @@ from gdsfactory.technology import LayerStack
 from rich.logging import RichHandler
 from tqdm.auto import tqdm
 
-from gplugins.fem.mode_solver import compute_cross_section_modes
+from gplugins.femwell.mode_solver import compute_cross_section_modes
 
 gf.config.rich_output()
 PDK = get_generic_pdk()

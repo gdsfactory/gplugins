@@ -15,7 +15,7 @@ import gdsfactory as gf
 import matplotlib.pyplot as plt
 import numpy as np
 
-import gplugins.gtidy3d as gt
+import gplugins.tidy3d as gt
 
 gf.config.rich_output()
 PDK = gf.generic_tech.get_generic_pdk()

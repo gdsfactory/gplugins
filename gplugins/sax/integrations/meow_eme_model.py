@@ -1,6 +1,6 @@
 from gdsfactory.pdk import get_layer_stack
 
-from gplugins.eme.meow_eme import MEOW
+from gplugins.meow.meow_eme import MEOW
 from gplugins.sax.build_model import Model
 
 

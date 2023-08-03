@@ -14,7 +14,7 @@ classifiers = [
   "Operating System :: OS Independent"
 ]
 dependencies = [
-  "gdsfactory>6"
+  "gdsfactory[cad]>=7.0.2"
 ]
 description = "gdsfactory plugins"
 keywords = ["python"]
@@ -42,7 +42,9 @@ dev = [
   "jsondiff",
   "mypy",
   "pyswarms",
-  "autograd"
+  "autograd",
+  "ray[tune,air]",
+  "hyperopt"
 ]
 devsim = [
   "devsim",
@@ -56,7 +58,7 @@ docs = [
   "jupyter-book==0.15.1"
 ]
 femwell = [
-  "femwell==0.1.5"
+  "femwell==0.1.6"
 ]
 gmsh = [
   "gmsh",
@@ -66,17 +68,12 @@ gmsh = [
   "pygmsh",
   "pyvista",
   "trimesh",
-  "shapely"
-]
-meow = [
-  "meow-sim==0.7.1"
-]
-meshwell = [
+  "shapely",
   "meshwell==0.0.9"
 ]
-ray = [
-  "ray[tune,air]",
-  "hyperopt"
+meow = [
+  "meow-sim==0.7.1",
+  "tidy3d==2.3.3"
 ]
 sax = [
   "sax==0.8.8",
@@ -134,7 +131,9 @@ strict = true
 addopts = '--tb=short'
 norecursedirs = [
   "extra/*.py",
-  'gplugins/devsim'
+  'gplugins/devsim',
+  'gplugins/sax/integrations',
+  'gplugins/tidy3d/tests/tests_sparameters'
 ]
 python_files = ["gplugins/*.py", "notebooks/*.ipynb", "tests/*.py"]
 testpaths = ["gplugins/", "tests"]

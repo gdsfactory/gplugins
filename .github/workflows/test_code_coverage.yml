@@ -1,4 +1,4 @@
-name: Test MEEP and MPB
+name: Test coverage
 
 on:
   pull_request:
@@ -7,13 +7,13 @@ on:
       - main
 
 jobs:
-  test_code:
+  test_code_coverage:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: '3.10'
+          python-version: '3.11'
           mamba-version: "*"
           channels: conda-forge,defaults
           channel-priority: true
@@ -23,8 +23,15 @@ jobs:
           echo $CONDA/bin >> $GITHUB_PATH
       - name: Install dependencies
         run: |
-          pip install -e .[dev]
+          make dev
       - name: Test with pytest
+        env:
+          SIMCLOUD_APIKEY: ${{ secrets.SIMCLOUD_APIKEY }}
+          GDSFACTORY_DISPLAY_TYPE: klayout
         run: |
-          make meep
-          pytest gplugins/gmeep gplugins/modes
+          make cov
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false

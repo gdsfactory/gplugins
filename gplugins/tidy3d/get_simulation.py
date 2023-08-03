@@ -12,13 +12,16 @@ import tidy3d as td
 from gdsfactory.component import Component
 from gdsfactory.components.extension import move_polar_rad_copy
 from gdsfactory.config import logger
-from gdsfactory.pdk import get_layer_stack, get_material_index
+from gdsfactory.pdk import get_layer_stack
 from gdsfactory.routing.sort_ports import sort_ports_x, sort_ports_y
 from gdsfactory.technology import LayerStack
 from gdsfactory.typings import ComponentSpec, Float2
 from tidy3d.plugins.mode import ModeSolver
 
-from gplugins.gtidy3d.materials import get_index, get_medium
+from gplugins.tidy3d.materials import (
+    get_index,
+    get_medium,
+)
 
 
 @pydantic.validate_arguments
@@ -45,7 +48,7 @@ def get_simulation(
     plot_modes: bool = False,
     num_modes: int = 2,
     run_time_ps: float = 10.0,
-    material_name_to_tidy3d: dict[str, str] | None = None,
+    material_name_to_tidy3d: None | dict[str, str] = None,
     is_3d: bool = True,
     with_all_monitors: bool = False,
     boundary_spec: td.BoundarySpec | None = None,
@@ -180,7 +183,8 @@ def get_simulation(
 
     """
     component = gf.get_component(component)
-    assert isinstance(component, Component)
+    if not isinstance(component, Component):
+        raise ValueError(f"component should be a gdsfactory.Component not {component}")
 
     layer_stack = layer_stack or get_layer_stack()
     if is_3d:
@@ -201,9 +205,6 @@ def get_simulation(
     layer_to_zmin = layer_stack.get_layer_to_zmin()
     # layer_to_sidewall_angle = layer_stack.get_layer_to_sidewall_angle()
 
-    assert isinstance(
-        component, Component
-    ), f"component needs to be a gf.Component, got Type {type(component)}"
     if port_source_name not in component.ports:
         warnings.warn(
             f"port_source_name={port_source_name!r} not in {list(component.ports.keys())}"
@@ -243,7 +244,9 @@ def get_simulation(
     if material_name_to_tidy3d:
         clad_material_name_or_index = material_name_to_tidy3d[clad_material]
     else:
-        clad_material_name_or_index = get_material_index(clad_material, wavelength)
+        clad_material_name_or_index = (
+            clad_material(wavelength) if callable(clad_material) else clad_material
+        )
 
     clad = td.Structure(
         geometry=td.Box(
@@ -286,7 +289,11 @@ def get_simulation(
                     f"thickness = {thickness}, zmin = {zmin}, zmax = {zmax}"
                 )
             else:
-                material_index = get_material_index(material_name, wavelength)
+                material_index = (
+                    material_name(wavelength)
+                    if callable(material_name)
+                    else material_name
+                )
                 medium = get_medium(material_index)
 
             polygons = td.PolySlab.from_gds(
@@ -527,7 +534,7 @@ if __name__ == "__main__":
     # filepath.write_text(sim.json())
 
     # sim.plotly(z=0)
-    plot_simulation_yz(s, wavelength=1.55, y=1)
+    # plot_simulation_yz(s, wavelength=1.55, y=1)
     # fig = plt.figure(figsize=(11, 4))
     # gs = mpl.gridspec.GridSpec(1, 2, figure=fig, width_ratios=[1, 1.4])
     # ax1 = fig.add_subplot(gs[0, 0])

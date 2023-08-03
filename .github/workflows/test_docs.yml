@@ -1,4 +1,4 @@
-name: Test MEEP and MPB
+name: Test docs
 
 on:
   pull_request:
@@ -7,10 +7,16 @@ on:
       - main
 
 jobs:
-  test_code:
+  test_docs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gdsfactory/
+          key: 0.0.1
+          restore-keys: 0.0.1
       - uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: '3.10'
@@ -23,8 +29,10 @@ jobs:
           echo $CONDA/bin >> $GITHUB_PATH
       - name: Install dependencies
         run: |
-          pip install -e .[dev]
-      - name: Test with pytest
+          make dev
+      - name: Test documentation
+        env:
+          SIMCLOUD_APIKEY: ${{ secrets.SIMCLOUD_APIKEY }}
+          GDSFACTORY_DISPLAY_TYPE: klayout
         run: |
-          make meep
-          pytest gplugins/gmeep gplugins/modes
+          make docs

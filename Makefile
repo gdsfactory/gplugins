@@ -3,39 +3,27 @@ install:
 	pip install -e .[dev]
 	pre-commit install
 
-dev: test-data
+dev: test-data meep gmsh
 	pip install -e .[dev,docs,database,devsim,femwell,gmsh,meow,meshwell,ray,sax,schematic,tidy3d,web]
-	conda install -c conda-forge pymeep=*=mpi_mpich_* nlopt -y
+
+gmsh:
 	sudo apt-get install -y python3-gmsh gmsh
 	sudo apt install libglu1-mesa libxi-dev libxmu-dev libglu1-mesa-dev
 
+meep:
+	conda install -c conda-forge pymeep=*=mpi_mpich_* nlopt -y
+
 test:
-	pytest \
-		--ignore=gplugins/gtidy3d/tests/test_write_sparameters.py \
-   		--ignore=gplugins/gtidy3d/tests/test_write_sparameters_grating_coupler.py
+	pytest
 
 cov:
-	pytest --cov=gplugins \
-		--ignore=gplugins/gtidy3d/tests/test_write_sparameters.py \
-   		--ignore=gplugins/gtidy3d/tests/test_write_sparameters_grating_coupler.py
+	pytest --cov=gplugins
 
 test-data:
 	git clone https://github.com/gdsfactory/gdsfactory-test-data.git -b test-data test-data
 
-mypy:
-	mypy . --ignore-missing-imports
-
-pylint:
-	pylint gplugins
-
-ruff:
-	ruff --fix gplugins/*.py
-
 git-rm-merged:
 	git branch -D `git branch --merged | grep -v \* | xargs`
-
-update:
-	pur
 
 update-pre:
 	pre-commit autoupdate
@@ -57,7 +45,6 @@ jupytext:
 
 notebooks:
 	jupytext docs/**/*.py --to ipynb
-
 
 docs:
 	jb build docs

@@ -19,7 +19,7 @@ gdsfactory plugins:
 - `kfactory` for fill, dataprep and testing.
 - `ray` for distributed computing and optimization.
 - `sax` S-parameter circuit solver.
-- `schematic_editor`: for bokeh schematic editor.
+- `schematic`: for bokeh schematic editor.
 - `meep` for FDTD.
 - `mpb` for MPB mode solver.
 - `web`: for gdsfactory webapp
