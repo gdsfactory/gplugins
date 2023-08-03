@@ -46,7 +46,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          make gmsh
+          make gmsh test-data
           pip install -e .[${{ matrix.plugin }},dev]
       - name: Test with pytest
         env:
