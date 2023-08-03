@@ -25,6 +25,9 @@ jobs:
         run: |
           make dev
       - name: Test with pytest
+        env:
+          SIMCLOUD_APIKEY: ${{ secrets.SIMCLOUD_APIKEY }}
+          GDSFACTORY_DISPLAY_TYPE: klayout
         run: |
           make cov
       - name: Upload coverage to Codecov
