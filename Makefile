@@ -1,17 +1,16 @@
 
 install:
-	pip install -e .[dev]
+	pip install -e .[dev,docs,database,devsim,femwell,gmsh,meow,meshwell,ray,sax,schematic,tidy3d,web]
 	pre-commit install
 
-dev: test-data meep gmsh
-	pip install -e .[dev,docs,database,devsim,femwell,gmsh,meow,meshwell,ray,sax,schematic,tidy3d,web]
+dev: test-data meep gmsh install
 
 gmsh:
 	sudo apt-get install -y python3-gmsh gmsh
 	sudo apt install libglu1-mesa libxi-dev libxmu-dev libglu1-mesa-dev
 
 meep:
-	conda install -c conda-forge pymeep=*=mpi_mpich_* nlopt -y
+	mamba install -c conda-forge pymeep=*=mpi_mpich_* nlopt -y
 
 test:
 	pytest
