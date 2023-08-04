@@ -13,9 +13,11 @@ from gdsfactory.typings import Dict
 from gplugins.gmsh.parse_gds import cleanup_component_layermap
 from gplugins.sentaurus.mask import get_sentaurus_mask_2D, get_sentaurus_mask_3D
 
-DEFAULT_INIT_LINES = """AdvancedCalibration
-mgoals min.normal.size=0.01 normal.growth.ratio=1.618 accuracy=2e-5 minedge=5e-5
-"""
+# DEFAULT_INIT_LINES = """AdvancedCalibration
+# mgoals min.normal.size=0.01 normal.growth.ratio=1.618 accuracy=2e-5 minedge=5e-5
+# """
+
+DEFAULT_INIT_LINES = "AdvancedCalibration\n"
 
 DEFAULT_REMESHING_STRATEGY = """refinebox clear
 line clear
@@ -62,7 +64,7 @@ def write_sprocess(
     initial_z_resolutions = initial_z_resolutions or {
         layername: 1e-2 for layername in waferstack.layers.keys()
     }
-    initial_xy_resolution = initial_xy_resolution or 1e-1
+    initial_xy_resolution = initial_xy_resolution or 1
 
     # Parse 2D or 3D
     if xsection_bounds:
@@ -95,11 +97,19 @@ def write_sprocess(
         f.write(f"{init_lines}\n")
 
         # Initial z-mesh from waferstack and resolutions
-        for layername, layer in waferstack.layers.items():
+        z_map = {}
+        for _i, (layername, layer) in enumerate(waferstack.layers.items()):
             resolution = initial_z_resolutions[layername]
-            f.write(
-                f"line x loc={layer.zmin - layer.thickness:1.3f}   tag={layername}_top     spacing={resolution}\n"
-            )
+            if f"{layer.zmin - layer.thickness:1.3f}" not in z_map:
+                f.write(
+                    f"line x loc={layer.zmin - layer.thickness:1.3f}<um>   tag={layername}_top     spacing={resolution}<um>\n"
+                )
+                z_map[f"{layer.zmin - layer.thickness:1.3f}"] = f"{layername}_top"
+            if f"{layer.zmin:1.3f}" not in z_map:
+                f.write(
+                    f"line x loc={layer.zmin:1.3f}<um>   tag={layername}_bot     spacing={resolution}<um>\n"
+                )
+                z_map[f"{layer.zmin:1.3f}"] = f"{layername}_bot"
 
         # Initial xy-mesh from component bbox
         f.write(
@@ -121,9 +131,9 @@ line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
 
         # Initialize with wafermap
         for _layername, layer in waferstack.layers.items():
-            f.write(
-                f"region {layer.material} xlo={layer.zmin - layer.thickness:1.3f} xhi={layer.zmin:1.3f} {xdims} {ydims}\n"
-            )
+            xlo = z_map[f"{layer.zmin - layer.thickness:1.3f}"]
+            xhi = z_map[f"{layer.zmin:1.3f}"]
+            f.write(f"region {layer.material} xlo={xlo} xhi={xhi} {xdims} {ydims}\n")
             if layer.background_doping_concentration:
                 f.write(
                     f"init {layer.material} concentration={layer.background_doping_concentration:1.2e}<cm-3> field={layer.background_doping_ion} wafer.orient={layer.orientation}\n"
@@ -201,6 +211,13 @@ if __name__ == "__main__":
     test_component = straight_pn(length=30, taper=None)
     test_component.show()
 
+    WAFER_STACK.layers["substrate"].material = "silicon"
+    WAFER_STACK.layers["substrate"].thickness = 1
+    WAFER_STACK.layers["substrate"].zmin = WAFER_STACK.layers["box"].zmin - 1
+    WAFER_STACK.layers["box"].material = "Oxide"
+    WAFER_STACK.layers["core"].material = "silicon"
+    WAFER_STACK = WAFER_STACK.z_offset(-1 * 0.22).invert_zaxis()
+
     write_sprocess(
         component=test_component,
         waferstack=WAFER_STACK,
@@ -216,4 +233,7 @@ if __name__ == "__main__":
         process=get_process(),
         xsection_bounds=((15, test_component.ymin), (15, test_component.ymax)),
         filepath="./sprocess_2D_fps.cmd",
+        initial_z_resolutions={"core": 0.02, "box": 0.5, "substrate": 0.5},
+        initial_xy_resolution=0.2,
+        split_steps=True,
     )
