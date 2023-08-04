@@ -51,8 +51,7 @@ def _get_link_name(component: Component):
     ports = sorted(component.ports.keys())
     if len(ports) != 2:
         raise ValueError("routing components must have two ports")
-    link = ":".join(ports)
-    return link
+    return ":".join(ports)
 
 
 def _node_to_inst_port(node: str):
@@ -70,7 +69,7 @@ def _node_to_inst_port(node: str):
 
 
 def _is_scalar(val):
-    return isinstance(val, float) or isinstance(val, int)
+    return isinstance(val, (float, int))
 
 
 def _expand_bbox(bbox):
@@ -175,7 +174,7 @@ def get_paths(pathlength_graph: nx.Graph) -> list[dict[str, Any]]:
                     if "weight" in summed_route_attrs:
                         summed_route_attrs.pop("weight")
                     if summed_route_attrs:
-                        record.update(summed_route_attrs)
+                        record |= summed_route_attrs
                         route_records.append(record)
                     record["edges"] = edges
                     record["nodes"] = path
@@ -183,12 +182,11 @@ def get_paths(pathlength_graph: nx.Graph) -> list[dict[str, Any]]:
 
 
 def _get_subinst_node_name(node_name, inst_name):
-    if "," in node_name:
-        new_node_name = f"{inst_name}.{node_name}"
-    else:
-        # for top-level ports
-        new_node_name = f"{inst_name},{node_name}"
-    return new_node_name
+    return (
+        f"{inst_name}.{node_name}"
+        if "," in node_name
+        else f"{inst_name},{node_name}"
+    )
 
 
 def idealized_mxn_connectivity(inst_name: str, ref: ComponentReference, g: nx.Graph):
@@ -270,8 +268,8 @@ def _get_edge_based_route_attr_graph(
                     netlist=sub_netlist,
                     netlists=netlists,
                 )
-                sub_edges = []
                 sub_nodes = []
+                sub_edges = []
                 for edge in sub_graph.edges(data=True):
                     s, e, d = edge
                     new_edge = []
@@ -297,13 +295,12 @@ def _get_edge_based_route_attr_graph(
                     sub_nodes.append(new_node)
                 g.add_nodes_from(sub_nodes)
                 g.add_edges_from(sub_edges)
+            elif component_connectivity:
+                component_connectivity(inst_name, sub_inst, g)
             else:
-                if component_connectivity:
-                    component_connectivity(inst_name, sub_inst, g)
-                else:
-                    warnings.warn(
-                        f"ignoring any links in {inst_name} ({sub_inst.parent.name})"
-                    )
+                warnings.warn(
+                    f"ignoring any links in {inst_name} ({sub_inst.parent.name})"
+                )
 
     # connect all top level ports
     if top_level_ports:
@@ -341,10 +338,13 @@ def get_edge_based_route_attr_graph(
         netlist = get_netlist(pic, full_settings=True)
         netlists = None
 
-    graph = _get_edge_based_route_attr_graph(
-        pic, recursive, component_connectivity, netlist=netlist, netlists=netlists
+    return _get_edge_based_route_attr_graph(
+        pic,
+        recursive,
+        component_connectivity,
+        netlist=netlist,
+        netlists=netlists,
     )
-    return graph
 
 
 def get_pathlength_widgets(
@@ -443,9 +443,9 @@ def get_pathlength_widgets(
             path_data["xs"].append(xs)
             path_data["ys"].append(ys)
             path_data["color"].append(Category10[10][i % 10])
-            for key in path_data:
+            for key, value in path_data.items():
                 if key not in ["xs", "ys", "color"]:
-                    path_data[key].append(path.get(key, 0.0))
+                    value.append(path.get(key, 0.0))
 
     inst_patches = {"xs": [], "ys": [], "names": [], "xl": [], "yt": []}
     for inst_name, inst_info in inst_infos.items():
@@ -487,8 +487,10 @@ def get_pathlength_widgets(
         TableColumn(field="dst_port", title="Port"),
         TableColumn(field="length", title="Length"),
     ]
-    for cs_name in cs_colors:
-        columns.append(TableColumn(field=f"{cs_name}_length", title=cs_name))
+    columns.extend(
+        TableColumn(field=f"{cs_name}_length", title=cs_name)
+        for cs_name in cs_colors
+    )
     columns.append(TableColumn(field="n_bend_90", title="# bend90"))
     table = DataTable(
         source=paths_ds,

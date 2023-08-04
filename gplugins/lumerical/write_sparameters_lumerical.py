@@ -205,7 +205,7 @@ def write_sparameters_lumerical(
     layer_to_material = layer_stack.get_layer_to_material()
 
     if hasattr(component.info, "simulation_settings"):
-        sim_settings.update(component.info.simulation_settings)
+        sim_settings |= component.info.simulation_settings
         logger.info(
             f"Updating {component.name!r} sim settings {component.simulation_settings}"
         )

@@ -174,8 +174,7 @@ def xyz_mesh(
         for r in resolutions.values():
             r["resolution"] *= global_scaling_premesh
 
-    # Mesh
-    mesh_out = model.mesh(
+    return model.mesh(
         entities_dict=prisms_dict,
         resolutions=resolutions,
         default_characteristic_length=default_characteristic_length,
@@ -186,8 +185,6 @@ def xyz_mesh(
         filename=filename,
         verbosity=verbosity,
     )
-
-    return mesh_out
 
 
 if __name__ == "__main__":
