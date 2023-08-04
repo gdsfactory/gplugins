@@ -105,28 +105,28 @@ def write_sprocess(
         f.write(
             f"""line y location={xmin:1.3f}   spacing={initial_xy_resolution} tag=left
 line y location={xmax:1.3f}   spacing={initial_xy_resolution} tag=right
-set Ydim "ylo=left yhi=right"
 """
         )
+        xdims = "ylo=left yhi=right"
         if xsection_bounds:
-            f.write('set Zdim ""\n')
+            ydims = ""
         else:
+            ydims = "zlo=front zhi=back"
             f.write(
                 f"""
 line z location={ymin:1.3f}   spacing={initial_xy_resolution} tag=front
 line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
-set Zdim "zlo=front zhi=back"
 """
             )
 
         # Initialize with wafermap
-        for layername, layer in waferstack.layers.items():
+        for _layername, layer in waferstack.layers.items():
             f.write(
-                f"eval region {layername} xlo={layer.zmin - layer.thickness:1.3f} xhi={layer.zmin:1.3f} $Ydim $Zdim\n"
+                f"region {layer.material} xlo={layer.zmin - layer.thickness:1.3f} xhi={layer.zmin:1.3f} {xdims} {ydims}\n"
             )
             if layer.background_doping_concentration:
                 f.write(
-                    f"init {layername} concentration={layer.background_doping_concentration:1.2e}<cm-3> field={layer.background_doping_ion} wafer.orient={layer.orientation}\n"
+                    f"init {layer.material} concentration={layer.background_doping_concentration:1.2e}<cm-3> field={layer.background_doping_ion} wafer.orient={layer.orientation}\n"
                 )
 
         for step in process:
@@ -180,10 +180,10 @@ set Zdim "zlo=front zhi=back"
             f.write("#remeshing\n")
         f.write(remeshing_strategy)
 
-        for layername, layer in waferstack.layers.items():
+        for _layername, layer in waferstack.layers.items():
             if layer.info and layer.info["active"] is True:
                 f.write(
-                    f"""refinebox name= Global refine.min.edge= {{ {layer.zmin - layer.thickness:1.3f} $Ymin $Zmin }} refine.max.edge= {{ {layer.zmin:1.3f} $Ymax $Zmax }} refine.fields= {{ NetActive }} def.max.asinhdiff= 0.5 adaptive {layername}
+                    f"""refinebox name= Global refine.min.edge= {{ {layer.zmin - layer.thickness:1.3f} {xmin} {ymin} }} refine.max.edge= {{ {layer.zmin:1.3f} {xmax} {ymax} }} refine.fields= {{ NetActive }} def.max.asinhdiff= 0.5 adaptive {layer.material}
 """
                 )
         f.write("grid remesh\n")
