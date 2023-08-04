@@ -40,7 +40,7 @@ def add_mask_polygons(layer_polygons, name):
             segments += f"{coordinate} "
         polygon_name = f"{name}_{i}"
         polygon_names += f"{polygon_name}" if i == 0 else f", {polygon_name}"
-        line = f"polygon name={polygon_name} segments={{ {segments}}}\n"
+        line = f"polygon name={polygon_name} segments= {{ {segments}}}\n"
         return_str_lines.append(line)
     return return_str_lines, polygon_names
 
@@ -123,8 +123,8 @@ def get_sentaurus_mask_3D(
     return_str_lines += polygon_strings
 
     # Add mask step
-    tone = "positive" if positive_tone else "negative"
-    line = f"mask name={name} polygons={{ {polygon_names}}} {tone}\n"
+    tone = "" if positive_tone else "negative"
+    line = f"mask name={name} polygons= {{ {polygon_names}}} {tone}\n"
     return_str_lines.append(line)
 
     return return_str_lines
@@ -174,8 +174,8 @@ def get_sentaurus_mask_2D(
         )
 
     # Add mask step
-    tone = "positive" if positive_tone else "negative"
-    return f"mask name={name} segments={{ {layer_bounds}}} {tone}\n"
+    tone = "" if positive_tone else "negative"
+    return f"mask name={name} segments= {{ {layer_bounds}}} {tone}\n"
 
 
 if __name__ == "__main__":
