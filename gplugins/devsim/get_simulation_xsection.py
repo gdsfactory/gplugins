@@ -604,9 +604,7 @@ class PINWaveguide(BaseModel):
         freq0 = td.C_0 / wavelength
         freqs = [freq0]
 
-        x_mesh, y_mesh, z_mesh, freq_mesh = np.meshgrid(
-            X, Y, Z, freqs, indexing="ij"
-        )
+        x_mesh, y_mesh, z_mesh, freq_mesh = np.meshgrid(X, Y, Z, freqs, indexing="ij")
         x_mesh_2D = x_mesh[:, :, 0, 0]
         y_mesh_2D = y_mesh[:, :, 0, 0]
 
@@ -643,11 +641,11 @@ class PINWaveguide(BaseModel):
             k_core + dk_grid_td, coords=dict(x=X, y=Y, z=Z, f=freqs)
         )
 
-            # core_material_pertub = td.CustomMedium.from_nk(
-            #     n=n_dataset,
-            #     k=k_dataset,
-            #     interp_method="linear",
-            # )
+        # core_material_pertub = td.CustomMedium.from_nk(
+        #     n=n_dataset,
+        #     k=k_dataset,
+        #     interp_method="linear",
+        # )
         if isinstance(core_material, str):
             name_material = f"{core_material}_with_carriers"
         else:

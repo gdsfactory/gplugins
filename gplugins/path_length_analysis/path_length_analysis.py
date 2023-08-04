@@ -69,7 +69,7 @@ def _node_to_inst_port(node: str):
 
 
 def _is_scalar(val):
-    return isinstance(val, (float, int))
+    return isinstance(val, float | int)
 
 
 def _expand_bbox(bbox):
@@ -183,9 +183,7 @@ def get_paths(pathlength_graph: nx.Graph) -> list[dict[str, Any]]:
 
 def _get_subinst_node_name(node_name, inst_name):
     return (
-        f"{inst_name}.{node_name}"
-        if "," in node_name
-        else f"{inst_name},{node_name}"
+        f"{inst_name}.{node_name}" if "," in node_name else f"{inst_name},{node_name}"
     )
 
 
@@ -488,8 +486,7 @@ def get_pathlength_widgets(
         TableColumn(field="length", title="Length"),
     ]
     columns.extend(
-        TableColumn(field=f"{cs_name}_length", title=cs_name)
-        for cs_name in cs_colors
+        TableColumn(field=f"{cs_name}_length", title=cs_name) for cs_name in cs_colors
     )
     columns.append(TableColumn(field="n_bend_90", title="# bend90"))
     table = DataTable(
