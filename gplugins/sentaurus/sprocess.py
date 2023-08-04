@@ -37,6 +37,7 @@ def write_sprocess(
     process,
     xsection_bounds: tuple[tuple[float, float], tuple[float, float]] = None,
     filepath: str = "./sprocess.tcl",
+    structroot: str = "struct",
     round_tol: int = 3,
     simplify_tol: float = 1e-3,
     split_steps: bool = True,
@@ -142,7 +143,10 @@ line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
                     f"init {layer.material} concentration={layer.background_doping_concentration:1.2e}<cm-3> field={layer.background_doping_ion} wafer.orient={layer.orientation}\n"
                 )
 
-        for step in process:
+        if split_steps:
+            f.write(f"struct tdr={structroot}_0_wafer.tdr")
+
+        for i, step in enumerate(process):
             f.write("\n")
 
             if split_steps:
@@ -186,6 +190,11 @@ line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
 
             if isinstance(step, Anneal):
                 f.write(f"diffuse temp={step.temperature}<C> time={step.time}<s>\n")
+
+            if split_steps:
+                f.write(f"struct tdr={structroot}_{i+1}_{step.name}.tdr")
+
+            f.write("\n")
 
         # Remeshing options
         f.write("\n")
