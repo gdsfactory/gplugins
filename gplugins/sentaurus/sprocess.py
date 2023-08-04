@@ -1,3 +1,4 @@
+import math
 import pathlib
 
 import gdsfactory as gf
@@ -79,13 +80,15 @@ def write_sprocess(
 
     # Get simulation bounds
     if xsection_bounds:
-        xmin = component.xmin
-        xmax = component.xmax
+        xmin = 0
+        xmax = math.dist(xsection_bounds[0], xsection_bounds[1])
+        ymin = 0
+        ymax = 0
     else:
         xmin = component.xmin
         xmax = component.xmax
-    ymin = component.ymin
-    ymax = component.ymax
+        ymin = component.ymin
+        ymax = component.ymax
 
     # Setup TCL file
     out_file = pathlib.Path(filepath)
