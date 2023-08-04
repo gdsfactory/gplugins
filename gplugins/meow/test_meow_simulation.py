@@ -36,10 +36,13 @@ def test_meow_defaults() -> None:
         entry1, entry2 = key.split(",")
         port1, mode1 = entry1.split("@")
         port2, mode2 = entry2.split("@")
+
+        # Transmission larger than 90%
         if port1 != port2 and mode1 == "0" and mode2 == "0":
             assert np.abs(sp[key]) ** 2 > 0.9
+        # Reflection lower than 20%
         elif port1 != port2 and mode1 == "1" and mode2 == "1":
-            assert np.abs(sp[key]) ** 2 > 0.2
+            assert np.abs(sp[key]) ** 2 < 0.2
 
 
 def test_cells() -> None:
