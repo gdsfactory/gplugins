@@ -521,164 +521,7 @@ class PINWaveguide(BaseModel):
             A tidy3d Waveguide object.
 
         """
-        if perturb:
-            # Create temporary Waveguide to get the X, Y, Z positions
-            temp_Waveguide = Waveguide(
-                wavelength=wavelength,
-                core_width=self.core_width / um,
-                core_thickness=self.core_thickness / um,
-                slab_thickness=self.slab_thickness / um,
-                box_thickness=box_thickness,
-                clad_thickness=clad_thickness,
-                side_margin=max(
-                    self.ppp_offset + self.xmargin, self.npp_offset + self.xmargin
-                )
-                / um,
-                grid_resolution=grid_resolution,
-                precision=precision,
-                core_material=core_material,
-                clad_material=clad_material,
-                cache=False,
-            )
-
-            # Create index perturbation
-            x_fem = []
-            y_fem = []
-            dN_fem = []
-            dP_fem = []
-
-            mat_dtype = np.float64 if precision == "double" else np.float32
-
-            for region_name in ["core", "slab"]:
-                x_fem.append(
-                    np.array(self.get_field(region_name=region_name, field_name="x"))
-                )
-                y_fem.append(
-                    np.array(self.get_field(region_name=region_name, field_name="y"))
-                )
-                dN_fem.append(
-                    np.array(
-                        self.get_field(region_name=region_name, field_name="Electrons"),
-                        dtype=mat_dtype,
-                    )
-                )
-                dP_fem.append(
-                    np.array(
-                        self.get_field(region_name=region_name, field_name="Holes"),
-                        dtype=mat_dtype,
-                    )
-                )
-
-            x_fem = np.concatenate(x_fem)
-            y_fem = np.concatenate(y_fem)
-            dN_fem = np.concatenate(dN_fem)
-            dP_fem = np.concatenate(dP_fem)
-
-            dn_fem = dn_carriers(wavelength, dN_fem, dP_fem)
-            dk_fem = alpha_to_k(dalpha_carriers(wavelength, dN_fem, dP_fem), wavelength)
-
-            # Interpolate the index perturbation onto the Waveguide grid
-            temp_grid = temp_Waveguide.waveguide.mode_solver.simulation.grid
-            X = temp_grid.centers.x
-            Y = temp_grid.centers.y
-            Z = temp_grid.centers.z
-
-            freq0 = td.C_0 / wavelength
-            freqs = [freq0]
-
-            x_mesh, y_mesh, z_mesh, freq_mesh = np.meshgrid(
-                X, Y, Z, freqs, indexing="ij"
-            )
-            x_mesh_2D = x_mesh[:, :, 0, 0]
-            y_mesh_2D = y_mesh[:, :, 0, 0]
-
-            dn_grid = np.nan_to_num(
-                griddata(
-                    (x_fem * cm / um, y_fem * cm / um),
-                    dn_fem,
-                    (x_mesh_2D, y_mesh_2D),
-                    DEVSIM_INTERPOLATION_METHOD,
-                )
-            )
-            dk_grid = np.nan_to_num(
-                griddata(
-                    (x_fem * cm / um, y_fem * cm / um),
-                    dk_fem,
-                    (x_mesh_2D, y_mesh_2D),
-                    DEVSIM_INTERPOLATION_METHOD,
-                )
-            )
-
-            # Extend to 3D (Nx, Ny,) -> (Nx, Ny, Nz,)
-            dn_grid_3D = np.stack([dn_grid] * Z.size, axis=-1)
-            dk_grid_3D = np.stack([dk_grid] * Z.size, axis=-1)
-
-            # Extend to 4D (Nx, Ny, Nz,) -> (Nx, Ny, Nz, Nf)
-            dn_grid_td = np.stack([dn_grid_3D] * len(freqs), axis=-1)
-            dk_grid_td = np.stack([dk_grid_3D] * len(freqs), axis=-1)
-
-            n_core, k_core = get_nk(core_material)
-            n_dataset = td.ScalarFieldDataArray(
-                n_core + dn_grid_td, coords=dict(x=X, y=Y, z=Z, f=freqs)
-            )
-            k_dataset = td.ScalarFieldDataArray(
-                k_core + dk_grid_td, coords=dict(x=X, y=Y, z=Z, f=freqs)
-            )
-
-            # core_material_pertub = td.CustomMedium.from_nk(
-            #     n=n_dataset,
-            #     k=k_dataset,
-            #     interp_method="linear",
-            # )
-            if isinstance(core_material, str):
-                name_material = core_material + "_with_carriers"
-            else:
-                name_material = "core_material_with_carriers"
-
-            eps_real = n_dataset**2 - k_dataset**2
-            eps_imag = 2 * n_dataset * k_dataset
-            eps_diag_data = td.ScalarFieldDataArray(
-                eps_real + 1.0j * eps_imag, coords=dict(x=X, y=Y, z=Z, f=freqs)
-            )
-
-            eps_perturb = td.PermittivityDataset(
-                eps_xx=eps_diag_data, eps_yy=eps_diag_data, eps_zz=eps_diag_data
-            )
-            core_material_pertub = td.CustomMedium(
-                name=name_material,
-                eps_dataset=eps_perturb,
-                frequency_range=[0.99 * freq0, 1.01 * freq0],
-            )
-
-            # dn_dict = (
-            #     {
-            #         "x": x_fem * cm / um,
-            #         "y": y_fem * cm / um + box_thickness,
-            #         "dn": dn_fem + 1j * dk_fem,
-            #     }
-            #     if perturb
-            #     else None
-            # )
-
-            # Create perturbed waveguide, handle like regular mode
-            return Waveguide(
-                wavelength=wavelength,
-                core_width=self.core_width / um,
-                core_thickness=self.core_thickness / um,
-                slab_thickness=self.slab_thickness / um,
-                box_thickness=box_thickness,
-                clad_thickness=clad_thickness,
-                side_margin=max(
-                    self.ppp_offset + self.xmargin, self.npp_offset + self.xmargin
-                )
-                / um,
-                grid_resolution=grid_resolution,
-                precision=precision,
-                core_material=core_material_pertub,
-                clad_material=clad_material,
-                cache=cache,
-            )
-        else:
+        if not perturb:
             # Create simple waveguide, handle like regular mode
             return Waveguide(
                 wavelength=wavelength,
@@ -697,6 +540,162 @@ class PINWaveguide(BaseModel):
                 clad_material=clad_material,
                 cache=cache,
             )
+        # Create temporary Waveguide to get the X, Y, Z positions
+        temp_Waveguide = Waveguide(
+            wavelength=wavelength,
+            core_width=self.core_width / um,
+            core_thickness=self.core_thickness / um,
+            slab_thickness=self.slab_thickness / um,
+            box_thickness=box_thickness,
+            clad_thickness=clad_thickness,
+            side_margin=max(
+                self.ppp_offset + self.xmargin, self.npp_offset + self.xmargin
+            )
+            / um,
+            grid_resolution=grid_resolution,
+            precision=precision,
+            core_material=core_material,
+            clad_material=clad_material,
+            cache=False,
+        )
+
+        # Create index perturbation
+        x_fem = []
+        y_fem = []
+        dN_fem = []
+        dP_fem = []
+
+        mat_dtype = np.float64 if precision == "double" else np.float32
+
+        for region_name in ["core", "slab"]:
+            x_fem.append(
+                np.array(self.get_field(region_name=region_name, field_name="x"))
+            )
+            y_fem.append(
+                np.array(self.get_field(region_name=region_name, field_name="y"))
+            )
+            dN_fem.append(
+                np.array(
+                    self.get_field(region_name=region_name, field_name="Electrons"),
+                    dtype=mat_dtype,
+                )
+            )
+            dP_fem.append(
+                np.array(
+                    self.get_field(region_name=region_name, field_name="Holes"),
+                    dtype=mat_dtype,
+                )
+            )
+
+        x_fem = np.concatenate(x_fem)
+        y_fem = np.concatenate(y_fem)
+        dN_fem = np.concatenate(dN_fem)
+        dP_fem = np.concatenate(dP_fem)
+
+        dn_fem = dn_carriers(wavelength, dN_fem, dP_fem)
+        dk_fem = alpha_to_k(dalpha_carriers(wavelength, dN_fem, dP_fem), wavelength)
+
+        # Interpolate the index perturbation onto the Waveguide grid
+        temp_grid = temp_Waveguide.waveguide.mode_solver.simulation.grid
+        X = temp_grid.centers.x
+        Y = temp_grid.centers.y
+        Z = temp_grid.centers.z
+
+        freq0 = td.C_0 / wavelength
+        freqs = [freq0]
+
+        x_mesh, y_mesh, z_mesh, freq_mesh = np.meshgrid(
+            X, Y, Z, freqs, indexing="ij"
+        )
+        x_mesh_2D = x_mesh[:, :, 0, 0]
+        y_mesh_2D = y_mesh[:, :, 0, 0]
+
+        dn_grid = np.nan_to_num(
+            griddata(
+                (x_fem * cm / um, y_fem * cm / um),
+                dn_fem,
+                (x_mesh_2D, y_mesh_2D),
+                DEVSIM_INTERPOLATION_METHOD,
+            )
+        )
+        dk_grid = np.nan_to_num(
+            griddata(
+                (x_fem * cm / um, y_fem * cm / um),
+                dk_fem,
+                (x_mesh_2D, y_mesh_2D),
+                DEVSIM_INTERPOLATION_METHOD,
+            )
+        )
+
+        # Extend to 3D (Nx, Ny,) -> (Nx, Ny, Nz,)
+        dn_grid_3D = np.stack([dn_grid] * Z.size, axis=-1)
+        dk_grid_3D = np.stack([dk_grid] * Z.size, axis=-1)
+
+        # Extend to 4D (Nx, Ny, Nz,) -> (Nx, Ny, Nz, Nf)
+        dn_grid_td = np.stack([dn_grid_3D] * len(freqs), axis=-1)
+        dk_grid_td = np.stack([dk_grid_3D] * len(freqs), axis=-1)
+
+        n_core, k_core = get_nk(core_material)
+        n_dataset = td.ScalarFieldDataArray(
+            n_core + dn_grid_td, coords=dict(x=X, y=Y, z=Z, f=freqs)
+        )
+        k_dataset = td.ScalarFieldDataArray(
+            k_core + dk_grid_td, coords=dict(x=X, y=Y, z=Z, f=freqs)
+        )
+
+            # core_material_pertub = td.CustomMedium.from_nk(
+            #     n=n_dataset,
+            #     k=k_dataset,
+            #     interp_method="linear",
+            # )
+        if isinstance(core_material, str):
+            name_material = f"{core_material}_with_carriers"
+        else:
+            name_material = "core_material_with_carriers"
+
+        eps_real = n_dataset**2 - k_dataset**2
+        eps_imag = 2 * n_dataset * k_dataset
+        eps_diag_data = td.ScalarFieldDataArray(
+            eps_real + 1.0j * eps_imag, coords=dict(x=X, y=Y, z=Z, f=freqs)
+        )
+
+        eps_perturb = td.PermittivityDataset(
+            eps_xx=eps_diag_data, eps_yy=eps_diag_data, eps_zz=eps_diag_data
+        )
+        core_material_pertub = td.CustomMedium(
+            name=name_material,
+            eps_dataset=eps_perturb,
+            frequency_range=[0.99 * freq0, 1.01 * freq0],
+        )
+
+        # dn_dict = (
+        #     {
+        #         "x": x_fem * cm / um,
+        #         "y": y_fem * cm / um + box_thickness,
+        #         "dn": dn_fem + 1j * dk_fem,
+        #     }
+        #     if perturb
+        #     else None
+        # )
+
+        # Create perturbed waveguide, handle like regular mode
+        return Waveguide(
+            wavelength=wavelength,
+            core_width=self.core_width / um,
+            core_thickness=self.core_thickness / um,
+            slab_thickness=self.slab_thickness / um,
+            box_thickness=box_thickness,
+            clad_thickness=clad_thickness,
+            side_margin=max(
+                self.ppp_offset + self.xmargin, self.npp_offset + self.xmargin
+            )
+            / um,
+            grid_resolution=grid_resolution,
+            precision=precision,
+            core_material=core_material_pertub,
+            clad_material=clad_material,
+            cache=cache,
+        )
 
 
 def clear_devsim_cache() -> None:
