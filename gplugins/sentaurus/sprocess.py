@@ -220,7 +220,15 @@ if __name__ == "__main__":
     from gdsfactory.generic_tech import LAYER
     from gdsfactory.generic_tech.layer_stack import WAFER_STACK, get_process
 
-    test_component = straight_pn(length=30, taper=None)
+    test_component = straight_pn(length=30, taper=None).extract(
+        [
+            LAYER.WG,
+            LAYER.SLAB90,
+            LAYER.N,
+            LAYER.P,
+            LAYER.VIAC,
+        ]
+    )
     test_component.show()
 
     WAFER_STACK.layers["substrate"].material = "silicon"
@@ -243,7 +251,10 @@ if __name__ == "__main__":
         waferstack=WAFER_STACK,
         layermap=LAYER,
         process=get_process(),
-        xsection_bounds=((15, test_component.ymin), (15, test_component.ymax)),
+        xsection_bounds=(
+            ((test_component.xmin + test_component.xmax) / 2, test_component.ymin),
+            ((test_component.xmin + test_component.xmax) / 2, test_component.ymax),
+        ),
         filepath="./sprocess_2D_fps.cmd",
         initial_z_resolutions={"core": 0.02, "box": 0.5, "substrate": 0.5},
         initial_xy_resolution=0.2,
