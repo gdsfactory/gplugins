@@ -1,0 +1,5 @@
+rule_settings:
+  enable: [default]
+  disable:
+    - use-named-expression
+  python_version: '3.10'
