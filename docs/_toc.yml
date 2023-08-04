@@ -60,5 +60,5 @@ parts:
     chapters:
       - file: api
       - file: changelog
-      - url: https://gdsfactory.github.io/gplugins/
+      - url: https://gdsfactory.github.io/gdsfactory
         title: gdsfactory
