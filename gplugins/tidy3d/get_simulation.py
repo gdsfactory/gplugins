@@ -242,9 +242,9 @@ def get_simulation(
     material_name_to_tidy3d = material_name_to_tidy3d or {}
 
     if material_name_to_tidy3d:
-        clad_material_name_or_index = material_name_to_tidy3d[clad_material]
+        clad_material_spec = material_name_to_tidy3d[clad_material]
     else:
-        clad_material_name_or_index = (
+        clad_material_spec = (
             clad_material(wavelength) if callable(clad_material) else clad_material
         )
 
@@ -253,7 +253,7 @@ def get_simulation(
             size=(td.inf, td.inf, td.inf),
             center=(0, 0, 0),
         ),
-        medium=get_medium(name_or_index=clad_material_name_or_index),
+        medium=get_medium(spec=clad_material_spec),
     )
     structures = [clad]
 
@@ -281,11 +281,11 @@ def get_simulation(
             material_name = layer_to_material[layer]
 
             if material_name in material_name_to_tidy3d:
-                name_or_index = material_name_to_tidy3d[material_name]
-                medium = get_medium(name_or_index=name_or_index)
-                index = get_index(name_or_index=name_or_index)
+                spec = material_name_to_tidy3d[material_name]
+                medium = get_medium(spec=spec)
+                index = get_index(spec=spec)
                 logger.debug(
-                    f"Add {layer}, {name_or_index!r}, index = {index:.3f}, "
+                    f"Add {layer}, {spec!r}, index = {index:.3f}, "
                     f"thickness = {thickness}, zmin = {zmin}, zmax = {zmax}"
                 )
             else:

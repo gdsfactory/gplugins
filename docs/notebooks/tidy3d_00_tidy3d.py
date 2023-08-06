@@ -44,6 +44,26 @@ gf.config.rich_output()
 PDK = gf.generic_tech.get_generic_pdk()
 PDK.activate()
 
+
+# %%
+print(gt.materials.MaterialSpecTidy3d)
+
+# %%
+gt.materials.get_index(
+    3.4
+)  # get the index of a material with a given refractive index float
+
+# %%
+gt.materials.get_index(
+    "SiO2"
+)  # get the index of a material with a name string, for the case that the refractive index has only one variant
+
+# %%
+gt.materials.get_index(
+    ("cSi", "Li1993_293K")
+)  # get the index of a material with a name string, for the case that the refractive index has more than one variant
+
+
 # %%
 nm = 1e-3
 wavelength = np.linspace(1500, 1600) * nm
