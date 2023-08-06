@@ -38,6 +38,7 @@ def write_sprocess(
     xsection_bounds: tuple[tuple[float, float], tuple[float, float]] = None,
     filepath: str = "./sprocess.tcl",
     structroot: str = "struct",
+    structout: str = "struct_out.tdr",
     round_tol: int = 3,
     simplify_tol: float = 1e-3,
     split_steps: bool = True,
@@ -212,7 +213,7 @@ line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
 
         # Create structure
         f.write("\n")
-        f.write("struct tdr=n@node@")
+        f.write(f"struct tdr={structout}.tdr")
 
 
 if __name__ == "__main__":
