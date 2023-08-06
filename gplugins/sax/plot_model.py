@@ -74,6 +74,8 @@ def plot_model(
 
 
 if __name__ == "__main__":
-    import sax
+    import matplotlib.pyplot as plt 
+    import gplugins.sax as gs
 
-    plot_model(sax.models.straight, phase=True, port1="in2")
+    plot_model(gs.models.straight, phase=True, port1="o1", ports2=("o1", "o2"))
+    plt.show()
