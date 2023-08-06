@@ -169,18 +169,24 @@ class Waveguide(pydantic.BaseModel):
         #         or isinstance(self.core_material, td.CustomMedium)):
         if not hasattr(self, "_waveguide"):
             # To include a dn -> custom medium
-            if isinstance(self.core_material, td.CustomMedium) or isinstance(self.core_material, td.Medium):
+            if isinstance(self.core_material, td.CustomMedium) or isinstance(
+                self.core_material, td.Medium
+            ):
                 core_medium = self.core_material
             else:
                 core_medium = get_medium(self.core_material)
-            
-            if isinstance(self.clad_material, td.CustomMedium) or isinstance(self.clad_material, td.Medium):
+
+            if isinstance(self.clad_material, td.CustomMedium) or isinstance(
+                self.clad_material, td.Medium
+            ):
                 clad_medium = self.clad_material
             else:
                 clad_medium = get_medium(self.clad_material)
 
             if self.box_material:
-                if isinstance(self.box_material, td.CustomMedium) or isinstance(self.box_material, td.Medium):
+                if isinstance(self.box_material, td.CustomMedium) or isinstance(
+                    self.box_material, td.Medium
+                ):
                     box_medium = self.box_material
                 else:
                     box_medium = get_medium(self.box_material)
