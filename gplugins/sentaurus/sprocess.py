@@ -14,11 +14,11 @@ from parse_gds import cleanup_component_layermap
 
 from gplugins.sentaurus.mask import get_sentaurus_mask_2D, get_sentaurus_mask_3D
 
-# DEFAULT_INIT_LINES = """AdvancedCalibration
-# mgoals min.normal.size=0.01 normal.growth.ratio=1.618 accuracy=2e-5 minedge=5e-5
-# """
+DEFAULT_INIT_LINES = """AdvancedCalibration
+mgoals min.normal.size=0.005 normal.growth.ratio=1.618 accuracy=2e-5 minedge=5e-5
+"""
 
-DEFAULT_INIT_LINES = "AdvancedCalibration\n"
+# DEFAULT_INIT_LINES = "AdvancedCalibration\n"
 
 DEFAULT_REMESHING_STRATEGY = """refinebox clear
 line clear
@@ -220,26 +220,34 @@ line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
         for _layername, layer in waferstack.layers.items():
             if layer.info and layer.info["active"] is True:
                 f.write(
-                    f"""refinebox name= Global refine.min.edge= {{ {layer.zmin - layer.thickness:1.3f} {xmin} {ymin} }} refine.max.edge= {{ {layer.zmin:1.3f} {xmax} {ymax} }} refine.fields= {{ NetActive }} def.max.asinhdiff= 0.5 adaptive {layer.material}
+                    f"""refinebox name= Global min= {{ {layer.zmin - layer.thickness:1.3f} {xmin} {ymin} }} max= {{ {layer.zmin:1.3f} {xmax} {ymax} }} refine.min.edge= {{ 0.001 0.001 0.001 }} refine.max.edge= {{ 0.1 0.1 0.1 }} refine.fields= {{ NetActive }} def.max.asinhdiff= 0.5 adaptive {layer.material}
 """
                 )
         f.write("grid remesh\n")
 
         # Tag contacts
-        if contact_portnames:
-            for contact_name in contact_portnames:
-                port = component.ports[contact_name]
-                if xsection_bounds:
-                    for polygon in component.extract(
-                        f"{port.layer}#{contact_name}"
-                    ).get_polygons:
-                        print(polygon)
+        # if contact_portnames:
+        #     for contact_name in contact_portnames:
+        #         port = component.ports[contact_name]
+        #         if xsection_bounds:
+        #             for polygon in component.extract(
+        #                 f"{port.layer}#{contact_name}"
+        #             ).get_polygons:
+        #                 print(polygon)
 
-            # f.write(f"contact name= {portname} box Silicon xlo=0 xhi=0.01 ylo=-1*$Ymax+0.2 yhi=$Ymax-0.2 zlo=$Zmax-0.01 zhi=$Zmax")
+        # Manual for now
+        f.write("\n")
+        f.write("#split Contacts\n")
+        f.write(
+            f"contact name=p box silicon xlo=0.13 xhi=0.14 ylo={xmin} yhi={xmin+0.2} zlo={ymin} zhi={ymax}\n"
+        )
+        f.write(
+            f"contact name=n box silicon xlo=0.13 xhi=0.14 ylo={xmax-0.2} yhi={xmax+0.2} zlo={ymin} zhi={ymax}\n"
+        )
 
         # Create structure
         f.write("\n")
-        f.write(f"struct tdr={structout}.tdr")
+        f.write(f"struct tdr={structout}")
 
 
 if __name__ == "__main__":
@@ -249,7 +257,10 @@ if __name__ == "__main__":
 
     # Create a component with the right contacts
     c = gf.Component()
-    test_component = c << straight_pn(length=30, taper=None).extract(
+
+    length = 10
+
+    test_straight = straight_pn(length=length, taper=None).extract(
         [
             LAYER.WG,
             LAYER.SLAB90,
@@ -258,18 +269,23 @@ if __name__ == "__main__":
             LAYER.VIAC,
         ]
     )
+
+    test_component = c << gf.geometry.trim(
+        component=test_straight, domain=[[0, -3], [0, 3], [length, 3], [length, -3]]
+    )
+
     yp = (test_component.ymax + test_component.ymin) / 2 + test_component.ysize / 2
     ym = (test_component.ymax + test_component.ymin) / 2 - test_component.ysize / 2
     c.add_port(
         name="e_p",
-        center=(15, yp),
+        center=(length / 2, yp),
         width=test_component.ysize / 2,
         orientation=0,
         layer=LAYER.VIAC,
     )
     c.add_port(
         name="e_n",
-        center=(15, ym),
+        center=(length / 2, ym),
         width=test_component.ysize / 2,
         orientation=0,
         layer=LAYER.VIAC,
@@ -300,8 +316,8 @@ if __name__ == "__main__":
             ((test_component.xmin + test_component.xmax) / 2, test_component.ymax),
         ),
         filepath="./sprocess_2D_fps.cmd",
-        initial_z_resolutions={"core": 0.02, "box": 0.5, "substrate": 0.5},
-        initial_xy_resolution=0.2,
+        initial_z_resolutions={"core": 0.005, "box": 0.05, "substrate": 0.5},
+        initial_xy_resolution=0.05,
         split_steps=True,
         contact_portnames=("e_p", "e_n"),
     )
