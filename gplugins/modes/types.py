@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -465,7 +464,7 @@ class WavelengthSweep(BaseModel):
 
 
 ModeSolverFactory = Callable[..., mpb.ModeSolver]
-ModeSolverOrFactory = Union[mpb.ModeSolver, ModeSolverFactory]
+ModeSolverOrFactory = mpb.ModeSolver | ModeSolverFactory
 
 
 if __name__ == "__main__":

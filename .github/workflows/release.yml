@@ -45,7 +45,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install dependencies
         run: |
-          make dev
+          make install
           pip freeze > requirements.txt
       - name: Release
         uses: softprops/action-gh-release@v1

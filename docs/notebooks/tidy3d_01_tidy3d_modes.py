@@ -1,16 +1,31 @@
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     custom_cell_magics: kql
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.11.2
+#   kernelspec:
+#     display_name: Python 3
+#     language: python
+#     name: python3
+# ---
+
+# %% [markdown]
 # # Tidy3D mode solver
 #
 # Tidy3d comes with an open source FDFD [mode solver](https://docs.flexcompute.com/projects/tidy3d/en/latest/notebooks/ModeSolver.html)
 #
-# ## Waveguides
-#
-# Guided Electromagnetic modes are the ones that have an effective index larger than the cladding of the waveguide
-#
-# Here is a waveguide of Silicon (n=3.4) surrounded by SiO2 (n=1.44) cladding
-#
-# For a 220 nm height x 450 nm width the effective index is 2.466
 
-# +
+# %% [markdown]
+# ## Materials
+#
+# You can define materials as a material spec (float, string, tuple[string,string]).
+
+# %%
 import gdsfactory as gf
 import matplotlib.pyplot as plt
 import numpy as np
@@ -22,8 +37,52 @@ PDK = gf.generic_tech.get_generic_pdk()
 PDK.activate()
 
 nm = 1e-3
-# -
 
+# %%
+print(gt.materials.MaterialSpecTidy3d)
+
+# %%
+gt.materials.get_index(
+    3.4
+)  # get the index of a material with a given refractive index float
+
+# %%
+gt.materials.get_index(
+    "SiO2"
+)  # get the index of a material with a name string, for the case that the refractive index has only one variant
+
+# %%
+gt.materials.get_index(
+    ("cSi", "Li1993_293K")
+)  # get the index of a material with a name string, for the case that the refractive index has more than one variant
+
+# %% [markdown]
+# ## Waveguides
+#
+# Guided Electromagnetic modes are the ones that have an effective index larger than the cladding of the waveguide
+#
+# Here is a waveguide of Silicon (n=3.4) surrounded by SiO2 (n=1.44) cladding
+#
+# For a 220 nm height x 450 nm width the effective index is 2.466
+
+# %% [markdown]
+# For defining the waveguide materials you can use a float indicating the refractive index.
+
+# %%
+strip = gt.modes.Waveguide(
+    wavelength=1.55,
+    core_width=0.5,
+    core_thickness=0.22,
+    slab_thickness=0.0,
+    core_material=3.47,
+    clad_material=1.44,
+)
+strip.plot_index()
+
+# %% [markdown]
+# You can also use materials from the default materials.
+
+# %%
 strip = gt.modes.Waveguide(
     wavelength=1.55,
     core_width=0.5,
@@ -34,16 +93,22 @@ strip = gt.modes.Waveguide(
 )
 strip.plot_index()
 
+# %%
 strip.plot_grid()
 
+# %%
 strip.plot_field(field_name="Ex", mode_index=0)  # TE
 
+# %%
 strip.plot_field(field_name="Ex", mode_index=0, value="dB")  # TE
 
+# %%
 strip.plot_field(field_name="Ey", mode_index=1)  # TM
 
+# %%
 strip.n_eff
 
+# %%
 rib = gt.modes.Waveguide(
     wavelength=1.55,
     core_width=0.5,
@@ -55,8 +120,10 @@ rib = gt.modes.Waveguide(
 rib.plot_index()
 rib.n_eff
 
+# %%
 rib.plot_field(field_name="Ex", mode_index=0)  # TE
 
+# %%
 nitride = gt.modes.Waveguide(
     wavelength=1.55,
     core_width=1.0,
@@ -68,8 +135,10 @@ nitride = gt.modes.Waveguide(
 nitride.plot_index()
 nitride.n_eff
 
+# %%
 nitride.plot_field(field_name="Ex", mode_index=0)  # TE
 
+# %% [markdown]
 # ## Sweep width
 #
 # You can sweep the waveguide width and compute the modes.
@@ -79,7 +148,7 @@ nitride.plot_field(field_name="Ex", mode_index=0)  # TE
 # Notice that waveguides wider than 0.450 um support more than one TE mode. Therefore the maximum width for single mode operation is 0.450 um.
 #
 
-# +
+# %%
 strip = gt.modes.Waveguide(
     wavelength=1.55,
     core_width=1.0,
@@ -103,8 +172,8 @@ plt.colorbar().set_label("TE fraction")
 plt.xlabel("Width of waveguide (µm)")
 plt.ylabel("Effective refractive index")
 plt.title("Effective index sweep")
-# -
 
+# %% [markdown]
 # **Exercises**
 #
 # - What is the maximum width to support a single TE mode at 1310 nm?
@@ -112,11 +181,12 @@ plt.title("Effective index sweep")
 # - For two 500x220nm Silicon waveguides surrounded by SiO2, what is the coupling length (100% coupling) for 200 nm gap?
 #
 
+# %% [markdown]
 # ## Group index
 #
 # You can also compute the group index for a waveguide.
 
-# +
+# %%
 nm = 1e-3
 
 strip = gt.modes.Waveguide(
@@ -130,12 +200,13 @@ strip = gt.modes.Waveguide(
     group_index_step=10 * nm,
 )
 print(strip.n_group)
-# -
 
+# %% [markdown]
 # ## Bend modes
 #
 # You can compute bend modes specifying the bend radius.
 
+# %%
 strip_bend = gt.modes.Waveguide(
     wavelength=1.55,
     core_width=500 * nm,
@@ -147,6 +218,7 @@ strip_bend = gt.modes.Waveguide(
 )
 strip_bend.plot_field(field_name="Ex", mode_index=0)  # TE
 
+# %% [markdown]
 # ## Bend loss
 #
 # You can also compute the losses coming from the mode mismatch from the bend into a straight waveguide.
@@ -157,7 +229,7 @@ strip_bend.plot_field(field_name="Ex", mode_index=0)  # TE
 #
 # [from paper](https://ieeexplore.ieee.org/ielaam/50/8720127/8684870-aam.pdf)
 
-# +
+# %%
 radii = np.arange(4, 7)
 bend = gt.modes.Waveguide(
     wavelength=1.55,
@@ -176,7 +248,7 @@ plt.xlabel("Radius (μm)")
 plt.ylabel("Mismatch (dB)")
 
 
-# +
+# %%
 dB_cm = 2  # dB/cm
 length = 2 * np.pi * radii * 1e-6
 propagation_loss = dB_cm * length * 1e2
@@ -188,8 +260,8 @@ plt.plot(radii, propagation_loss, ".", label="propagation loss")
 plt.xlabel("bend radius (um)")
 plt.ylabel("Loss (dB)")
 plt.legend()
-# -
 
+# %%
 rib = gt.modes.Waveguide(
     wavelength=1.55,
     core_width=1000 * nm,
@@ -201,6 +273,7 @@ rib = gt.modes.Waveguide(
 )
 rib.plot_field(field_name="Ex", mode_index=0)  # TE
 
+# %%
 nitride_bend = gt.modes.Waveguide(
     wavelength=1.55,
     core_width=1000 * nm,
@@ -212,6 +285,7 @@ nitride_bend = gt.modes.Waveguide(
 )
 nitride_bend.plot_field(field_name="Ex", mode_index=0, value="abs")  # TE
 
+# %%
 radii = np.array([30, 35, 40])
 bend = gt.modes.Waveguide(
     wavelength=1.55,
@@ -225,7 +299,7 @@ bend = gt.modes.Waveguide(
 mismatch = gt.modes.sweep_bend_mismatch(bend, radii)
 
 
-# +
+# %%
 dB_cm = 2  # dB/cm
 length = 2 * np.pi * radii * 1e-6
 propagation_loss = dB_cm * length * 1e2
@@ -237,13 +311,14 @@ plt.plot(radii, propagation_loss, ".", label="propagation loss")
 plt.xlabel("bend radius (um)")
 plt.ylabel("Loss (dB)")
 plt.legend()
-# -
 
+# %% [markdown]
 # **Exercises**
 #
 # - For a 500nm wide 220nm thick Silicon waveguide surrounded by SiO2, what is the minimum bend radius to have less than 0.04dB loss for TE polarization at 1550nm?
 # - For a 500nm wide 220nm thick Silicon waveguide surrounded by SiO2, what is the minimum bend radius to have 99% power transmission for TM polarization at 1550nm?
 
+# %% [markdown]
 # ## Waveguide coupler
 #
 # You can also compute the modes of a waveguide coupler.
@@ -263,6 +338,7 @@ plt.legend()
 #
 # ```
 
+# %%
 c = gt.modes.WaveguideCoupler(
     wavelength=1.55,
     core_width=(500 * nm, 500 * nm),
@@ -274,11 +350,13 @@ c = gt.modes.WaveguideCoupler(
 )
 c.plot_index()
 
-c.plot_field(field_name="Ex", mode_index=0)  # TE
+# %%
+c.plot_field(field_name="Ex", mode_index=0)  # even mode
 
-c.plot_field(field_name="Ex", mode_index=1)  # TE
+# %%
+c.plot_field(field_name="Ex", mode_index=1)  # odd mode
 
-# +
+# %%
 coupler = gt.modes.WaveguideCoupler(
     wavelength=1.55,
     core_width=(450 * nm, 450 * nm),
