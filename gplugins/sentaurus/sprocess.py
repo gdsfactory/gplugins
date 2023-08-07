@@ -9,9 +9,9 @@ from gdsfactory.technology.processes import (
     ImplantPhysical,
     Lithography,
 )
-from gdsfactory.typings import Dict
+from gdsfactory.typings import Dict, Tuple
+from parse_gds import cleanup_component_layermap
 
-from gplugins.gmsh.parse_gds import cleanup_component_layermap
 from gplugins.sentaurus.mask import get_sentaurus_mask_2D, get_sentaurus_mask_3D
 
 # DEFAULT_INIT_LINES = """AdvancedCalibration
@@ -39,6 +39,7 @@ def write_sprocess(
     filepath: str = "./sprocess.tcl",
     structroot: str = "struct",
     structout: str = "struct_out.tdr",
+    contact_portnames: Tuple[str] = None,
     round_tol: int = 3,
     simplify_tol: float = 1e-3,
     split_steps: bool = True,
@@ -49,9 +50,13 @@ def write_sprocess(
 ):
     """Writes a Sentaurus Process TLC file for the component + layermap + initial waferstack + process.
 
+    Uses polygons of the electrical ports for contact definition (using port layer).
+
     The meshing strategy is to use a coarse-ish grid for the implants and diffusion, and perform a final adaptive remeshing on the net dopant concentration in LayerLevels tagged as "active". As it is difficult to make an automated decision on the meshing strategy, the user is encouraged to manually edit this function as needed.
 
     Note that Sentaurus uses the X-direction vertically, with more positive X values going "deeper" in the substrate. YZ-coordinates are in the plane. GDSFactory uses XY in the plane and Z vertically, with more positive Z going "up" away from the substrate.
+
+    Since Sentaurus only supports box-type contacts, the bounding box of port polygons (from component_with_net_layers) are used to define contacts.
 
     Arguments:
         component: gdsfactory component containing polygons defining the mask
@@ -64,6 +69,15 @@ def write_sprocess(
         init_lines (str): initial string to write to the TCL file. Useful for settings.
     """
 
+    if contact_portnames:
+        component = waferstack.get_component_with_net_layers(
+            component,
+            portnames=contact_portnames,
+            add_to_layerstack=False,
+            delimiter="#",
+        )
+
+    # Defaults
     initial_z_resolutions = initial_z_resolutions or {
         layername: 1e-2 for layername in waferstack.layers.keys()
     }
@@ -211,6 +225,18 @@ line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
                 )
         f.write("grid remesh\n")
 
+        # Tag contacts
+        if contact_portnames:
+            for contact_name in contact_portnames:
+                port = component.ports[contact_name]
+                if xsection_bounds:
+                    for polygon in component.extract(
+                        f"{port.layer}#{contact_name}"
+                    ).get_polygons:
+                        print(polygon)
+
+            # f.write(f"contact name= {portname} box Silicon xlo=0 xhi=0.01 ylo=-1*$Ymax+0.2 yhi=$Ymax-0.2 zlo=$Zmax-0.01 zhi=$Zmax")
+
         # Create structure
         f.write("\n")
         f.write(f"struct tdr={structout}.tdr")
@@ -221,7 +247,9 @@ if __name__ == "__main__":
     from gdsfactory.generic_tech import LAYER
     from gdsfactory.generic_tech.layer_stack import WAFER_STACK, get_process
 
-    test_component = straight_pn(length=30, taper=None).extract(
+    # Create a component with the right contacts
+    c = gf.Component()
+    test_component = c << straight_pn(length=30, taper=None).extract(
         [
             LAYER.WG,
             LAYER.SLAB90,
@@ -230,7 +258,22 @@ if __name__ == "__main__":
             LAYER.VIAC,
         ]
     )
-    test_component.show()
+    yp = (test_component.ymax + test_component.ymin) / 2 + test_component.ysize / 2
+    ym = (test_component.ymax + test_component.ymin) / 2 - test_component.ysize / 2
+    c.add_port(
+        name="e_p",
+        center=(15, yp),
+        width=test_component.ysize / 2,
+        orientation=0,
+        layer=LAYER.VIAC,
+    )
+    c.add_port(
+        name="e_n",
+        center=(15, ym),
+        width=test_component.ysize / 2,
+        orientation=0,
+        layer=LAYER.VIAC,
+    )
 
     WAFER_STACK.layers["substrate"].material = "silicon"
     WAFER_STACK.layers["substrate"].thickness = 1
@@ -240,7 +283,7 @@ if __name__ == "__main__":
     WAFER_STACK = WAFER_STACK.z_offset(-1 * 0.22).invert_zaxis()
 
     write_sprocess(
-        component=test_component,
+        component=c,
         waferstack=WAFER_STACK,
         layermap=LAYER,
         process=get_process(),
@@ -248,7 +291,7 @@ if __name__ == "__main__":
     )
 
     write_sprocess(
-        component=test_component,
+        component=c,
         waferstack=WAFER_STACK,
         layermap=LAYER,
         process=get_process(),
@@ -260,4 +303,5 @@ if __name__ == "__main__":
         initial_z_resolutions={"core": 0.02, "box": 0.5, "substrate": 0.5},
         initial_xy_resolution=0.2,
         split_steps=True,
+        contact_portnames=("e_p", "e_n"),
     )
