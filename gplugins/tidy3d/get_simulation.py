@@ -308,7 +308,7 @@ def get_simulation(
                 gds_dtype=layer[1],
                 axis=2,
                 slab_bounds=(zmin, zmax),
-                sidewall_angle=np.deg2rad(sidewall_angle_deg),
+                sidewall_angle=np.deg2rad(sidewall_angle_deg) if is_3d else 0,
                 dilation=dilation,
             )
 
