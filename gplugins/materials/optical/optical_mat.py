@@ -1,8 +1,9 @@
 import numpy as np
-from gdsfactory.database.materials.optical.refractive_index_info import (
+from scipy import interpolate
+
+from gplugins.materials.optical.refractive_index_info import (
     loadRefractiveIndexInfo,
 )
-from scipy import interpolate
 
 
 class OpticalMaterial:

@@ -1,8 +1,9 @@
-from gdsfactory.database.materials.optical.optical_mat import OpticalMaterial
-from gdsfactory.database.materials.semiconductor.semiconductor_mat import (
+from pint import UnitRegistry
+
+from gplugins.materials.optical.optical_mat import OpticalMaterial
+from gplugins.materials.semiconductor.semiconductor_mat import (
     SemiconductorMaterial,
 )
-from pint import UnitRegistry
 
 
 class Si:

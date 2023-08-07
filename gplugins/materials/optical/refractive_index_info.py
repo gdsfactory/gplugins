@@ -1,5 +1,5 @@
+# type: ignore
 """Adapted from Lucas Heitzmann at https://gist.github.com/lucas-flexcompute/5186955dc04dc2d1918cd7c6b5d59d5e."""
-# flake8: noqa
 
 import pathlib
 import urllib.request
@@ -11,8 +11,8 @@ from numpy import pi
 π = numpy.pi
 c0 = 299792458
 μ0 = 4e-7 * pi
-ε0 = 1.0 / (c0 * c0 * μ0)
-η0 = c0 * μ0
+ε0 = 1.0 / (c0**2 * μ0)
+eta0 = c0 * μ0
 
 
 class RefractiveIndex:
@@ -74,7 +74,7 @@ class RefractiveIndex:
             self.k = lambda x: numpy.zeros_like(x)
             formula = kwargs["formula"]
             c = kwargs["coefficients"]
-            if formula == 1 or formula == 2:
+            if formula in [1, 2]:
                 # n² = c[0] + Σ c[i] / (1 - c[i+1] λ⁻²)
 
                 def n(x):
@@ -493,7 +493,7 @@ def loadRefractiveIndexInfo(
 
     baseaddress = "https://raw.githubusercontent.com/polyanskiy/refractiveindex.info-database/master/database/"
     lib = yaml.safe_load(
-        urllib.request.urlopen(baseaddress + "library.yml").read().decode()
+        urllib.request.urlopen(f"{baseaddress}library.yml").read().decode()
     )
 
     save = {}
@@ -575,9 +575,7 @@ def loadRefractiveIndexInfo(
                                         c[5] *= 1e-12
                                     else:
                                         raise NotImplementedError(
-                                            "Formula {} not implemented.".format(
-                                                formula
-                                            )
+                                            f"Formula {formula} not implemented."
                                         )
                                     save["coefficients"] = c
                             numpy.savez(cachefile, **save)
