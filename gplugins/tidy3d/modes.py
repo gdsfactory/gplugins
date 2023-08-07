@@ -22,13 +22,13 @@ import pydantic
 import tidy3d as td
 import xarray
 from gdsfactory.config import logger
-from gdsfactory.pdk import MaterialSpec, get_modes_path
+from gdsfactory.pdk import get_modes_path
 from gdsfactory.serialization import clean_value_name
 from gdsfactory.typings import PathType
 from tidy3d.plugins import waveguide
 from tqdm.auto import tqdm
 
-from gplugins.tidy3d.materials import get_medium
+from gplugins.tidy3d.materials import MaterialSpecTidy3d, get_medium
 
 Precision = Literal["single", "double"]
 nm = 1e-3
@@ -47,6 +47,7 @@ class Waveguide(pydantic.BaseModel):
             - string: material name.
             - float: refractive index.
             - float, float: refractive index real and imaginary part.
+            - td.Medium: tidy3d medium.
             - function: function of wavelength.
         clad_material: top cladding material.
         box_material: bottom cladding material.
@@ -107,9 +108,9 @@ class Waveguide(pydantic.BaseModel):
     wavelength: float | Sequence[float] | Any
     core_width: float
     core_thickness: float
-    core_material: MaterialSpec | td.CustomMedium | td.Medium
-    clad_material: MaterialSpec | td.CustomMedium | td.Medium
-    box_material: MaterialSpec | td.CustomMedium | td.Medium | None = None
+    core_material: MaterialSpecTidy3d
+    clad_material: MaterialSpecTidy3d
+    box_material: MaterialSpecTidy3d | None = None
     slab_thickness: float = 0.0
     clad_thickness: float | None = None
     box_thickness: float | None = None
@@ -169,24 +170,18 @@ class Waveguide(pydantic.BaseModel):
         #         or isinstance(self.core_material, td.CustomMedium)):
         if not hasattr(self, "_waveguide"):
             # To include a dn -> custom medium
-            if isinstance(self.core_material, td.CustomMedium) or isinstance(
-                self.core_material, td.Medium
-            ):
+            if isinstance(self.core_material, td.CustomMedium | td.Medium):
                 core_medium = self.core_material
             else:
                 core_medium = get_medium(self.core_material)
 
-            if isinstance(self.clad_material, td.CustomMedium) or isinstance(
-                self.clad_material, td.Medium
-            ):
+            if isinstance(self.clad_material, td.CustomMedium | td.Medium):
                 clad_medium = self.clad_material
             else:
                 clad_medium = get_medium(self.clad_material)
 
             if self.box_material:
-                if isinstance(self.box_material, td.CustomMedium) or isinstance(
-                    self.box_material, td.Medium
-                ):
+                if isinstance(self.box_material, td.CustomMedium | td.Medium):
                     box_medium = self.box_material
                 else:
                     box_medium = get_medium(self.box_material)
@@ -982,18 +977,23 @@ if __name__ == "__main__":
     #     overwrite=True
     # )
 
+    import matplotlib.pyplot as plt
+
     strip = Waveguide(
         wavelength=1.55,
         core_width=1.0,
         slab_thickness=0.0,
-        core_material="si",
+        # core_material="si",
+        core_material=td.material_library["cSi"]["Li1993_293K"],
         clad_material="sio2",
         core_thickness=220 * nm,
         num_modes=4,
     )
-    w = np.linspace(400 * nm, 1000 * nm, 7)
-    n_eff = sweep_n_eff(strip, core_width=w)
-    fraction_te = sweep_fraction_te(strip, core_width=w)
+    strip.plot_index()
+    plt.show()
+    # w = np.linspace(400 * nm, 1000 * nm, 7)
+    # n_eff = sweep_n_eff(strip, core_width=w)
+    # fraction_te = sweep_fraction_te(strip, core_width=w)
 
     # t = np.linspace(0.2, 0.25, 6)
     # w = np.linspace(0.4, 0.6, 5)
