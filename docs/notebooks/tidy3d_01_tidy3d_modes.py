@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # ---
 # jupyter:
 #   jupytext:
@@ -20,13 +19,11 @@
 #
 # Tidy3d comes with an open source FDFD [mode solver](https://docs.flexcompute.com/projects/tidy3d/en/latest/notebooks/ModeSolver.html)
 #
-# ## Waveguides
+
+# %% [markdown]
+# ## Materials
 #
-# Guided Electromagnetic modes are the ones that have an effective index larger than the cladding of the waveguide
-#
-# Here is a waveguide of Silicon (n=3.4) surrounded by SiO2 (n=1.44) cladding
-#
-# For a 220 nm height x 450 nm width the effective index is 2.466
+# You can define materials as a material spec (float, string, tuple[string,string]).
 
 # %%
 import gdsfactory as gf
@@ -40,6 +37,50 @@ PDK = gf.generic_tech.get_generic_pdk()
 PDK.activate()
 
 nm = 1e-3
+
+# %%
+print(gt.materials.MaterialSpecTidy3d)
+
+# %%
+gt.materials.get_index(
+    3.4
+)  # get the index of a material with a given refractive index float
+
+# %%
+gt.materials.get_index(
+    "SiO2"
+)  # get the index of a material with a name string, for the case that the refractive index has only one variant
+
+# %%
+gt.materials.get_index(
+    ("cSi", "Li1993_293K")
+)  # get the index of a material with a name string, for the case that the refractive index has more than one variant
+
+# %% [markdown]
+# ## Waveguides
+#
+# Guided Electromagnetic modes are the ones that have an effective index larger than the cladding of the waveguide
+#
+# Here is a waveguide of Silicon (n=3.4) surrounded by SiO2 (n=1.44) cladding
+#
+# For a 220 nm height x 450 nm width the effective index is 2.466
+
+# %% [markdown]
+# For defining the waveguide materials you can use a float indicating the refractive index.
+
+# %%
+strip = gt.modes.Waveguide(
+    wavelength=1.55,
+    core_width=0.5,
+    core_thickness=0.22,
+    slab_thickness=0.0,
+    core_material=3.47,
+    clad_material=1.44,
+)
+strip.plot_index()
+
+# %% [markdown]
+# You can also use materials from the default materials.
 
 # %%
 strip = gt.modes.Waveguide(
