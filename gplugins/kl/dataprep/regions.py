@@ -9,8 +9,9 @@ except ImportError as e:
     raise e
 
 
-from gdsfactory.typings import Dict, Layer, LayerSpecs, PathType, Tuple
 from pathlib import Path
+
+from gdsfactory.typings import Dict, Layer, LayerSpecs, PathType, Tuple
 
 
 def size(region: kdb.Region, offset: float):
@@ -27,6 +28,7 @@ def boolean_not(region1: kdb.Region, region2: kdb.Region):
 
 def copy(region: kdb.Region):
     return region.dup()
+
 
 class Region(kdb.Region):
     def __iadd__(self, offset):
@@ -81,13 +83,17 @@ class RegionCollection:
             if not top_cells:
                 raise ValueError("No cells found in gds!")
             elif len(top_cells) > 1:
-                top_cells_named_like_file = [c for c in top_cells if c.name == Path(filepath).stem]
+                top_cells_named_like_file = [
+                    c for c in top_cells if c.name == Path(filepath).stem
+                ]
                 if top_cells_named_like_file:
                     c = top_cells_named_like_file[0]
                 else:
                     top_cell_names = [c.name for c in top_cells]
-                    raise ValueError(f"Multiple top cells in gds: {top_cell_names}. Please specify which cell to use.")
-            else: 
+                    raise ValueError(
+                        f"Multiple top cells in gds: {top_cell_names}. Please specify which cell to use."
+                    )
+            else:
                 c = top_cells[0]
 
         for layername, layer in layermap.items():
@@ -158,6 +164,7 @@ class RegionCollection:
         return fill.fill_region(
             region, fc_index, fc_box, None, region, fill_margin, None
         )
+
     
 if __name__ == "__main__":
     import kfactory as kf
