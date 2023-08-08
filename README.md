@@ -15,7 +15,7 @@ gdsfactory plugins:
 - `gmsh` mesh structures.
 - `tidy3d` Finite Difference Time Domain (FDTD) simulations on the cloud using GPU.
 - `lumerical` For Ansys FDTD and Circuit interconnect.
-- `kfactory` for fill, dataprep and testing.
+- `klayout` for fill, dataprep and testing.
 - `ray` for distributed computing and optimization.
 - `sax` S-parameter circuit solver.
 - `schematic`: for bokeh schematic editor and `path_length_analysis`

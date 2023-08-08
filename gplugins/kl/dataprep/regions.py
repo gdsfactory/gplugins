@@ -3,7 +3,7 @@ try:
     from kfactory import kdb
 except ImportError as e:
     print(
-        "You can install `pip install gdsfactory[kfactory]` for using maskprep. "
+        "You can install `pip install gplugins[klayout]` for using maskprep. "
         "And make sure you use python >= 3.10"
     )
     raise e
@@ -134,7 +134,7 @@ class RegionCollection:
         region,
         size: Tuple[float, float],
         spacing: Tuple[float, float],
-        fill_layers: LayerSpecs,
+        fill_layers: LayerSpecs | None,
         fill_name: str = "fill",
         fill_cell_name: str = "fill_cell",
     ) -> None:
@@ -148,6 +148,7 @@ class RegionCollection:
             fill_name: fill cell name.
             fill_cell_name: fill cell name.
         """
+        fill_layers = fill_layers or ()
 
         fill_cell = kf.KCell(fill_cell_name)
         for layer in fill_layers:
