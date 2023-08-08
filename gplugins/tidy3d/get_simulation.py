@@ -53,7 +53,7 @@ def get_simulation(
     with_all_monitors: bool = False,
     boundary_spec: td.BoundarySpec | None = None,
     grid_spec: td.GridSpec | None = None,
-    sidewall_angle_deg: float = 0,
+    sidewall_angle_deg: float | None = None,
     dilation: float = 0.0,
     **kwargs,
 ) -> td.Simulation:
@@ -143,9 +143,9 @@ def get_simulation(
             Dilation of the polygon in the base by shifting each edge along its
             normal outwards direction by a distance;
             a negative value corresponds to erosion.
-        sidewall_angle_deg : float = 0
+        sidewall_angle_deg : float | None = None
             Angle of the sidewall.
-            ``sidewall_angle=0`` (default) specifies vertical wall,
+            ``sidewall_angle=None`` (default) pulls the sidewall angle from the PDK,
             while ``0<sidewall_angle_deg<90`` for the base to be larger than the top.
 
     keyword Args:
@@ -203,7 +203,7 @@ def get_simulation(
     layer_to_thickness = layer_stack.get_layer_to_thickness()
     layer_to_material = layer_stack.get_layer_to_material()
     layer_to_zmin = layer_stack.get_layer_to_zmin()
-    # layer_to_sidewall_angle = layer_stack.get_layer_to_sidewall_angle()
+    layer_to_sidewall_angle = layer_stack.get_layer_to_sidewall_angle()
 
     if port_source_name not in component.ports:
         warnings.warn(
@@ -296,13 +296,19 @@ def get_simulation(
                 )
                 medium = get_medium(material_index)
 
+            sidewall_angle_deg = (
+                layer_to_sidewall_angle[layer]
+                if sidewall_angle_deg is None
+                else sidewall_angle_deg
+            )
+
             polygons = td.PolySlab.from_gds(
                 gds_cell=component_extended._cell,
                 gds_layer=layer[0],
                 gds_dtype=layer[1],
                 axis=2,
                 slab_bounds=(zmin, zmax),
-                sidewall_angle=np.deg2rad(sidewall_angle_deg),
+                sidewall_angle=np.deg2rad(sidewall_angle_deg) if is_3d else 0,
                 dilation=dilation,
             )
 
