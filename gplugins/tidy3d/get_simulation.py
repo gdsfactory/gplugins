@@ -415,18 +415,11 @@ def get_simulation(
                 )
         else:
             fig, axs = plt.subplots(num_modes, 3, figsize=(12, 12))
+            axs = np.atleast_2d(axs)
             for mode_ind in range(num_modes):
-                ax1 = axs[mode_ind, 0]
-                ax2 = axs[mode_ind, 1]
-                ax3 = axs[mode_ind, 2]
-
-                abs(modes.fields.Ex.sel(mode_index=mode_ind).abs).plot(ax=ax1)
-                abs(modes.fields.Ey.sel(mode_index=mode_ind).abs).plot(ax=ax2)
-                abs(modes.fields.Ez.sel(mode_index=mode_ind).abs).plot(ax=ax3)
-
-                ax1.set_title(f"|Ex|: mode_index={mode_ind}")
-                ax2.set_title(f"|Ey|: mode_index={mode_ind}")
-                ax3.set_title(f"|Ez|: mode_index={mode_ind}")
+                axs[mode_ind, 0].plot(modes.Ex.sel(mode_index=mode_ind).y.abs)
+                axs[mode_ind, 1].plot(modes.Ey.sel(mode_index=mode_ind).y.abs)
+                axs[mode_ind, 2].plot(modes.Ez.sel(mode_index=mode_ind).y.abs)
 
         plt.show()
     return sim
