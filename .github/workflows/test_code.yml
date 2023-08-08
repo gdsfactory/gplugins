@@ -30,7 +30,7 @@ jobs:
       matrix:
         python-version: ['3.11']
         os: [ubuntu-latest]
-        plugin: [femwell, gmsh, meow, sax, tidy3d]
+        plugin: [femwell, gmsh, meow, sax, tidy3d, klayout]
 
     name: Test ${{ matrix.plugin }} on ${{ matrix.os }}
     steps:
