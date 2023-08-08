@@ -119,10 +119,10 @@ class RegionCollection:
             region = getattr(self, layername)
             try:
                 c.shapes(self.lib.layer(layer[0], layer[1])).insert(region)
-            except TypeError:
+            except TypeError as e:
                 raise ValueError(
                     f"Unexpected type for region {layername!r}: {type(region)}"
-                )
+                ) from e
         c.write(filename)
         return c
 
@@ -165,7 +165,7 @@ class RegionCollection:
             region, fc_index, fc_box, None, region, fill_margin, None
         )
 
-    
+
 if __name__ == "__main__":
     import kfactory as kf
 
