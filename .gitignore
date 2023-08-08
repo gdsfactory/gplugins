@@ -167,3 +167,5 @@ cython_debug/
 *.tdr
 *.log
 *.BAK
+*.sav
+*.plt
