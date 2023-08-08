@@ -1,5 +1,6 @@
 import math
 import pathlib
+from pathlib import Path
 
 import gdsfactory as gf
 from gdsfactory.technology.processes import (
@@ -8,6 +9,7 @@ from gdsfactory.technology.processes import (
     Grow,
     ImplantPhysical,
     Lithography,
+    Planarize,
 )
 from gdsfactory.typings import Dict, Tuple
 from parse_gds import cleanup_component_layermap
@@ -17,8 +19,6 @@ from gplugins.sentaurus.mask import get_sentaurus_mask_2D, get_sentaurus_mask_3D
 DEFAULT_INIT_LINES = """AdvancedCalibration
 mgoals min.normal.size=0.005 normal.growth.ratio=1.618 accuracy=2e-5 minedge=5e-5
 """
-
-# DEFAULT_INIT_LINES = "AdvancedCalibration\n"
 
 DEFAULT_REMESHING_STRATEGY = """refinebox clear
 line clear
@@ -36,8 +36,9 @@ def write_sprocess(
     layermap,
     process,
     xsection_bounds: tuple[tuple[float, float], tuple[float, float]] = None,
-    filepath: str = "./sprocess.tcl",
-    structroot: str = "struct",
+    directory: Path = None,
+    filename: str = "sprocess_fps.cmd",
+    struct_prefix: str = "struct_",
     structout: str = "struct_out.tdr",
     contact_portnames: Tuple[str] = None,
     round_tol: int = 3,
@@ -67,7 +68,27 @@ def write_sprocess(
         simplify_tol: for gds cleanup (shape simplification)
         split_steps: if True, creates a new workbench node for each step. Useful for visualization and sweeps.
         init_lines (str): initial string to write to the TCL file. Useful for settings.
+
+        component,: gdsfactory component containing polygons defining the mask
+        waferstack: gdsfactory layerstack representing the initial wafer
+        layermap: gdsfactory LayerMap object contaning all layers
+        process:
+        xsection_bounds: two in-plane coordinates ((x1,y1), (x2,y2)) defining a line cut for a 2D process cross-section
+        directory: directory to save all output in
+        filename: name of the final sprocess command file
+        struct_prefix: prefixes of the final sprocess command file
+        structout: tdr file containing the final structure, ready for sdevice simulation
+        contact_portnames Tuple(str): list of portnames to convert into device contacts
+        round_tol (int): for gds cleanup (grid snapping by rounding coordinates)
+        simplify_tol (float): for gds cleanup (shape simplification)
+        split_steps (bool): if True, creates a new workbench node for each step, and saves a TDR file at each step. Useful for fabrication splits, visualization, and debugging.
+        init_lines (str): initial string to write to the TCL file. Useful for settings
+        initial_z_resolutions {key: float}: initial layername: spacing mapping for mesh resolution in the wafer normal direction
+        initial_xy_resolution (float): initial resolution in the wafer plane
+        remeshing_strategy (str): commands to apply before remeshing
     """
+
+    directory = Path(directory) or Path("./sprocess/")
 
     if contact_portnames:
         component = waferstack.get_component_with_net_layers(
@@ -107,11 +128,12 @@ def write_sprocess(
         ymax = component.ymax
 
     # Setup TCL file
-    out_file = pathlib.Path(filepath)
+    out_file = pathlib.Path(directory / filename)
+    directory.mkdir(parents=True, exist_ok=True)
     if out_file.exists():
         out_file.unlink()
 
-    with open(filepath, "a") as f:
+    with open(out_file, "a") as f:
         # Header
         f.write(f"{init_lines}\n")
 
@@ -159,7 +181,7 @@ line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
                 )
 
         if split_steps:
-            f.write(f"struct tdr={structroot}_0_wafer.tdr")
+            f.write(f"struct tdr={struct_prefix}0_wafer.tdr")
 
         for i, step in enumerate(process):
             f.write("\n")
@@ -206,15 +228,18 @@ line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
             if isinstance(step, Anneal):
                 f.write(f"diffuse temp={step.temperature}<C> time={step.time}<s>\n")
 
+            if isinstance(step, Planarize):
+                f.write(f"transform cut up location=-{step.height}<um>\n")
+
             if split_steps:
-                f.write(f"struct tdr={structroot}_{i+1}_{step.name}.tdr")
+                f.write(f"struct tdr={struct_prefix}{i+1}_{step.name}.tdr")
 
             f.write("\n")
 
         # Remeshing options
         f.write("\n")
         if split_steps:
-            f.write("#remeshing\n")
+            f.write("#split remeshing\n")
         f.write(remeshing_strategy)
 
         for _layername, layer in waferstack.layers.items():
@@ -239,10 +264,10 @@ line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
         f.write("\n")
         f.write("#split Contacts\n")
         f.write(
-            f"contact name=p box silicon xlo=0.13 xhi=0.14 ylo={xmin} yhi={xmin+0.2} zlo={ymin} zhi={ymax}\n"
+            f"contact name=e1 box silicon adjacent.material=Aluminum xlo=0.12 xhi=0.14 ylo={xmin} yhi={(xmin + xmax)/2} zlo={ymin} zhi={ymax}\n"
         )
         f.write(
-            f"contact name=n box silicon xlo=0.13 xhi=0.14 ylo={xmax-0.2} yhi={xmax+0.2} zlo={ymin} zhi={ymax}\n"
+            f"contact name=e2 box silicon adjacent.material=Aluminum xlo=0.12 xhi=0.14 ylo={(xmin + xmax)/2} yhi={xmax} zlo={ymin} zhi={ymax}\n"
         )
 
         # Create structure
@@ -258,7 +283,7 @@ if __name__ == "__main__":
     # Create a component with the right contacts
     c = gf.Component()
 
-    length = 10
+    length = 3
 
     test_straight = straight_pn(length=length, taper=None).extract(
         [
@@ -271,20 +296,20 @@ if __name__ == "__main__":
     )
 
     test_component = c << gf.geometry.trim(
-        component=test_straight, domain=[[0, -3], [0, 3], [length, 3], [length, -3]]
+        component=test_straight, domain=[[0, -4], [0, 4], [length, 4], [length, -4]]
     )
 
     yp = (test_component.ymax + test_component.ymin) / 2 + test_component.ysize / 2
     ym = (test_component.ymax + test_component.ymin) / 2 - test_component.ysize / 2
     c.add_port(
-        name="e_p",
+        name="e1",
         center=(length / 2, yp),
         width=test_component.ysize / 2,
         orientation=0,
         layer=LAYER.VIAC,
     )
     c.add_port(
-        name="e_n",
+        name="e2",
         center=(length / 2, ym),
         width=test_component.ysize / 2,
         orientation=0,
@@ -298,13 +323,13 @@ if __name__ == "__main__":
     WAFER_STACK.layers["core"].material = "silicon"
     WAFER_STACK = WAFER_STACK.z_offset(-1 * 0.22).invert_zaxis()
 
-    write_sprocess(
-        component=c,
-        waferstack=WAFER_STACK,
-        layermap=LAYER,
-        process=get_process(),
-        filepath="./sprocess_3D_fps.cmd",
-    )
+    # write_sprocess(
+    #     component=c,
+    #     waferstack=WAFER_STACK,
+    #     layermap=LAYER,
+    #     process=get_process(),
+    #     filepath="./sprocess_3D_fps.cmd",
+    # )
 
     write_sprocess(
         component=c,
@@ -315,9 +340,10 @@ if __name__ == "__main__":
             ((test_component.xmin + test_component.xmax) / 2, test_component.ymin),
             ((test_component.xmin + test_component.xmax) / 2, test_component.ymax),
         ),
-        filepath="./sprocess_2D_fps.cmd",
+        directory="./sprocess/",
+        filename="sprocess_2D_fps.cmd",
         initial_z_resolutions={"core": 0.005, "box": 0.05, "substrate": 0.5},
         initial_xy_resolution=0.05,
         split_steps=True,
-        contact_portnames=("e_p", "e_n"),
+        contact_portnames=("e1", "e2"),
     )
