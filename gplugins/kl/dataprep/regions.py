@@ -14,32 +14,32 @@ from pathlib import Path
 from gdsfactory.typings import Dict, Layer, LayerSpecs, PathType, Tuple
 
 
-def size(region: kdb.Region, offset: float):
+def size(region: kdb.Region, offset: float) -> kdb.Region:
     return region.dup().size(int(offset * 1e3))
 
 
-def boolean_or(region1: kdb.Region, region2: kdb.Region):
+def boolean_or(region1: kdb.Region, region2: kdb.Region) -> kdb.Region:
     return region1.__or__(region2)
 
 
-def boolean_not(region1: kdb.Region, region2: kdb.Region):
+def boolean_not(region1: kdb.Region, region2: kdb.Region) -> kdb.Region:
     return kdb.Region.__sub__(region1, region2)
 
 
-def copy(region: kdb.Region):
+def copy(region: kdb.Region) -> kdb.Region:
     return region.dup()
 
 
 class Region(kdb.Region):
-    def __iadd__(self, offset):
+    def __iadd__(self, offset) -> kdb.Region:
         """Adds an offset to the layer."""
         return size(self, offset)
 
-    def __isub__(self, offset):
+    def __isub__(self, offset) -> kdb.Region:
         """Adds an offset to the layer."""
         return size(self, offset)
 
-    def __add__(self, element):
+    def __add__(self, element) -> kdb.Region:
         if isinstance(element, float | int):
             return size(self, element)
 
@@ -48,14 +48,14 @@ class Region(kdb.Region):
         else:
             raise ValueError(f"Cannot add type {type(element)} to region")
 
-    def __sub__(self, element):
+    def __sub__(self, element) -> kdb.Region | None:
         if isinstance(element, float | int):
             return size(self, -element)
 
         elif isinstance(element, kdb.Region):
             return boolean_not(self, element)
 
-    def copy(self):
+    def copy(self) -> kdb.Region:
         return self.dup()
 
 
@@ -137,7 +137,7 @@ class RegionCollection:
         fill_layers: LayerSpecs | None,
         fill_name: str = "fill",
         fill_cell_name: str = "fill_cell",
-    ) -> None:
+    ) -> kf.KCell:
         """Generates rectangular fill on a set of layers in the region specified.
 
         Args:
@@ -177,9 +177,9 @@ if __name__ == "__main__":
     c = gf.Component()
     ring = c << gf.components.coupler_ring()
     floorplan = c << gf.components.bbox(ring.bbox, layer=l.FLOORPLAN)
-    c.write_gds("src.gds")
+    gdspath = c.write_gds()
 
-    d = dp.RegionCollection(filepath="src.gds", layermap=dict(l))
+    d = dp.RegionCollection(filepath=gdspath, layermap=dict(l))
     fill_cell = d.get_fill(
         d.FLOORPLAN - d.WG, size=(0.1, 0.1), spacing=(0.1, 0.1), fill_layers=(l.WG,)
     )
