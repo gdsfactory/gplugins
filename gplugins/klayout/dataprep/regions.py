@@ -1,17 +1,8 @@
-try:
-    import kfactory as kf
-    from kfactory import kdb
-except ImportError as e:
-    print(
-        "You can install `pip install gplugins[klayout]` for using maskprep. "
-        "And make sure you use python >= 3.10"
-    )
-    raise e
-
-
 from pathlib import Path
 
+import kfactory as kf
 from gdsfactory.typings import Dict, Layer, LayerSpecs, PathType, Tuple
+from kfactory import kdb
 
 
 def size(region: kdb.Region, offset: float) -> kdb.Region:
