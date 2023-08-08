@@ -167,11 +167,11 @@ class RegionCollection:
 
 
 if __name__ == "__main__":
-    import kfactory as kf
-
     import gdsfactory as gf
-    import gplugins.kl.dataprep.regions as dp
+    import kfactory as kf
     from gdsfactory.generic_tech.layer_map import LAYER as l
+
+    import gplugins.kl.dataprep.regions as dp
 
     c = gf.Component()
     ring = c << gf.components.coupler_ring()
