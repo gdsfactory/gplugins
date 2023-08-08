@@ -5,7 +5,7 @@ import pytest
 from gdsfactory.generic_tech.layer_map import LAYER as l
 from kfactory import kdb
 
-import gplugins.kl.dataprep.regions as dp
+import gplugins.klayout.dataprep.regions as dp
 
 
 @pytest.fixture
