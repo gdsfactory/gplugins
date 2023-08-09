@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import gdsfactory as gf
-from gdsfactory.geometry.write_drc import write_drc_deck_macro
 from gdsfactory.typings import CrossSectionSpec, Layer, LayerSpec
 from pydantic import BaseModel
+
+from gplugins.klayout.write_drc import write_drc_deck_macro
 
 layer_name_to_min_width: dict[str, float]
 
