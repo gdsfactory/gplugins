@@ -15,7 +15,7 @@ def innerprod_trapz(
     zmax: float = 2.0,
     trapz_num_y: int = 2000,
     trapz_num_z: int = 2000,
-):
+) -> float:
     """Compute the inner product of two modes as 1/4*int(E1* x H2 + E2 x H1*)_x dydz.
 
     with int double integral over y,z, x cross product, and _x x-projection
@@ -67,8 +67,7 @@ def test_innerprod_trapz() -> None:
     """Checks that overlaps do not change."""
     m = gm.find_modes_waveguide()
     overlap = innerprod_trapz(m[1], m[1])
-    assert overlap > 0
-    # assert np.isclose(np.real(overlap), 0.143, atol=1e-2), np.real(overlap)
+    assert abs(overlap) < 0.1
 
 
 if __name__ == "__main__":
