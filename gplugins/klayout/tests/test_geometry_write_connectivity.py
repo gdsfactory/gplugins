@@ -1,5 +1,6 @@
 import pytest
-from gdsfactory.geometry.write_connectivity import write_connectivity_checks
+
+from gplugins.klayout.drc.write_connectivity import write_connectivity_checks
 
 nm = 1e-3
 
