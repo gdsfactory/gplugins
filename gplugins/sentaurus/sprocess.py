@@ -48,6 +48,7 @@ def write_sprocess(
     initial_z_resolutions: Dict = None,
     initial_xy_resolution: float = None,
     remeshing_strategy: str = DEFAULT_REMESHING_STRATEGY,
+    num_threads: int = 6,
 ):
     """Writes a Sentaurus Process TLC file for the component + layermap + initial waferstack + process.
 
@@ -72,7 +73,7 @@ def write_sprocess(
         component,: gdsfactory component containing polygons defining the mask
         waferstack: gdsfactory layerstack representing the initial wafer
         layermap: gdsfactory LayerMap object contaning all layers
-        process:
+        process: list of gdsfactory.technology.processes process steps
         xsection_bounds: two in-plane coordinates ((x1,y1), (x2,y2)) defining a line cut for a 2D process cross-section
         directory: directory to save all output in
         filename: name of the final sprocess command file
@@ -86,6 +87,7 @@ def write_sprocess(
         initial_z_resolutions {key: float}: initial layername: spacing mapping for mesh resolution in the wafer normal direction
         initial_xy_resolution (float): initial resolution in the wafer plane
         remeshing_strategy (str): commands to apply before remeshing
+        num_threads (int): for parallelization
     """
 
     directory = Path(directory) or Path("./sprocess/")
@@ -136,6 +138,9 @@ def write_sprocess(
     with open(out_file, "a") as f:
         # Header
         f.write(f"{init_lines}\n")
+
+        # Parallelization
+        f.write(f"math numThreads={num_threads}\n")
 
         # Initial z-mesh from waferstack and resolutions
         z_map = {}
@@ -291,6 +296,10 @@ if __name__ == "__main__":
             LAYER.SLAB90,
             LAYER.N,
             LAYER.P,
+            LAYER.NP,
+            LAYER.PP,
+            LAYER.NPP,
+            LAYER.PPP,
             LAYER.VIAC,
         ]
     )
@@ -323,13 +332,18 @@ if __name__ == "__main__":
     WAFER_STACK.layers["core"].material = "silicon"
     WAFER_STACK = WAFER_STACK.z_offset(-1 * 0.22).invert_zaxis()
 
-    # write_sprocess(
-    #     component=c,
-    #     waferstack=WAFER_STACK,
-    #     layermap=LAYER,
-    #     process=get_process(),
-    #     filepath="./sprocess_3D_fps.cmd",
-    # )
+    write_sprocess(
+        component=c,
+        waferstack=WAFER_STACK,
+        layermap=LAYER,
+        process=get_process(),
+        directory="./sprocess_3D/",
+        filename="sprocess_3D_fps.cmd",
+        initial_z_resolutions={"core": 0.005, "box": 0.05, "substrate": 0.5},
+        initial_xy_resolution=0.05,
+        split_steps=True,
+        contact_portnames=("e1", "e2"),
+    )
 
     write_sprocess(
         component=c,
