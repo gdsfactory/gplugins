@@ -44,6 +44,10 @@ parts:
       - file: notebooks/20_schematic_driven_layout
   - caption: Verification
     chapters:
+      - file: notebooks/klayout_dataprep
+      - file: notebooks/klayout_drc
+      - file: notebooks/11_get_netlist
+      - file: notebooks/11_get_netlist_spice
       - file: notebooks/path_length_analysis.py
   - caption: Validation
     chapters:
@@ -58,7 +62,8 @@ parts:
           - file: notebooks/workflow_3_cascaded_mzi
   - caption: Reference
     chapters:
-      - file: api
+      - file: api_design
+      - file: api_verification
       - file: changelog
       - url: https://gdsfactory.github.io/gdsfactory
         title: gdsfactory
