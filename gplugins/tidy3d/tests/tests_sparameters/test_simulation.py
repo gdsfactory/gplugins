@@ -17,7 +17,7 @@ import gplugins.tidy3d as gt
 #     assert sim_hash == sim_hash_reference, f"sim_hash_reference = {sim_hash!r}"
 
 
-def test_simulation(overwrite: bool = False) -> None:
+def test_simulation(overwrite: bool = True) -> None:
     """Export sim in JSON, and then load it again."""
     dirpath = pathlib.Path(__file__).parent
     component = gf.components.straight(length=3)

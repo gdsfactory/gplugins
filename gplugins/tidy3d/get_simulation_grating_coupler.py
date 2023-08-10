@@ -2,11 +2,13 @@
 from __future__ import annotations
 
 import warnings
+from functools import partial
 
 import gdsfactory as gf
 import matplotlib.pyplot as plt
 import numpy as np
 import tidy3d as td
+from gdsfactory.add_padding import add_padding
 from gdsfactory.component import Component
 from gdsfactory.components.extension import move_polar_rad_copy
 from gdsfactory.config import logger
@@ -256,17 +258,19 @@ def get_simulation_grating_coupler(
         raise ValueError(
             f"No port named {fiber_port_prefix!r} in {component.ports.keys()}"
         )
-
-    component_with_booleans = layer_stack.get_component_with_derived_layers(component)
-
-    component_padding = gf.add_padding_container(
-        component_with_booleans,
+    add_padding_custom = partial(
+        add_padding,
         default=0,
         top=ymargin or ymargin_top,
         bottom=ymargin or ymargin_bot,
         left=xmargin or xmargin_left,
         right=xmargin or xmargin_right,
     )
+
+    component_padding = layer_stack.get_component_with_derived_layers(
+        component, decorator=add_padding_custom
+    )
+
     component_extended = (
         gf.components.extension.extend_ports(
             component=component_padding,
@@ -344,7 +348,7 @@ def get_simulation_grating_coupler(
 
     structures = [substrate, box, clad]
 
-    component_layers = component_with_booleans.get_layers()
+    component_layers = component_padding.get_layers()
 
     for layer, thickness in layer_to_thickness.items():
         if layer in layer_to_material and layer in component_layers:
