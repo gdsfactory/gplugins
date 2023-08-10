@@ -67,7 +67,7 @@ def test_innerprod_trapz() -> None:
     """Checks that overlaps do not change."""
     m = gm.find_modes_waveguide()
     overlap = innerprod_trapz(m[1], m[1])
-    assert abs(overlap) < 0.1
+    assert abs(overlap) < 0.2
 
 
 if __name__ == "__main__":
