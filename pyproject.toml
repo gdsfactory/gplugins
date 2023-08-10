@@ -14,7 +14,8 @@ classifiers = [
   "Operating System :: OS Independent"
 ]
 dependencies = [
-  "gdsfactory[cad]>=7.0.2"
+  "gdsfactory[cad]>=7.0.2",
+  "pint"
 ]
 description = "gdsfactory plugins"
 keywords = ["python"]
@@ -22,7 +23,7 @@ license = {file = "LICENSE"}
 name = "gplugins"
 readme = "README.md"
 requires-python = ">=3.10"
-version = "0.0.3"
+version = "0.2.0"
 
 [project.optional-dependencies]
 database = [
@@ -58,7 +59,7 @@ docs = [
   "jupyter-book==0.15.1"
 ]
 femwell = [
-  "femwell==0.1.6"
+  "femwell>=0.1.6,<0.2.0"
 ]
 gmsh = [
   "gmsh",
@@ -69,24 +70,27 @@ gmsh = [
   "pyvista",
   "trimesh",
   "shapely",
-  "meshwell==0.0.9"
+  "meshwell>=0.0.9,<0.2.0"
+]
+klayout = [
+  "kfactory[git,ipy]==0.7.5"
 ]
 meow = [
-  "meow-sim==0.7.1",
-  "tidy3d==2.3.3"
+  "meow-sim>=0.7.1,<0.8.0",
+  "tidy3d>=2.3.3,<2.4.0"
 ]
 sax = [
-  "sax==0.8.8",
+  "sax>=0.8.8,<0.9.0",
   "jaxlib",
   "jax",
   "scikit-learn"
 ]
 schematic = [
-  'bokeh',
+  "bokeh",
   "natsort"
 ]
 tidy3d = [
-  "tidy3d==2.3.3"
+  "tidy3d>=2.3.3,<2.4.0"
 ]
 web = [
   "jinja2",

@@ -1,4 +1,4 @@
-# gplugins 0.0.3
+# gplugins 0.2.0
 
 [![docs](https://github.com/gdsfactory/gplugins/actions/workflows/pages.yml/badge.svg)](https://gdsfactory.github.io/gplugins/)
 [![PyPI](https://img.shields.io/pypi/v/gplugins)](https://pypi.org/project/gplugins/)
@@ -15,7 +15,7 @@ gdsfactory plugins:
 - `gmsh` mesh structures.
 - `tidy3d` Finite Difference Time Domain (FDTD) simulations on the cloud using GPU.
 - `lumerical` For Ansys FDTD and Circuit interconnect.
-- `kfactory` for fill, dataprep and testing.
+- `klayout` for fill, dataprep and testing.
 - `ray` for distributed computing and optimization.
 - `sax` S-parameter circuit solver.
 - `schematic`: for bokeh schematic editor and `path_length_analysis`
@@ -31,7 +31,7 @@ You can install all plugins with:
 pip install "gplugins[database,devsim,femwell,gmsh,schematic,meow,meshwell,ray,sax,tidy3d]" --upgrade
 ```
 
-Or Install only the plugins you need `pip install gplugins[database,devsim]` from the available plugins:
+Or Install only the plugins you need `pip install gplugins[schematic,femwell,meow,sax,tidy3d]` from the available plugins:
 
 Separate installation (not using pip):
 

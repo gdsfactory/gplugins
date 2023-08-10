@@ -149,8 +149,7 @@ def compute_component_slice_modes(
                 get_material_index(kwargs["background_tag"], wavelength) ** 2
             )
 
-    # Mode solve
-    modes = compute_modes(
+    return compute_modes(
         basis0,
         epsilon,
         wavelength=wavelength,
@@ -160,14 +159,10 @@ def compute_component_slice_modes(
         radius=radius,
         solver=solver,
     )
-    return modes
 
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-
-    PDK = gf.get_generic_pdk()
-    PDK.activate()
 
     start = time.time()
 

@@ -1,7 +1,7 @@
 from collections.abc import Callable
 
-import gdsfactory as gf
 import numpy as np
+from gdsfactory.generic_tech import LAYER
 from gdsfactory.typings import Layer
 from pydantic import BaseModel
 
@@ -37,8 +37,8 @@ def get_doping_info_generic(
     p_conc: float = 1e17,  # * cm3_to_um3,
     npp_conc: float = 1e18,  # * cm3_to_um3,
     ppp_conc: float = 1e18,  # * cm3_to_um3,
-):
-    layermap = gf.generic_tech.LayerMap()
+) -> dict[str, DopingLayerLevel]:
+    layermap = LAYER
 
     return {
         "N": DopingLayerLevel(

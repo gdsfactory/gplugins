@@ -45,13 +45,11 @@ class ProxiedHeadersMiddleware:
             source[b"connection"] = b"upgrade"
 
         if b"x-forwarded-host" in source:
-            source.update({b"host": source[b"x-forwarded-host"]})
+            source[b"host"] = source[b"x-forwarded-host"]
             source.pop(b"x-forwarded-host")
 
         if b"x-forwarded-prefix" in source:
-            source.update({b"host": source[b"host"] + source[b"x-forwarded-prefix"]})
+            source[b"host"] = source[b"host"] + source[b"x-forwarded-prefix"]
             source.pop(b"x-forwarded-prefix")
 
-        source = [(k, v) for k, v in source.items()]
-
-        return source
+        return list(source.items())

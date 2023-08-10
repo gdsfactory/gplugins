@@ -2,11 +2,13 @@
 from __future__ import annotations
 
 import warnings
+from functools import partial
 
 import gdsfactory as gf
 import matplotlib.pyplot as plt
 import numpy as np
 import tidy3d as td
+from gdsfactory.add_padding import add_padding
 from gdsfactory.component import Component
 from gdsfactory.components.extension import move_polar_rad_copy
 from gdsfactory.config import logger
@@ -256,17 +258,19 @@ def get_simulation_grating_coupler(
         raise ValueError(
             f"No port named {fiber_port_prefix!r} in {component.ports.keys()}"
         )
-
-    component_with_booleans = layer_stack.get_component_with_derived_layers(component)
-
-    component_padding = gf.add_padding_container(
-        component_with_booleans,
+    add_padding_custom = partial(
+        add_padding,
         default=0,
         top=ymargin or ymargin_top,
         bottom=ymargin or ymargin_bot,
         left=xmargin or xmargin_left,
         right=xmargin or xmargin_right,
     )
+
+    component_padding = layer_stack.get_component_with_derived_layers(
+        component, decorator=add_padding_custom
+    )
+
     component_extended = (
         gf.components.extension.extend_ports(
             component=component_padding,
@@ -302,17 +306,17 @@ def get_simulation_grating_coupler(
     material_name_to_tidy3d = material_name_to_tidy3d or {}
 
     if material_name_to_tidy3d:
-        clad_material_name_or_index = material_name_to_tidy3d[clad_material]
-        box_material_name_or_index = material_name_to_tidy3d[box_material]
-        substrate_material_name_or_index = material_name_to_tidy3d[substrate_material]
+        clad_material_spec = material_name_to_tidy3d[clad_material]
+        box_material_spec = material_name_to_tidy3d[box_material]
+        substrate_material_spec = material_name_to_tidy3d[substrate_material]
     else:
-        clad_material_name_or_index = (
+        clad_material_spec = (
             clad_material(wavelength) if callable(clad_material) else clad_material
         )
-        box_material_name_or_index = (
+        box_material_spec = (
             box_material(wavelength) if callable(box_material) else box_material
         )
-        substrate_material_name_or_index = (
+        substrate_material_spec = (
             substrate_material(wavelength)
             if callable(substrate_material)
             else substrate_material
@@ -323,14 +327,14 @@ def get_simulation_grating_coupler(
             size=(td.inf, td.inf, sim_zsize),
             center=(0, 0, sim_zsize / 2),
         ),
-        medium=get_medium(name_or_index=clad_material_name_or_index),
+        medium=get_medium(spec=clad_material_spec),
     )
     box = td.Structure(
         geometry=td.Box(
             size=(td.inf, td.inf, box_thickness),
             center=(0, 0, -box_thickness / 2),
         ),
-        medium=get_medium(name_or_index=box_material_name_or_index),
+        medium=get_medium(spec=box_material_spec),
     )
 
     substrate_thickness = 10
@@ -339,12 +343,12 @@ def get_simulation_grating_coupler(
             size=(td.inf, td.inf, substrate_thickness),
             center=(0, 0, -box_thickness - substrate_thickness / 2),
         ),
-        medium=get_medium(name_or_index=substrate_material_name_or_index),
+        medium=get_medium(spec=substrate_material_spec),
     )
 
     structures = [substrate, box, clad]
 
-    component_layers = component_with_booleans.get_layers()
+    component_layers = component_padding.get_layers()
 
     for layer, thickness in layer_to_thickness.items():
         if layer in layer_to_material and layer in component_layers:
@@ -353,11 +357,11 @@ def get_simulation_grating_coupler(
             material_name = layer_to_material[layer]
 
             if material_name in material_name_to_tidy3d:
-                name_or_index = material_name_to_tidy3d[material_name]
-                medium = get_medium(name_or_index=name_or_index)
-                index = get_index(name_or_index=name_or_index)
+                spec = material_name_to_tidy3d[material_name]
+                medium = get_medium(spec=spec)
+                index = get_index(spec=spec)
                 logger.debug(
-                    f"Add {layer}, {name_or_index!r}, index = {index:.3f}, "
+                    f"Add {layer}, {spec!r}, index = {index:.3f}, "
                     f"thickness = {thickness}, zmin = {zmin}, zmax = {zmax}"
                 )
 

@@ -301,7 +301,7 @@ class MEOW:
         # add two cells without length:
         zs = np.concatenate([[self.z_min], zs, [self.z_max]])
 
-        mesh = mw.Mesh2d(
+        mesh = mw.Mesh2D(
             x=np.linspace(
                 self.center_x - self.span_x / 2,
                 self.center_x + self.span_x / 2,
