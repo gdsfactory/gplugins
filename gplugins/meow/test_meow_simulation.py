@@ -5,9 +5,6 @@ from gdsfactory.technology import LayerStack
 
 from gplugins.meow import MEOW
 
-PDK = gf.get_generic_pdk()
-PDK.activate()
-
 
 def test_meow_defaults() -> None:
     c = gf.components.taper_cross_section_linear()

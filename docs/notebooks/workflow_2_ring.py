@@ -19,8 +19,6 @@ import gdsfactory as gf
 import numpy as np
 
 gf.config.rich_output()
-PDK = gf.get_generic_pdk()
-PDK.activate()
 
 
 def ring(
