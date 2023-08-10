@@ -8,9 +8,6 @@ import numpy as np
 import gplugins as sim
 import gplugins.gmeep as gm
 
-PDK = gf.get_generic_pdk()
-PDK.activate()
-
 simulation_settings = dict(resolution=20, is_3d=False)
 
 

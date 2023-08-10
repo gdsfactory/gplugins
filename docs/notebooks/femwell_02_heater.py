@@ -17,14 +17,16 @@ gf.config.rich_output()
 PDK = get_generic_pdk()
 PDK.activate()
 
-gf.generic_tech.LAYER_STACK.layers["heater"].thickness = 0.13
-gf.generic_tech.LAYER_STACK.layers["heater"].zmin = 2.2
+LAYER_STACK = PDK.layer_stack
+
+LAYER_STACK.layers["heater"].thickness = 0.13
+LAYER_STACK.layers["heater"].zmin = 2.2
 
 heater = gf.components.straight_heater_metal(length=50, heater_width=2)
 heater.plot()
 # -
 
-print(gf.generic_tech.LAYER_STACK.layers.keys())
+print(LAYER_STACK.layers.keys())
 
 filtered_layerstack = LayerStack(
     layers={

@@ -164,9 +164,6 @@ def compute_component_slice_modes(
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
-    PDK = gf.get_generic_pdk()
-    PDK.activate()
-
     start = time.time()
 
     filtered_layerstack = LayerStack(

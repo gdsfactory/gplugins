@@ -235,9 +235,7 @@ def write_sparameters(
 
         return sp
 
-    for port_source_name, (_sim_name, sim_data) in zip(
-        port_source_names, batch_data.items()
-    ):
+    for port_source_name, (_, sim_data) in zip(port_source_names, batch_data.items()):
         sp.update(
             get_sparameter(
                 port_source_name,
