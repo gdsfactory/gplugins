@@ -25,7 +25,7 @@ def fuse_polygons(
     component, layername, layer, round_tol=4, simplify_tol=1e-4, offset_tol=None
 ):
     """Take all polygons from a layer, and returns a single (Multi)Polygon shapely object."""
-    
+
     layer_component = component.extract([layer])
 
     # gdstk union before shapely conversion helps with ill-formed polygons
