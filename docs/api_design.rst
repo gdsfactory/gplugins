@@ -1,9 +1,39 @@
-API
+API Design
 ===================================
+
+************************
+Meshing
+************************
+
+.. currentmodule:: gplugins.gmsh
+
+.. rubric:: Meshing
+
+.. autosummary::
+   :toctree: _autosummary/
+
+    create_physical_mesh
+    mesh_from_polygons
+    MeshTracker
+    cleanup_component
+    fuse_polygons
+    round_coordinates
+    tile_shapes
+    to_polygons
+    get_layer_overlaps_z
+    get_layers_at_z
+    list_unique_layerstack_z
+    map_unique_layerstack_z
+    order_layerstack
+    get_u_bounds_layers
+    get_u_bounds_polygons
+    get_uz_bounds_layers
+    uz_xsection_mesh
+    xy_xsection_mesh
 
 
 ************************
-Mode solver Plugins
+Mode solvers
 ************************
 
 .. currentmodule:: gplugins.tidy3d.modes
@@ -58,7 +88,7 @@ Mode solver Plugins
 
 
 ************************
-FDTD Simulation Plugins
+FDTD Simulation
 ************************
 
 .. rubric:: Sparameter utils
@@ -136,7 +166,7 @@ FDTD Simulation Plugins
    write_sparameters_lumerical
 
 ****************************
-Circuit solver Plugins
+Circuit solver
 ****************************
 
 .. currentmodule:: gplugins.sax
