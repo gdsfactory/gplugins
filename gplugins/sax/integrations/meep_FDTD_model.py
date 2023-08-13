@@ -95,7 +95,7 @@ class MeepFDTDModel(Model):
             cores=self.num_cpus_per_task,
             output_vector_labels=self.output_vector_labels,
         )
-        function_input.update(sim_settings)
+        function_input |= sim_settings
         # Assign the task to a worker
         return remote_function.remote(**function_input)
 

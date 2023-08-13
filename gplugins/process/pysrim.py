@@ -11,9 +11,8 @@ def fragment(step, total):
     while remaining > 0:
         if step > remaining:
             return remaining
-        else:
-            remaining -= step
-            yield step
+        remaining -= step
+        yield step
 
 
 def find_folder(directory):

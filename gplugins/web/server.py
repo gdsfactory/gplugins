@@ -68,26 +68,24 @@ class LayoutViewServerEndpoint(WebSocketEndpoint):
         return [d[1] for d in self.layout_view.annotation_templates()]
 
     def layer_dump(self):
-        js = []
-        for layer in self.layout_view.each_layer():
-            js.append(
-                {
-                    "dp": layer.eff_dither_pattern(),
-                    "ls": layer.eff_line_style(),
-                    "c": layer.eff_fill_color(),
-                    "fc": layer.eff_frame_color(),
-                    "m": layer.marked,
-                    "s": layer.source,
-                    "t": layer.transparent,
-                    "va": layer.valid,
-                    "v": layer.visible,
-                    "w": layer.width,
-                    "x": layer.xfill,
-                    "name": layer.name,
-                    "id": layer.id(),
-                }
-            )
-        return js
+        return [
+            {
+                "dp": layer.eff_dither_pattern(),
+                "ls": layer.eff_line_style(),
+                "c": layer.eff_fill_color(),
+                "fc": layer.eff_frame_color(),
+                "m": layer.marked,
+                "s": layer.source,
+                "t": layer.transparent,
+                "va": layer.valid,
+                "v": layer.visible,
+                "w": layer.width,
+                "x": layer.xfill,
+                "name": layer.name,
+                "id": layer.id(),
+            }
+            for layer in self.layout_view.each_layer()
+        ]
 
     async def connection(self, websocket: WebSocket, path: str | None = None) -> None:
         self.layout_view = lay.LayoutView()

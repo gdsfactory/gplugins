@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import gdsfactory as gf
 import numpy as np
+import tidy3d as td
 
 import gplugins.tidy3d as gt
 from gplugins.config import PATH
 
 
-def test_sparameters_straight_3d(overwrite=False) -> None:
-    """Checks Sparameters for a straight waveguide in 2D."""
+def test_sparameters_straight_3d(overwrite=True) -> None:
+    """Checks Sparameters for a straight waveguide in 3D."""
     c = gf.components.straight(length=2)
     sp = gt.write_sparameters_1x1(
         c, overwrite=overwrite, is_3d=True, dirpath=PATH.sparameters_repo
@@ -18,22 +19,24 @@ def test_sparameters_straight_3d(overwrite=False) -> None:
     assert 0 < np.abs(sp["o1@0,o1@0"]).max() < 0.1, np.abs(sp["o1@0,o1@0"]).max()
 
 
-def test_sparameters_straight_2d(overwrite=False) -> None:
+def test_sparameters_straight_2d(overwrite=True) -> None:
     """Checks Sparameters for a straight waveguide in 2D."""
     c = gf.components.straight(length=2)
     sp = gt.write_sparameters_1x1(
-        c, overwrite=overwrite, is_3d=False, dirpath=PATH.sparameters_repo
+        c,
+        dirpath=PATH.sparameters_repo,
+        overwrite=overwrite,
+        is_3d=False,
+        run=True,
+        port_margin=2.0,
+        num_modes=1,
+        wavelength_start=1.5,
+        wavelength_stop=1.6,
+        grid_spec=td.GridSpec.auto(min_steps_per_wvl=10, wavelength=1.5),
     )
 
-    assert 1 > np.abs(sp["o1@0,o2@0"]).min() > 0.6, np.abs(sp["o1@0,o2@0"]).min()
-    assert 0 < np.abs(sp["o1@0,o1@0"]).max() < 0.1, np.abs(sp["o1@0,o1@0"]).max()
-
-    # assert np.allclose(sp["o2@0,o1@0"], 1, atol=1e-02), sp["o2@0,o1@0"]
-    # assert np.allclose(sp["o1@0,o1@0"], 0, atol=5e-02), sp["o1@0,o1@0"]
-    # assert np.allclose(sp["o2@0,o2@0"], 0, atol=5e-02), sp["o2@0,o2@0"]
-
-    # if dataframe_regression:
-    #     dataframe_regression.check(sp)
+    np.testing.assert_allclose(np.abs(sp["o1@0,o2@0"]), 1, atol=1e-2)
+    np.testing.assert_allclose(np.abs(sp["o1@0,o1@0"]), 0, atol=1e-2)
 
 
 if __name__ == "__main__":
