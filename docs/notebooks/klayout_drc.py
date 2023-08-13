@@ -1,3 +1,19 @@
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     custom_cell_magics: kql
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.11.2
+#   kernelspec:
+#     display_name: base
+#     language: python
+#     name: python3
+# ---
+
 # %% [markdown]
 # # Klayout Design Rule Checking (DRC)
 #
@@ -9,7 +25,11 @@
 
 # %%
 import gdsfactory as gf
-from gdsfactory.geometry.write_drc import (
+from gdsfactory.component import Component
+from gdsfactory.generic_tech import LAYER
+from gdsfactory.typings import Float2, Layer
+
+from gplugins.klayout.drc.write_drc import (
     rule_area,
     rule_density,
     rule_enclosing,
@@ -39,7 +59,7 @@ rules = [
 
 drc_rule_deck = write_drc_deck_macro(
     rules=rules,
-    layers=gf.LAYER,
+    layers=LAYER,
     shortcut="Ctrl+Shift+D",
 )
 
@@ -47,11 +67,8 @@ drc_rule_deck = write_drc_deck_macro(
 # Lets create some DRC errors and check them on klayout.
 
 # %%
-import gdsfactory as gf
-from gdsfactory.component import Component
-from gdsfactory.typings import Float2, Layer
 
-layer = gf.LAYER.WG
+layer = LAYER.WG
 
 
 @gf.cell
@@ -77,7 +94,7 @@ def gap_min(gap: float = 0.1) -> Component:
 
 @gf.cell
 def separation(
-    gap: float = 0.1, layer1: Layer = gf.LAYER.HEATER, layer2: Layer = gf.LAYER.M1
+    gap: float = 0.1, layer1: Layer = LAYER.HEATER, layer2: Layer = LAYER.M1
 ) -> Component:
     c = gf.Component()
     r1 = c << gf.components.rectangle(size=(1, 1), layer=layer1)
@@ -89,7 +106,7 @@ def separation(
 
 @gf.cell
 def enclosing(
-    enclosing: float = 0.1, layer1: Layer = gf.LAYER.VIAC, layer2: Layer = gf.LAYER.M1
+    enclosing: float = 0.1, layer1: Layer = LAYER.VIAC, layer2: Layer = LAYER.M1
 ) -> Component:
     """Layer1 must be enclosed by layer2 by value.
 
@@ -118,7 +135,7 @@ def snapping_error(gap: float = 1e-3) -> Component:
 def errors() -> Component:
     components = [width_min(), gap_min(), separation(), enclosing()]
     c = gf.pack(components, spacing=1.5)
-    c = gf.add_padding_container(c[0], layers=(gf.LAYER.FLOORPLAN,), default=5)
+    c = gf.add_padding_container(c[0], layers=(LAYER.FLOORPLAN,), default=5)
     return c
 
 
@@ -136,8 +153,8 @@ c.plot()
 # This will check for disconnected pins or ports with width mismatch.
 
 # %%
-import gdsfactory.geometry.write_connectivity as wc
-from gdsfactory.generic_tech import LAYER
+
+import gplugins.klayout.drc.write_connectivity as wc
 
 nm = 1e-3
 
@@ -162,3 +179,5 @@ rules = [
     "DEVREC",
 ]
 script = wc.write_drc_deck_macro(rules=rules, layers=None)
+
+# %%

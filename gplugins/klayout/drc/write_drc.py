@@ -265,7 +265,7 @@ def write_drc_deck_macro(
     .. code::
 
         import gdsfactory as gf
-        from gdsfactory.geometry.write_drc import (
+        from gplugins.klayout.drc.write_drc import (
             write_drc_deck_macro,
             rule_enclosing,
             rule_width,
@@ -274,6 +274,7 @@ def write_drc_deck_macro(
             rule_area,
             rule_density,
         )
+        from gdsfactory.generic_tech import LAYER
         rules = [
             rule_width(layer="WG", value=0.2),
             rule_space(layer="WG", value=0.2),
@@ -286,7 +287,7 @@ def write_drc_deck_macro(
             rule_not_inside(layer="VIAC", not_inside="NPP"),
         ]
 
-        drc_rule_deck = write_drc_deck_macro(rules=rules, layers=gf.LAYER, mode="tiled")
+        drc_rule_deck = write_drc_deck_macro(rules=rules, layers=LAYER, mode="tiled")
         print(drc_rule_deck)
 
     """
@@ -323,6 +324,8 @@ deep
 
 
 if __name__ == "__main__":
+    from gdsfactory.generic_tech import LAYER
+
     rules = [
         rule_width(layer="WG", value=0.2),
         rule_space(layer="WG", value=0.2),
@@ -332,7 +335,7 @@ if __name__ == "__main__":
         rule_not_inside(layer="VIAC", not_inside="NPP"),
     ]
 
-    layers = gf.LAYER.dict()
+    layers = LAYER.dict()
     layers.update({"WG_PIN": (1, 10)})
 
     drc_rule_deck = write_drc_deck_macro(rules=rules, layers=layers, mode="tiled")

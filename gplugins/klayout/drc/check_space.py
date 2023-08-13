@@ -61,7 +61,7 @@ def check_space(
     metrics = getattr(pya.Region, metrics)
 
     d = region.space_check(
-        min_space * dbu,
+        int(min_space * dbu),
         whole_edges,
         metrics,
         ignore_angle_deg,
@@ -74,11 +74,12 @@ def check_space(
 
 if __name__ == "__main__":
     import gdsfactory as gf
+    from gdsfactory.generate import LAYER
 
     space = 0.12
     min_space = 0.1
     dbu = 1000
-    layer = gf.LAYER.WG
+    layer = LAYER.WG
     gdspath = gf.components.straight_array(spacing=space)
     gf.show(gdspath)
 
