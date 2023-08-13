@@ -5,19 +5,20 @@ from pathlib import Path
 import gdsfactory as gf
 from gdsfactory.technology.processes import (
     Anneal,
+    ArbitraryStep,
     Etch,
     Grow,
     ImplantPhysical,
     Lithography,
     Planarize,
 )
-from gdsfactory.typings import Dict, Tuple
+from gdsfactory.typings import Dict
 from parse_gds import cleanup_component_layermap
 
 from gplugins.sentaurus.mask import get_sentaurus_mask_2D, get_sentaurus_mask_3D
 
 DEFAULT_INIT_LINES = """AdvancedCalibration
-mgoals min.normal.size=0.005 normal.growth.ratio=1.618 accuracy=2e-5 minedge=5e-5
+mgoals accuracy=2e-5
 """
 
 DEFAULT_REMESHING_STRATEGY = """refinebox clear
@@ -28,6 +29,8 @@ pdbSet Grid AdaptiveField Refine.Rel.Error 1e10
 pdbSet Grid AdaptiveField Refine.Target.Length 100.0
 pdbSet Grid SnMesh DelaunayType boxmethod
 """
+
+DEFAULT_CONTACT_STR = ""
 
 
 def write_sprocess(
@@ -40,15 +43,16 @@ def write_sprocess(
     filename: str = "sprocess_fps.cmd",
     struct_prefix: str = "struct_",
     structout: str = "struct_out.tdr",
-    contact_portnames: Tuple[str] = None,
     round_tol: int = 3,
     simplify_tol: float = 1e-3,
     split_steps: bool = True,
     init_lines: str = DEFAULT_INIT_LINES,
     initial_z_resolutions: Dict = None,
     initial_xy_resolution: float = None,
+    extra_resolution_str: str = None,
     remeshing_strategy: str = DEFAULT_REMESHING_STRATEGY,
     num_threads: int = 6,
+    contact_str: str = DEFAULT_CONTACT_STR,
 ):
     """Writes a Sentaurus Process TLC file for the component + layermap + initial waferstack + process.
 
@@ -61,15 +65,6 @@ def write_sprocess(
     Since Sentaurus only supports box-type contacts, the bounding box of port polygons (from component_with_net_layers) are used to define contacts.
 
     Arguments:
-        component: gdsfactory component containing polygons defining the mask
-        waferstack: gdsfactory layerstack representing the initial wafer
-        layermap: gdsfactory LayerMap object contaning all layers
-        filepath: Path to the TLC file to be written.
-        round_tol: for gds cleanup (grid snapping by rounding coordinates)
-        simplify_tol: for gds cleanup (shape simplification)
-        split_steps: if True, creates a new workbench node for each step. Useful for visualization and sweeps.
-        init_lines (str): initial string to write to the TCL file. Useful for settings.
-
         component,: gdsfactory component containing polygons defining the mask
         waferstack: gdsfactory layerstack representing the initial wafer
         layermap: gdsfactory LayerMap object contaning all layers
@@ -92,13 +87,13 @@ def write_sprocess(
 
     directory = Path(directory) or Path("./sprocess/")
 
-    if contact_portnames:
-        component = waferstack.get_component_with_net_layers(
-            component,
-            portnames=contact_portnames,
-            add_to_layerstack=False,
-            delimiter="#",
-        )
+    # if contact_portnames:
+    #     component = waferstack.get_component_with_net_layers(
+    #         component,
+    #         portnames=contact_portnames,
+    #         add_to_layerstack=False,
+    #         delimiter="#",
+    #     )
 
     # Defaults
     initial_z_resolutions = initial_z_resolutions or {
@@ -175,18 +170,40 @@ line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
 """
             )
 
+        f.write(extra_resolution_str)
+
         # Initialize with wafermap
-        for _layername, layer in waferstack.layers.items():
+        initializations = []
+        # Regions
+        for layername, layer in waferstack.layers.items():
+            if layername == "substrate":
+                extra_tag = "substrate"
+            else:
+                extra_tag = ""
             xlo = z_map[f"{layer.zmin - layer.thickness:1.3f}"]
             xhi = z_map[f"{layer.zmin:1.3f}"]
-            f.write(f"region {layer.material} xlo={xlo} xhi={xhi} {xdims} {ydims}\n")
+            f.write(
+                f"region {layer.material} xlo={xlo} xhi={xhi} {xdims} {ydims} {extra_tag}\n"
+            )
+
             if layer.background_doping_concentration:
-                f.write(
+                initializations.append(
                     f"init {layer.material} concentration={layer.background_doping_concentration:1.2e}<cm-3> field={layer.background_doping_ion} wafer.orient={layer.orientation}\n"
                 )
 
+            # Adaptive remeshing in active regions
+            if "active" in layer.info and layer.info["active"]:
+                f.write("refinebox adaptive\n")
+                f.write(
+                    f"refinebox min= {{{layer.zmin - layer.thickness:1.3f} {xmin} {ymin}}} max= {{{layer.zmin:1.3f} {xmax} {ymax}}} adaptive def.rel.error=1\n"
+                )
+
+        # Materials
+        for line in set(initializations):
+            f.write(line)
+
         if split_steps:
-            f.write(f"struct tdr={struct_prefix}0_wafer.tdr")
+            f.write(f"struct tdr={struct_prefix}0_wafer.tdr\n")
 
         for i, step in enumerate(process):
             f.write("\n")
@@ -236,6 +253,9 @@ line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
             if isinstance(step, Planarize):
                 f.write(f"transform cut up location=-{step.height}<um>\n")
 
+            if isinstance(step, ArbitraryStep):
+                f.write(step.info)
+
             if split_steps:
                 f.write(f"struct tdr={struct_prefix}{i+1}_{step.name}.tdr")
 
@@ -250,7 +270,7 @@ line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
         for _layername, layer in waferstack.layers.items():
             if layer.info and layer.info["active"] is True:
                 f.write(
-                    f"""refinebox name= Global min= {{ {layer.zmin - layer.thickness:1.3f} {xmin} {ymin} }} max= {{ {layer.zmin:1.3f} {xmax} {ymax} }} refine.min.edge= {{ 0.001 0.001 0.001 }} refine.max.edge= {{ 0.1 0.1 0.1 }} refine.fields= {{ NetActive }} def.max.asinhdiff= 0.5 adaptive {layer.material}
+                    f"""refinebox name= Global min= {{ {layer.zmin - layer.thickness:1.3f} {xmin} {ymin} }} max= {{ {layer.zmin:1.3f} {xmax} {ymax} }} refine.min.edge= {{ 0.001 0.001 0.001 }} refine.max.edge= {{ 0.05 0.05 0.05 }} refine.fields= {{ NetActive }} def.max.asinhdiff= 0.5 adaptive {layer.material}
 """
                 )
         f.write("grid remesh\n")
@@ -266,14 +286,15 @@ line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
         #                 print(polygon)
 
         # Manual for now
-        f.write("\n")
-        f.write("#split Contacts\n")
-        f.write(
-            f"contact name=e1 box silicon adjacent.material=Aluminum xlo=0.12 xhi=0.14 ylo={xmin} yhi={(xmin + xmax)/2} zlo={ymin} zhi={ymax}\n"
-        )
-        f.write(
-            f"contact name=e2 box silicon adjacent.material=Aluminum xlo=0.12 xhi=0.14 ylo={(xmin + xmax)/2} yhi={xmax} zlo={ymin} zhi={ymax}\n"
-        )
+        f.write(contact_str)
+        # f.write("\n")
+        # f.write("#split Contacts\n")
+        # f.write(
+        #     f"contact name=e1 box silicon adjacent.material=Aluminum xlo=0.12 xhi=0.14 ylo={xmin} yhi={(xmin + xmax)/2} zlo={ymin} zhi={ymax}\n"
+        # )
+        # f.write(
+        #     f"contact name=e2 box silicon adjacent.material=Aluminum xlo=0.12 xhi=0.14 ylo={(xmin + xmax)/2} yhi={xmax} zlo={ymin} zhi={ymax}\n"
+        # )
 
         # Create structure
         f.write("\n")
@@ -342,7 +363,6 @@ if __name__ == "__main__":
         initial_z_resolutions={"core": 0.005, "box": 0.05, "substrate": 0.5},
         initial_xy_resolution=0.05,
         split_steps=True,
-        contact_portnames=("e1", "e2"),
     )
 
     write_sprocess(
@@ -359,5 +379,4 @@ if __name__ == "__main__":
         initial_z_resolutions={"core": 0.005, "box": 0.05, "substrate": 0.5},
         initial_xy_resolution=0.05,
         split_steps=True,
-        contact_portnames=("e1", "e2"),
     )
