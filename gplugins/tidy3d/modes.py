@@ -47,6 +47,14 @@ def custom_serializer(data: str | float | BaseModel) -> str:
     if isinstance(data, BaseModel):
         return data.json()
 
+    # If data is a list or tuple, recursively serialize each element.
+    if isinstance(data, list | tuple):
+        return [custom_serializer(item) for item in data]
+
+    # If data is a dictionary, recursively serialize each key-value pair.
+    if isinstance(data, dict):
+        return {key: custom_serializer(value) for key, value in data.items()}
+
     # For all other data types, raise an exception.
     raise ValueError(f"Unsupported data type: {type(data)}")
 

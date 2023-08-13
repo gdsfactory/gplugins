@@ -235,7 +235,7 @@ def create_2Duz_simulation(
 
 if __name__ == "__main__":
     import gdsfactory as gf
-    from gdsfactory.generic_tech import get_layer_stack_generic
+    from gdsfactory.generic_tech import LAYER, LAYER_STACK
 
     # We choose a representative subdomain of the component
     waveguide = gf.Component()
@@ -249,10 +249,10 @@ if __name__ == "__main__":
     waveguide.show()
 
     # We will restrict the physical mesh to a subset of layers:
-    layermap = gf.generic_tech.LayerMap()
+    layermap = LAYER
     physical_layerstack = LayerStack(
         layers={
-            k: get_layer_stack_generic().layers[k]
+            k: LAYER_STACK.layers[k]
             for k in (
                 "slab90",
                 "core",
@@ -314,7 +314,7 @@ if __name__ == "__main__":
     device_name, regions, interfaces = create_2Duz_simulation(
         component=waveguide,
         xsection_bounds=[(4, -4), (4, 4)],
-        full_layerstack=get_layer_stack_generic(),
+        full_layerstack=LAYER_STACK,
         physical_layerstack=physical_layerstack,
         doping_info=get_doping_info_generic(),
         contact_info=contact_info,

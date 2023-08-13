@@ -41,8 +41,6 @@ from gplugins.devsim import get_simulation_xsection
 from gplugins.devsim.get_simulation_xsection import k_to_alpha
 
 gf.config.rich_output()
-PDK = gf.get_generic_pdk()
-PDK.activate()
 
 # +
 # %%capture

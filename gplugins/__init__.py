@@ -1,6 +1,6 @@
 """gplugins - gdsfactory plugins"""
 
-__version__ = "0.1.1"
+__version__ = "0.2.0"
 
 from gplugins.utils import plot, port_symmetries
 from gplugins.utils.get_effective_indices import get_effective_indices

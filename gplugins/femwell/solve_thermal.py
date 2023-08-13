@@ -214,13 +214,14 @@ def solve_thermal(
 if __name__ == "__main__":
     import gdsfactory as gf
     import gmsh
+    from gdsfactory.generic_tech import LAYER_STACK
 
     from gplugins.gmsh.mesh2D import mesh2D
 
-    gf.generic_tech.LAYER_STACK.layers["heater"].thickness = 0.13
-    gf.generic_tech.LAYER_STACK.layers["heater"].zmin = 2.2
-    print(gf.generic_tech.LAYER_STACK.layers.keys())
-    # gf.generic_tech.LAYER_STACK.layers["core"].thickness = 2
+    LAYER_STACK.layers["heater"].thickness = 0.13
+    LAYER_STACK.layers["heater"].zmin = 2.2
+    print(LAYER_STACK.layers.keys())
+    #  LAYER_STACK.layers["core"].thickness = 2
 
     heater1 = gf.components.straight_heater_metal(length=50, heater_width=2)
     heater2 = gf.components.straight_heater_metal(length=50, heater_width=2).move(

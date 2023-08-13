@@ -2,6 +2,8 @@
 __pycache__/
 *.py[cod]
 *$py.class
+temp.msh2
+
 
 # C extensions
 *.so
@@ -168,3 +170,5 @@ cython_debug/
 *.tdr
 *.log
 *.BAK
+*.sav
+*.plt

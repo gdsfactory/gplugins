@@ -1,9 +1,4 @@
-import gdsfactory as gf
-
 from gplugins.devsim import get_simulation_xsection
-
-PDK = gf.get_generic_pdk()
-PDK.activate()
 
 
 def test_pin_waveguide() -> None:

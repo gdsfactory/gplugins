@@ -37,9 +37,9 @@ def add_mask_polygons(layer_polygons, name):
         coordinates = reduce(operator.add, zip(coordinates_x, coordinates_y))
         segments = ""
         for coordinate in coordinates:
-            segments += f"{coordinate} "
+            segments += f"{coordinate:1.3f} "
         polygon_name = f"{name}_{i}"
-        polygon_names += f"{polygon_name}" if i == 0 else f", {polygon_name}"
+        polygon_names += f"{polygon_name}" if i == 0 else f" {polygon_name}"
         line = f"polygon name={polygon_name} segments= {{ {segments}}}\n"
         return_str_lines.append(line)
     return return_str_lines, polygon_names
@@ -71,7 +71,7 @@ def get_mask_segments_xsection(
 
     segments_str = ""
     for x in [item for sublist in bounds_list for item in sublist]:
-        segments_str += f"{x} "
+        segments_str += f"{x:1.3f} "
 
     return segments_str
 
