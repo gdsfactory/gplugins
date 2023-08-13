@@ -1,4 +1,4 @@
-# gplugins 0.1.0
+# gplugins 0.1.1
 
 [![docs](https://github.com/gdsfactory/gplugins/actions/workflows/pages.yml/badge.svg)](https://gdsfactory.github.io/gplugins/)
 [![PyPI](https://img.shields.io/pypi/v/gplugins)](https://pypi.org/project/gplugins/)
@@ -15,7 +15,7 @@ gdsfactory plugins:
 - `gmsh` mesh structures.
 - `tidy3d` Finite Difference Time Domain (FDTD) simulations on the cloud using GPU.
 - `lumerical` For Ansys FDTD and Circuit interconnect.
-- `kfactory` for fill, dataprep and testing.
+- `klayout` for fill, dataprep and testing.
 - `ray` for distributed computing and optimization.
 - `sax` S-parameter circuit solver.
 - `schematic`: for bokeh schematic editor and `path_length_analysis`

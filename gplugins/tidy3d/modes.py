@@ -23,8 +23,8 @@ import tidy3d as td
 import xarray
 from gdsfactory.config import logger
 from gdsfactory.pdk import get_modes_path
-from gdsfactory.serialization import clean_value_name
 from gdsfactory.typings import PathType
+from pydantic import BaseModel
 from tidy3d.plugins import waveguide
 from tqdm.auto import tqdm
 
@@ -32,6 +32,23 @@ from gplugins.tidy3d.materials import MaterialSpecTidy3d, get_medium
 
 Precision = Literal["single", "double"]
 nm = 1e-3
+
+
+def custom_serializer(data: str | float | BaseModel) -> str:
+    # If data is a string, just return it.
+    if isinstance(data, str | None | np.ndarray):
+        return data
+
+    # If data is a float, convert it to a string.
+    if isinstance(data, float | int):
+        return str(data)
+
+    # If data is an instance of Pydantic's BaseModel, serialize it to JSON.
+    if isinstance(data, BaseModel):
+        return data.json()
+
+    # For all other data types, raise an exception.
+    raise ValueError(f"Unsupported data type: {type(data)}")
 
 
 class Waveguide(pydantic.BaseModel):
@@ -155,10 +172,9 @@ class Waveguide(pydantic.BaseModel):
         cache_path.mkdir(exist_ok=True, parents=True)
 
         settings = [
-            f"{setting}={clean_value_name(getattr(self, setting))}"
+            f"{setting}={custom_serializer(getattr(self, setting))}"
             for setting in sorted(self.__fields__.keys())
         ]
-
         named_args_string = "_".join(settings)
         h = hashlib.md5(named_args_string.encode()).hexdigest()[:16]
         return cache_path / f"{self.__class__.__name__}_{h}.npz"
@@ -247,11 +263,10 @@ class Waveguide(pydantic.BaseModel):
         """Mode data for this waveguide (cached if cache is enabled)."""
         if not hasattr(self, "_cached_data"):
             filepath = self.filepath
-            if filepath and filepath.exists():
-                if not self.overwrite:
-                    logger.info(f"load data from {filepath}.")
-                    self._cached_data = np.load(filepath)
-                    return self._cached_data
+            if filepath and filepath.exists() and not self.overwrite:
+                logger.info(f"load data from {filepath}.")
+                self._cached_data = np.load(filepath)
+                return self._cached_data
 
             wg = self.waveguide
 
@@ -373,7 +388,7 @@ class Waveguide(pydantic.BaseModel):
         field_name: str,
         value: str = "real",
         mode_index: int = 0,
-        wavelength: float = None,
+        wavelength: float | None = None,
         **kwargs,
     ) -> None:
         """Plot the selected field distribution from a waveguide mode.
@@ -387,6 +402,11 @@ class Waveguide(pydantic.BaseModel):
             kwargs: keyword arguments passed to xarray.DataArray.plot.
         """
         data = self._data[field_name]
+
+        if mode_index >= self.num_modes:
+            raise ValueError(
+                f"mode_index = {mode_index} must be less than num_modes {self.num_modes}"
+            )
 
         if self.num_modes > 1:
             data = data[..., mode_index]
@@ -416,6 +436,10 @@ class Waveguide(pydantic.BaseModel):
         data_array = xarray.DataArray(
             data.T, coords={"y": self._data["y"], "x": self._data["x"]}
         )
+
+        if value == "dB":
+            kwargs.update(vmin=-20)
+
         data_array.name = field_name
         artist = data_array.plot(**kwargs)
         artist.axes.set_aspect("equal")
@@ -428,7 +452,10 @@ class Waveguide(pydantic.BaseModel):
         """Show waveguide representation."""
         return (
             f"{self.__class__.__name__}("
-            + ", ".join(f"{k}={getattr(self, k)!r}" for k in self.__fields__.keys())
+            + ", ".join(
+                f"{k}={custom_serializer(getattr(self, k))!r}"
+                for k in self.__fields__.keys()
+            )
             + ")"
         )
 
@@ -989,7 +1016,10 @@ if __name__ == "__main__":
         core_thickness=220 * nm,
         num_modes=4,
     )
-    strip.plot_index()
+    # strip._data
+    # strip.filepath
+    # strip.plot_index()
+    strip.plot_field("Ex", mode_index=0, wavelength=1.55, value="dB")
     plt.show()
     # w = np.linspace(400 * nm, 1000 * nm, 7)
     # n_eff = sweep_n_eff(strip, core_width=w)
