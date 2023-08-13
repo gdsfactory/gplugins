@@ -58,9 +58,6 @@ if __name__ == "__main__":
 
     from gplugins.sax.parameter import LayerStackThickness, NamedParameter
 
-    PDK = gf.get_generic_pdk()
-    PDK.activate()
-
     c = gf.components.taper_cross_section_linear(
         cross_section1=rib(width=2), cross_section2=rib(width=0.5)
     )

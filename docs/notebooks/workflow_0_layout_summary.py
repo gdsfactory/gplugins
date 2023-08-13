@@ -43,8 +43,6 @@ from gdsfactory.typings import ComponentSpec, CrossSectionSpec
 from omegaconf import OmegaConf
 
 gf.config.rich_output()
-PDK = gf.get_generic_pdk()
-PDK.activate()
 
 c = gf.Component()
 mzi = c << gf.components.mzi()  # equivalent to mzi = c.add_ref(gf.components.mzi())

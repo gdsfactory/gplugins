@@ -18,6 +18,7 @@ gf.config.rich_output()
 PDK = get_generic_pdk()
 PDK.activate()
 
+LAYER_STACK = PDK.layer_stack
 c = gf.components.taper_cross_section_sine()
 c.plot()
 # -
@@ -25,7 +26,7 @@ c.plot()
 # You also need to explicitly provide a LayerStack to define cross-sections, for instance the generic one:
 
 # +
-layerstack = gf.generic_tech.LAYER_STACK
+layerstack = LAYER_STACK
 
 filtered_layerstack = gf.technology.LayerStack(
     layers={
@@ -78,7 +79,7 @@ eme.plot_s_params()
 # Lets sweep the length of the taper.
 
 # +
-layerstack = gf.generic_tech.LAYER_STACK
+layerstack = LAYER_STACK
 
 filtered_layerstack = gf.technology.LayerStack(
     layers={
