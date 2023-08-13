@@ -1,91 +1,66 @@
-:root {
-  /* Color Variables */
-  --primary-color: #5AA9E6;
-  --secondary-color: #FF6B6B;
-  --background-color: #F9F9F9;
-  --text-color: #444;
-  --border-color: #E0E0E0;
-}
-
-/* Base Styles */
 body {
-  font-family: Helvetica, Arial, sans-serif;
+  font-family: Helvetica, Arial;
   font-size: 12pt;
-  line-height: 1.5;
-  color: var(--text-color);
-  background-color: var(--background-color);
+  background-color: #F5F5F5; /* Soft Gray background for body */
+  color: #333; /* Dark Gray for default text */
 }
 
-a {
-  padding: 5px 15px;
-  margin: 10px;
-  display: inline-block;
-  border: none;
-  border-radius: 4px;
-  background-color: var(--primary-color);
-  color: white;
-  text-decoration: none;
-  transition: background-color 0.3s;
-}
-
-a:hover {
-  background-color: var(--secondary-color);
-}
-
-/* Layout */
 #layout_canvas {
   width: 100%;
   height: 100%;
 }
 
-/* Input Styles */
 input, select {
-  background-color: white;
-  padding: 8pt;
+  background-color: #FAFAFA; /* Slightly off-white for input fields */
+  padding: 4pt;
   font-size: 12pt;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #CCC; /* A subtle border */
 }
 
-/* Checkbox Styles */
 .checked {
-  background-color: var(--text-color);
+  background-color: #2E86C1; /* Changing from Gray to Blue for a fresh look */
   color: white;
 }
 
 .unchecked {
-  background-color: var(--background-color);
+  background-color: #FAFAFA; /* Consistency with other elements */
 }
 
-/* Menu Positioning */
-.menu-left-frame, .menu-right-frame {
+div .menu-left-frame, div .menu-right-frame {
+  background-color: #FAFAFA; /* Blue background for menus */
+  padding: 0;
+  border-radius: 8px; /* A little rounding for modern feel */
+}
+
+div .menu-left-frame {
   position: absolute;
+  left: 4pt;
   top: 4pt;
-  padding: 10px;
-  background-color: white;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.menu-right-frame {
+div .menu-right-frame {
+  position: absolute;
   right: 4pt;
+  top: 4pt;
 }
 
-/* Viewer Panel Styles */
 .viewer-panel {
   overflow: auto;
   display: table;
   border-spacing: 0.5rem;
   padding: 0;
-  background-color: white;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.viewer-frame, .viewer-layers {
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.viewer-panel-sub {
+  display: table-row;
+}
+
+.viewer-frame-cell, .viewer-layers-cell {
+  position: relative;
+  display: table-cell;
+  vertical-align: top;
+  border: 1px solid #DDD; /* Softer border color */
+  overflow: hidden;
 }
 
 .viewer-frame {
@@ -93,15 +68,20 @@ input, select {
   height: 500px;
   resize: both;
   overflow: hidden;
-  padding: 10px 10px 10px 40pt;
+  padding: 10px;
+  padding-top: 40pt;
+  background-color: white; /* Clear background for frames */
+  border-radius: 8px; /* Consistency with other rounded elements */
 }
 
 .viewer-layers {
   min-width: 20%;
   white-space: nowrap;
   overflow-y: scroll;
-  padding: 0.5rem 10px;
+  padding: 0.5rem;
   height: 500px;
+  background-color: white; /* Clear background for layers */
+  border-radius: 8px; /* Consistency */
 }
 
 .layer-name-cell {
@@ -110,4 +90,20 @@ input, select {
 
 .layer-visible-cell {
   padding-right: 0.5rem;
+}
+
+a {
+  padding: 5px;
+  margin: 10px;
+  display: inline-block;
+  border: 2px solid #2E86C1; /* Matching Blue for link borders */
+  color: #2E86C1; /* Matching Blue for link color */
+  text-decoration: none; /* Remove default underline */
+  border-radius: 8px; /* Consistency with other rounded elements */
+  transition: background-color 0.3s, color 0.3s; /* Smooth hover transition */
+}
+
+a:hover {
+  background-color: #2E86C1; /* Blue background on hover */
+  color: white;
 }
