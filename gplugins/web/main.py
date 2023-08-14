@@ -183,8 +183,11 @@ async def update_cell(request: Request, cell_name: str):
             f"/view/{cell_name}",
             status_code=status.HTTP_302_FOUND,
         )
-    component = gf.get_component({"component": cell_name, "settings": settings})
-    variant = component.name
+    try:
+        component = gf.get_component({"component": cell_name, "settings": settings})
+        variant = component.name
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Component not found. {e}") from e
 
     LOADED_COMPONENTS[component.name] = component
     return RedirectResponse(
