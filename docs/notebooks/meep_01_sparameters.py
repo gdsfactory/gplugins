@@ -117,7 +117,7 @@ from meep.adjoint import (
     get_conic_radius_from_eta_e,
 )
 
-import gplugins as sim
+import gplugins
 import gplugins.gmeep as gm
 
 gf.config.rich_output()
@@ -162,7 +162,7 @@ sp = gm.write_sparameters_meep(c, run=False)
 # For faster simulations you can do an effective mode approximation, to compute the mode of the slab and run a 2D simulation to speed your [simulations](https://www.lumerical.com/learn/whitepapers/lumericals-2-5d-fdtd-propagation-method/)
 
 # %%
-core_material = sim.get_effective_indices(
+core_material = gplugins.get_effective_indices(
     core_material=3.4777,
     clad_materialding=1.444,
     nsubstrate=1.444,
