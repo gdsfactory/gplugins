@@ -160,7 +160,7 @@ c.plot()
 # When defining the model, we add the LithoParameter `erosion_magnitude`. For all models, a `TransformParameter` which if set, will offset the provided component prior to simulation, emulating erosion (when <1), nominal behaviour (when 1) and dilation (when >1). This morphological transformation is currently global; more advanced spatially-correlated filters are an obvious next step.
 
 # +
-from gplugins.sax.meep_FDTD_model import MeepFDTDModel
+from gplugins.sax.integrations.meep_FDTD_model import MeepFDTDModel
 
 # Simulation settings
 port_symmetries_coupler = {
