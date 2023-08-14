@@ -56,13 +56,9 @@ def write_sprocess(
 ):
     """Writes a Sentaurus Process TLC file for the component + layermap + initial waferstack + process.
 
-    Uses polygons of the electrical ports for contact definition (using port layer).
-
-    The meshing strategy is to use a coarse-ish grid for the implants and diffusion, and perform a final adaptive remeshing on the net dopant concentration in LayerLevels tagged as "active". As it is difficult to make an automated decision on the meshing strategy, the user is encouraged to manually edit this function as needed.
+    The meshing strategy is to initially use a fixed grid defined by initial_z_resolutions and initial_xy_resolution, and use default adaptive refinement on all fields in regions defined as "active", followed by adaptive refinement on net active dopants in "active" regions.
 
     Note that Sentaurus uses the X-direction vertically, with more positive X values going "deeper" in the substrate. YZ-coordinates are in the plane. GDSFactory uses XY in the plane and Z vertically, with more positive Z going "up" away from the substrate.
-
-    Since Sentaurus only supports box-type contacts, the bounding box of port polygons (from component_with_net_layers) are used to define contacts.
 
     Arguments:
         component,: gdsfactory component containing polygons defining the mask
@@ -170,6 +166,7 @@ line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
 """
             )
 
+        # Additional resolution settings
         f.write(extra_resolution_str)
 
         # Initialize with wafermap
