@@ -611,7 +611,7 @@ def bend_model(cross_section: gf.typings.CrossSectionSpec = "strip"):
         component=component,
         num_modes=2,
         port_source_names=["o1"],
-        filepath=PATH.sparameters_repo / f"{component.name}.npz",
+        filepath=PATH.sparameters_repo / "bend_filter.npz",
         **sim_specs,
     )
     wavelengths = s.pop("wavelengths")
@@ -666,7 +666,8 @@ def coupler_model(
         ymargin=2.0,
         num_modes=2,
         port_source_names=["o1"],
-        filepath=PATH.sparameters_repo / f"{component.name}.npz",
+        filepath=PATH.sparameters_repo
+        / f"coupler_filter_gap={gap}_length={length}_s={separation}_bf={bend_factor}.npz",
         **sim_specs,
     )
     wavelengths = s.pop("wavelengths")

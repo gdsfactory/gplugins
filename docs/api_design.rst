@@ -195,32 +195,3 @@ Circuit solver
     send_to_interconnect
     run_wavelength_sweep
     plot_wavelength_sweep
-
-****************************
-Gmsh
-****************************
-
-.. currentmodule:: gplugins.gmsh
-
-.. rubric:: Gmsh
-
-.. autosummary::
-   :toctree: _autosummary/
-    mesh_from_polygons
-    create_physical_mesh
-    uz_xsection_mesh
-    xy_xsection_mesh
-    get_uz_bounds_layers
-    get_u_bounds_layers
-    get_u_bounds_polygons
-    MeshTracker
-    cleanup_component
-    fuse_polygons
-    round_coordinates
-    to_polygons
-    tile_shapes
-    get_layers_at_z
-    order_layerstack
-    list_unique_layerstack_z
-    map_unique_layerstack_z
-    get_layer_overlaps_z
