@@ -54,8 +54,7 @@ def write_tdr_to_csv_2D(
         if out_file.exists():
             out_file.unlink()
 
-        filetxt = """#!/usr/bin/python2.4
-import sys
+        filetxt = """import sys
 
 try:
     csv_filename = sys.argv[1]
@@ -87,8 +86,7 @@ except OSError:
         if out_file.exists():
             out_file.unlink()
 
-        filetxt = """#!/usr/bin/python2.4
-import sys
+        filetxt = """import sys
 
 try:
     out_filename = sys.argv[-1]
