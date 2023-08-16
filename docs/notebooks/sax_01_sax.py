@@ -32,6 +32,7 @@ from tqdm.notebook import trange
 
 import gplugins.sax as gs
 import gplugins.tidy3d as gt
+from gplugins.config import PATH
 
 gf.config.rich_output()
 PDK = get_generic_pdk()
@@ -218,7 +219,7 @@ gs.plot_model(coupler_sc)
 #
 # You can fit a sax model to Sparameter FDTD simulation data.
 
-filepath = gf.config.PATH.test_data / "sp" / "coupler_G224n_L20_S220.csv"
+filepath = PATH.test_data / "sp" / "coupler_G224n_L20_S220.csv"
 
 coupler_fdtd = gs.read.model_from_csv(
     filepath=filepath,

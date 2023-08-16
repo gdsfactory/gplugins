@@ -12,7 +12,6 @@ parts:
           - file: notebooks/pso
       - file: plugins_mesh
         sections:
-          - file: notebooks/materials
           - file: notebooks/meshing_01_intro
           - file: notebooks/meshing_02_2D_xy_mesh
           - file: notebooks/meshing_03_2D_uz_mesh
