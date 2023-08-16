@@ -5,7 +5,7 @@ from collections import OrderedDict
 import gdsfactory as gf
 import numpy as np
 from gdsfactory.technology import LayerStack
-from gdsfactory.typings import ComponentOrReference
+from gdsfactory.typings import ComponentOrReference, Optional
 from scipy.interpolate import NearestNDInterpolator
 from shapely.geometry import LineString, MultiPolygon, Point, Polygon
 from shapely.ops import unary_union
@@ -95,6 +95,7 @@ def get_uz_bounds_layers(
     xsection_bounds: tuple[tuple[float, float], tuple[float, float]],
     layerstack: LayerStack,
     u_offset: float = 0.0,
+    z_bounds: Optional[tuple[float, float]] = None,
 ):
     """Given a component and layer stack, computes the bounding box(es) of each \
             layer in the xsection coordinate system (u,z).
@@ -105,6 +106,14 @@ def get_uz_bounds_layers(
 
     Returns: Dict containing layer: polygon pairs, with (u1,u2) in xsection line coordinates
     """
+
+    if z_bounds is not None:
+        z_min_sim = z_bounds[0]
+        z_max_sim = z_bounds[1]
+    else:
+        z_min_sim = -np.Inf
+        z_max_sim = np.Inf
+
     # Get in-plane cross-sections
     inplane_bounds_dict = get_u_bounds_layers(layer_polygons_dict, xsection_bounds)
 
@@ -135,6 +144,38 @@ def get_uz_bounds_layers(
             umax_zmin = np.max(inplane_bounds) + u_offset
             umin_zmax = np.min(next_inplane_bounds) + u_offset
             umax_zmax = np.max(next_inplane_bounds) + u_offset
+
+            # If layer thickness are negative, then zmin is actually zmax
+            if zmin > zmax:
+                foo = zmax
+                zmax = zmin
+                zmin = foo
+
+                foo = umin_zmin
+                umin_zmin = umin_zmax
+                umin_zmax = foo
+
+                foo = umax_zmax
+                umax_zmax = umax_zmin
+                umax_zmin = foo
+
+            if zmax < z_min_sim or zmin > z_max_sim:
+                # The whole polygon is outside of the simulation region
+                continue
+
+            # Check if we need to clip on top or bottom
+            if zmin < z_min_sim:
+                # Need to clip the bottom
+                # Do a linear interpolation of the u coordinates
+                umin_zmin = np.interp(z_min_sim, [zmin, zmax], [umin_zmin, umin_zmax])
+                umax_zmin = np.interp(z_min_sim, [zmin, zmax], [umax_zmin, umax_zmax])
+                zmin = z_min_sim
+
+            if zmax > z_max_sim:
+                # Need to clip the top
+                umin_zmax = np.interp(z_max_sim, [zmin, zmax], [umin_zmin, umin_zmax])
+                umax_zmax = np.interp(z_max_sim, [zmin, zmax], [umax_zmin, umax_zmax])
+                zmax = z_max_sim
 
             points = [
                 [umin_zmin, zmin],
@@ -206,8 +247,17 @@ def uz_xsection_mesh(
     )
 
     # simulation polygons to u-z coordinates along cross-sectional line
+    if "z_bounds" in kwargs:
+        z_bounds = kwargs["z_bounds"]
+    else:
+        z_bounds = None
+
     bounds_dict = get_uz_bounds_layers(
-        buffered_layer_polygons_dict, xsection_bounds, buffered_layerstack, u_offset
+        buffered_layer_polygons_dict,
+        xsection_bounds,
+        buffered_layerstack,
+        u_offset,
+        z_bounds=z_bounds,
     )
 
     # u-z coordinates to gmsh-friendly polygons
