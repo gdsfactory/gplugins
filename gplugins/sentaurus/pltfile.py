@@ -46,7 +46,7 @@ class PLTFile:
 
     @staticmethod
     def _process_data(data: str, snake_case: bool = True) -> dict[str, list]:
-        keys = re.findall(r'"([a-zA-Z0-9 .]+)"', data)
+        keys = re.findall(r'"(.*?)"', data)
         values = data.split("Data {      ")[1].split("}")[0].split()
 
         if snake_case:
