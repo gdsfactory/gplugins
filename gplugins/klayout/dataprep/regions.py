@@ -1,7 +1,5 @@
-from pathlib import Path
-
 import kfactory as kf
-from gdsfactory.typings import Dict, Layer, LayerSpecs, PathType, Tuple
+from gdsfactory.typings import LayerSpecs, Tuple
 from kfactory import kdb
 
 
@@ -28,7 +26,7 @@ class Region(kdb.Region):
 
     def __isub__(self, offset) -> kdb.Region:
         """Adds an offset to the layer."""
-        return size(self, offset)
+        return size(self, -offset)
 
     def __add__(self, element) -> kdb.Region:
         if isinstance(element, float | int):
@@ -54,67 +52,55 @@ class RegionCollection:
     """RegionCollection of region per layer.
 
     Args:
-        layermap: dict of layernames to layer numbers {'WG': (1, 0)}
-        filepath: to read GDS from.
-        cell_name: the name of the cell to edit (defaults to the top cell of the layout if None)
+        gdspath: to read GDS from.
+        cell_name: optional top cell name to edit (defaults to the top cell of the layout if None).
     """
 
-    def __init__(
-        self,
-        layermap: Dict[str, Layer],
-        filepath: PathType,
-        cell_name: str | None = None,
-    ) -> None:
+    def __init__(self, gdspath, cell_name: str | None = None) -> None:
         lib = kf.kcell.KCLayout()
-        lib.read(filename=str(filepath))
-        if cell_name:
-            c = lib.cell_by_name(cell_name)
-        else:
-            top_cells = lib.top_cells()
-            if not top_cells:
-                raise ValueError("No cells found in gds!")
-            elif len(top_cells) > 1:
-                top_cells_named_like_file = [
-                    c for c in top_cells if c.name == Path(filepath).stem
-                ]
-                if top_cells_named_like_file:
-                    c = top_cells_named_like_file[0]
-                else:
-                    top_cell_names = [c.name for c in top_cells]
-                    raise ValueError(
-                        f"Multiple top cells in gds: {top_cell_names}. Please specify which cell to use."
-                    )
-            else:
-                c = top_cells[0]
-
-        for layername, layer in layermap.items():
-            region = Region()
-            layer = lib.layer(layer[0], layer[1])
-            region.insert(c.begin_shapes_rec(layer))
-            region.merge()
-            setattr(self, layername, region)
-
-        self.layermap = layermap
+        lib.read(filename=str(gdspath))
+        self.layout = lib.cell_by_name(cell_name) if cell_name else lib.top_cell()
         self.lib = lib
+        self.regions = {}
 
-    def write(self, filename, cellname: str = "out") -> kf.KCell:
+    def __getitem__(self, layer: tuple[int, int]) -> Region:
+        if len(layer) != 2:
+            raise ValueError(f"Layer {layer} must be a tuple of two integers")
+
+        if layer in self.regions:
+            return self.regions[layer]
+        region = Region()
+        layer_index = self.lib.layer(layer[0], layer[1])
+        region.insert(self.layout.begin_shapes_rec(layer_index))
+        region.merge()
+        self.regions[layer] = region
+        return region
+
+    def __setitem__(self, layer: tuple[int, int], region: Region) -> None:
+        if len(layer) != 2:
+            raise ValueError(f"Layer {layer} must be a tuple of two integers")
+        self.regions[layer] = region
+
+    def write(
+        self, gdspath, keep_original: bool = True, cellname: str = "out"
+    ) -> kf.KCell:
         """Write gds.
 
         Args:
-            filepath: gdspath.
+            gdspath: gdspath.
+            keep_original: keep original cell.
             cellname: for top cell.
         """
         c = kf.KCell(cellname, self.lib)
+        if keep_original:
+            c.copy_tree(self.layout)
+            c.flatten()
 
-        for layername, layer in self.layermap.items():
-            region = getattr(self, layername)
-            try:
-                c.shapes(self.lib.layer(layer[0], layer[1])).insert(region)
-            except TypeError as e:
-                raise ValueError(
-                    f"Unexpected type for region {layername!r}: {type(region)}"
-                ) from e
-        c.write(filename)
+        for layer, region in self.regions.items():
+            c.shapes(self.lib.layer(layer[0], layer[1])).clear()
+            c.shapes(self.lib.layer(layer[0], layer[1])).insert(region)
+
+        c.write(gdspath)
         return c
 
     def __delattr__(self, element) -> None:
@@ -161,18 +147,23 @@ class RegionCollection:
 if __name__ == "__main__":
     import gdsfactory as gf
     import kfactory as kf
-    from gdsfactory.generic_tech.layer_map import LAYER as l
-
-    import gplugins.kl.dataprep.regions as dp
 
     c = gf.Component()
-    ring = c << gf.components.coupler_ring()
-    floorplan = c << gf.components.bbox(ring.bbox, layer=l.FLOORPLAN)
+    ring = c << gf.components.coupler_ring(cross_section=gf.cross_section.rib_conformal)
     gdspath = c.write_gds()
 
-    d = dp.RegionCollection(filepath=gdspath, layermap=dict(l))
-    fill_cell = d.get_fill(
-        d.FLOORPLAN - d.WG, size=(0.1, 0.1), spacing=(0.1, 0.1), fill_layers=(l.WG,)
-    )
-    fill_cell.write("fill.gds")
-    gf.show("fill.gds")
+    # floorplan = c << gf.components.bbox(ring.bbox, layer=l.FLOORPLAN)
+    # gdspath = c.write_gds()
+
+    # d = RegionCollection(gdspath)
+    # d[LAYER.SLAB90] += 1
+    # d[LAYER.SLAB90] -= 1
+
+    # d.write("out.gds", keep_original=True)
+    # gf.show("out.gds")
+
+    # d["SLAB150"] = d.WG - d.FLOORPLAN
+    # fill_cell = d.get_fill(
+    #     d.FLOORPLAN - d.WG, size=(0.1, 0.1), spacing=(0.1, 0.1), fill_layers=(l.WG,)
+    # )
+    # fill_cell.write("fill.gds")
