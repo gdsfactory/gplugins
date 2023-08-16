@@ -29,6 +29,9 @@ def define_prisms(layer_polygons_dict, layerstack, model, scale_factor):
     ordered_layerstack = order_layerstack(layerstack)
 
     for layername in ordered_layerstack:
+        if layer_polygons_dict[layername].is_empty:
+            continue
+
         coords = np.array(buffered_layerstack.layers[layername].z_to_bias[0])
         zs = (
             coords * buffered_layerstack.layers[layername].thickness * scale_factor
@@ -173,6 +176,12 @@ def xyz_mesh(
     if resolutions:
         for r in resolutions.values():
             r["resolution"] *= global_scaling_premesh
+
+    for key in prisms_dict:
+        if layer_portname_delimiter in key:
+            base_key = key.split(layer_portname_delimiter)[0]
+            if key not in resolutions and base_key in resolutions:
+                resolutions[key] = resolutions[base_key]
 
     return model.mesh(
         entities_dict=prisms_dict,
