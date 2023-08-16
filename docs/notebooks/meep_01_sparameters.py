@@ -117,7 +117,7 @@ from meep.adjoint import (
     get_conic_radius_from_eta_e,
 )
 
-import gplugins as sim
+import gplugins
 import gplugins.gmeep as gm
 
 gf.config.rich_output()
@@ -162,7 +162,7 @@ sp = gm.write_sparameters_meep(c, run=False)
 # For faster simulations you can do an effective mode approximation, to compute the mode of the slab and run a 2D simulation to speed your [simulations](https://www.lumerical.com/learn/whitepapers/lumericals-2-5d-fdtd-propagation-method/)
 
 # %%
-core_material = sim.get_effective_indices(
+core_material = gplugins.get_effective_indices(
     core_material=3.4777,
     clad_materialding=1.444,
     nsubstrate=1.444,
@@ -183,10 +183,10 @@ sp = gm.write_sparameters_meep(
 )
 
 # %%
-gf.simulation.plot.plot_sparameters(sp)
+gplugins.plot.plot_sparameters(sp)
 
 # %%
-gf.simulation.plot.plot_sparameters(sp, keys=("o2@0,o1@0",))
+gplugins.plot.plot_sparameters(sp, keys=("o2@0,o1@0",))
 
 # %% [markdown]
 # For a small taper length, the matrix element S$_{21}$ (transmission in Port 2 given a source in Port 1) is around 0 dB which is equivalent to ~100% transmission.
@@ -211,13 +211,13 @@ sp = gm.write_sparameters_meep_1x1_bend90(c, run=True, filepath="data/bend90_mee
 list(sp.keys())
 
 # %%
-gf.simulation.plot.plot_sparameters(sp)
+gplugins.plot.plot_sparameters(sp)
 
 # %%
-gf.simulation.plot.plot_sparameters(sp, keys=("o2@0,o1@0",), logscale=False)
+gplugins.plot.plot_sparameters(sp, keys=("o2@0,o1@0",), logscale=False)
 
 # %%
-gf.simulation.plot.plot_sparameters(sp, keys=("o2@0,o1@0",))
+gplugins.plot.plot_sparameters(sp, keys=("o2@0,o1@0",))
 
 # %%
 c = gf.components.crossing()
@@ -300,7 +300,7 @@ gm.write_sparameters_meep(component=c, run=False)
 # )
 #
 # sp = np.load(filepath)
-# gf.simulation.plot.plot_sparameters(sp, keys=["o1@0,o3@0", "o1@0,o4@0"])
+# gplugins.plot.plot_sparameters(sp, keys=["o1@0,o3@0", "o1@0,o4@0"])
 # ```
 
 # %% [markdown]
@@ -338,7 +338,7 @@ gm.write_sparameters_meep(c, ymargin=3, run=False)
 #     filepath='data/meep_straight3.npz'
 # )
 # sp = np.load(filepaths[0])
-# gf.simulation.plot.plot_sparameters(sp)
+# gplugins.plot.plot_sparameters(sp)
 # ```
 
 # %% [markdown]
