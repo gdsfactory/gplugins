@@ -4,7 +4,6 @@ __pycache__/
 *$py.class
 temp.msh2
 
-
 # C extensions
 *.so
 *.fsp
@@ -13,6 +12,7 @@ temp.msh2
 *.dat
 *.ipynb
 *.gds
+*.pkl
 test-data/
 _autosummary/
 gplugins/path_length_analysis/test_pathlength_reporting/
