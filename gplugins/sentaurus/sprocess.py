@@ -228,7 +228,7 @@ line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
                     )
                     if step.planarization_height:
                         f.write(
-                            f"transform cut up location=-{step.planarization_height}<um>\n"
+                            f"transform cut up location=-{step.planarization_height:1.3f}<um>\n"
                         )
 
             if isinstance(step, Etch):
@@ -254,7 +254,7 @@ line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
                 f.write(f"diffuse temp={step.temperature}<C> time={step.time}<s>\n")
 
             if isinstance(step, Planarize):
-                f.write(f"transform cut up location=-{step.height}<um>\n")
+                f.write(f"transform cut up location=-{step.height:1.3f}<um>\n")
 
             if isinstance(step, ArbitraryStep):
                 f.write(step.info)
