@@ -97,6 +97,8 @@ def write_sprocess(
     }
     initial_xy_resolution = initial_xy_resolution or 1
 
+    extra_resolution_str = extra_resolution_str or ""
+
     # Parse 2D or 3D
     if xsection_bounds:
         get_mask = gf.partial(get_sentaurus_mask_2D, xsection_bounds=xsection_bounds)
@@ -200,7 +202,7 @@ line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
             f.write(line)
 
         if split_steps:
-            f.write(f"struct tdr={struct_prefix}0_wafer.tdr\n")
+            f.write(f"struct tdr=./{str(directory)}/{struct_prefix}0_wafer.tdr\n")
 
         for i, step in enumerate(process):
             f.write("\n")
@@ -224,6 +226,10 @@ line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
                     f.write(
                         f"photo mask={step.name} thickness={step.resist_thickness}<um>\n"
                     )
+                    if step.planarization_height:
+                        f.write(
+                            f"transform cut up location=-{step.planarization_height}<um>\n"
+                        )
 
             if isinstance(step, Etch):
                 f.write(
@@ -254,7 +260,9 @@ line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
                 f.write(step.info)
 
             if split_steps:
-                f.write(f"struct tdr={struct_prefix}{i+1}_{step.name}.tdr")
+                f.write(
+                    f"struct tdr=./{str(directory)}/{struct_prefix}{i+1}_{step.name}.tdr"
+                )
 
             f.write("\n")
 
@@ -295,7 +303,7 @@ line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
 
         # Create structure
         f.write("\n")
-        f.write(f"struct tdr={structout}")
+        f.write(f"struct tdr=./{str(directory)}/{structout}")
 
 
 if __name__ == "__main__":
