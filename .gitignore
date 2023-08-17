@@ -13,6 +13,7 @@ temp.msh2
 *.ipynb
 *.gds
 *.pkl
+*.txt
 test-data/
 _autosummary/
 gplugins/path_length_analysis/test_pathlength_reporting/

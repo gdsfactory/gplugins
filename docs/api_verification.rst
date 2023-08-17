@@ -20,3 +20,17 @@ Klayout DRC
    rule_area
    rule_density
    rule_not_inside
+
+
+************************
+Klayout dataprep
+************************
+
+.. currentmodule:: gplugins.klayout.dataprep.regions
+
+.. rubric:: klayout dataprep
+
+.. autosummary::
+   :toctree: _autosummary/
+
+   RegionCollection
