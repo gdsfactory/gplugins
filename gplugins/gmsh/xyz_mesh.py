@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections import OrderedDict
 from collections.abc import Sequence
 
+import gdsfactory as gf
 import numpy as np
 from gdsfactory.config import get_number_of_cores
 from gdsfactory.geometry.union import union
@@ -197,7 +198,6 @@ def xyz_mesh(
 
 
 if __name__ == "__main__":
-    import gdsfactory as gf
     from gdsfactory.generic_tech import LAYER
     from gdsfactory.pdk import get_layer_stack
 
