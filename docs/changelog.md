@@ -2,6 +2,11 @@
 
 ## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.2.0...main)
 
+## [0.3.0](https://github.com/gdsfactory/gplugins/compare/v0.2.0...v0.2.0)
+
+- improve meshing
+- add verification
+
 ## [0.2.0](https://github.com/gdsfactory/gplugins/compare/v0.2.0...v0.1.1)
 
 - fix serializer [PR](https://github.com/gdsfactory/gplugins/pull/28)
