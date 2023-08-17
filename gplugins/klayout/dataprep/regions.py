@@ -3,8 +3,8 @@ from gdsfactory.typings import LayerSpecs, Tuple
 from kfactory import kdb
 
 
-def size(region: kdb.Region, offset: float) -> kdb.Region:
-    return region.dup().size(int(offset * 1e3))
+def size(region: kdb.Region, offset: float, dbu=1e3) -> kdb.Region:
+    return region.dup().size(int(offset * dbu))
 
 
 def boolean_or(region1: kdb.Region, region2: kdb.Region) -> kdb.Region:
@@ -147,20 +147,23 @@ class RegionCollection:
 if __name__ == "__main__":
     import gdsfactory as gf
     import kfactory as kf
+    from gdsfactory.generic_tech import LAYER
 
     c = gf.Component()
     ring = c << gf.components.coupler_ring(cross_section=gf.cross_section.rib_conformal)
     gdspath = c.write_gds()
+    # c.show()
 
     # floorplan = c << gf.components.bbox(ring.bbox, layer=l.FLOORPLAN)
     # gdspath = c.write_gds()
 
-    # d = RegionCollection(gdspath)
-    # d[LAYER.SLAB90] += 1
-    # d[LAYER.SLAB90] -= 1
+    d = RegionCollection(gdspath)
+    d[LAYER.SLAB90] += 2
+    d[LAYER.SLAB90] -= 2
+    d[LAYER.SLAB90].smooth(1000)
 
-    # d.write("out.gds", keep_original=True)
-    # gf.show("out.gds")
+    d.write("out.gds", keep_original=True)
+    gf.show("out.gds")
 
     # d["SLAB150"] = d.WG - d.FLOORPLAN
     # fill_cell = d.get_fill(
