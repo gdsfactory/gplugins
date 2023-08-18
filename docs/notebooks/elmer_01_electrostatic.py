@@ -241,4 +241,10 @@ if results.field_file_location:
     p.camera_position = "xy"
     p.enable_parallel_projection()
     p.show()
-    # .plot(scalars="electric field", cmap="turbo")
+
+
+# %% [markdown]
+# ## Bibliography
+# ```{bibliography}
+# :style: unsrt
+# ```
