@@ -21,6 +21,7 @@ execute:
     - "*ray_optimiser*"
     - "*03_numerical_implantation*"
     - "*02_model_extraction*"
+    - "*palace*"
     # - "*20_schematic_driven_layout*"
     # - "*001_meep_sparameters*"
     # - "*00_tidy3d.ipynb"
