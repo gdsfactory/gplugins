@@ -131,3 +131,9 @@ jobs:
           GDSFACTORY_DISPLAY_TYPE: klayout
         run: |
           make docs
+      - name: Expose docs artifact
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: docs
+          path: docs/_build/html/
