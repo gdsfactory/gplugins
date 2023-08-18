@@ -1,0 +1,66 @@
+{
+  "Problem":
+  {
+    "Type": "Driven",
+    "Verbose": 3,
+    "Output": "postpro"
+  },
+  "Model":
+  {
+    "Mesh": "#MESH",
+    "L0": 1.0e-6,
+    "Refinement":
+    {
+      "UniformLevels": 1
+    }
+  },
+  "Domains":
+  {
+    "Materials":
+    [
+      {
+        "Attributes": [2],
+        "Permeability": 1.0,
+        "Permittivity": 1.0,
+        "LossTan": 0.0
+      },
+      {
+        "Attributes": [1],
+        "Permeability": [0.99999975, 0.99999975, 0.99999979],
+        "Permittivity": [9.3, 9.3, 11.5],
+        "LossTan": [3.0e-5, 3.0e-5, 8.6e-5],
+        "MaterialAxes": [[0.8, 0.6, 0.0], [-0.6, 0.8, 0.0], [0.0, 0.0, 1.0]]
+      }
+    ],
+    "Postprocessing":
+    {}
+  },
+  "Boundaries":
+  {
+    "PEC":
+    {},
+    "Absorbing":
+    {},
+    "Postprocessing":
+    {}
+  },
+  "Solver":
+  {
+    "Order": 1,
+    "Driven":
+    {
+      "MinFreq": 1.0,
+      "MaxFreq": 10.0,
+      "FreqStep": 0.1,
+      "SaveStep": 40,
+      "AdaptiveTol": 1.0e-3
+    },
+    "Linear":
+    {
+      "Type": "Default",
+      "KSPType": "GMRES",
+      "Tol": 1.0e-8,
+      "MaxIts": 100
+    }
+  }
+}
