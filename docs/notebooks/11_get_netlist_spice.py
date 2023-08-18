@@ -21,9 +21,10 @@
 #
 
 # %%
+import pathlib
+
 from gdsfactory.samples.demo.lvs import pads_correct, pads_shorted
 
-from gplugins.config import PATH
 from gplugins.verification.get_netlist import get_l2n, get_netlist
 from gplugins.verification.plot_nets import plot_nets
 
@@ -37,7 +38,8 @@ print(netlist)
 
 # %%
 l2n = get_l2n(gdspath)
-filepath = PATH.extra / f"{c.name}.txt"
+cwd = pathlib.Path.cwd()
+filepath = cwd / f"{c.name}.txt"
 l2n.write_l2n(str(filepath))
 plot_nets(filepath)
 
@@ -52,6 +54,6 @@ print(netlist)
 
 # %%
 l2n = get_l2n(gdspath)
-filepath = PATH.extra / f"{c.name}.txt"
+filepath = cwd / f"{c.name}.txt"
 l2n.write_l2n(str(filepath))
 plot_nets(filepath)
