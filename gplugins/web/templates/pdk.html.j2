@@ -3,7 +3,7 @@
 <h1> {{ pdk_name }} PDK explorer</h1>
 <p>
 {% for component in components %}
-<li><a class="component-link" href="/view/{{ component }}">{{ component }}</a></li>
+        <option value="{{ component }}">{{ component }}</option>
 {% endfor %}
 </p>
 

@@ -1,0 +1,124 @@
+
+{% include 'header.html.j2' %}
+{% include 'navbar.html.j2' %}
+<head>
+    <title>Graph Editor</title>
+    <script src="https://unpkg.com/cytoscape@3.18.1/cytoscape.min.js"></script>
+    <!-- Add other necessary JS/CSS files -->
+</head>
+<body>
+    <div id="cy" style="width: 800px; height: 600px; border: 1px solid black;"></div>
+    <select id="componentSelector">
+{% for component in components %}
+        <option value="{{ component }}">{{ component }}</option>
+{% endfor %}
+    </select>
+    <button onclick="addNode()">Add Node</button>
+    <button onclick="addEdge()">Add Edge</button>
+    <button onclick="removeSelected()">Remove Selected</button>
+    <div id="selectedNode">Selected Node: None</div>
+    <script>
+
+        style: [
+        {
+            selector: 'node',
+            style: {
+                'background-color': 'blue',
+                'label': 'data(id)',
+                'width': '40',
+                'height': '40'
+            }
+        },
+        {
+            selector: 'edge',
+            style: {
+                'width': '3',
+                'line-color': 'gray',
+                'target-arrow-color': 'gray',
+                'target-arrow-shape': 'triangle',
+                'curve-style': 'bezier'
+            }
+        }
+    ]
+
+        let cy = cytoscape({
+            container: document.getElementById('cy'),
+            elements: [], // Initially empty
+            style: [
+        {
+            selector: 'node',
+            style: {
+                'background-color': 'blue',
+                'label': 'data(id)',
+                'width': '40',
+                'height': '40'
+            }
+        },
+        {
+            selector: 'edge',
+            style: {
+                'width': '3',
+                'line-color': 'gray',
+                'target-arrow-color': 'gray',
+                'target-arrow-shape': 'triangle',
+                'curve-style': 'bezier'
+            }
+        }
+    ],
+            layout: { name: 'grid' }
+        });
+
+        let lastSelectedNode = null;
+
+        // Handle node selection
+        cy.on('select', 'node', function(event){
+            let selectedNode = event.target;
+            document.getElementById('selectedNode').textContent = "Selected Node: " + selectedNode.id();
+            if (lastSelectedNode) {
+                addEdgeBetween(lastSelectedNode, selectedNode);
+                lastSelectedNode = null;
+            } else {
+                lastSelectedNode = selectedNode;
+            }
+        });
+
+        // Handle node unselection
+        cy.on('unselect', 'node', function(){
+            document.getElementById('selectedNode').textContent = "Selected Node: None";
+            lastSelectedNode = null;
+        });
+
+        function addNode() {
+            let selectedComponent = document.getElementById('componentSelector').value;
+            cy.add({ data: { id: selectedComponent } }); // Add node with the selected component name
+        }
+
+        function addEdge() {
+            if (lastSelectedNode) {
+                let selectedNodes = cy.$('node:selected');
+                if (selectedNodes.length > 1) {
+                    addEdgeBetween(selectedNodes[0], selectedNodes[1]);
+                }
+            }
+        }
+
+        function addEdgeBetween(node1, node2) {
+            if (node1 !== node2) {
+                cy.add({
+                    data: {
+                        source: node1.id(),
+                        target: node2.id()
+                    }
+                });
+            }
+        }
+
+        function removeSelected() {
+            cy.$(':selected').remove();
+        }
+
+        // Add more JS functions if necessary
+    </script>
+</body>
+
+{% include 'footer.html.j2' %}

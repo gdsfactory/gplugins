@@ -7,6 +7,7 @@ from pathlib import Path
 
 import gdsfactory as gf
 import orjson
+import yaml
 from fastapi import FastAPI, Form, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -70,6 +71,37 @@ def get_url(request: Request) -> str:
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
     return templates.TemplateResponse("index.html.j2", {"request": request})
+
+
+@app.get("/schematic_editor", response_class=HTMLResponse)
+async def schematic_editor(request: Request):
+    """Serves the schematic editor page."""
+    component_names = [
+        "Component1",
+        "Component2",
+        "Component3",
+    ]  # Your list of component names
+    return templates.TemplateResponse(
+        "schematic_editor.html.j2", {"request": request, "components": component_names}
+    )
+
+
+@app.post("/save_schematic")
+async def save_schematic(data: dict):
+    """Save schematic data to a file."""
+    with open("schematic_data.yaml", "w") as f:
+        yaml.dump(data, f)
+    return {"status": "success", "message": "Schematic saved successfully"}
+
+
+@app.get("/load_schematic")
+async def load_schematic():
+    """Load schematic data from a file."""
+    if not os.path.exists("schematic_data.yaml"):
+        raise HTTPException(status_code=404, detail="Schematic file not found.")
+    with open("schematic_data.yaml") as f:
+        data = yaml.safe_load(f)
+    return data
 
 
 @app.get("/gds_list", response_class=HTMLResponse)
