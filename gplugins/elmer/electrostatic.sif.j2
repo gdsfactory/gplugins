@@ -1,0 +1,127 @@
+{# This is a Jinja2 template for generating Electrostatic simulation settings for Elmer FEM #}
+Check Keywords Warn
+INCLUDE {{ name }}/mesh.names
+
+Header
+  Mesh DB "." "{{ name }}"
+  Results Directory "{{ name }}/results"
+End
+
+
+Simulation
+  Max Output Level = 3
+  Coordinate System = Cartesian 3D
+  Simulation Type = Steady State
+{% if simulator_params['adaptive_meshing_iterations'] | default(false, true) %}
+! Adaptive meshing is implemented through this, see https://github.com/elmercsc/elmerfem/blob/devel/fem/tests/StatElecSolveVecMMG3D/case.sif
+! TODO use {{ simulator_params['adaptive_meshing_iterations'] }}
+  Steady State Min Iterations = 3
+  Steady State Max Iterations = 20
+  ! TODO Capacitance body n to Constraint Mode Potential?
+{% else %}
+  Steady State Max Iterations = 1
+{% endif %}
+  Coordinate Scaling = 1e-06
+End
+
+Constants
+  Permittivity Of Vacuum = 8.854187812813e-12
+End
+
+Solver 1
+  Equation = Electrostatics
+  Procedure = "StatElecSolveVec" "StatElecSolver"
+  Variable = Potential
+  Calculate Electric Energy = True
+  Calculate Electric Field = True
+  Calculate Capacitance Matrix = True
+  Capacitance Matrix Filename = {{ name }}_capacitance.dat
+  Vector Assembly = True
+  Element = p:{{ element_order }}
+
+  Steady State Convergence Tolerance = {{ simulator_params["steady_state_convergence_tolerance"] | default("1e-5", true) }}
+  Nonlinear System Max Iterations = {{ simulator_params["nonlinear_system_max_iterations"] | default(20, true) }}
+  Nonlinear System Consistent Norm = True
+  Nonlinear System Convergence Tolerance = {{ simulator_params["nonlinear_system_convergence_tolerance"] | default("1e-7", true) }}
+  Nonlinear System Newton After Iterations = {{ simulator_params["nonlinear_system_newton_after_iterations"] | default(4, true) }}
+  Nonlinear System Newton After Tolerance = {{ simulator_params["nonlinear_system_newton_after_tolerance"] | default("1e-2", true) }}
+  Nonlinear System Relaxation Factor = 1
+
+  Linear System Solver = Iterative
+  Linear System Iterative Method = GCR
+  Linear System Max Iterations = {{ simulator_params["linear_system_max_iterations"] | default(30, true) }}
+  Linear System Convergence Tolerance = {{ simulator_params["linear_system_convergence_tolerance"] | default("1e-13", true) }}
+  Linear System Abort Not Converged = False
+  Linear System Residual Output = 10
+  Linear System Preconditioning = multigrid
+  Linear System Refactorize = False
+  MG Method = p
+  MG Levels = {{ element_order }}
+  MG Smoother = SGS
+  MG Pre Smoothing iterations = 2
+  MG Post Smoothing Iterations = 2
+  MG Lowest Linear Solver = iterative
+  mglowest: Linear System Scaling = False
+  mglowest: Linear System Iterative Method = CG
+  mglowest: Linear System Preconditioning = none
+  mglowest: Linear System Max Iterations = 100
+  mglowest: Linear System Convergence Tolerance = 1.0e-5
+
+{% if simulator_params['adaptive_meshing_iterations'] | default(false, true) %}
+  Adaptive Mesh Refinement = True
+  Adaptive Remesh = True
+  Adaptive Error Limit = {{ simulator_params["adaptive_meshing_error_limit"] | default("0.01", true) }}
+  Adaptive Remesh Use MMG = Logical True
+  Adaptive Mesh Numbering = Logical False
+  Adaptive H Limit Scale = Real {{ simulator_params["adaptive_h_limit_scale"] | default("0.65", true) }}
+{% endif -%}
+
+End
+
+Solver 2
+  Exec Solver = Always
+  Equation = ResultOutput
+  Procedure = "ResultOutputSolve" "ResultOutputSolver"
+  Output File Name = "{{ name }}"
+  Vtu format = Logical True
+  Discontinuous Bodies = Logical True
+  Save Geometry Ids = Logical True
+  Save All Meshes = Logical True
+  ! Write different potentials in individual files
+  ! TODO for some reason the files have missing field point data with this on
+  !Constraint Modes Analysis = Logical True
+End
+
+Equation 1
+  Active Solvers(2) = 1 2
+End
+
+{%- for material, properties in used_materials.items() %}
+Material {{ loop.index }}
+  $ {{ material }}_material = {{ loop.index }}
+  Relative Permittivity = {{ properties.relative_permittivity }}
+End
+{%- endfor %}
+
+! Define dielectrics
+{%- for body, properties in bodies.items() %}
+Body {{ loop.index }}
+  Target Bodies(1) = $ {{ body }}
+  Equation = 1
+  Material = $ {{ properties.material }}_material
+  {{ body }} = Logical True
+End
+{%- endfor %}
+
+! BCs have to be on 2D surfaces. Consequently, we
+! apply them to all physical sides of the bodies
+Boundary Condition 1
+  Target Boundaries({{ ground_layers | length }}) = $ {{ ground_layers | join(' ') }}
+  Potential = 0.0  ! Always ground
+End
+{%- for signal_group in signals %}
+Boundary Condition {{ loop.index + 1 }}
+  Target Boundaries({{ signal_group | length }}) = $ {{ signal_group | join(' ') }}
+  Capacitance Body = {{ loop.index }}
+End
+{%- endfor %}

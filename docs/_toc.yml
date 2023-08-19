@@ -22,6 +22,7 @@ parts:
           - file: notebooks/devsim_01_pin_waveguide
           - file: notebooks/tcad_02_analytical_process
           - file: notebooks/tcad_03_numerical_implantation
+          - file: notebooks/elmer_01_electrostatic
       - file: plugins_mode_solver
         sections:
           - file: notebooks/femwell_01_modes
