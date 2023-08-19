@@ -74,16 +74,20 @@ async def root(request: Request):
 
 
 @app.get("/schematic_editor", response_class=HTMLResponse)
-async def schematic_editor(request: Request):
-    """Serves the schematic editor page."""
-    component_names = [
-        "Component1",
-        "Component2",
-        "Component3",
-    ]  # Your list of component names
-    return templates.TemplateResponse(
-        "schematic_editor.html.j2", {"request": request, "components": component_names}
-    )
+def schematic_editor():
+    import panel as pn
+
+    from gplugins.config import PATH
+    from gplugins.schematic_editor.schematic_editor import SchematicEditor
+
+    editor = SchematicEditor(PATH.module / "schematic_editor" / "test.schem.yml")
+
+    def app(doc):
+        pn.extension()
+
+        return pn.panel(editor.view()).server_doc(doc)
+
+    return app
 
 
 @app.post("/save_schematic")
