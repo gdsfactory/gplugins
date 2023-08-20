@@ -475,6 +475,7 @@ def show_netlist(
         netlist_filename=netlist_filename,
     )
     bio.show(app)
+    return app
 
 
 def update_schematic_plot(

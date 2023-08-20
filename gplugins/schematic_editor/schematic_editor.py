@@ -2,6 +2,7 @@ from pathlib import Path
 
 import bokeh
 import bokeh.io
+import bokeh.plotting as bp
 import gdsfactory as gf
 import holoviews as hv
 import panel as pn
@@ -31,19 +32,40 @@ class SchematicEditor:
         self._initialize_schematic(filepath)
         self.setup_events()
 
+    def create_instance_row(self, instance_name=None, instance_type=None):
+        inst_name = pn.widgets.TextInput(value=instance_name or "")
+        inst_type = pn.widgets.TextInput(value=instance_type or "")
+        inst_remove = pn.widgets.Button(name="Remove", button_type="danger")
+        inst_remove.on_click(self.remove_instance_row)
+        return pn.Row(inst_name, inst_type, inst_remove)
+
+    def remove_instance_row(self, event):
+        # Remove a row
+        # The actual implementation depends on how you manage the rows
+        self.instances.pop(event.instance_name)
+
     @property
-    def panel(self) -> pn.layout.Row:
+    def panel(self) -> pn.layout.Column:
+        instances = [
+            self.create_instance_row(iname, itype.settings.function_name)
+            for iname, itype in self.instances.items()
+        ]
+
+        # Instance selectors and input
         inst_selector = pn.widgets.Select(
             name="Select instance", options=self.component_list
         )
         inst_input = pn.widgets.TextInput(
             name="Enter instance name", placeholder="Instance name"
         )
-        inst_remove = pn.widgets.Button(name="Remove", button_type="danger")
-        inst_row = pn.Row(inst_selector, inst_input, inst_remove)
+        inst_add = pn.widgets.Button(name="Add", button_type="primary")
+        inst_row = pn.Row(inst_selector, inst_input, inst_add)
 
-        circuitviz.show_netlist(self.schematic, self.symbols, self.path)
-        return pn.Row(inst_row)
+        # Assuming circuitviz.show_netlist returns a Bokeh plot
+        # circuit_plot = circuitviz.show_netlist(self.schematic, self.symbols, self.path)
+        circuit_plot = self.bokeh_plot()
+
+        return pn.Column(*instances, inst_row, circuit_plot)
 
     def setup_events(self):
         self.on_instance_added = [
@@ -239,6 +261,20 @@ class SchematicEditor:
     @property
     def port_widget(self):
         return self._port_grid
+
+    def bokeh_plot(self):
+        # global data
+        circuitviz.data["netlist"] = self.schematic
+
+        fig = bp.figure(width=800, height=500)
+        circuitviz.viz_bk(
+            self.schematic,
+            instances=self.instances,
+            fig=fig,
+            instance_size=50,
+            netlist_filename=self.path,  # Assuming this is the desired filename
+        )
+        return pn.pane.Bokeh(fig)
 
     def visualize(self) -> None:
         circuitviz.show_netlist(self.schematic, self.symbols, self.path)
