@@ -45,8 +45,9 @@ class SchematicEditor:
         return row
 
     def remove_instance_row(self, event) -> None:
-        row_to_remove = event.obj.row_ref
-        self.instances.pop(row_to_remove)
+        instance_name = event.obj.row_ref
+        self.instances.pop(instance_name)
+        self.schematic.instances.pop(instance_name)
 
     @property
     def panel(self) -> pn.layout.Column:
