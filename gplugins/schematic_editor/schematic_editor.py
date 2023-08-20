@@ -32,17 +32,21 @@ class SchematicEditor:
         self._initialize_schematic(filepath)
         self.setup_events()
 
-    def create_instance_row(self, instance_name=None, instance_type=None):
+    def create_instance_row(self, instance_name=None, instance_type=None) -> pn.Row:
         inst_name = pn.widgets.TextInput(value=instance_name or "")
         inst_type = pn.widgets.TextInput(value=instance_type or "")
         inst_remove = pn.widgets.Button(name="Remove", button_type="danger")
-        inst_remove.on_click(self.remove_instance_row)
-        return pn.Row(inst_name, inst_type, inst_remove)
+        row = pn.Row(inst_name, inst_type, inst_remove)
 
-    def remove_instance_row(self, event):
-        # Remove a row
-        # The actual implementation depends on how you manage the rows
-        self.instances.pop(event.instance_name)
+        # Associate the row with its remove button using a custom attribute
+        inst_remove.row_ref = instance_name
+        inst_remove.on_click(self.remove_instance_row)
+
+        return row
+
+    def remove_instance_row(self, event) -> None:
+        row_to_remove = event.obj.row_ref
+        self.instances.pop(row_to_remove)
 
     @property
     def panel(self) -> pn.layout.Column:
@@ -50,16 +54,14 @@ class SchematicEditor:
             self.create_instance_row(iname, itype.settings.function_name)
             for iname, itype in self.instances.items()
         ]
-
-        # Instance selectors and input
-        inst_selector = pn.widgets.Select(
+        inst_type = pn.widgets.Select(
             name="Select instance", options=self.component_list
         )
-        inst_input = pn.widgets.TextInput(
+        inst_name = pn.widgets.TextInput(
             name="Enter instance name", placeholder="Instance name"
         )
         inst_add = pn.widgets.Button(name="Add", button_type="primary")
-        inst_row = pn.Row(inst_selector, inst_input, inst_add)
+        inst_row = pn.Row(inst_name, inst_type, inst_add)
 
         # Assuming circuitviz.show_netlist returns a Bokeh plot
         # circuit_plot = circuitviz.show_netlist(self.schematic, self.symbols, self.path)
