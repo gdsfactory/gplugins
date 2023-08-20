@@ -21,15 +21,14 @@ hv.extension("bokeh")
 
 class SchematicEditor:
     def __init__(self, filename: str | Path, pdk: gf.Pdk | None = None) -> None:
+        self._connected_ports = {}
+        self._inst_boxes = list()
+
         filepath = Path(filename)
         self.path = filepath
         self.pdk = pdk or gf.get_active_pdk()
         self.component_list = list(gf.get_active_pdk().cells.keys())
         self._initialize_schematic(filepath)
-
-        self._connected_ports = {}
-        self._inst_boxes = []
-
         self.setup_events()
 
     @property
@@ -76,26 +75,9 @@ class SchematicEditor:
         component_selector = pn.widgets.Select(
             name="Component", options=self.component_list
         )
-        can_remove = False
-        if inst_name:
-            instance_box.value = inst_name
-        if component_name:
-            component_selector.value = component_name
-            can_remove = True
-        remove_button = pn.widgets.Button(
-            name="Remove", button_type="danger", disabled=(not can_remove)
+        return self._add_remove_option(
+            inst_name, instance_box, component_name, component_selector
         )
-        remove_button.on_click(self._on_remove_button_clicked)
-
-        row = pn.Row(instance_box, component_selector, remove_button)
-        row._component_selector = component_selector
-        row._instance_box = instance_box
-        row._remove_button = remove_button
-
-        remove_button._row = row
-        instance_box._row = row
-        component_selector._row = row
-        return row
 
     def _get_port_selector(self, port_name: str | None = None, port: str | None = None):
         instance_port_selector = pn.widgets.TextInput(
@@ -104,25 +86,28 @@ class SchematicEditor:
         port_name_box = pn.widgets.TextInput(
             name="Port Name", placeholder="Enter a name"
         )
+        return self._add_remove_option(
+            port_name, port_name_box, port, instance_port_selector
+        )
+
+    def _add_remove_option(self, arg0, arg1, arg2, arg3):
         can_remove = False
-        if port_name:
-            port_name_box.value = port_name
-        if port:
-            instance_port_selector.value = port
+        if arg0:
+            arg1.value = arg0
+        if arg2:
+            arg3.value = arg2
             can_remove = True
         remove_button = pn.widgets.Button(
-            name="Remove", button_type="danger", disabled=(not can_remove)
+            name="Remove", button_type="danger", disabled=not can_remove
         )
         remove_button.on_click(self._on_remove_button_clicked)
-
-        row = pn.Row(port_name_box, instance_port_selector, remove_button)
-        row._component_selector = instance_port_selector
-        row._instance_box = port_name_box
+        row = pn.Row(arg1, arg3, remove_button)
+        row._component_selector = arg3
+        row._instance_box = arg1
         row._remove_button = remove_button
-
         remove_button._row = row
-        port_name_box._row = row
-        instance_port_selector._row = row
+        arg1._row = row
+        arg3._row = row
         return row
 
     def _update_instance_options(self, **kwargs) -> None:
@@ -441,7 +426,9 @@ class SchematicEditor:
 
 
 if __name__ == "__main__":
-    # se = SchematicEditor(PATH.module / "schematic_editor" / "test.schem.yml")
-    se = SchematicEditor("a.schem.yml")
+    from gplugins.config import PATH
+
+    se = SchematicEditor(PATH.module / "schematic_editor" / "test.schem.yml")
+    # se = SchematicEditor("a.schem.yml")
     se.serve()
     # print(se.schematic)
