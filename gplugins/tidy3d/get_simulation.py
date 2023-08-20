@@ -48,7 +48,7 @@ def get_simulation(
     plot_modes: bool = False,
     num_modes: int = 2,
     run_time_ps: float = 10.0,
-    material_name_to_tidy3d: None | dict[str, str] = None,
+    material_name_to_tidy3d: None | dict = None,
     is_3d: bool = True,
     with_all_monitors: bool = False,
     boundary_spec: td.BoundarySpec | None = None,

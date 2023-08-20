@@ -39,7 +39,7 @@ Separate installation (not using pip):
 
 ### Electronic Co-Design Flow: `piel`
 
-IF you also desire to use the `gplugins` in a flow with electronic tools codesign & interconnectivity, you can use the [`piel`](https://piel.readthedocs.io/en/latest/) package additionally alongside these tools:
+If you also desire to use the `gplugins` in a flow with electronic tools codesign & interconnectivity, you can use the [`piel`](https://piel.readthedocs.io/en/latest/) package additionally alongside these tools:
 
 ```
 pip install gplugins[piel]
