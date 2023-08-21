@@ -3,7 +3,7 @@ install:
 	pip install -e .[dev,docs,database,devsim,femwell,gmsh,meow,meshwell,ray,sax,schematic,tidy3d,web]
 	pre-commit install
 
-dev: test-data meep gmsh install
+dev: test-data meep gmsh elmer install
 
 gmsh:
 	sudo apt-get install -y python3-gmsh gmsh
@@ -11,6 +11,11 @@ gmsh:
 
 meep:
 	mamba install -c conda-forge pymeep=*=mpi_mpich_* nlopt -y
+
+elmer:
+	sudo apt-add-repository ppa:elmer-csc-ubuntu/elmer-csc-ppa
+	sudo apt-get update
+	sudo apt-get install -y elmerfem-csc mpich
 
 test:
 	pytest
