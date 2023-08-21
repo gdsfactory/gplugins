@@ -12,8 +12,6 @@ from typing import Any
 
 import gdsfactory as gf
 import gmsh
-
-# from gdsfactory.components import interdigital_capacitor_enclosed
 from gdsfactory.generic_tech import LAYER_STACK
 from gdsfactory.technology import LayerStack
 from jinja2 import Environment, FileSystemLoader
