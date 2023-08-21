@@ -405,7 +405,7 @@ def get_simulation(
         print("Effective index of computed modes: ", np.array(modes.n_eff))
 
         if is_3d:
-            fig, axs = plt.subplots(num_modes, 2, figsize=(12, 12),tight_layout=True)
+            fig, axs = plt.subplots(num_modes, 2, figsize=(12, 12), tight_layout=True)
             for mode_ind in range(num_modes):
                 ms.plot_field(
                     "Ey", "abs", f=freq0, mode_index=mode_ind, ax=axs[mode_ind, 0]
@@ -416,7 +416,7 @@ def get_simulation(
                 axs[mode_ind, 0].set_title(f"|Ey|: mode_index={mode_ind}")
                 axs[mode_ind, 1].set_title(f"|Ez|: mode_index={mode_ind}")
         else:
-            fig, axs = plt.subplots(num_modes, 3, figsize=(12, 12),tight_layout=True)
+            fig, axs = plt.subplots(num_modes, 3, figsize=(12, 12), tight_layout=True)
             axs = np.atleast_2d(axs)
             for mode_ind in range(num_modes):
                 modes.Ex.sel(mode_index=mode_ind).abs.plot(ax=axs[mode_ind, 0])
@@ -518,31 +518,31 @@ plot_simulation = plot_simulation_yz
 
 if __name__ == "__main__":
     # c = gf.c.taper_sc_nc(length=10)
-    #c = gf.components.taper_strip_to_ridge_trenches()
-    #s = get_simulation(c, plot_modes=False)
+    # c = gf.components.taper_strip_to_ridge_trenches()
+    # s = get_simulation(c, plot_modes=False)
 
     # c = gf.components.mmi1x2()
     # c = gf.components.bend_circular(radius=2)
     # c = gf.components.crossing()
     # c = gf.c.straight_rib()
 
-     c = gf.c.straight(length=3)
+    c = gf.c.straight(length=3)
     # sim = get_simulation(c, plot_modes=True, is_3d=True, sidewall_angle_deg=30)
 
-     sim = get_simulation(c, is_3d=False, plot_modes=True)
+    sim = get_simulation(c, is_3d=False, plot_modes=True)
 
     # sim = get_simulation(c, is_3d=True)
-     #plot_simulation(sim)
+    # plot_simulation(sim)
 
     # filepath = pathlib.Path(__file__).parent / "extra" / "wg2d.json"
     # filepath.write_text(sim.json())
 
-     #sim.plotxy(z=0)
+    # sim.plotxy(z=0)
     # plot_simulation_yz(sim, wavelength=1.55, y=1)
-     #fig = plt.figure(figsize=(11, 4))
-     #gs = mpl.gridspec.GridSpec(1, 2, figure=fig, width_ratios=[1, 1.4])
-     #ax1 = fig.add_subplot(gs[0, 0])
-     #ax2 = fig.add_subplot(gs[0, 1])
-     #sim.plot(z=0.0, ax=ax1)
-     #sim.plot(x=0.0, ax=ax2)
-     #plt.show()
+    # fig = plt.figure(figsize=(11, 4))
+    # gs = mpl.gridspec.GridSpec(1, 2, figure=fig, width_ratios=[1, 1.4])
+    # ax1 = fig.add_subplot(gs[0, 0])
+    # ax2 = fig.add_subplot(gs[0, 1])
+    # sim.plot(z=0.0, ax=ax1)
+    # sim.plot(x=0.0, ax=ax2)
+    # plt.show()
