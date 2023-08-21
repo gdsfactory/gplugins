@@ -32,8 +32,10 @@
 # #!/bin/bash
 # singularity exec <CONTAINER_LOCATION>/elmer.sif ElmerSolver_mpi $@
 # ```
+#
+# ## Geometry, layer config and materials
 
-# %%
+# %% tags=["hide-input"]
 
 import os
 from math import inf
@@ -47,6 +49,7 @@ from gdsfactory.components.interdigital_capacitor_enclosed import (
 from gdsfactory.generic_tech import LAYER, get_generic_pdk
 from gdsfactory.technology import LayerStack
 from gdsfactory.technology.layer_stack import LayerLevel
+from IPython.display import display
 
 from gplugins.elmer import run_capacitive_simulation_elmer
 
@@ -93,6 +96,19 @@ substrate = gf.components.bbox(bbox=simulation_box, layer=LAYER.WAFER)
 c << substrate
 c.flatten()
 
+# %% [markdown]
+# ## Running the simulation
+# We use the function :func:`~run_capacitive_simulation_elmer`. This runs the simulation and returns an instance of :clas:`~ElectrostaticResults` containing the capacitance matrix and a path to the mesh and the field solution.
+
+# %%
+help(run_capacitive_simulation_elmer)
+
+# %% [markdown]
+# ```{eval-rst}
+# .. note::
+#    The meshing parameters and element order shown here are very lax. As such, the computed capacitances are not very accurate.
+# ```
+
 # %%
 results = run_capacitive_simulation_elmer(
     c,
@@ -130,7 +146,7 @@ results = run_capacitive_simulation_elmer(
         },
     ),
 )
-print(results)
+display(results)
 
 # %%
 if results.field_file_location:
