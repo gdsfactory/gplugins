@@ -98,7 +98,9 @@ c.flatten()
 
 # %% [markdown]
 # ## Running the simulation
-# We use the function :func:`~run_capacitive_simulation_elmer`. This runs the simulation and returns an instance of :clas:`~ElectrostaticResults` containing the capacitance matrix and a path to the mesh and the field solution.
+# ```{eval-rst}
+# We use the function :func:`~run_capacitive_simulation_elmer`. This runs the simulation and returns an instance of :class:`~ElectrostaticResults` containing the capacitance matrix and a path to the mesh and the field solution.
+# ```
 
 # %%
 help(run_capacitive_simulation_elmer)
@@ -163,6 +165,8 @@ if results.field_file_location:
 
 # %% [markdown]
 # ## Bibliography
+#
 # ```{bibliography}
 # :style: unsrt
+# :filter: docname in docnames
 # ```
