@@ -383,13 +383,14 @@ class Waveguide(pydantic.BaseModel):
         """Plot the waveguide grid."""
         self.waveguide.plot_grid(z=0)
 
-    def plot_index(self, **kwargs) -> None:
+    def plot_index(self, **kwargs):
         """Plot the waveguide index distribution.
 
         Keyword arguments are passed to xarray.DataArray.plot.
         """
         artist = self.index.real.plot(**kwargs)
         artist.axes.set_aspect("equal")
+        return artist
 
     def plot_field(
         self,
@@ -398,7 +399,7 @@ class Waveguide(pydantic.BaseModel):
         mode_index: int = 0,
         wavelength: float | None = None,
         **kwargs,
-    ) -> None:
+    ):
         """Plot the selected field distribution from a waveguide mode.
 
         Parameters:
@@ -451,6 +452,7 @@ class Waveguide(pydantic.BaseModel):
         data_array.name = field_name
         artist = data_array.plot(**kwargs)
         artist.axes.set_aspect("equal")
+        return artist
 
     def _ipython_display_(self) -> None:
         """Show index in matplotlib for Jupyter Notebooks."""

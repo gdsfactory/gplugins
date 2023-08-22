@@ -188,8 +188,8 @@ def get_simulation(
 
     layer_stack = layer_stack or get_layer_stack()
     if is_3d:
+        # Perfect matching layers on all 3D sides.
         boundary_spec = boundary_spec or td.BoundarySpec.all_sides(boundary=td.PML())
-
     else:
         boundary_spec = boundary_spec or td.BoundarySpec(
             x=td.Boundary.pml(),
@@ -198,6 +198,7 @@ def get_simulation(
         )
 
     wavelength = (wavelength_start + wavelength_stop) / 2
+    # Create a grid spec that will resolve the wavelength
     grid_spec = grid_spec or td.GridSpec.auto(wavelength=wavelength)
 
     layer_to_thickness = layer_stack.get_layer_to_thickness()
