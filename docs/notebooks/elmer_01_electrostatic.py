@@ -116,9 +116,9 @@ results = run_capacitive_simulation_elmer(
     c,
     layer_stack=layer_stack,
     material_spec=material_spec,
-    n_processes=4,
+    n_processes=1,
     element_order=1,
-    simulation_folder=Path(os.getcwd()) / "tmp",
+    simulation_folder=Path(os.getcwd()) / "temporary",
     mesh_parameters=dict(
         background_tag="vacuum",
         background_padding=(0,) * 5 + (700,),
@@ -150,8 +150,11 @@ results = run_capacitive_simulation_elmer(
 )
 display(results)
 
+
 # %%
 if results.field_file_location:
+    pv.start_xvfb()
+    pv.set_jupyter_backend("panel")
     field = pv.read(results.field_file_location)
     slice = field.slice_orthogonal(z=layer_stack.layers["bw"].zmin * 1e-6)
 
