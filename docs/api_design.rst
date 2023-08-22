@@ -195,3 +195,16 @@ Circuit solver
     send_to_interconnect
     run_wavelength_sweep
     plot_wavelength_sweep
+
+**************
+Electrostatics
+**************
+
+.. currentmodule:: gplugins.elmer
+
+.. rubric:: Elmer
+
+.. autosummary::
+   :toctree: _autosummary/
+
+   run_capacitive_simulation_elmer
