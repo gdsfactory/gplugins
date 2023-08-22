@@ -39,7 +39,7 @@ def custom_serializer(data: str | float | BaseModel) -> str:
         return data
 
     # If data is a float, convert it to a string.
-    if isinstance(data, float | int):
+    if isinstance(data, float | int | pathlib.Path):
         return str(data)
 
     # If data is an instance of Pydantic's BaseModel, serialize it to JSON.
@@ -98,8 +98,7 @@ class Waveguide(pydantic.BaseModel):
         precision: computation precision.
         grid_resolution: wavelength resolution of the computation grid.
         max_grid_scaling: grid scaling factor in cladding regions.
-        cache: controls the use of cached results.
-        cache_path: Optional path to the cache directory.
+        cache_path: Optional path to the cache directory. None disables cache.
         overwrite: overwrite cache.
 
     ::
@@ -151,7 +150,6 @@ class Waveguide(pydantic.BaseModel):
     precision: Precision = "double"
     grid_resolution: int = 20
     max_grid_scaling: float = 1.2
-    cache: bool = True
     cache_path: PathType | None = PATH.modes
     overwrite: bool = False
 
@@ -170,8 +168,6 @@ class Waveguide(pydantic.BaseModel):
     @property
     def filepath(self) -> pathlib.Path | None:
         """Cache file path"""
-        if not self.cache:
-            return None
         if not self.cache_path:
             return None
         cache_path = pathlib.Path(self.cache_path)
