@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import sax
 import yaml
-from gdsfactory.config import logger
+from gdsfactory.config import PATH, logger
 from gdsfactory.generic_tech import LAYER
 from gdsfactory.pdk import get_active_pdk, get_layer_stack
 from gdsfactory.technology import LayerStack
@@ -64,7 +64,7 @@ class MEOW:
         center_y: float | None = None,
         resolution_y: int = 100,
         material_to_color: dict[str, ColorRGB] = material_to_color_default,
-        dirpath: PathType | None = None,
+        dirpath: PathType | None = PATH.sparameters,
         filepath: PathType | None = None,
         overwrite: bool = False,
     ) -> None:
