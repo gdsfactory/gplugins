@@ -6,7 +6,7 @@ from gplugins.modes.find_mode_dispersion import find_mode_dispersion
 
 
 def test_find_modes_waveguide_dispersion() -> None:
-    modes = find_mode_dispersion(core_width=0.45, resolution=20, cache=None)
+    modes = find_mode_dispersion(core_width=0.45, resolution=20, cache_path=None)
     m1 = modes
 
     # print(f"neff1 = {m1.neff}")

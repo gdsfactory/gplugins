@@ -41,6 +41,45 @@ def find_modes_waveguide(
 ) -> dict[int, Mode]:
     """Computes mode effective and group index for a rectangular waveguide.
 
+    Args:
+        tol: tolerance when finding modes.
+        wavelength: wavelength in um.
+        mode_number: mode order of the first mode.
+        parity: mp.ODD_Y mp.EVEN_X for TE, mp.EVEN_Y for TM.
+        cache_path: path to cache folder. None to disable caching.
+        overwrite: forces simulating again.
+        single_waveguide: if True, compute a single waveguide. False computes a coupler.
+
+    Keyword Args:
+        core_width: core_width (um) for the symmetric case.
+        gap: for the case of only two waveguides.
+        core_widths: list or tuple of waveguide widths.
+        gaps: list or tuple of waveguide gaps.
+        core_thickness: wg height (um).
+        slab_thickness: thickness for the waveguide slab.
+        core_material: core material refractive index.
+        clad_material: clad material refractive index.
+        nslab: Optional slab material refractive index. Defaults to core_material.
+        ymargin: margin in y.
+        sz: simulation region thickness (um).
+        resolution: resolution (pixels/um).
+        nmodes: number of modes.
+        sidewall_angles: waveguide sidewall angle (radians),
+            tapers from core_width at top of slab, upwards, to top of waveguide.
+
+    Returns: Dict[mode_number, Mode]
+
+    compute mode_number lowest frequencies as a function of k. Also display
+    "parities", i.e. whether the mode is symmetric or anti_symmetric
+    through the y=0 and z=0 planes.
+    mode_solver.run(mpb.display_yparities, mpb.display_zparities)
+
+    Above, we outputted the dispersion relation: frequency (omega) as a
+    function of wavevector kx (beta). Alternatively, you can compute
+    beta for a given omega -- for example, you might want to find the
+    modes and wavevectors at a fixed wavelength of 1.55 microns. You
+    can do that using the find_k function:
+
     single_waveguide=True
 
     ::
@@ -84,56 +123,7 @@ def find_modes_waveguide(
           <--------------------------------------------------->
                                    sy
 
-    Args:
-        mode_solver: function that returns mpb.ModeSolver.
-        tol: tolerance when finding modes.
-        wavelength: wavelength in um.
-        mode_number: mode order of the first mode.
-        parity: mp.ODD_Y mp.EVEN_X for TE, mp.EVEN_Y for TM.
-        cache_path: path to cache folder. None to disable caching.
-        overwrite: forces simulating again.
-        kwargs: waveguide settings.
 
-    Keyword Args:
-        core_width: core_width (um).
-        core_thickness: wg height (um).
-        slab_thickness: thickness for the waveguide slab.
-        core_material: core material refractive index.
-        clad_material: clad material refractive index.
-        sy: simulation region width (um).
-        sz: simulation region height (um).
-        resolution: resolution (pixels/um).
-        nmodes: number of modes to compute.
-
-    Keyword Args:
-        core_width: core_width (um) for the symmetric case.
-        gap: for the case of only two waveguides.
-        core_widths: list or tuple of waveguide widths.
-        gaps: list or tuple of waveguide gaps.
-        core_thickness: wg height (um).
-        slab_thickness: thickness for the waveguide slab.
-        core_material: core material refractive index.
-        clad_material: clad material refractive index.
-        nslab: Optional slab material refractive index. Defaults to core_material.
-        ymargin: margin in y.
-        sz: simulation region thickness (um).
-        resolution: resolution (pixels/um).
-        nmodes: number of modes.
-        sidewall_angles: waveguide sidewall angle (radians),
-            tapers from core_width at top of slab, upwards, to top of waveguide.
-
-    Returns: Dict[mode_number, Mode]
-
-    compute mode_number lowest frequencies as a function of k. Also display
-    "parities", i.e. whether the mode is symmetric or anti_symmetric
-    through the y=0 and z=0 planes.
-    mode_solver.run(mpb.display_yparities, mpb.display_zparities)
-
-    Above, we outputted the dispersion relation: frequency (omega) as a
-    function of wavevector kx (beta). Alternatively, you can compute
-    beta for a given omega -- for example, you might want to find the
-    modes and wavevectors at a fixed wavelength of 1.55 microns. You
-    can do that using the find_k function:
 
     """
     modes = {}
