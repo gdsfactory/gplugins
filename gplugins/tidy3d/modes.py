@@ -21,8 +21,7 @@ import numpy as np
 import pydantic
 import tidy3d as td
 import xarray
-from gdsfactory.config import logger
-from gdsfactory.pdk import get_modes_path
+from gdsfactory.config import PATH, logger
 from gdsfactory.typings import PathType
 from pydantic import BaseModel
 from tidy3d.plugins import waveguide
@@ -100,6 +99,7 @@ class Waveguide(pydantic.BaseModel):
         grid_resolution: wavelength resolution of the computation grid.
         max_grid_scaling: grid scaling factor in cladding regions.
         cache: controls the use of cached results.
+        cache_path: Optional path to the cache directory.
         overwrite: overwrite cache.
 
     ::
@@ -152,6 +152,7 @@ class Waveguide(pydantic.BaseModel):
     grid_resolution: int = 20
     max_grid_scaling: float = 1.2
     cache: bool = True
+    cache_path: PathType | None = PATH.modes
     overwrite: bool = False
 
     _cached_data = pydantic.PrivateAttr()
@@ -167,14 +168,11 @@ class Waveguide(pydantic.BaseModel):
         return np.array(value, dtype=float)
 
     @property
-    def cache_path(self) -> PathType | None:
-        """Cache directory"""
-        return get_modes_path()
-
-    @property
     def filepath(self) -> pathlib.Path | None:
         """Cache file path"""
         if not self.cache:
+            return None
+        if not self.cache_path:
             return None
         cache_path = pathlib.Path(self.cache_path)
         cache_path.mkdir(exist_ok=True, parents=True)

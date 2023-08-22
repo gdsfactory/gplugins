@@ -10,12 +10,14 @@ output as um/lambda, e.g. 1.5um would correspond to the frequency
 1/1.5 = 0.6667.
 
 """
+import pathlib
 import pickle
 from functools import partial
 
 import meep as mp
 import numpy as np
-from gdsfactory.pdk import get_modes_path
+from gdsfactory.config import PATH
+from gdsfactory.typings import PathType
 from meep import mpb
 
 from gplugins.modes.get_mode_solver_coupler import get_mode_solver_coupler
@@ -32,7 +34,7 @@ def find_modes_waveguide(
     wavelength: float = 1.55,
     mode_number: int = 1,
     parity=mp.NO_PARITY,
-    cache: bool = True,
+    cache_path: PathType | None = PATH.modes,
     overwrite: bool = False,
     single_waveguide: bool = True,
     **kwargs,
@@ -88,7 +90,7 @@ def find_modes_waveguide(
         wavelength: wavelength in um.
         mode_number: mode order of the first mode.
         parity: mp.ODD_Y mp.EVEN_X for TE, mp.EVEN_Y for TM.
-        cache: directory path to cache modes. None disables the file cache.
+        cache_path: path to cache folder. None to disable caching.
         overwrite: forces simulating again.
         kwargs: waveguide settings.
 
@@ -150,8 +152,8 @@ def find_modes_waveguide(
         **kwargs,
     )
 
-    if cache:
-        cache_path = get_modes_path()
+    if cache_path:
+        cache_path = pathlib.Path(cache_path)
         cache_path.mkdir(exist_ok=True, parents=True)
         filepath = cache_path / f"{h}_{mode_number}.pkl"
 
@@ -209,7 +211,7 @@ def find_modes_waveguide(
                 z_num,
             ),
         )
-        if cache:
+        if cache_path:
             filepath = cache_path / f"{h}_{index}.pkl"
             filepath.write_bytes(pickle.dumps(modes[i]))
 
