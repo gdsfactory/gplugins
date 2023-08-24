@@ -14,7 +14,7 @@ classifiers = [
   "Operating System :: OS Independent"
 ]
 dependencies = [
-  "gdsfactory[cad]>=7.0.2",
+  "gdsfactory[cad]>=7.3.2",
   "pint"
 ]
 description = "gdsfactory plugins"
@@ -56,7 +56,8 @@ docs = [
   "jupytext",
   "autodoc_pydantic",
   "matplotlib",
-  "jupyter-book==0.15.1"
+  "jupyter-book==0.15.1",
+  "pyvista[jupyter]"
 ]
 femwell = [
   "femwell>=0.1.6,<0.3.0"

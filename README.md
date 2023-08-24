@@ -18,24 +18,29 @@ gdsfactory plugins:
 - `klayout` for fill, dataprep and testing.
 - `ray` for distributed computing and optimization.
 - `sax` S-parameter circuit solver.
-- `schematic`: for bokeh schematic editor and `path_length_analysis`
+- `schematic`: for bokeh schematic editor and `path_length_analysis`.
 - `meep` for FDTD.
 - `mpb` for MPB mode solver.
-- `web`: for gdsfactory webapp
+- `elmer` for electrostatic (capacitive) simulations.
+- `web` for gdsfactory webapp.
 
 ## Installation
 
-You can install all plugins with:
+You can install most plugins with:
 
 ```
 pip install "gplugins[database,devsim,femwell,gmsh,schematic,meow,meshwell,ray,sax,tidy3d]" --upgrade
 ```
 
-Or Install only the plugins you need `pip install gplugins[schematic,femwell,meow,sax,tidy3d]` from the available plugins:
+Or install only the plugins you need with for example `pip install gplugins[schematic,femwell,meow,sax,tidy3d]` from the available plugins.
 
-Separate installation (not using pip):
+### Non-pip plugins
+
+The following plugins require special installation without pip:
 
 - For Meep and MPB you need to use `conda` or `mamba` on MacOS, Linux or [Windows WSL (Windows Subsystem for Linux)](https://learn.microsoft.com/en-us/windows/wsl/install) with `conda install pymeep=*=mpi_mpich_* -c conda-forge -y`
+- For Elmer, refer to [Elmer FEM – Installation](https://www.elmerfem.org/blog/binaries/) for installation or compilation instructions each platform. Gplugins assumes `ElmerSolver`, `ElmerSolver_mpi`, and `ElmerGrid` are available in your PATH environment variable.
+
 
 ## Getting started
 

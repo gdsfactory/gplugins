@@ -12,8 +12,6 @@ from typing import Any
 
 import gdsfactory as gf
 import gmsh
-
-# from gdsfactory.components import interdigital_capacitor_enclosed
 from gdsfactory.generic_tech import LAYER_STACK
 from gdsfactory.technology import LayerStack
 from jinja2 import Environment, FileSystemLoader
@@ -194,7 +192,7 @@ def run_capacitive_simulation_elmer(
         mesh_file: Path to a ready mesh to use. Useful for reusing one mesh file.
             By default a mesh is generated according to ``mesh_parameters``.
 
-    .. _Elmer https://github.com/ElmerCSC/elmerfem
+    .. _Elmer: https://github.com/ElmerCSC/elmerfem
     """
 
     if layer_stack is None:
