@@ -83,6 +83,7 @@ def get_reasonable_mesh_parameters(c: Component):
     )
 
 
+@pytest.mark.skip(reason="Palace not in CI")
 def test_palace_capacitance_simulation_runs(geometry):
     c = geometry
     run_capacitive_simulation_palace(
