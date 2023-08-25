@@ -208,3 +208,13 @@ Electrostatics
    :toctree: _autosummary/
 
    run_capacitive_simulation_elmer
+
+
+.. currentmodule:: gplugins.palace
+
+.. rubric:: Palace
+
+.. autosummary::
+   :toctree: _autosummary/
+
+   run_capacitive_simulation_palace
