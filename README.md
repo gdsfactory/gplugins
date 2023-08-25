@@ -22,6 +22,7 @@ gdsfactory plugins:
 - `meep` for FDTD.
 - `mpb` for MPB mode solver.
 - `elmer` for electrostatic (capacitive) simulations.
+- `palace` for electrostatic (capacitive) simulations.
 - `web` for gdsfactory webapp.
 
 ## Installation
@@ -40,6 +41,7 @@ The following plugins require special installation without pip:
 
 - For Meep and MPB you need to use `conda` or `mamba` on MacOS, Linux or [Windows WSL (Windows Subsystem for Linux)](https://learn.microsoft.com/en-us/windows/wsl/install) with `conda install pymeep=*=mpi_mpich_* -c conda-forge -y`
 - For Elmer, refer to [Elmer FEM – Installation](https://www.elmerfem.org/blog/binaries/) for installation or compilation instructions each platform. Gplugins assumes `ElmerSolver`, `ElmerSolver_mpi`, and `ElmerGrid` are available in your PATH environment variable.
+- For Palace, refer to [Palace – Installation](https://awslabs.github.io/palace/stable/install/) for compilation instructions using Spack or Singularity. Gplugins assumes `palace` is available in your PATH environment variable.
 
 
 ## Getting started
