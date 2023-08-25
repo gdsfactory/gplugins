@@ -230,6 +230,10 @@ line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
                         f.write(
                             f"transform cut up location=-{step.planarization_height:1.3f}<um>\n"
                         )
+                    if split_steps:
+                        f.write(
+                            f"struct tdr=./{str(directory)}/{struct_prefix}{i+1}_{step.name}_litho.tdr\n"
+                        )
 
             if isinstance(step, Etch):
                 f.write(
