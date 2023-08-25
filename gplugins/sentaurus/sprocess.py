@@ -246,8 +246,15 @@ line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
                 )
 
             if isinstance(step, ImplantPhysical):
+                extra_implant = ""
+                if step.twist:
+                    extra_implant += f"rotation={step.twist}<degree> "
+                elif step.rotation:
+                    extra_implant += "mult.rot=4 "
+                if step.tilt:
+                    extra_implant += f"tilt={step.tilt}<degree> "
                 f.write(
-                    f"implant {step.ion} dose={step.dose:1.3e}<cm-2> energy={step.energy}<keV> tilt={step.tilt}\n"
+                    f"implant {step.ion} dose={step.dose:1.3e}<cm-2> energy={step.energy}<keV> {extra_implant}\n"
                 )
 
             if isinstance(step, Lithography):
