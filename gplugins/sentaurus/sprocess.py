@@ -21,7 +21,12 @@ DEFAULT_INIT_LINES = """AdvancedCalibration
 mgoals accuracy=2e-5
 """
 
-DEFAULT_REMESHING_STRATEGY = """refinebox clear
+DEFAULT_PROCESS_REMESHING = """
+pdbSet Grid Adaptive 1
+pdbSet Grid AdaptiveField Refine.Rel.Error 1.00
+"""
+
+DEFAULT_DEVICE_REMESHING = """refinebox clear
 line clear
 pdbSet Grid Adaptive 1
 pdbSet Grid AdaptiveField Refine.Abs.Error 1e37
@@ -33,32 +38,18 @@ pdbSet Grid SnMesh DelaunayType boxmethod
 DEFAULT_CONTACT_STR = ""
 
 
-def write_sprocess(
+def initialize_sprocess(
     component,
     waferstack,
     layermap,
-    process,
     xsection_bounds: tuple[tuple[float, float], tuple[float, float]] = None,
-    directory: Path = None,
-    filename: str = "sprocess_fps.cmd",
-    struct_prefix: str = "struct_",
-    structout: str = "struct_out.tdr",
     round_tol: int = 3,
     simplify_tol: float = 1e-3,
-    split_steps: bool = True,
-    init_lines: str = DEFAULT_INIT_LINES,
     initial_z_resolutions: Dict = None,
     initial_xy_resolution: float = None,
     extra_resolution_str: str = None,
-    remeshing_strategy: str = DEFAULT_REMESHING_STRATEGY,
-    num_threads: int = 6,
-    contact_str: str = DEFAULT_CONTACT_STR,
 ):
-    """Writes a Sentaurus Process TLC file for the component + layermap + initial waferstack + process.
-
-    The meshing strategy is to initially use a fixed grid defined by initial_z_resolutions and initial_xy_resolution, and use default adaptive refinement on all fields in regions defined as "active", followed by adaptive refinement on net active dopants in "active" regions.
-
-    Note that Sentaurus uses the X-direction vertically, with more positive X values going "deeper" in the substrate. YZ-coordinates are in the plane. GDSFactory uses XY in the plane and Z vertically, with more positive Z going "up" away from the substrate.
+    """Returns a string defining the geometry definition for a Sentaurus sprocess file based on a component, initial wafer state, and settings.
 
     Arguments:
         component,: gdsfactory component containing polygons defining the mask
@@ -66,30 +57,14 @@ def write_sprocess(
         layermap: gdsfactory LayerMap object contaning all layers
         process: list of gdsfactory.technology.processes process steps
         xsection_bounds: two in-plane coordinates ((x1,y1), (x2,y2)) defining a line cut for a 2D process cross-section
-        directory: directory to save all output in
-        filename: name of the final sprocess command file
-        struct_prefix: prefixes of the final sprocess command file
-        structout: tdr file containing the final structure, ready for sdevice simulation
-        contact_portnames Tuple(str): list of portnames to convert into device contacts
         round_tol (int): for gds cleanup (grid snapping by rounding coordinates)
         simplify_tol (float): for gds cleanup (shape simplification)
-        split_steps (bool): if True, creates a new workbench node for each step, and saves a TDR file at each step. Useful for fabrication splits, visualization, and debugging.
-        init_lines (str): initial string to write to the TCL file. Useful for settings
         initial_z_resolutions {key: float}: initial layername: spacing mapping for mesh resolution in the wafer normal direction
         initial_xy_resolution (float): initial resolution in the wafer plane
-        remeshing_strategy (str): commands to apply before remeshing
-        num_threads (int): for parallelization
+        extra_resolution_str (str): extra initial meshing commands
     """
 
-    directory = Path(directory) or Path("./sprocess/")
-
-    # if contact_portnames:
-    #     component = waferstack.get_component_with_net_layers(
-    #         component,
-    #         portnames=contact_portnames,
-    #         add_to_layerstack=False,
-    #         delimiter="#",
-    #     )
+    output_str = ""
 
     # Defaults
     initial_z_resolutions = initial_z_resolutions or {
@@ -122,6 +97,114 @@ def write_sprocess(
         ymin = component.ymin
         ymax = component.ymax
 
+    # Initial z-mesh from waferstack and resolutions
+    z_map = {}
+    for _i, (layername, layer) in enumerate(waferstack.layers.items()):
+        resolution = initial_z_resolutions[layername]
+        if f"{layer.zmin - layer.thickness:1.3f}" not in z_map:
+            output_str += f"line x loc={layer.zmin - layer.thickness:1.3f}<um>   tag={layername}_top     spacing={resolution}<um>\n"
+            z_map[f"{layer.zmin - layer.thickness:1.3f}"] = f"{layername}_top"
+        if f"{layer.zmin:1.3f}" not in z_map:
+            output_str += f"line x loc={layer.zmin:1.3f}<um>   tag={layername}_bot     spacing={resolution}<um>\n"
+            z_map[f"{layer.zmin:1.3f}"] = f"{layername}_bot"
+
+    # Initial xy-mesh from component bbox
+    output_str += f"line y location={xmin:1.3f}   spacing={initial_xy_resolution} tag=left\nline y location={xmax:1.3f}   spacing={initial_xy_resolution} tag=right\n"
+    xdims = "ylo=left yhi=right"
+    if xsection_bounds:
+        ydims = ""
+    else:
+        ydims = "zlo=front zhi=back"
+        output_str += f"line z location={ymin:1.3f}   spacing={initial_xy_resolution} tag=front\nline z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back"
+
+    # Additional resolution settings
+    output_str += extra_resolution_str
+
+    # Initialize with wafermap
+    initializations = []
+    # Regions
+    for layername, layer in waferstack.layers.items():
+        if layername == "substrate":
+            extra_tag = "substrate"
+        else:
+            extra_tag = ""
+        xlo = z_map[f"{layer.zmin - layer.thickness:1.3f}"]
+        xhi = z_map[f"{layer.zmin:1.3f}"]
+        output_str += (
+            f"region {layer.material} xlo={xlo} xhi={xhi} {xdims} {ydims} {extra_tag}\n"
+        )
+
+        if layer.background_doping_concentration:
+            initializations.append(
+                f"init {layer.material} concentration={layer.background_doping_concentration:1.2e}<cm-3> field={layer.background_doping_ion} wafer.orient={layer.orientation}\n"
+            )
+
+        # # Adaptive remeshing in active regions
+        # if "active" in layer.info and layer.info["active"]:
+        #     output_str += "refinebox adaptive\n"
+        #     output_str += f"refinebox min= {{{layer.zmin - layer.thickness:1.3f} {xmin} {ymin}}} max= {{{layer.zmin:1.3f} {xmax} {ymax}}} adaptive def.rel.error=1\n"
+
+    # Materials
+    for line in set(initializations):
+        output_str += line
+
+    return output_str, get_mask, layer_polygons_dict, xmin, xmax, ymin, ymax
+
+
+def write_sprocess(
+    component,
+    waferstack,
+    layermap,
+    process,
+    xsection_bounds: tuple[tuple[float, float], tuple[float, float]] = None,
+    init_tdr: str = None,
+    directory: Path = None,
+    filename: str = "sprocess_fps.cmd",
+    struct_prefix: str = "struct_",
+    structout: str = "struct_out.tdr",
+    round_tol: int = 3,
+    simplify_tol: float = 1e-3,
+    split_steps: bool = True,
+    init_lines: str = DEFAULT_INIT_LINES,
+    initial_z_resolutions: Dict = None,
+    initial_xy_resolution: float = None,
+    extra_resolution_str: str = None,
+    global_process_remeshing_str: str = DEFAULT_PROCESS_REMESHING,
+    global_device_remeshing_str: str = DEFAULT_DEVICE_REMESHING,
+    num_threads: int = 6,
+    contact_str: str = DEFAULT_CONTACT_STR,
+):
+    """Writes a Sentaurus Process TLC file for the component + layermap + initial waferstack + process.
+
+    The meshing strategy is to initially use a fixed grid defined by initial_z_resolutions and initial_xy_resolution, and use default adaptive refinement on all fields in regions defined as "active", followed by adaptive refinement on net active dopants in "active" regions.
+
+    Note that Sentaurus uses the X-direction vertically, with more positive X values going "deeper" in the substrate. YZ-coordinates are in the plane. GDSFactory uses XY in the plane and Z vertically, with more positive Z going "up" away from the substrate.
+
+    If init_str is given, will initialize the simulation from that file. Otherwise, will setup the simulation according to initialize_sprocess.
+
+    Arguments:
+        component,: gdsfactory component containing polygons defining the mask
+        waferstack: gdsfactory layerstack representing the initial wafer
+        layermap: gdsfactory LayerMap object contaning all layers
+        process: list of gdsfactory.technology.processes process steps
+        xsection_bounds: two in-plane coordinates ((x1,y1), (x2,y2)) defining a line cut for a 2D process cross-section
+        directory: directory to save all output in
+        filename: name of the final sprocess command file
+        struct_prefix: prefixes of the final sprocess command file
+        structout: tdr file containing the final structure, ready for sdevice simulation
+        contact_portnames Tuple(str): list of portnames to convert into device contacts
+        round_tol (int): for gds cleanup (grid snapping by rounding coordinates)
+        simplify_tol (float): for gds cleanup (shape simplification)
+        split_steps (bool): if True, creates a new workbench node for each step, and saves a TDR file at each step. Useful for fabrication splits, visualization, and debugging.
+        init_lines (str): initial string to write to the TCL file. Useful for settings
+        initial_z_resolutions {key: float}: initial layername: spacing mapping for mesh resolution in the wafer normal direction
+        initial_xy_resolution (float): initial resolution in the wafer plane
+        global_device_remeshing_str (str): commands to apply before remeshing
+        num_threads (int): for parallelization
+    """
+
+    directory = Path(directory) or Path("./sprocess/")
+
     # Setup TCL file
     out_file = pathlib.Path(directory / filename)
     directory.mkdir(parents=True, exist_ok=True)
@@ -135,72 +218,35 @@ def write_sprocess(
         # Parallelization
         f.write(f"math numThreads={num_threads}\n")
 
-        # Initial z-mesh from waferstack and resolutions
-        z_map = {}
-        for _i, (layername, layer) in enumerate(waferstack.layers.items()):
-            resolution = initial_z_resolutions[layername]
-            if f"{layer.zmin - layer.thickness:1.3f}" not in z_map:
-                f.write(
-                    f"line x loc={layer.zmin - layer.thickness:1.3f}<um>   tag={layername}_top     spacing={resolution}<um>\n"
-                )
-                z_map[f"{layer.zmin - layer.thickness:1.3f}"] = f"{layername}_top"
-            if f"{layer.zmin:1.3f}" not in z_map:
-                f.write(
-                    f"line x loc={layer.zmin:1.3f}<um>   tag={layername}_bot     spacing={resolution}<um>\n"
-                )
-                z_map[f"{layer.zmin:1.3f}"] = f"{layername}_bot"
-
-        # Initial xy-mesh from component bbox
-        f.write(
-            f"""line y location={xmin:1.3f}   spacing={initial_xy_resolution} tag=left
-line y location={xmax:1.3f}   spacing={initial_xy_resolution} tag=right
-"""
-        )
-        xdims = "ylo=left yhi=right"
-        if xsection_bounds:
-            ydims = ""
+        # Initial simulation state
+        if init_tdr:
+            f.write(f"struct tdr= {init_tdr}")
         else:
-            ydims = "zlo=front zhi=back"
-            f.write(
-                f"""
-line z location={ymin:1.3f}   spacing={initial_xy_resolution} tag=front
-line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
-"""
+            (
+                output_str,
+                get_mask,
+                layer_polygons_dict,
+                xmin,
+                xmax,
+                ymin,
+                ymax,
+            ) = initialize_sprocess(
+                component=component,
+                waferstack=waferstack,
+                layermap=layermap,
+                xsection_bounds=xsection_bounds,
+                round_tol=round_tol,
+                simplify_tol=simplify_tol,
+                initial_z_resolutions=initial_z_resolutions,
+                initial_xy_resolution=initial_xy_resolution,
+                extra_resolution_str=extra_resolution_str,
             )
+            f.write(str(output_str))
 
-        # Additional resolution settings
-        f.write(extra_resolution_str)
+        # Global remeshing strat
+        f.write(global_process_remeshing_str)
 
-        # Initialize with wafermap
-        initializations = []
-        # Regions
-        for layername, layer in waferstack.layers.items():
-            if layername == "substrate":
-                extra_tag = "substrate"
-            else:
-                extra_tag = ""
-            xlo = z_map[f"{layer.zmin - layer.thickness:1.3f}"]
-            xhi = z_map[f"{layer.zmin:1.3f}"]
-            f.write(
-                f"region {layer.material} xlo={xlo} xhi={xhi} {xdims} {ydims} {extra_tag}\n"
-            )
-
-            if layer.background_doping_concentration:
-                initializations.append(
-                    f"init {layer.material} concentration={layer.background_doping_concentration:1.2e}<cm-3> field={layer.background_doping_ion} wafer.orient={layer.orientation}\n"
-                )
-
-            # Adaptive remeshing in active regions
-            if "active" in layer.info and layer.info["active"]:
-                f.write("refinebox adaptive\n")
-                f.write(
-                    f"refinebox min= {{{layer.zmin - layer.thickness:1.3f} {xmin} {ymin}}} max= {{{layer.zmin:1.3f} {xmax} {ymax}}} adaptive def.rel.error=1\n"
-                )
-
-        # Materials
-        for line in set(initializations):
-            f.write(line)
-
+        # Process
         if split_steps:
             f.write(f"struct tdr=./{str(directory)}/{struct_prefix}0_wafer.tdr\n")
 
@@ -281,7 +327,7 @@ line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
         f.write("\n")
         if split_steps:
             f.write("#split remeshing\n")
-        f.write(remeshing_strategy)
+        f.write(global_device_remeshing_str)
 
         for _layername, layer in waferstack.layers.items():
             if layer.info and layer.info["active"] is True:
@@ -291,26 +337,8 @@ line z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back
                 )
         f.write("grid remesh\n")
 
-        # Tag contacts
-        # if contact_portnames:
-        #     for contact_name in contact_portnames:
-        #         port = component.ports[contact_name]
-        #         if xsection_bounds:
-        #             for polygon in component.extract(
-        #                 f"{port.layer}#{contact_name}"
-        #             ).get_polygons:
-        #                 print(polygon)
-
         # Manual for now
         f.write(contact_str)
-        # f.write("\n")
-        # f.write("#split Contacts\n")
-        # f.write(
-        #     f"contact name=e1 box silicon adjacent.material=Aluminum xlo=0.12 xhi=0.14 ylo={xmin} yhi={(xmin + xmax)/2} zlo={ymin} zhi={ymax}\n"
-        # )
-        # f.write(
-        #     f"contact name=e2 box silicon adjacent.material=Aluminum xlo=0.12 xhi=0.14 ylo={(xmin + xmax)/2} yhi={xmax} zlo={ymin} zhi={ymax}\n"
-        # )
 
         # Create structure
         f.write("\n")
