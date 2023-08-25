@@ -14,7 +14,7 @@ classifiers = [
   "Operating System :: OS Independent"
 ]
 dependencies = [
-  "gdsfactory[cad]>=7.0.2",
+  "gdsfactory[cad]>=7.3.2",
   "pint"
 ]
 description = "gdsfactory plugins"
@@ -23,7 +23,7 @@ license = {file = "LICENSE"}
 name = "gplugins"
 readme = "README.md"
 requires-python = ">=3.10"
-version = "0.2.0"
+version = "0.3.1"
 
 [project.optional-dependencies]
 database = [
@@ -56,10 +56,11 @@ docs = [
   "jupytext",
   "autodoc_pydantic",
   "matplotlib",
-  "jupyter-book==0.15.1"
+  "jupyter-book==0.15.1",
+  "pyvista[jupyter]"
 ]
 femwell = [
-  "femwell>=0.1.6,<0.2.0"
+  "femwell>=0.1.6,<0.3.1"
 ]
 gmsh = [
   "gmsh",
@@ -70,7 +71,7 @@ gmsh = [
   "pyvista",
   "trimesh",
   "shapely",
-  "meshwell>=0.0.9,<0.2.0"
+  "meshwell>=0.0.9,<0.3.1"
 ]
 klayout = [
   "kfactory[git,ipy]==0.7.5"

@@ -6,7 +6,7 @@ from gplugins.modes.find_modes import find_modes_waveguide
 
 
 def test_find_modes_waveguide() -> None:
-    modes = find_modes_waveguide(core_width=0.45, resolution=20, cache=None)
+    modes = find_modes_waveguide(core_width=0.45, resolution=20, cache_path=None)
     m1 = modes[1]
     m2 = modes[2]
 

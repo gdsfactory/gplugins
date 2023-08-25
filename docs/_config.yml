@@ -31,8 +31,6 @@ latex:
   latex_engine: pdflatex # one of 'pdflatex', 'xelatex' (recommended for unicode), 'luatex', 'platex', 'uplatex'
   use_jupyterbook_latex: true # use sphinx-jupyterbook-latex for pdf builds as default
 
-# Add a bibtex file so that we can create citations
-
 html:
   home_page_in_navbar: true
   use_edit_page_button: true
@@ -50,6 +48,9 @@ launch_buttons:
   notebook_interface: jupyterlab
   colab_url: "https://colab.research.google.com"
 
+bibtex_bibfiles:
+  - bibliography.bib
+
 sphinx:
   extra_extensions:
     - "sphinx.ext.autodoc"
@@ -59,6 +60,7 @@ sphinx:
     - "sphinx.ext.viewcode"
     - "matplotlib.sphinxext.plot_directive"
     - "sphinxcontrib.autodoc_pydantic"
+    - "sphinxcontrib.bibtex"
   config:
     #autodoc_typehints: description
     autodoc_type_aliases:

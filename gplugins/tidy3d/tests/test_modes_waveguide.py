@@ -12,7 +12,7 @@ def test_neff() -> None:
         core_thickness=0.22,
         core_material="si",
         clad_material="sio2",
-        cache=False,
+        cache_path=None,
     )
     n_eff = wg.n_eff[0].real
     assert np.isclose(n_eff, 2.447, rtol=0.1), n_eff
@@ -26,7 +26,7 @@ def test_neff_high_accuracy() -> None:
         core_material="si",
         clad_material="sio2",
         grid_resolution=40,
-        cache=False,
+        cache_path=None,
     )
     n_eff = wg.n_eff[0].real
     assert np.isclose(n_eff, 2.447, rtol=0.01), n_eff

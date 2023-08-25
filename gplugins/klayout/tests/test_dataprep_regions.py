@@ -25,7 +25,7 @@ def region_collection() -> dp.RegionCollection:
     ring = c << gf.components.coupler_ring()
     c << gf.components.bbox(ring.bbox, layer=l.FLOORPLAN)
     gdspath = c.write_gds()
-    return dp.RegionCollection(filepath=gdspath, layermap=dict(l))
+    return dp.RegionCollection(gdspath)
 
 
 @pytest.fixture
@@ -90,8 +90,12 @@ def test_Region_isub() -> None:
 
 def test_RegionCollection_init(region_collection) -> None:
     # Check if the RegionCollection was initialized properly
-    assert hasattr(region_collection, "WG")
+    assert region_collection[(1, 0)]
 
 
 if __name__ == "__main__":
-    pytest.main(["-v", "-s", "test_dataprep_regions.py"])
+    import pathlib
+
+    module = pathlib.Path(__file__).parent.absolute()
+
+    pytest.main(["-v", "-s", module / "test_dataprep_regions.py"])

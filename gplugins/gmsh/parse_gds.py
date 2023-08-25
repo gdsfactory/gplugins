@@ -130,3 +130,11 @@ def tile_shapes(shapes_dict):
             shapes_tiled_dict[lower_name] = MultiLineString(tiled_lower_shapes)
 
     return shapes_tiled_dict
+
+
+if __name__ == "__main__":
+    from gdsfactory.generic_tech import LAYER_STACK
+
+    c = gf.components.straight_heater_doped_rib()
+    c.to_gmsh(type="xy", layer_stack=LAYER_STACK, z=0)
+    c.to_gmsh(type="xy", layer_stack=LAYER_STACK, z=0)

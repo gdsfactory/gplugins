@@ -19,12 +19,15 @@
 #
 # When building a reticle sometimes you want to do boolean operations. This is usually known as dataprep.
 #
-# You can do this at the component level or at the top reticle assembled level, each having different advantages and disadvantages.
+# You can do this at the component level or at the top reticle assembled level.
 #
+# This tutorial is focusing on cleaning DRC on masks that have already been created.
 
 # %%
 import gdsfactory as gf
-from gdsfactory.generic_tech.layer_map import LAYER as l
+from gdsfactory.generic_tech.layer_map import LAYER
+
+import gplugins.klayout.dataprep as dp
 
 gf.config.rich_output()
 PDK = gf.generic_tech.get_generic_pdk()
@@ -32,33 +35,65 @@ PDK.activate()
 
 # %% [markdown]
 #
-# You can flatten the hierarchy and use klayout LayerProcessor to create a `RegionCollection` where you can easily grow and shrink layers.
+# You can manipulate layers using the klayout LayerProcessor to create a `RegionCollection` to operate on different layers.
 #
-# The advantage is that this can easily clean up routing, proximity effects, boolean operations on big masks.
-#
-# The disadvantage is that the design is no longer hierarchical and can take up more space.
-#
-# ### Size
-#
-# You can copy/size layers
+# The advantage is that this can easily clean up routing, proximity effects, acute angles.
 
 # %%
 c = gf.Component()
-
-device = c << gf.components.coupler_ring()
-floorplan = c << gf.components.bbox(device.bbox, layer=l.FLOORPLAN)
-c.write_gds("src.gds")
+ring = c << gf.components.coupler_ring(radius=20)
+c.write_gds("input.gds")
+d = dp.RegionCollection(gdspath="input.gds")
 c.plot()
+
+# %% [markdown]
+# ## Copy layers
+#
+# You can access each layer as a dict.
 
 # %%
-import gplugins.klayout.dataprep as dp
+d[LAYER.N] = d[
+    LAYER.WG
+].copy()  # make sure you add the copy to create a copy of the layer
+d.plot()
 
-d = dp.RegionCollection(filepath="src.gds", layermap=dict(l))
-d.SLAB150 = d.WG.copy()  # copy layer
-d.SLAB150 += 4  # size layer by 4 um
-d.SLAB150 -= 2  # size layer by 2 um
-c = d.write("dst.gds")
-c.plot()
+# %% [markdown]
+# ## Remove layers
+
+# %%
+d[LAYER.N].clear()
+d.plot()
+
+# %% [markdown]
+# ### Size
+#
+# You can size layers, positive numbers grow and negative shrink.
+
+# %%
+d[LAYER.SLAB90] = d[LAYER.WG] + 2  # size layer by 4 um
+d.plot()
+
+# %% [markdown]
+# ## Over / Under
+#
+# To avoid acute angle DRC errors you can grow and shrink polygons. This will remove regions smaller
+
+# %%
+
+d[LAYER.SLAB90] += 2  # size layer by 4 um
+d[LAYER.SLAB90] -= 2  # size layer by 2 um
+d.plot()
+
+# %% [markdown]
+# ## Smooth
+#
+# You can smooth using [RDP](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm)
+
+# %%
+d[LAYER.SLAB90].smooth(
+    1 * 1e3
+)  # smooth by 1um, Notice that klayout units are in DBU (database units) in this case 1nm, so 1um = 1e3
+d.plot()
 
 # %% [markdown]
 # ### Booleans
@@ -67,12 +102,8 @@ c.plot()
 #
 
 # %%
-d = dp.RegionCollection(filepath="src.gds", layermap=dict(l))
-d.SLAB150 = d.WG.copy()
-d.SLAB150 += 3  # size layer by 3 um
-d.SHALLOW_ETCH = d.SLAB150 - d.WG
-c = d.write("dst.gds")
-c.plot()
+d[LAYER.DEEP_ETCH] = d[LAYER.SLAB90] - d[LAYER.WG]
+d.plot()
 
 
 # %% [markdown]
@@ -81,28 +112,25 @@ c.plot()
 # You can add rectangular fill, using booleans to decide where to add it:
 
 # %%
-d = dp.RegionCollection(filepath="src.gds", layermap=dict(l))
+region = d[LAYER.FLOORPLAN] = d[LAYER.WG] + 50
+region.round_corners(1 * 1e3, 1 * 1e3, 100)  # round corners by 1um
+d.show()
+d.plot()
 
-fill_region = d.FLOORPLAN - d.WG
+# %%
+fill_region = d[LAYER.FLOORPLAN] - d[LAYER.WG]
+
+# %%
 fill_cell = d.get_fill(
     fill_region,
     size=[0.1, 0.1],
     spacing=[0.1, 0.1],
-    fill_layers=[l.WG, l.M1],
-    fill_name="test",
+    fill_layers=[LAYER.WG, LAYER.M1],
 )
-fill_cell
-
-# %% [markdown]
-# ### KLayout operations
-#
-# Any operation from Klayout Region can be called directly:
 
 # %%
-d = dp.RegionCollection(filepath="src.gds", layermap=dict(l))
-d.SLAB150 = d.WG.copy()
-d.SLAB150.round_corners(1 * 1e3, 1 * 1e3, 100)  # round corners by 1um
-c = d.write("dst.gds")
-c.plot()
+c = d.get_kcell()
+c << fill_cell
+c
 
 # %%

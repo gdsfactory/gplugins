@@ -12,12 +12,13 @@ output as um/lambda, e.g. 1.5um would correspond to the frequency
 """
 from __future__ import annotations
 
+import pathlib
 import pickle
 
 import meep as mp
 import numpy as np
-from gdsfactory.pdk import get_modes_path
-from gdsfactory.typings import CrossSectionSpec
+from gdsfactory.config import PATH
+from gdsfactory.typings import CrossSectionSpec, PathType
 from meep import mpb
 
 from gplugins.modes.get_mode_solver_cross_section import (
@@ -36,7 +37,7 @@ def find_modes_cross_section(
     wavelength: float = 1.55,
     mode_number: int = 1,
     parity=mp.NO_PARITY,
-    cache: bool = True,
+    cache_path: PathType | None = PATH.modes,
     overwrite: bool = False,
     **kwargs,
 ) -> dict[int, Mode]:
@@ -48,7 +49,7 @@ def find_modes_cross_section(
         wavelength: wavelength in um.
         mode_number: mode order of the first mode.
         parity: mp.ODD_Y mp.EVEN_X for TE, mp.EVEN_Y for TM.
-        cache: True uses file cache from PDK.modes_path. False skips cache.
+        cache_path: path to cache folder. None to disable caching.
         overwrite: forces simulating again.
         kwargs: waveguide settings.
 
@@ -94,8 +95,8 @@ def find_modes_cross_section(
         **kwargs,
     )
 
-    if cache:
-        cache_path = get_modes_path()
+    if cache_path:
+        cache_path = pathlib.Path(cache_path)
         cache_path.mkdir(exist_ok=True, parents=True)
         filepath = cache_path / f"{h}_{mode_number}.pkl"
 
@@ -154,7 +155,7 @@ def find_modes_cross_section(
             ),
             material_indices=mode_solver.info["material_indices"],
         )
-        if cache:
+        if cache_path:
             filepath = cache_path / f"{h}_{index}.pkl"
             filepath.write_bytes(pickle.dumps(modes[i]))
 
