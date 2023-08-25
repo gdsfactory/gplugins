@@ -1,11 +1,11 @@
 from __future__ import annotations
 
+import asyncio
 import inspect
 import itertools
 import json
 import re
 import shutil
-import subprocess
 from collections.abc import Collection, Mapping, Sequence
 from math import atan2, degrees, inf
 from pathlib import Path
@@ -19,6 +19,7 @@ from gdsfactory.generic_tech import LAYER_STACK
 from gdsfactory.technology import LayerStack
 from numpy import isfinite
 
+from gplugins.async_utils import execute_and_stream_output, run_async_with_event_loop
 from gplugins.typings import DrivenFullWaveResults, RFMaterialSpec
 
 DRIVE_JSON = "driven.json"
@@ -182,9 +183,9 @@ def _generate_json(
     return jsons
 
 
-def _palace(
-    simulation_folder: Path, json_files: Collection[Path | str], n_processes: int = 1
-):
+async def _palace(
+    simulation_folder: Path, json_files: Collection[Path], n_processes: int = 1
+) -> None:
     """Run simulations with Palace."""
 
     # split processes as evenly as possible
@@ -197,20 +198,28 @@ def _palace(
 
     palace = shutil.which("palace")
     if palace is None:
-        raise RuntimeError("palace not found. Make sure it is available in your PATH.")
+        raise RuntimeError(
+            "`palace` not found. Make sure it is available in your PATH."
+        )
+
     # TODO handle better than this. Ideally distributed and scheduled with @ray.remote
+    tasks = []
     for json_file, n_processes_json in zip(json_files, n_processes_per_json):
-        with open(str(json_file) + "_palace.log", "w", encoding="utf-8") as fp:
-            # TODO raise error on actual failure
-            p = subprocess.Popen(
-                [palace, str(json_file)]
-                if n_processes == 1
-                else [palace, "-np", str(n_processes_json), str(json_file)],
+        tasks.append(
+            execute_and_stream_output(
+                (
+                    [palace, str(json_file)]
+                    if n_processes == 1
+                    else [palace, "-np", str(n_processes_json), str(json_file)]
+                ),
+                shell=False,
+                log_file_dir=json_file.parent,
+                log_file_str=json_file.stem + "_palace",
                 cwd=simulation_folder,
-                stdout=fp,
-                stderr=fp,
             )
-    p.communicate()  # wait only for the last iteration
+        )
+
+    await asyncio.gather(*tasks)
 
 
 def _read_palace_results(
@@ -465,7 +474,7 @@ def run_scattering_simulation_palace(
         mesh_refinement_levels,
         only_one_port,
     )
-    _palace(simulation_folder, jsons, n_processes)
+    run_async_with_event_loop(_palace(simulation_folder, jsons, n_processes))
     results = _read_palace_results(
         simulation_folder,
         filename,
