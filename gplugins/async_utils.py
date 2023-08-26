@@ -1,0 +1,86 @@
+from __future__ import annotations
+
+import asyncio
+import io
+import sys
+from contextlib import nullcontext
+from pathlib import Path
+
+
+async def handle_return(
+    in_stream: asyncio.streams.StreamReader,
+    out_stream: io.TextIOWrapper | None = None,
+    log_file: Path | None = None,
+    append: bool = False,
+) -> None:
+    """Reads through a :class:`StreamReader` and tees content to ``out_stream`` and ``log_file``."""
+    with open(
+        log_file, "a" if append else "w", encoding="utf-8", buffering=1
+    ) if log_file else nullcontext(None) as f:
+        while True:
+            # Without this sleep, the program won't exit
+            await asyncio.sleep(0)
+            data = await in_stream.readline()
+            if data:
+                line = data.decode("utf-8").rstrip()
+                if out_stream:
+                    print(line, file=out_stream)
+                if f:
+                    f.write(line + "\n")
+            else:
+                break
+
+
+async def execute_and_stream_output(
+    command: list[str] | str,
+    shell: bool = True,
+    append: bool = False,
+    log_file_dir: Path | None = None,
+    log_file_str: str | None = None,
+    *args,
+    **kwargs,
+) -> asyncio.subprocess.Process:
+    """Run a command asynchronously and stream *stdout* and *stderr* to main and a log file
+    in ``log_file_dir / log_file_str``. Uses ``shell=True`` as default unlike ``subprocess.Popen``. Returns an asyncio process.
+
+    Args:
+        command: Command(s) to run. Sequences will be unpacked.
+        shell: Whether to use shell or exec.
+        append: Whether to use append to log file instead of writing.
+        log_file_dir: Directory for log files.
+        log_file_str: Log file name. Will be expanded to ``f'{log_file_str}_out.log'`` and ``f'{log_file_str}_err.log'``.
+
+    ``*args`` and ``**kwargs`` are passed to :func:`~create_subprocess_shell` or :func:`create_subprocess_exec`,
+    which in turn passes them to :class:`subprocess.Popen`.
+    """
+    subprocess_factory = (
+        asyncio.create_subprocess_shell if shell else asyncio.create_subprocess_exec
+    )
+    proc = await subprocess_factory(
+        *([command] if isinstance(command, str) else command),
+        *args,
+        stdin=asyncio.subprocess.PIPE,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+        **kwargs,
+    )
+    asyncio.create_task(
+        handle_return(
+            proc.stdout,
+            out_stream=sys.stdout,
+            log_file=log_file_dir / f"{log_file_str}_out.log",
+            append=append,
+        )
+    )
+    asyncio.create_task(
+        handle_return(
+            proc.stderr,
+            out_stream=sys.stderr,
+            log_file=log_file_dir / f"{log_file_str}_err.log",
+            append=append,
+        )
+    )
+
+    # This needs to also handle the "wait_to_finish" flag
+    await proc.wait()
+    return proc

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+import asyncio
 import inspect
 import itertools
 import shutil
-import subprocess
 from collections.abc import Iterable, Mapping, Sequence
 from math import inf
 from pathlib import Path
@@ -18,6 +18,7 @@ from jinja2 import Environment, FileSystemLoader
 from numpy import isfinite
 from pandas import read_csv
 
+from gplugins.async_utils import execute_and_stream_output
 from gplugins.typings import ElectrostaticResults, RFMaterialSpec
 
 ELECTROSTATIC_SIF = "electrostatic.sif"
@@ -61,19 +62,20 @@ def _elmergrid(simulation_folder: Path, name: str, n_processes: int = 1):
     elmergrid = shutil.which("ElmerGrid")
     if elmergrid is None:
         raise RuntimeError(
-            "ElmerGrid not found. Make sure it is available in your PATH."
+            "`ElmerGrid` not found. Make sure it is available in your PATH."
         )
-    with open(simulation_folder / f"{name}_ElmerGrid.log", "w", encoding="utf-8") as fp:
-        subprocess.run(
+    asyncio.run(
+        execute_and_stream_output(
             [elmergrid, "14", "2", name, "-autoclean"],
-            cwd=simulation_folder,
             shell=False,
-            stdout=fp,
-            stderr=fp,
-            check=True,
+            log_file_dir=simulation_folder,
+            log_file_str=Path(name).stem + "_ElmerGrid",
+            cwd=simulation_folder,
         )
-        if n_processes > 1:
-            subprocess.run(
+    )
+    if n_processes > 1:
+        asyncio.run(
+            execute_and_stream_output(
                 [
                     elmergrid,
                     "2",
@@ -84,40 +86,37 @@ def _elmergrid(simulation_folder: Path, name: str, n_processes: int = 1):
                     "4",
                     "-removeunused",
                 ],
-                cwd=simulation_folder,
                 shell=False,
-                stdout=fp,
-                stderr=fp,
-                check=True,
+                append=True,
+                log_file_dir=simulation_folder,
+                log_file_str=Path(name).stem + "_ElmerGrid",
+                cwd=simulation_folder,
             )
+        )
 
 
 def _elmersolver(simulation_folder: Path, name: str, n_processes: int = 1):
     """Run simulations with ElmerFEM."""
-    elmersolver = (
-        shutil.which("ElmerSolver")
-        if (no_mpi := n_processes == 1)
-        else shutil.which("ElmerSolver_mpi")
+    elmersolver_name = (
+        "ElmerSolver" if (no_mpi := n_processes == 1) else "ElmerSolver_mpi"
     )
+    elmersolver = shutil.which(elmersolver_name)
     if elmersolver is None:
         raise RuntimeError(
-            ("ElmerSolver" if n_processes == 1 else "ElmerSolver_mpi")
-            + " not found. Make sure it is available in your PATH."
+            f"`{elmersolver_name}` not found. Make sure it is available in your PATH."
         )
     sif_file = str(simulation_folder / f"{Path(name).stem}.sif")
-    with open(
-        simulation_folder / f"{name}_ElmerSolver.log", "w", encoding="utf-8"
-    ) as fp:
-        subprocess.run(
+    asyncio.run(
+        execute_and_stream_output(
             [elmersolver, sif_file]
             if no_mpi
             else ["mpiexec", "-np", str(n_processes), elmersolver, sif_file],
-            cwd=simulation_folder,
             shell=False,
-            stdout=fp,
-            stderr=fp,
-            check=True,
+            log_file_dir=simulation_folder,
+            log_file_str=Path(name).stem + "_ElmerSolver",
+            cwd=simulation_folder,
         )
+    )
 
 
 def _read_elmer_results(
