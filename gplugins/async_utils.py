@@ -3,8 +3,12 @@ from __future__ import annotations
 import asyncio
 import io
 import sys
+from collections.abc import Awaitable, Coroutine
 from contextlib import nullcontext
 from pathlib import Path
+from typing import Any, TypeVar
+
+T = TypeVar("T")
 
 
 async def handle_return(
@@ -33,11 +37,11 @@ async def handle_return(
 
 async def execute_and_stream_output(
     command: list[str] | str,
+    *args,
     shell: bool = True,
     append: bool = False,
     log_file_dir: Path | None = None,
     log_file_str: str | None = None,
-    *args,
     **kwargs,
 ) -> asyncio.subprocess.Process:
     """Run a command asynchronously and stream *stdout* and *stderr* to main and a log file
@@ -53,6 +57,11 @@ async def execute_and_stream_output(
     ``*args`` and ``**kwargs`` are passed to :func:`~create_subprocess_shell` or :func:`create_subprocess_exec`,
     which in turn passes them to :class:`subprocess.Popen`.
     """
+    if log_file_dir is None:
+        log_file_dir = Path.cwd()
+    if log_file_str is None:
+        log_file_str = command if isinstance(command, str) else "_".join(command)
+
     subprocess_factory = (
         asyncio.create_subprocess_shell if shell else asyncio.create_subprocess_exec
     )
@@ -84,3 +93,40 @@ async def execute_and_stream_output(
     # This needs to also handle the "wait_to_finish" flag
     await proc.wait()
     return proc
+
+
+def run_async_with_event_loop(coroutine: Coroutine[Any, Any, T] | Awaitable[T]) -> T:
+    """Run a coroutine within an asyncio event loop, either by adding it to the
+    existing running event loop or by creating a new event loop. Returns the result.
+
+    Args:
+        coroutine: The coroutine (async function) to be executed.
+
+    Note:
+        If an asyncio event loop is already running, `nest_asyncio <https://github.com/erdewit/nest_asyncio>`_
+        is used to create a new loop. the given coroutine will be added to the running event loop.
+        If no event loop is running, a new event loop will be created.
+
+    Example:
+        async def main():
+            # Your main coroutine code here
+            pass
+
+        run_async_with_event_loop(main())
+    """
+
+    try:
+        loop = asyncio.get_running_loop()
+        try:
+            import nest_asyncio  # pylint: disable=import-outside-toplevel
+
+            nest_asyncio.apply()
+        except ModuleNotFoundError as e:
+            raise UserWarning(
+                "You need to install `nest-asyncio` to run in existing event loops like IPython"
+            ) from e
+        return loop.run_until_complete(coroutine)
+    except RuntimeError as e:
+        if "no running event loop" not in str(e):
+            raise e
+        return asyncio.run(coroutine)

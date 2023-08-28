@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import inspect
 import itertools
 import shutil
@@ -18,7 +17,7 @@ from jinja2 import Environment, FileSystemLoader
 from numpy import isfinite
 from pandas import read_csv
 
-from gplugins.async_utils import execute_and_stream_output
+from gplugins.async_utils import execute_and_stream_output, run_async_with_event_loop
 from gplugins.typings import ElectrostaticResults, RFMaterialSpec
 
 ELECTROSTATIC_SIF = "electrostatic.sif"
@@ -64,7 +63,7 @@ def _elmergrid(simulation_folder: Path, name: str, n_processes: int = 1):
         raise RuntimeError(
             "`ElmerGrid` not found. Make sure it is available in your PATH."
         )
-    asyncio.run(
+    run_async_with_event_loop(
         execute_and_stream_output(
             [elmergrid, "14", "2", name, "-autoclean"],
             shell=False,
@@ -74,7 +73,7 @@ def _elmergrid(simulation_folder: Path, name: str, n_processes: int = 1):
         )
     )
     if n_processes > 1:
-        asyncio.run(
+        run_async_with_event_loop(
             execute_and_stream_output(
                 [
                     elmergrid,
@@ -106,7 +105,7 @@ def _elmersolver(simulation_folder: Path, name: str, n_processes: int = 1):
             f"`{elmersolver_name}` not found. Make sure it is available in your PATH."
         )
     sif_file = str(simulation_folder / f"{Path(name).stem}.sif")
-    asyncio.run(
+    run_async_with_event_loop(
         execute_and_stream_output(
             [elmersolver, sif_file]
             if no_mpi
