@@ -111,7 +111,8 @@ help(run_capacitive_simulation_elmer)
 #    The meshing parameters and element order shown here are very lax. As such, the computed capacitances are not very accurate.
 # ```
 
-# %%
+# %% tags=["hide-output"]
+
 results = run_capacitive_simulation_elmer(
     c,
     layer_stack=layer_stack,
@@ -156,10 +157,10 @@ if results.field_file_location:
     pv.start_xvfb()
     pv.set_jupyter_backend("panel")
     field = pv.read(results.field_file_location)
-    slice = field.slice_orthogonal(z=layer_stack.layers["bw"].zmin * 1e-6)
+    field_slice = field.slice_orthogonal(z=layer_stack.layers["bw"].zmin * 1e-6)
 
     p = pv.Plotter()
-    p.add_mesh(slice, scalars="electric field", cmap="turbo")
+    p.add_mesh(field_slice, scalars="electric field", cmap="turbo")
     p.show_grid()
     p.camera_position = "xy"
     p.enable_parallel_projection()
