@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import inspect
 import itertools
 import json
@@ -18,7 +17,7 @@ from gdsfactory.technology import LayerStack
 from numpy import isfinite
 from pandas import read_csv
 
-from gplugins.async_utils import execute_and_stream_output
+from gplugins.async_utils import execute_and_stream_output, run_async_with_event_loop
 from gplugins.typings import ElectrostaticResults, RFMaterialSpec
 
 ELECTROSTATIC_JSON = "electrostatic.json"
@@ -105,7 +104,7 @@ def _palace(simulation_folder: Path, name: str, n_processes: int = 1):
         raise RuntimeError("palace not found. Make sure it is available in your PATH.")
 
     json_file = simulation_folder / f"{Path(name).stem}.json"
-    asyncio.run(
+    run_async_with_event_loop(
         execute_and_stream_output(
             [palace, json_file]
             if n_processes == 1
