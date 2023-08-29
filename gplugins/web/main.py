@@ -188,9 +188,12 @@ async def view_cell(request: Request, cell_name: str, variant: str | None = None
     )
 
 
-def _parse_value(value: str):
+def _parse_value(value: str) -> str | dict | list | int | float | bool:
     if not value.startswith("{") and not value.startswith("["):
-        return value
+        try:
+            return float(value)
+        except ValueError:
+            return value
     try:
         return orjson.loads(value.replace("'", '"'))
     except orjson.JSONDecodeError as e:
@@ -202,6 +205,7 @@ async def update_cell(request: Request, cell_name: str):
     """Cell name is the name of the PCell function."""
     data = await request.form()
     settings = {k: _parse_value(v) for k, v in data.items() if v != ""}
+
     if not settings:
         return RedirectResponse(
             f"/view/{cell_name}",
