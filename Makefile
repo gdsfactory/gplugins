@@ -1,6 +1,7 @@
 
 install:
 	pip install -e .[dev,docs,database,devsim,femwell,gmsh,meow,meshwell,ray,sax,schematic,tidy3d,web]
+	pip install git+https://github.com/flaport/meow
 	pre-commit install
 
 dev: test-data meep gmsh elmer install
