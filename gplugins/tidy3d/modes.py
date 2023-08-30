@@ -23,7 +23,7 @@ import tidy3d as td
 import xarray
 from gdsfactory.config import PATH, logger
 from gdsfactory.typings import PathType
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from tidy3d.plugins import waveguide
 from tqdm.auto import tqdm
 
@@ -155,11 +155,7 @@ class Waveguide(pydantic.BaseModel):
 
     _cached_data = pydantic.PrivateAttr()
     _waveguide = pydantic.PrivateAttr()
-
-    class Config:
-        """pydantic config."""
-
-        extra = "forbid"
+    model_config = ConfigDict(extra="forbid")
 
     @pydantic.validator("wavelength")
     def _fix_wavelength_type(cls, value):
