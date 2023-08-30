@@ -23,7 +23,7 @@ import tidy3d as td
 import xarray
 from gdsfactory.config import PATH, logger
 from gdsfactory.typings import PathType
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 from tidy3d.plugins import waveguide
 from tqdm.auto import tqdm
 
@@ -58,7 +58,7 @@ def custom_serializer(data: str | float | BaseModel) -> str:
     raise ValueError(f"Unsupported data type: {type(data)}")
 
 
-class Waveguide(pydantic.BaseModel):
+class Waveguide(BaseModel):
     """Waveguide Model.
 
     All dimensions must be specified in μm (1e-6 m).
@@ -157,9 +157,19 @@ class Waveguide(pydantic.BaseModel):
     _waveguide = pydantic.PrivateAttr()
     model_config = ConfigDict(extra="forbid")
 
-    @pydantic.validator("wavelength")
-    def _fix_wavelength_type(cls, value):
-        return np.array(value, dtype=float)
+    @field_validator("wavelength")
+    @classmethod
+    def _fix_wavelength_type(cls, v):
+        return np.array(v, dtype=float)
+
+    # @field_validator("box_material", "clad_material", "core_material")
+    # @classmethod
+    # def _validate_material(cls, v) -> td.Medium:
+    #     if isinstance(v, td.CustomMedium | td.Medium):
+    #         medium = v
+    #     else:
+    #         medium = get_medium(v)
+    #     return medium
 
     @property
     def filepath(self) -> pathlib.Path | None:
@@ -268,7 +278,7 @@ class Waveguide(pydantic.BaseModel):
 
             wg = self.waveguide
 
-            fields = wg.mode_solver.data._centered_fields
+            fields = wg.mode_solver.data.field_components
             self._cached_data = {
                 f + c: fields[f + c].squeeze(drop=True).values
                 for f in "EH"
@@ -1008,8 +1018,8 @@ if __name__ == "__main__":
         wavelength=1.55,
         core_width=1.0,
         slab_thickness=0.0,
-        # core_material="si",
-        core_material=td.material_library["cSi"]["Li1993_293K"],
+        core_material="si",
+        # core_material=td.material_library["cSi"]["Li1993_293K"],
         clad_material="sio2",
         core_thickness=220 * nm,
         num_modes=4,

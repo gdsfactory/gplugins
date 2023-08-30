@@ -91,7 +91,7 @@ schematic = [
   "natsort"
 ]
 tidy3d = [
-  "tidy3d>=2.4.0rc,<2.5.0"
+  "tidy3d>=2.4.0rc2,<2.5.0"
 ]
 web = [
   "jinja2",
