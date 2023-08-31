@@ -134,6 +134,7 @@ strict = true
 addopts = '--tb=short'
 norecursedirs = [
   "extra/*.py",
+  'gplugins/dagster',
   'gplugins/database',
   'gplugins/devsim',
   'gplugins/sax/integrations',
