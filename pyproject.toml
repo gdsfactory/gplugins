@@ -54,7 +54,6 @@ devsim = [
 ]
 docs = [
   "jupytext",
-  "autodoc_pydantic",
   "matplotlib",
   "jupyter-book==0.15.1",
   "pyvista[jupyter]"
