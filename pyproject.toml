@@ -26,11 +26,10 @@ requires-python = ">=3.10"
 version = "0.3.1"
 
 [project.optional-dependencies]
+dagster = ["dagster", "dagit"]
 database = [
   "sqlalchemy",
   "sqlalchemy-utils",
-  "dagster",
-  "dagit",
   "sqlmodel",
   "boto3",
   "pymysql"
