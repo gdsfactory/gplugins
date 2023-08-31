@@ -7,8 +7,8 @@ from pathlib import Path
 
 import gdsfactory as gf
 import numpy as np
+from gdsfactory.config import GDSDIR_TEMP, PATH
 from gdsfactory.name import clean_value
-from gdsfactory.pdk import get_sparameters_path
 from gdsfactory.typings import ComponentSpec, PathType
 
 
@@ -28,7 +28,7 @@ def get_component_hash(component: gf.Component) -> str:
 
 def _get_sparameters_path(
     component: ComponentSpec,
-    dirpath: PathType | None = None,
+    dirpath: PathType | None = PATH.sparameters,
     **kwargs,
 ) -> Path:
     """Return Sparameters npz filepath hashing simulation settings for \
@@ -41,7 +41,8 @@ def _get_sparameters_path(
         kwargs: simulation settings.
 
     """
-    dirpath = dirpath or get_sparameters_path()
+    dirpath = dirpath or GDSDIR_TEMP / "sparameters"
+    dirpath = pathlib.Path(dirpath)
     component = gf.get_component(component)
 
     dirpath = pathlib.Path(dirpath)

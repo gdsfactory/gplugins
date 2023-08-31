@@ -1,4 +1,5 @@
 import base64
+import contextlib
 import importlib
 import os
 import pathlib
@@ -13,9 +14,10 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from gdsfactory.cell import Settings
-from gdsfactory.config import CONF, GDSDIR_TEMP
+from gdsfactory.config import CONF, GDSDIR_TEMP, pdks
 from gdsfactory.watch import FileWatcher
 from loguru import logger
+from pydantic import BaseModel
 from starlette.routing import WebSocketRoute
 
 from gplugins.config import PATH
@@ -36,8 +38,8 @@ app.mount("/static", StaticFiles(directory=PATH.web / "static"), name="static")
 templates = Jinja2Templates(directory=PATH.web / "templates")
 
 
-def load_pdk() -> gf.Pdk:
-    pdk = os.environ.get("PDK", "generic")
+def load_pdk(pdk: str | None = None) -> gf.Pdk:
+    pdk = pdk or os.environ.get("PDK", "generic")
 
     if pdk == "generic":
         active_pdk = gf.get_active_pdk()
@@ -106,6 +108,28 @@ async def load_schematic():
     with open("schematic_data.yaml") as f:
         data = yaml.safe_load(f)
     return data
+
+
+@app.get("/pdk-list", response_model=list[str])
+async def get_pdk_list() -> list[str]:
+    pdks_installed = []
+    for pdk in pdks:
+        with contextlib.suppress(ImportError, AttributeError):
+            m = importlib.import_module(pdk)
+            m.PDK
+            pdks_installed.append(pdk)
+    return pdks_installed
+
+
+class PDKItem(BaseModel):
+    pdk: str
+
+
+@app.post("/pdk-set")
+async def set_pdk(pdk_item: PDKItem):
+    pdk = pdk_item.pdk
+    load_pdk(pdk)
+    return {"message": f"PDK {pdk} set successfully!"}
 
 
 @app.get("/gds_list", response_class=HTMLResponse)
@@ -200,9 +224,12 @@ async def view_cell(request: Request, cell_name: str, variant: str | None = None
     )
 
 
-def _parse_value(value: str):
+def _parse_value(value: str) -> str | dict | list | int | float | bool:
     if not value.startswith("{") and not value.startswith("["):
-        return value
+        try:
+            return float(value)
+        except ValueError:
+            return value
     try:
         return orjson.loads(value.replace("'", '"'))
     except orjson.JSONDecodeError as e:
@@ -214,6 +241,7 @@ async def update_cell(request: Request, cell_name: str):
     """Cell name is the name of the PCell function."""
     data = await request.form()
     settings = {k: _parse_value(v) for k, v in data.items() if v != ""}
+
     if not settings:
         return RedirectResponse(
             f"/view/{cell_name}",
