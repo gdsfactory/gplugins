@@ -18,12 +18,12 @@ from collections.abc import Sequence
 from typing import Any, Literal
 
 import numpy as np
-import pydantic
+import pydantic.v1 as pydantic
 import tidy3d as td
 import xarray
 from gdsfactory.config import PATH, logger
 from gdsfactory.typings import PathType
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic.v1 import BaseModel, ConfigDict
 from tidy3d.plugins import waveguide
 from tqdm.auto import tqdm
 
@@ -157,19 +157,9 @@ class Waveguide(BaseModel):
     _waveguide = pydantic.PrivateAttr()
     model_config = ConfigDict(extra="forbid")
 
-    @field_validator("wavelength")
-    @classmethod
+    @pydantic.validator("wavelength")
     def _fix_wavelength_type(cls, v):
         return np.array(v, dtype=float)
-
-    # @field_validator("box_material", "clad_material", "core_material")
-    # @classmethod
-    # def _validate_material(cls, v) -> td.Medium:
-    #     if isinstance(v, td.CustomMedium | td.Medium):
-    #         medium = v
-    #     else:
-    #         medium = get_medium(v)
-    #     return medium
 
     @property
     def filepath(self) -> pathlib.Path | None:
@@ -1018,8 +1008,8 @@ if __name__ == "__main__":
         wavelength=1.55,
         core_width=1.0,
         slab_thickness=0.0,
-        core_material="si",
-        # core_material=td.material_library["cSi"]["Li1993_293K"],
+        # core_material="si",
+        core_material=td.material_library["cSi"]["Li1993_293K"],
         clad_material="sio2",
         core_thickness=220 * nm,
         num_modes=4,
