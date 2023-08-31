@@ -94,7 +94,7 @@ tidy3d = [
 web = [
   "jinja2",
   "python-multipart",
-  "fastapi",
+  "fastapi>=0.102.0,<1",
   "uvicorn[standard]"
 ]
 

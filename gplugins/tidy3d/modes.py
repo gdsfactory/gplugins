@@ -373,13 +373,14 @@ class Waveguide(BaseModel):
         """Plot the waveguide grid."""
         self.waveguide.plot_grid(z=0)
 
-    def plot_index(self, **kwargs) -> None:
+    def plot_index(self, **kwargs):
         """Plot the waveguide index distribution.
 
         Keyword arguments are passed to xarray.DataArray.plot.
         """
         artist = self.index.real.plot(**kwargs)
         artist.axes.set_aspect("equal")
+        return artist
 
     def plot_field(
         self,
@@ -388,7 +389,7 @@ class Waveguide(BaseModel):
         mode_index: int = 0,
         wavelength: float | None = None,
         **kwargs,
-    ) -> None:
+    ):
         """Plot the selected field distribution from a waveguide mode.
 
         Parameters:
@@ -441,6 +442,7 @@ class Waveguide(BaseModel):
         data_array.name = field_name
         artist = data_array.plot(**kwargs)
         artist.axes.set_aspect("equal")
+        return artist
 
     def _ipython_display_(self) -> None:
         """Show index in matplotlib for Jupyter Notebooks."""
@@ -1002,14 +1004,13 @@ if __name__ == "__main__":
     #     overwrite=True
     # )
 
-    import matplotlib.pyplot as plt
-
     strip = Waveguide(
         wavelength=1.55,
         core_width=1.0,
         slab_thickness=0.0,
         # core_material="si",
-        core_material=td.material_library["cSi"]["Li1993_293K"],
+        # core_material=td.material_library["cSi"]["Li1993_293K"],
+        core_material=3.47,
         clad_material="sio2",
         core_thickness=220 * nm,
         num_modes=4,
@@ -1017,8 +1018,8 @@ if __name__ == "__main__":
     # strip._data
     # strip.filepath
     # strip.plot_index()
-    strip.plot_field("Ex", mode_index=0, wavelength=1.55, value="dB")
-    plt.show()
+    # strip.plot_field("Ex", mode_index=0, wavelength=1.55, value="dB")
+    # plt.show()
     # w = np.linspace(400 * nm, 1000 * nm, 7)
     # n_eff = sweep_n_eff(strip, core_width=w)
     # fraction_te = sweep_fraction_te(strip, core_width=w)

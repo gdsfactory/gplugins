@@ -47,14 +47,12 @@ gt.materials.get_index(
 )  # get the index of a material with a given refractive index float
 
 # %%
-gt.materials.get_index(
-    "SiO2"
-)  # get the index of a material with a name string, for the case that the refractive index has only one variant
+# get the index of a material with a name string, for the case that the refractive index has only one variant
+gt.materials.get_index("AlxOy")
 
 # %%
-gt.materials.get_index(
-    ("cSi", "Li1993_293K")
-)  # get the index of a material with a name string, for the case that the refractive index has more than one variant
+# get the index of a material with a name string, for the case that the refractive index has more than one variant
+gt.materials.get_index(("cSi", "Li1993_293K"))
 
 # %% [markdown]
 # ## Waveguides
