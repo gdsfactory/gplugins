@@ -43,7 +43,6 @@ dev = [
   "mypy",
   "pyswarms",
   "autograd",
-  "ray[tune,air]",
   "hyperopt"
 ]
 devsim = [
