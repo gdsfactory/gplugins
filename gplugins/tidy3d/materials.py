@@ -115,5 +115,6 @@ if __name__ == "__main__":
     # print(get_index(spec="si"))
     # print(get_index(spec=3.4))
     # m = get_medium("SiO2")
-    m = get_medium(("cSi", "Li1993_293K"))
+    # m = get_medium(("cSi", "Li1993_293K"))
     # m = td.Medium(permittivity=1.45 ** 2)
+    m = get_medium(td.material_library["cSi"]["Li1993_293K"])
