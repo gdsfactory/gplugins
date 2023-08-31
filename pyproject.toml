@@ -30,7 +30,7 @@ dagster = ["dagster", "dagit"]
 database = [
   "sqlalchemy",
   "sqlalchemy-utils",
-  "sqlmodel>=0.0.8,<0.1",
+  # "sqlmodel>=0.0.8,<0.1",
   "boto3",
   "pymysql"
 ]
@@ -134,6 +134,7 @@ strict = true
 addopts = '--tb=short'
 norecursedirs = [
   "extra/*.py",
+  'gplugins/database',
   'gplugins/devsim',
   'gplugins/sax/integrations',
   'gplugins/tidy3d/tests/tests_sparameters'
