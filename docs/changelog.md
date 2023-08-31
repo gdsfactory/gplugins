@@ -2,6 +2,11 @@
 
 ## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.3.0...main)
 
+## [0.4.0](https://github.com/gdsfactory/gplugins/compare/v0.4.0...v0.3.0)
+
+- port to pydantic2
+- add plugins: palace and elmer
+
 ## [0.3.0](https://github.com/gdsfactory/gplugins/compare/v0.3.0...v0.2.0)
 
 - improve meshing
