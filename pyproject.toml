@@ -30,7 +30,7 @@ dagster = ["dagster", "dagit"]
 database = [
   "sqlalchemy",
   "sqlalchemy-utils",
-  "sqlmodel",
+  "sqlmodel>=0.0.8,<0.1",
   "boto3",
   "pymysql"
 ]
@@ -43,7 +43,8 @@ dev = [
   "mypy",
   "pyswarms",
   "autograd",
-  "hyperopt"
+  "hyperopt",
+  "ray"
 ]
 devsim = [
   "devsim",
