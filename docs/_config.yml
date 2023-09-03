@@ -21,6 +21,7 @@ execute:
     - "*ray_optimiser*"
     - "*03_numerical_implantation*"
     - "*02_model_extraction*"
+    - "*palace*"
     # - "*20_schematic_driven_layout*"
     # - "*001_meep_sparameters*"
     # - "*00_tidy3d.ipynb"
@@ -48,6 +49,9 @@ launch_buttons:
   notebook_interface: jupyterlab
   colab_url: "https://colab.research.google.com"
 
+bibtex_bibfiles:
+  - bibliography.bib
+
 sphinx:
   extra_extensions:
     - "sphinx.ext.autodoc"
@@ -56,7 +60,7 @@ sphinx:
     - "sphinx.ext.napoleon"
     - "sphinx.ext.viewcode"
     - "matplotlib.sphinxext.plot_directive"
-    - "sphinxcontrib.autodoc_pydantic"
+    - "sphinxcontrib.bibtex"
   config:
     #autodoc_typehints: description
     autodoc_type_aliases:
@@ -66,5 +70,3 @@ sphinx:
         .py:
             - jupytext.reads
             - fmt: py
-    bibtex_reference_style: author_year
-    bibtex_bibfiles: "bibliography.bib"

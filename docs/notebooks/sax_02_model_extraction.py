@@ -63,7 +63,7 @@ def trainable_straight_rib(parameters):
 # Next we can instantiate the `Model` proper. Here, we use the children class `FemwellWaveguideModel`. Its `outputs_from_inputs` method returns the effective index from the input geometry, and its `sdict` function uses the input geometry, length, and loss to return the S-parameters for the corresponding straight waveguide:
 
 # +
-from gplugins.sax.femwell_waveguide_model import FemwellWaveguideModel
+from gplugins.sax.integrations.femwell_waveguide_model import FemwellWaveguideModel
 
 rib_waveguide_model = FemwellWaveguideModel(
     trainable_component=trainable_straight_rib,

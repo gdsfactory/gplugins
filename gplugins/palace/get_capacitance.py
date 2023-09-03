@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import inspect
 import itertools
+import json
 import shutil
 from collections.abc import Iterable, Mapping, Sequence
 from math import inf
@@ -13,18 +14,17 @@ import gdsfactory as gf
 import gmsh
 from gdsfactory.generic_tech import LAYER_STACK
 from gdsfactory.technology import LayerStack
-from jinja2 import Environment, FileSystemLoader
 from numpy import isfinite
 from pandas import read_csv
 
 from gplugins.async_utils import execute_and_stream_output, run_async_with_event_loop
 from gplugins.typings import ElectrostaticResults, RFMaterialSpec
 
-ELECTROSTATIC_SIF = "electrostatic.sif"
-ELECTROSTATIC_TEMPLATE = Path(__file__).parent / f"{ELECTROSTATIC_SIF}.j2"
+ELECTROSTATIC_JSON = "electrostatic.json"
+ELECTROSTATIC_TEMPLATE = Path(__file__).parent / ELECTROSTATIC_JSON
 
 
-def _generate_sif(
+def _generate_json(
     simulation_folder: Path,
     name: str,
     signals: Sequence[Sequence[str]],
@@ -33,106 +33,102 @@ def _generate_sif(
     layer_stack: LayerStack,
     material_spec: RFMaterialSpec,
     element_order: int,
+    physical_name_to_dimtag_map: dict[str, tuple[int, int]],
     background_tag: str | None = None,
     simulator_params: Mapping[str, Any] | None = None,
 ):
-    # pylint: disable=unused-argument
-    """Generates a sif file for Elmer simulations using Jinja2."""
-    # Have background_tag as first s.t. unaccounted elements use it by default
-    used_materials = ({background_tag} if background_tag else {}) | {
-        v.material for v in layer_stack.layers.values()
-    }
+    """Generates a json file for capacitive Palace simulations."""
+    # TODO: Generalise to merger with the Elmer implementations"""
+    used_materials = {v.material for v in layer_stack.layers.values()} | (
+        {background_tag} if background_tag else {}
+    )
     used_materials = {
         k: material_spec[k]
         for k in used_materials
         if isfinite(material_spec[k].get("relative_permittivity", inf))
     }
 
-    sif_template = Environment(
-        loader=FileSystemLoader(ELECTROSTATIC_TEMPLATE.parent)
-    ).get_template(ELECTROSTATIC_TEMPLATE.name)
-    output = sif_template.render(**locals())
-    with open(simulation_folder / f"{name}.sif", "w", encoding="utf-8") as fp:
-        fp.write(output)
+    with open(ELECTROSTATIC_TEMPLATE) as fp:
+        palace_json_data = json.load(fp)
+
+    material_to_attributes_map = {
+        v["material"]: physical_name_to_dimtag_map[k][1] for k, v in bodies.items()
+    }
+
+    palace_json_data["Model"]["Mesh"] = f"{name}.msh"
+    palace_json_data["Domains"]["Materials"] = [
+        {
+            "Attributes": [material_to_attributes_map.get(material, None)],
+            "Permittivity": props["relative_permittivity"],
+        }
+        for material, props in used_materials.items()
+    ]
+    # TODO 3d volumes as pec???, not needed for capacitance
+    # palace_json_data['Boundaries']['PEC'] = {
+    #     'Attributes': [
+    #         physical_name_to_dimtag_map[pec][1] for pec in
+    #         (set(k for k, v in physical_name_to_dimtag_map.items() if v[0] == 3) - set(bodies) -
+    #          set(ground_layers))  # TODO same in Elmer??
+    #     ]
+    # }
+    palace_json_data["Boundaries"]["Ground"] = {
+        "Attributes": [physical_name_to_dimtag_map[layer][1] for layer in ground_layers]
+    }
+    palace_json_data["Boundaries"]["Terminal"] = [
+        {
+            "Index": i,
+            "Attributes": [
+                physical_name_to_dimtag_map[signal][1] for signal in signal_group
+            ],
+        }
+        for i, signal_group in enumerate(signals, 1)
+    ]
+    # TODO try do we get energy method without this??
+    palace_json_data["Boundaries"]["Postprocessing"]["Capacitance"] = palace_json_data[
+        "Boundaries"
+    ]["Terminal"]
+
+    palace_json_data["Solver"]["Order"] = element_order
+    palace_json_data["Solver"]["Electrostatic"]["Save"] = len(signals)
+    if simulator_params is not None:
+        palace_json_data["Solver"]["Linear"] |= simulator_params
+
+    with open(simulation_folder / f"{name}.json", "w", encoding="utf-8") as fp:
+        json.dump(palace_json_data, fp, indent=4)
 
 
-def _elmergrid(simulation_folder: Path, name: str, n_processes: int = 1):
-    """Run ElmerGrid for converting gmsh mesh to Elmer format."""
-    elmergrid = shutil.which("ElmerGrid")
-    if elmergrid is None:
-        raise RuntimeError(
-            "`ElmerGrid` not found. Make sure it is available in your PATH."
-        )
+def _palace(simulation_folder: Path, name: str, n_processes: int = 1):
+    """Run simulations with Palace."""
+    palace = shutil.which("palace")
+    if palace is None:
+        raise RuntimeError("palace not found. Make sure it is available in your PATH.")
+
+    json_file = simulation_folder / f"{Path(name).stem}.json"
     run_async_with_event_loop(
         execute_and_stream_output(
-            [elmergrid, "14", "2", name, "-autoclean"],
+            [palace, json_file]
+            if n_processes == 1
+            else [palace, "-np", str(n_processes), json_file],
             shell=False,
             log_file_dir=simulation_folder,
-            log_file_str=Path(name).stem + "_ElmerGrid",
+            log_file_str=json_file.stem + "_palace",
             cwd=simulation_folder,
         )
     )
-    if n_processes > 1:
-        run_async_with_event_loop(
-            execute_and_stream_output(
-                [
-                    elmergrid,
-                    "2",
-                    "2",
-                    f"{Path(name).stem}/",
-                    "-metiskway",
-                    str(n_processes),
-                    "4",
-                    "-removeunused",
-                ],
-                shell=False,
-                append=True,
-                log_file_dir=simulation_folder,
-                log_file_str=Path(name).stem + "_ElmerGrid",
-                cwd=simulation_folder,
-            )
-        )
 
 
-def _elmersolver(simulation_folder: Path, name: str, n_processes: int = 1):
-    """Run simulations with ElmerFEM."""
-    elmersolver_name = (
-        "ElmerSolver" if (no_mpi := n_processes == 1) else "ElmerSolver_mpi"
-    )
-    elmersolver = shutil.which(elmersolver_name)
-    if elmersolver is None:
-        raise RuntimeError(
-            f"`{elmersolver_name}` not found. Make sure it is available in your PATH."
-        )
-    sif_file = str(simulation_folder / f"{Path(name).stem}.sif")
-    run_async_with_event_loop(
-        execute_and_stream_output(
-            [elmersolver, sif_file]
-            if no_mpi
-            else ["mpiexec", "-np", str(n_processes), elmersolver, sif_file],
-            shell=False,
-            log_file_dir=simulation_folder,
-            log_file_str=Path(name).stem + "_ElmerSolver",
-            cwd=simulation_folder,
-        )
-    )
-
-
-def _read_elmer_results(
+def _read_palace_results(
     simulation_folder: Path,
     mesh_filename: str,
-    n_processes: int,
     ports: Iterable[str],
     is_temporary: bool,
 ) -> ElectrostaticResults:
-    """Fetch results from successful Elmer simulations."""
-    raw_name = Path(mesh_filename).stem
+    """Fetch results from successful Palace simulations."""
     raw_capacitance_matrix = read_csv(
-        simulation_folder / f"{raw_name}_capacitance.dat",
-        sep=r"\s+",
-        header=None,
-        dtype=float,
-    ).values
+        simulation_folder / "postpro" / "terminal-Cm.csv", dtype=float
+    ).values[
+        :, 1:
+    ]  # remove index
     return ElectrostaticResults(
         capacitance_matrix={
             (iname, jname): raw_capacitance_matrix[i][j]
@@ -146,15 +142,16 @@ def _read_elmer_results(
             else dict(
                 mesh_location=simulation_folder / mesh_filename,
                 field_file_location=simulation_folder
-                / raw_name
-                / "results"
-                / f'{raw_name}_t0001.{"pvtu" if n_processes > 1 else "vtu"}',
+                / "postpro"
+                / "paraview"
+                / "electrostatic"
+                / "electrostatic.pvd",
             )
         ),
     )
 
 
-def run_capacitive_simulation_elmer(
+def run_capacitive_simulation_palace(
     component: gf.Component,
     element_order: int = 1,
     n_processes: int = 1,
@@ -166,9 +163,10 @@ def run_capacitive_simulation_elmer(
     mesh_file: Path | str | None = None,
 ) -> ElectrostaticResults:
     """Run electrostatic finite element method simulations using
-    `Elmer`_.     Returns the field solution and resulting capacitance matrix.
+    `Palace`_.
+    Returns the field solution and resulting capacitance matrix.
 
-    .. note:: You should have `ElmerGrid`, `ElmerSolver` and `ElmerSolver_mpi` and in your PATH.
+    .. note:: You should have `palace` in your PATH.
 
     Args:
         component: Simulation environment as a gdsfactory component.
@@ -184,13 +182,14 @@ def run_capacitive_simulation_elmer(
         simulation_folder:
             Directory for storing the simulation results.
             Default is a temporary directory.
-        simulator_params: Elmer-specific parameters. See template file for more details.
+        simulator_params: Palace-specific parameters. This will be expanded to ``solver["Linear"]`` in
+            the Palace config, see `Palace documentation <https://awslabs.github.io/palace/stable/config/solver/#solver[%22Linear%22]>`_
         mesh_parameters:
             Keyword arguments to provide to :func:`~Component.to_gmsh`.
         mesh_file: Path to a ready mesh to use. Useful for reusing one mesh file.
             By default a mesh is generated according to ``mesh_parameters``.
 
-    .. _Elmer: https://github.com/ElmerCSC/elmerfem
+    .. _Palace: https://github.com/awslabs/palace
     """
 
     if layer_stack is None:
@@ -223,9 +222,12 @@ def run_capacitive_simulation_elmer(
             type="3D",
             filename=simulation_folder / filename,
             layer_stack=layer_stack,
+            n_threads=n_processes,
+            gmsh_version=2.2,  # see https://mfem.org/mesh-formats/#gmsh-mesh-formats
             **(mesh_parameters or {}),
         )
 
+    # re-read the mesh
     # `interruptible` works on gmsh versions >= 4.11.2
     gmsh.initialize(
         **(
@@ -235,19 +237,17 @@ def run_capacitive_simulation_elmer(
         )
     )
     gmsh.merge(str(simulation_folder / filename))
-    mesh_surface_entities = [
+    mesh_surface_entities = {
         gmsh.model.getPhysicalName(*dimtag)
         for dimtag in gmsh.model.getPhysicalGroups(dim=2)
-    ]
-    gmsh.finalize()
+    }
 
-    # Signals are converted to Elmer Boundary Conditions
+    # Signals are converted to Boundaries
     ground_layers = {
         next(k for k, v in layer_stack.layers.items() if v.layer == port.layer)
         for port in component.get_ports()
     }  # ports allowed only on metal
     # TODO infer port delimiter from somewhere
-    # TODO raise error for port delimiters not supported by Elmer MATC or find how to escape
     port_delimiter = "__"
     metal_surfaces = [
         e for e in mesh_surface_entities if any(ground in e for ground in ground_layers)
@@ -264,14 +264,23 @@ def run_capacitive_simulation_elmer(
 
     # dielectrics
     bodies = {
-        k: {"material": v.material}
+        k: {
+            "material": v.material,
+        }
         for k, v in layer_stack.layers.items()
         if port_delimiter not in k and k not in ground_layers
     }
     if background_tag := (mesh_parameters or {}).get("background_tag", "vacuum"):
         bodies = {**bodies, background_tag: {"material": background_tag}}
 
-    _generate_sif(
+    # TODO refactor to not require this map, the same information could be transferred with the variables above
+    physical_name_to_dimtag_map = {
+        gmsh.model.getPhysicalName(*dimtag): dimtag
+        for dimtag in gmsh.model.getPhysicalGroups()
+    }
+    gmsh.finalize()
+
+    _generate_json(
         simulation_folder,
         component.name,
         metal_signal_surfaces_grouped,
@@ -280,15 +289,14 @@ def run_capacitive_simulation_elmer(
         layer_stack,
         material_spec,
         element_order,
+        physical_name_to_dimtag_map,
         background_tag,
         simulator_params,
     )
-    _elmergrid(simulation_folder, filename, n_processes)
-    _elmersolver(simulation_folder, filename, n_processes)
-    results = _read_elmer_results(
+    _palace(simulation_folder, filename, n_processes)
+    results = _read_palace_results(
         simulation_folder,
         filename,
-        n_processes,
         component.ports,
         is_temporary=str(simulation_folder) == temp_dir.name,
     )

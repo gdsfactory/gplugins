@@ -7,7 +7,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.11.2
+#       jupytext_version: 1.15.0
 #   kernelspec:
 #     display_name: base
 #     language: python
@@ -15,22 +15,19 @@
 # ---
 
 # %% [markdown]
-# # Electrostatic simulations with Elmer
-# Here, we show how Elmer may be used to perform electrostatic simulations. For a given geometry, one needs to specify the terminals where to apply potential.
+# # Electrostatic simulations with Palace
+# Here, we show how Palace may be used to perform electrostatic simulations. For a given geometry, one needs to specify the terminals where to apply potential, similar to {doc}`./elmer_01_electrostatic.py`.
 # This effectively solves the mutual capacitance matrix for the terminals and the capacitance to ground.
 # For details on the physics, see {cite:p}`smolic_capacitance_2021`.
 #
 # ## Installation
-# See [Elmer FEM – Installation](https://www.elmerfem.org/blog/binaries/) for installation or compilation instructions. Gplugins assumes `ElmerSolver`, `ElmerSolver_mpi`, and `ElmerGrid` are available in your PATH environment variable.
+# See [Palace – Installation](https://awslabs.github.io/palace/stable/install/) for installation or compilation instructions. Gplugins assumes `palace` is available in your PATH environment variable.
 #
-# Alternatively, [Singularity / Apptainer](https://apptainer.org/) containers may be used. An example definition file is found at [CSCfi/singularity-recipes](https://github.com/CSCfi/singularity-recipes/blob/main/elmer/elmer_9.0_csc.def) and can be built with:
-# ```console
-# singularity build elmer.sif <DEFINITION_FILE>.def
-# ```
-# Afterwards, an easy install method is to add scripts to `~/.local/bin` (or elsewhere in `PATH`) calling the Singularity container for each of the necessary executables. For example, one may create a `ElmerSolver_mpi` file containing
+# Alternatively, [Singularity / Apptainer](https://apptainer.org/) containers may be used. Instructions for building and an example definition file are found at [Palace – Build using Singularity/Apptainer](https://awslabs.github.io/palace/dev/install/#Build-using-Singularity/Apptainer).
+# Afterwards, an easy install method is to add a script to `~/.local/bin` (or elsewhere in `PATH`) calling the Singularity container. For example, one may create a `palace` file containing
 # ```console
 # #!/bin/bash
-# singularity exec <CONTAINER_LOCATION>/elmer.sif ElmerSolver_mpi $@
+# singularity exec ~/palace.sif /opt/palace/bin/palace "$@"
 # ```
 #
 # ## Geometry, layer config and materials
@@ -51,7 +48,8 @@ from gdsfactory.technology import LayerStack
 from gdsfactory.technology.layer_stack import LayerLevel
 from IPython.display import display
 
-from gplugins.elmer import run_capacitive_simulation_elmer
+from gplugins.palace import run_capacitive_simulation_palace
+from gplugins.typings import RFMaterialSpec
 
 gf.config.rich_output()
 PDK = get_generic_pdk()
@@ -79,7 +77,7 @@ layer_stack = LayerStack(
         ),
     )
 )
-material_spec = {
+material_spec: RFMaterialSpec = {
     "Si": {"relative_permittivity": 11.45},
     "Nb": {"relative_permittivity": inf},
     "vacuum": {"relative_permittivity": 1},
@@ -87,7 +85,7 @@ material_spec = {
 
 # %%
 simulation_box = [[-200, -200], [200, 200]]
-c = gf.Component("capacitance_elmer")
+c = gf.Component("capacitance_palace")
 cap = c << interdigital_capacitor_enclosed(
     metal_layer=LAYER.WG, gap_layer=LAYER.DEEPTRENCH, enclosure_box=simulation_box
 )
@@ -99,11 +97,11 @@ c.flatten()
 # %% [markdown]
 # ## Running the simulation
 # ```{eval-rst}
-# We use the function :func:`~run_capacitive_simulation_elmer`. This runs the simulation and returns an instance of :class:`~ElectrostaticResults` containing the capacitance matrix and a path to the mesh and the field solution.
+# We use the function :func:`~run_capacitive_simulation_palace`. This runs the simulation and returns an instance of :class:`~ElectrostaticResults` containing the capacitance matrix and a path to the mesh and the field solutions.
 # ```
 
 # %%
-help(run_capacitive_simulation_elmer)
+help(run_capacitive_simulation_palace)
 
 # %% [markdown]
 # ```{eval-rst}
@@ -111,9 +109,8 @@ help(run_capacitive_simulation_elmer)
 #    The meshing parameters and element order shown here are very lax. As such, the computed capacitances are not very accurate.
 # ```
 
-# %% tags=["hide-output"]
-
-results = run_capacitive_simulation_elmer(
+# %%
+results = run_capacitive_simulation_palace(
     c,
     layer_stack=layer_stack,
     material_spec=material_spec,
@@ -151,16 +148,15 @@ results = run_capacitive_simulation_elmer(
 )
 display(results)
 
-
 # %%
 if results.field_file_location:
     pv.start_xvfb()
     pv.set_jupyter_backend("panel")
     field = pv.read(results.field_file_location)
-    field_slice = field.slice_orthogonal(z=layer_stack.layers["bw"].zmin * 1e-6)
+    slice = field.slice_orthogonal(z=layer_stack.layers["bw"].zmin * 1e-6)
 
     p = pv.Plotter()
-    p.add_mesh(field_slice, scalars="electric field", cmap="turbo")
+    p.add_mesh(slice, scalars="E", cmap="turbo")
     p.show_grid()
     p.camera_position = "xy"
     p.enable_parallel_projection()

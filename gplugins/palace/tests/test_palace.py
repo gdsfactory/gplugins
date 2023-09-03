@@ -3,12 +3,14 @@ from math import inf
 import gdsfactory as gf
 import pytest
 from gdsfactory.component import Component
-from gdsfactory.components import interdigital_capacitor_enclosed
+from gdsfactory.components.interdigital_capacitor_enclosed import (
+    interdigital_capacitor_enclosed,
+)
 from gdsfactory.generic_tech import LAYER
 from gdsfactory.technology import LayerStack
 from gdsfactory.technology.layer_stack import LayerLevel
 
-from gplugins.elmer import run_capacitive_simulation_elmer
+from gplugins.palace import run_capacitive_simulation_palace
 
 layer_stack = LayerStack(
     layers=dict(
@@ -81,9 +83,10 @@ def get_reasonable_mesh_parameters(c: Component):
     )
 
 
-def test_elmer_capacitance_simulation_runs(geometry):
+@pytest.mark.skip(reason="Palace not in CI")
+def test_palace_capacitance_simulation_runs(geometry):
     c = geometry
-    run_capacitive_simulation_elmer(
+    run_capacitive_simulation_palace(
         c,
         layer_stack=layer_stack,
         material_spec=material_spec,
@@ -93,9 +96,9 @@ def test_elmer_capacitance_simulation_runs(geometry):
 
 @pytest.mark.skip(reason="TODO")
 @pytest.mark.parametrize("n_processes", [(1), (2), (4)])
-def test_elmer_capacitance_simulation_n_processes(geometry, n_processes):
+def test_palace_capacitance_simulation_n_processes(geometry, n_processes):
     c = geometry
-    run_capacitive_simulation_elmer(
+    run_capacitive_simulation_palace(
         c,
         layer_stack=layer_stack,
         material_spec=material_spec,
@@ -106,9 +109,9 @@ def test_elmer_capacitance_simulation_n_processes(geometry, n_processes):
 
 @pytest.mark.skip(reason="TODO")
 @pytest.mark.parametrize("element_order", [(1), (2), (3)])
-def test_elmer_capacitance_simulation_element_order(geometry, element_order):
+def test_palace_capacitance_simulation_element_order(geometry, element_order):
     c = geometry
-    run_capacitive_simulation_elmer(
+    run_capacitive_simulation_palace(
         c,
         layer_stack=layer_stack,
         material_spec=material_spec,
@@ -118,20 +121,20 @@ def test_elmer_capacitance_simulation_element_order(geometry, element_order):
 
 
 @pytest.mark.skip(reason="TODO")
-def test_elmer_capacitance_simulation_mesh_size_field(geometry):
+def test_palace_capacitance_simulation_mesh_size_field(geometry):
     pass
 
 
 @pytest.mark.skip(reason="TODO")
-def test_elmer_capacitance_simulation_flip_chip(geometry):
+def test_palace_capacitance_simulation_flip_chip(geometry):
     pass
 
 
 @pytest.mark.skip(reason="TODO")
-def test_elmer_capacitance_simulation_pyvist_plot(geometry):
+def test_palace_capacitance_simulation_pyvist_plot(geometry):
     pass
 
 
 @pytest.mark.skip(reason="TODO")
-def test_elmer_capacitance_simulation_cdict_form(geometry):
+def test_palace_capacitance_simulation_cdict_form(geometry):
     pass
