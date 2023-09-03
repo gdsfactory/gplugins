@@ -15,8 +15,9 @@ def test_kdb_vlsir():
     kdbnet = get_netlist(gdspath)
     pkg = kdb_vlsir(kdbnet, domain="gplugins.verification.example")
     assert pkg is not None
-    assert len(pkg.modules) == 6
-    assert len(pkg.modules["pads_correct"].instances) == 10
+    assert len(pkg.modules) == 7
+    assert len(pkg.modules[6].instances) == 10
+    assert pkg.modules[6].name == "pads_correct"
     
 def test_export_netlist():
     """Test the export of a VLSIR Package to a netlist in the supported formats"""    
