@@ -156,7 +156,7 @@ def export_netlist(pkg: Package, fmt: str = "spice", dest = None) -> str:
 #! Example usage -----
 if __name__ == "__main__":
     
-    import argparse
+    from gdsfactory.samples.demo.lvs import pads_correct
     
     format_to_suffix = {
         "spice": ".sp",
@@ -165,27 +165,14 @@ if __name__ == "__main__":
         "verilog": ".v"
     }
     
-    parser = argparse.ArgumentParser(description="Convert a GDS file's extracted Netlist to a Electrical Schematic netlist", prog="parcirc")
-    parser.add_argument("gds", type=str, help="Path to the GDS file")
-    parser.add_argument("-o", "--out", type=str, default=None, help="Path to the output file. If not specified, the netlist is printed to stdout.")
-    parser.add_argument("-f", "--format", type=str, default="spice", help="Format of the output file. Supported formats are: " + ", ".join(__SUPPORTED_FORMATS))
-    args = parser.parse_args()
-    gds = args.gds
-    outpath = args.out
-    # freate file IO object for the output
-    if outpath is None:
-        out = StringIO()
-    else:
-        assert args.format in format_to_suffix, f"Unsupported format {args.format}"
-        extension = pathlib.Path(outpath).suffix
-        assert extension == format_to_suffix[args.format], f"Output file {outpath} does not have the correct extension for format {args.format}"
-    fmt = args.format
+    c = pads_correct()
+    gdspath = c.write_gds()
     # get the netlist
-    kdbnet = get_netlist(gds)
+    kdbnetlist = get_netlist(gdspath)
     # convert it to a VLSIR Package
-    pkg = kdb_vlsir(kdbnet, domain="gplugins.verification.example")
+    pkg = kdb_vlsir(kdbnetlist, domain="gplugins.verification.example")
     # export the netlist to the specified format
-    with open(outpath, "w") as out:
-        export_netlist(pkg, dest=out, fmt=fmt)
-    print(f"Netlist exported to {outpath}")
+    out = StringIO()
+    export_netlist(pkg, dest=out, fmt="spectre")
+    print(out.getvalue())
     
