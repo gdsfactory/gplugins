@@ -119,6 +119,7 @@ jobs:
       - name: Install dependencies
         run: |
           make dev
+          pip freeze > requirements.txt
       - name: Test with pytest
         env:
           SIMCLOUD_APIKEY: ${{ secrets.SIMCLOUD_APIKEY }}
@@ -130,6 +131,10 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
+      - uses: actions/upload-artifact@v3
+        with:
+          name: requirements
+          path: requirements.txt
   test_docs:
     runs-on: ubuntu-latest
     steps:
