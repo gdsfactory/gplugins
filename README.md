@@ -24,7 +24,7 @@ gdsfactory plugins:
 - `elmer` for electrostatic (capacitive) simulations.
 - `palace` for electrostatic (capacitive) simulations.
 - `web` for gdsfactory webapp.
-- `parcirc` for parsing GDS-extracted circuit netlists into Spice, Spectre and Xyce Schematic File formats.
+- `vlsir` for parsing GDS-extracted circuit netlists into Spice, Spectre and Xyce Schematic File formats.
 
 ## Installation
 

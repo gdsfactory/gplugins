@@ -1,8 +1,9 @@
 import pytest
 from gdsfactory.samples.demo.lvs import pads_correct
 
-from gplugins.parcirc import export_netlist, kdb_vlsir
+from gplugins.config import PATH
 from gplugins.verification.get_netlist import get_netlist
+from gplugins.vlsir import export_netlist, kdb_vlsir
 
 
 def test_kdb_vlsir() -> None:
@@ -25,7 +26,7 @@ def test_export_netlist() -> None:
     gdspath = c.write_gds()
     kdbnet = get_netlist(gdspath)
     pkg = kdb_vlsir(kdbnet, domain="gplugins.verification.example")
-    outfile = "./resources/pads_correct"
+    outfile = PATH.module / "vlsir" / "resources" / "pads_correct"
     format_to_suffix = {
         "spice": ".sp",
         "spectre": ".scs",
@@ -36,7 +37,7 @@ def test_export_netlist() -> None:
             with pytest.raises(NotImplementedError):
                 export_netlist(pkg, fmt=fmt)
         else:
-            outpath = outfile + format_to_suffix[fmt]
+            outpath = outfile.with_suffix(format_to_suffix[fmt])
             with open(outpath, "w") as f:
                 export_netlist(pkg, fmt=fmt, dest=f)
             with open(outpath) as f:
