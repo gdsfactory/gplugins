@@ -8,9 +8,6 @@ electrical schematic file formats:
 - Xyce
 - Verilog (Not supported yet)
 
-Author: Diogo Andre <das.dias@campus.fct.unl.pt>
-Date: Sun, 03-09-2023
-
 TODO:
     - Add support for Verilog
     - Thoroughly test the parser with more complex netlists
