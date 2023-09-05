@@ -26,7 +26,7 @@ def test_export_netlist() -> None:
     gdspath = c.write_gds()
     kdbnet = get_netlist(gdspath)
     pkg = kdb_vlsir(kdbnet, domain="gplugins.verification.example")
-    outfile = PATH.module / "vlsir" / "resources" / "pads_correct"
+    outfile = PATH.module / "vlsir" / "tests" / "resources" / "pads_correct"
     format_to_suffix = {
         "spice": ".sp",
         "spectre": ".scs",

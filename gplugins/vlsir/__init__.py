@@ -1,8 +1,5 @@
 """
-Parcirc: A parser leveraging Dan Fritchman's
-VLSIRTools for converting between
-Klayout's DB Netlist format and other
-electrical schematic file formats:
+Uses VLSIRTools for converting between Klayout's DB Netlist format and other electrical schematic file formats:
 - SPICE
 - Spectre
 - Xyce
@@ -90,7 +87,7 @@ def _subcircuit_instance(instance: SubCircuit, counter, **kwargs) -> Instance:
     # pin_names = [_pin_name(ref.net_by_id(pin_id), counter) for pin_id in range(num_pins)]
     # get all parent
     # add the instance to the package's module
-    inst = Instance(
+    return Instance(
         name=subckt_name,
         module=_lref(ref.name),
         parameters=_params(
@@ -106,13 +103,20 @@ def _subcircuit_instance(instance: SubCircuit, counter, **kwargs) -> Instance:
             }
         ),
     )
-    return inst
 
 
 def _circuit_module(
     circuit: Circuit, counter, verbose: bool = False, **kwargs
 ) -> Module:
-    """Convert a Klayout DB `Circuit` to a VLSIR 'Module' and return it to include it in the package."""
+    """Convert a Klayout DB `Circuit` to a VLSIR 'Module' and return it to include it in the package.
+
+    Args:
+        circuit: The Klayout DB `Circuit` to convert to a VLSIR `Module`.
+        counter: A counter to keep track of the number of unique net names.
+        verbose: Whether to print the generated VLSIR `Module` to stdout.
+        **kwargs: Additional keyword arguments to pass to the VLSIR `Module` constructor.
+
+    """
     name = circuit.name
     num_pins = circuit.pin_count()
     pin_nets = [circuit.net_for_pin(pin_id) for pin_id in range(num_pins)]
@@ -147,7 +151,14 @@ def _circuit_module(
 
 
 def kdb_vlsir(kdbnet: Netlist, domain: str, verbose: bool = False, **kwargs) -> Package:
-    """Create a VLSIR `Package` circuit netlist from a KLayout DB `Netlist`"""
+    """Create a VLSIR `Package` circuit netlist from a KLayout DB `Netlist`
+
+    Args:
+        kdbnet: The KLayout DB `Netlist` to convert to a VLSIR `Package`.
+        domain: The domain of the VLSIR `Package`.
+        verbose: Whether to print the generated VLSIR `Package` to stdout.
+        **kwargs: Additional keyword arguments to pass to the VLSIR `Package` constructor.
+    """
     _net_names_count = count()  # count the number of unique net names
     modules = [
         _circuit_module(circuit, _net_names_count, verbose=verbose)
@@ -157,7 +168,13 @@ def kdb_vlsir(kdbnet: Netlist, domain: str, verbose: bool = False, **kwargs) -> 
 
 
 def export_netlist(pkg: Package, fmt: str = "spice", dest=None) -> str:
-    """Export a VLSIR `Package` circuit netlist to a string in the specified format"""
+    """Export a VLSIR `Package` circuit netlist to a string in the specified format.
+
+    Args:
+        pkg: The VLSIR `Package` to export.
+        fmt: The format to export to. Supported formats are: "spice", "spectre", "xyce", "verilog".
+        dest: The destination to write the exported netlist to. If None, a StringIO object is used.
+    """
     assert fmt in __SUPPORTED_FORMATS, f"Unsupported format {fmt}"
     if fmt == "verilog":
         raise NotImplementedError("Verilog export is not supported yet")
@@ -166,7 +183,6 @@ def export_netlist(pkg: Package, fmt: str = "spice", dest=None) -> str:
     return vlsirtools.netlist(pkg=pkg, dest=dest, fmt=fmt)
 
 
-#! Example usage -----
 if __name__ == "__main__":
     from gdsfactory.samples.demo.lvs import pads_correct
 
