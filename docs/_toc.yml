@@ -69,5 +69,7 @@ parts:
       - file: changelog
       - url: https://gdsfactory.github.io/gdsfactory
         title: gdsfactory
+      - url: https://github.com/gdsfactory/gdsfactory-photonics-training
+        title: gdsfactory-photonics-training
       - url: https://piel.readthedocs.io/en/latest/index.html
         title: electronics-integration
