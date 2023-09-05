@@ -32,8 +32,6 @@ from vlsir.circuit_pb2 import (
 )
 from vlsir.utils_pb2 import Param, Reference
 
-from gplugins.verification.get_netlist import get_netlist
-
 __SUPPORTED_FORMATS = ["spice", "spectre", "xyce", "verilog"]
 
 
@@ -186,6 +184,8 @@ def export_netlist(pkg: Package, fmt: str = "spice", dest=None) -> str:
 if __name__ == "__main__":
     from gdsfactory.samples.demo.lvs import pads_correct
 
+    from gplugins.verification.get_netlist import get_netlist
+
     format_to_suffix = {
         "spice": ".sp",
         "spectre": ".scs",
@@ -195,10 +195,13 @@ if __name__ == "__main__":
 
     c = pads_correct()
     gdspath = c.write_gds()
+
     # get the netlist
     kdbnetlist = get_netlist(gdspath)
+
     # convert it to a VLSIR Package
     pkg = kdb_vlsir(kdbnetlist, domain="gplugins.verification.example")
+
     # export the netlist to the specified format
     out = StringIO()
     export_netlist(pkg, dest=out, fmt="spectre")
