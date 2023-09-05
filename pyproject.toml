@@ -91,6 +91,10 @@ schematic = [
 tidy3d = [
   "tidy3d>=2.4.0rc2,<2.5.0"
 ]
+vlsir = [
+  "vlsir>=4.0.0,<5.0.0",
+  "vlsirtools>=4.0.0,<5.0.0"
+]
 web = [
   "jinja2",
   "python-multipart",
