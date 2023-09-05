@@ -1,18 +1,12 @@
-#! Tests -----
 import pytest
+from gdsfactory.samples.demo.lvs import pads_correct
+
+from gplugins.parcirc import export_netlist, kdb_vlsir
+from gplugins.verification.get_netlist import get_netlist
 
 
-def test_import():
-    pass
-
-
-def test_kdb_vlsir():
-    from gplugins.verification.get_netlist import get_netlist
-
+def test_kdb_vlsir() -> None:
     """Test the conversion from KLayout DB Netlist to VLSIR Package"""
-    from gdsfactory.samples.demo.lvs import pads_correct
-
-    from gplugins.parcirc import kdb_vlsir
 
     c = pads_correct()
     gdspath = c.write_gds()
@@ -24,12 +18,8 @@ def test_kdb_vlsir():
     assert pkg.modules[6].name == "pads_correct"
 
 
-def test_export_netlist():
+def test_export_netlist() -> None:
     """Test the export of a VLSIR Package to a netlist in the supported formats"""
-    from gdsfactory.samples.demo.lvs import pads_correct
-
-    from gplugins.parcirc import export_netlist, kdb_vlsir
-    from gplugins.verification.get_netlist import get_netlist
 
     c = pads_correct()
     gdspath = c.write_gds()
