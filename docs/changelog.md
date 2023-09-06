@@ -1,6 +1,10 @@
 # [CHANGELOG](https://keepachangelog.com/en/1.0.0/)
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.4.0...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.5.0...main)
+
+## [0.5.0](https://github.com/gdsfactory/gplugins/compare/v0.4.0...v0.5.0)
+
+- add vlsir plugin
 
 ## [0.4.0](https://github.com/gdsfactory/gplugins/compare/v0.3.0...v0.4.0)
 
