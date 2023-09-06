@@ -26,11 +26,11 @@
 #
 # | Analysis             | Spectre            | Xyce               | NgSpice     |
 # | -------------------- | ------------------ | ------------------ | ------------------ |
-# | Op                   | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-# | Dc                   | :white_check_mark: | :white_check_mark: | |
-# | Tran                 | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-# | Ac                   | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-# | Noise                |                    |                    | :white_check_mark: |
+# | Op                   | ✅ | ✅ | ✅ |
+# | Dc                   | ✅ | ✅ | |
+# | Tran                 | ✅ | ✅ | ✅ |
+# | Ac                   | ✅ | ✅ | ✅ |
+# | Noise                |                    |                    | ✅ |
 # | Sweep                |  |  |  |
 # | Monte Carlo          |  |  |  |
 # | Custom               |  |  |  |
