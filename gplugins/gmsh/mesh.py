@@ -126,6 +126,7 @@ def mesh_from_polygons(
     global_meshsize_interpolant_func: callable | None = NearestNDInterpolator,
     verbosity: bool | None = False,
     atol: float | None = 1e-4,
+    periodic_lines: tuple[(str, str)] | None = None,
 ):
     """Return a 2D mesh from an ordered dict of shapely polygons.
 
@@ -141,6 +142,7 @@ def mesh_from_polygons(
         global_meshsize_interpolant: interpolation function for array [x,y,z,lc]. Default scipy.interpolate.NearestNDInterpolator
         verbosity: boolean, gmsh stdout as it meshes
         atol: tolerance used to establish equivalency between vertices
+        periodic_lines: list of tuples of line names to make periodic mesh-wise
     """
     global_meshsize_callback_bool = global_meshsize_array is not None
 
@@ -175,6 +177,37 @@ def mesh_from_polygons(
             global_meshsize_array,
             global_meshsize_interpolant_func,
         )
+
+    # Force periodicity (experimental)
+    if periodic_lines:
+        for label1, label2 in periodic_lines:
+            line1 = shapes_dict[label1]
+            line2 = shapes_dict[label2]
+            gmsh.model.setCurrent("pygmsh model")
+            translation = np.array(line1.coords[0]) - np.array(line2.coords[0])
+            gmsh.model.mesh.setPeriodic(
+                1,
+                meshtracker.get_gmsh_xy_lines_from_label(label1),
+                meshtracker.get_gmsh_xy_lines_from_label(label2),
+                [
+                    1,
+                    0,
+                    0,
+                    translation[0],
+                    0,
+                    1,
+                    0,
+                    translation[1],
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                ],
+            )
 
     # HACK: force shared nodes across interfaces
     gmsh.model.occ.remove_all_duplicates()
