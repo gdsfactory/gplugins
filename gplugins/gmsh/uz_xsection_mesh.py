@@ -210,6 +210,7 @@ def uz_xsection_mesh(
     simplify_tol: float = 1e-4,
     u_offset: float = 0.0,
     atol: float | None = 1e-5,
+    left_right_periodic_bcs: bool = False,
     **kwargs,
 ):
     """Mesh uz cross-section of component along line u = [[x1,y1] , [x2,y2]].
@@ -233,6 +234,7 @@ def uz_xsection_mesh(
         simplify_tol: during gds --> mesh conversion cleanup, shapely "simplify" tolerance (make it so all points are at least separated by this amount)
         u_offset: quantity to add to the "u" coordinates, useful to convert back to x or y if parallel to those axes
         atol: tolerance used to establish equivalency between vertices
+        left_right_periodic_bcs: if True, makes the left and right simulation edge meshes periodic
     """
     interface_surfaces = interface_surfaces or {}
 
@@ -306,8 +308,28 @@ def uz_xsection_mesh(
     if merge_by_material:
         shapes = merge_by_material_func(shapes, layerstack)
 
-    # Create interface surfaces
+    # Create interface surfaces and boundaries
     reordered_shapes = OrderedDict()
+    minu = np.inf
+    minz = np.inf
+    maxu = -np.inf
+    maxz = -np.inf
+    periodic_lines = None
+    if left_right_periodic_bcs:
+        # Figure out bbox of simulation
+        for polygon in shapes.values():
+            minx, miny, maxx, maxy = polygon.bounds
+            minu = min(minx, minu)
+            minz = min(miny, minz)
+            maxu = max(maxx, maxu)
+            maxz = max(maxy, maxz)
+        # Create lines
+        left_line = LineString([(minu, minz), (minu, maxz)])
+        right_line = LineString([(maxu, minz), (maxu, maxz)])
+        reordered_shapes["left_line"] = left_line
+        reordered_shapes["right_line"] = right_line
+        periodic_lines = [("left_line", "right_line")]
+
     for label in shapes.keys():
         if interface_surfaces and label in interface_surfaces.keys():
             buffer_in, buffer_out, simplification = interface_surfaces[label]
@@ -327,6 +349,7 @@ def uz_xsection_mesh(
         global_meshsize_array=global_meshsize_array,
         global_meshsize_interpolant_func=global_meshsize_interpolant_func,
         atol=atol,
+        periodic_lines=periodic_lines,
     )
 
 
@@ -342,7 +365,8 @@ if __name__ == "__main__":
             layer="UNDERCUT",
             centered=True,
         )
-    ).move(destination=[4, 0])
+    )
+    undercut.move(destination=[4, 0])
     c.show()
 
     filtered_layerstack = LayerStack(
@@ -352,7 +376,7 @@ if __name__ == "__main__":
                 "slab90",
                 "core",
                 "via_contact",
-                # "undercut",
+                "undercut",
                 "box",
                 # "substrate",
                 "clad",
@@ -385,6 +409,7 @@ if __name__ == "__main__":
         round_tol=3,
         simplify_tol=1e-3,
         u_offset=-15,
+        left_right_periodic_bcs=True,
     )
 
     import meshio

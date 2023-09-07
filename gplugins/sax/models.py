@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import jax.numpy as jnp
-from sax.typing_ import SDict
+from sax import SDict
 from sax.utils import reciprocal
 
 nm = 1e-3

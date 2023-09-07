@@ -42,6 +42,7 @@ parts:
           - file: notebooks/sax_02_model_extraction
           - file: notebooks/sax_03_variability_analysis
           - file: notebooks/lumerical_2_interconnect
+          - file: notebooks/vlsir_netlist
       - file: notebooks/20_schematic_driven_layout
   - caption: Verification
     chapters:
@@ -68,5 +69,7 @@ parts:
       - file: changelog
       - url: https://gdsfactory.github.io/gdsfactory
         title: gdsfactory
+      - url: https://github.com/gdsfactory/gdsfactory-photonics-training
+        title: gdsfactory-photonics-training
       - url: https://piel.readthedocs.io/en/latest/index.html
         title: electronics-integration

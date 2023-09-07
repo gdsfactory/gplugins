@@ -5,7 +5,7 @@ from __future__ import annotations
 import matplotlib.pyplot as plt
 import numpy as np
 from pydantic import validate_arguments
-from sax.typing_ import Model
+from sax.saxtypes import Model
 
 
 @validate_arguments

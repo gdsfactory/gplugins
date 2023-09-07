@@ -14,7 +14,7 @@ classifiers = [
   "Operating System :: OS Independent"
 ]
 dependencies = [
-  "gdsfactory[cad]>=7.3.2",
+  "gdsfactory[cad]>=7.4.0",
   "pint"
 ]
 description = "gdsfactory plugins"
@@ -23,15 +23,14 @@ license = {file = "LICENSE"}
 name = "gplugins"
 readme = "README.md"
 requires-python = ">=3.10"
-version = "0.3.1"
+version = "0.5.0"
 
 [project.optional-dependencies]
+dagster = ["dagster", "dagit"]
 database = [
   "sqlalchemy",
   "sqlalchemy-utils",
-  "dagster",
-  "dagit",
-  "sqlmodel",
+  # "sqlmodel>=0.0.8,<0.1",
   "boto3",
   "pymysql"
 ]
@@ -44,23 +43,22 @@ dev = [
   "mypy",
   "pyswarms",
   "autograd",
-  "ray[tune,air]",
-  "hyperopt"
+  "hyperopt",
+  "ray"
 ]
 devsim = [
   "devsim",
   "pyvista",
-  "tidy3d"
+  "tidy3d>=2.4.0rc2,<2.5.0"
 ]
 docs = [
   "jupytext",
-  "autodoc_pydantic",
   "matplotlib",
   "jupyter-book==0.15.1",
   "pyvista[jupyter]"
 ]
 femwell = [
-  "femwell>=0.1.6,<0.3.1"
+  "femwell>=0.1.6,<0.5.0"
 ]
 gmsh = [
   "gmsh",
@@ -71,17 +69,17 @@ gmsh = [
   "pyvista",
   "trimesh",
   "shapely",
-  "meshwell>=0.0.9,<0.3.1"
+  "meshwell>=0.0.9,<0.5.0"
 ]
 klayout = [
-  "kfactory[git,ipy]==0.7.5"
+  "kfactory[git,ipy]>=0.8.4,<0.9"
 ]
 meow = [
-  "meow-sim>=0.7.1,<0.8.0",
-  "tidy3d>=2.3.3,<2.4.0"
+  "meow-sim>=0.8.0,<0.9.0",
+  "tidy3d>=2.4.0rc2,<2.5.0"
 ]
 sax = [
-  "sax>=0.8.8,<0.9.0",
+  "sax>=0.10.1,<0.11.0",
   "jaxlib",
   "jax",
   "scikit-learn"
@@ -91,12 +89,16 @@ schematic = [
   "natsort"
 ]
 tidy3d = [
-  "tidy3d>=2.3.3,<2.4.0"
+  "tidy3d>=2.4.0rc2,<2.5.0"
+]
+vlsir = [
+  "vlsir>=4.0.0,<5.0.0",
+  "vlsirtools>=4.0.0,<5.0.0"
 ]
 web = [
   "jinja2",
   "python-multipart",
-  "fastapi",
+  "fastapi>=0.102.0,<1",
   "uvicorn[standard]"
 ]
 
@@ -136,6 +138,8 @@ strict = true
 addopts = '--tb=short'
 norecursedirs = [
   "extra/*.py",
+  'gplugins/dagster',
+  'gplugins/database',
   'gplugins/devsim',
   'gplugins/sax/integrations',
   'gplugins/tidy3d/tests/tests_sparameters'
