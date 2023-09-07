@@ -53,9 +53,10 @@ def map_unique_layerstack_z(
     return unique_z_dict
 
 
-def get_layer_overlaps_z(layerstack: LayerStack,
-                         include_zmax: bool = True,
-                         ):
+def get_layer_overlaps_z(
+    layerstack: LayerStack,
+    include_zmax: bool = True,
+):
     """Maps layers to unique LayerStack z coordinates.
 
     Args:
