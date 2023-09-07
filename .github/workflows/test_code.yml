@@ -164,6 +164,7 @@ jobs:
           GDSFACTORY_DISPLAY_TYPE: klayout
         run: |
           make docs
+          python .github/test_doc_errors.py
       - name: Expose docs artifact
         uses: actions/upload-artifact@v3
         if: always()
