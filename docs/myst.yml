@@ -1,0 +1,18 @@
+# See docs at: https://mystmd.org/guide/frontmatter
+version: 1
+project:
+  # title:
+  # description:
+  keywords: []
+  authors: []
+  github: https://github.com/gdsfactory/gplugins
+  # bibliography: []
+site:
+  template: book-theme
+  title: gplugins
+  logo: logo.png
+  nav: []
+  actions:
+    - title: Learn More
+      url: https://mystmd.org/guide
+  domains: []

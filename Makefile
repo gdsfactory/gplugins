@@ -51,9 +51,9 @@ jupytext:
 	jupytext docs/**/*.ipynb --to py
 
 notebooks:
-	jupytext docs/**/*.py --to ipynb
+	GDSFACTORY_DISPLAY_TYPE=klayout jupytext docs/notebooks/*.py --to ipynb --execute
 
-docs:
-	jb build docs
+docs: notebooks
+	npm install -g mystmd
 
 .PHONY: drc doc docs
