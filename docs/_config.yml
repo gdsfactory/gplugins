@@ -45,9 +45,9 @@ repository:
   path_to_book: docs # Optional path to your book, relative to the repository root
   branch: main # Which branch of the repository should be used when creating links (optional)
 
-launch_buttons:
-  notebook_interface: jupyterlab
-  colab_url: "https://colab.research.google.com"
+# launch_buttons:
+#   notebook_interface: jupyterlab
+#   colab_url: "https://colab.research.google.com"
 
 bibtex_bibfiles:
   - bibliography.bib
