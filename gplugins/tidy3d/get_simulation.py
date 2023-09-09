@@ -7,7 +7,6 @@ import gdsfactory as gf
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-import pydantic
 import tidy3d as td
 from gdsfactory.component import Component
 from gdsfactory.components.extension import move_polar_rad_copy
@@ -24,7 +23,6 @@ from gplugins.tidy3d.materials import (
 )
 
 
-@pydantic.validate_arguments
 def get_simulation(
     component: ComponentSpec,
     port_extension: float | None = 4.0,
