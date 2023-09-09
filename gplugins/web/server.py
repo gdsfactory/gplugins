@@ -34,8 +34,10 @@ class LayoutViewServerEndpoint(WebSocketEndpoint):
         # self.url = params["gds_file"].replace('/', '\\')
         # self.layer_props = params.get("layer_props", None)
         lyp_path = GDSDIR_TEMP / "layer_props.lyp"
-        gf.get_active_pdk().layer_views.to_lyp(lyp_path)
-        self.layer_props = lyp_path
+        active_pdk = gf.get_active_pdk()
+        if active_pdk.layer_views:
+            active_pdk.layer_views.to_lyp(lyp_path)
+            self.layer_props = lyp_path
         # path_params = args[0]['path_params']
         # cell_name = path_params["cell_name"]
         cell_name = params["variant"]
@@ -196,10 +198,12 @@ class LayoutViewServerEndpoint(WebSocketEndpoint):
             self.wheel_event(self.layout_view.send_wheel_event, js)
 
 
-def get_layer_properties() -> str:
+def get_layer_properties() -> str | None:
     lyp_path = GDSDIR_TEMP / "layers.lyp"
-    lyp_path = gf.get_active_pdk().layer_views.to_lyp(lyp_path)
-    return str(lyp_path)
+    active_pdk = gf.get_active_pdk()
+    if active_pdk.layer_views:
+        lyp_path = active_pdk.layer_views.to_lyp(lyp_path)
+        return str(lyp_path)
 
 
 def get_layout_view(component: gf.Component) -> lay.LayoutView:
@@ -209,6 +213,7 @@ def get_layout_view(component: gf.Component) -> lay.LayoutView:
     layout_view = lay.LayoutView()
     layout_view.load_layout(str(gds_path))
     lyp_path = get_layer_properties()
-    layout_view.load_layer_props(str(lyp_path))
+    if lyp_path:
+        layout_view.load_layer_props(str(lyp_path))
     layout_view.max_hier()
     return layout_view

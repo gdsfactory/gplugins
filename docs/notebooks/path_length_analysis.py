@@ -78,4 +78,3 @@ report_pathlengths(
 
 # %% [markdown]
 # Clicking any of the routes or checking any of the boxes should highlight the respective route in the color shown in the table to the right to help you better identify them. Hovering over any of the routes or ports will display additional information.
-# ![pathlength report](images/pathlength_report_highlighted.png)

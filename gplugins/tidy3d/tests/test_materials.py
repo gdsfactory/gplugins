@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 import tidy3d as td
-from pydantic import ValidationError
+from pydantic.v1 import ValidationError
 
 import gplugins.tidy3d as gt
 
@@ -66,8 +66,8 @@ def test_material_library_many_variants() -> None:
 
 def test_material_library_single_variant() -> None:
     strip = gt.modes.Waveguide(
-        core_material="SiO2",
-        clad_material="sio2",
+        core_material="AlxOy",
+        clad_material="AlxOy",
         **settings,
     )
     strip._data
@@ -84,6 +84,7 @@ def test_material_library() -> None:
 
 if __name__ == "__main__":
     pytest.main([__file__])
+    # test_material_validation_error()
     # test_material_medium()
     # test_material_float()
     # test_material_library()

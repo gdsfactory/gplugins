@@ -30,7 +30,7 @@ jobs:
       matrix:
         python-version: ['3.11']
         os: [ubuntu-latest]
-        plugin: [femwell, gmsh, meow, sax, tidy3d, klayout]
+        plugin: [femwell, gmsh, meow, sax, tidy3d, klayout, vlsir]
 
     name: Test ${{ matrix.plugin }} on ${{ matrix.os }}
     steps:
@@ -119,6 +119,11 @@ jobs:
       - name: Install dependencies
         run: |
           make dev
+          pip freeze > requirements.txt
+      - uses: actions/upload-artifact@v3
+        with:
+          name: requirements
+          path: requirements.txt
       - name: Test with pytest
         env:
           SIMCLOUD_APIKEY: ${{ secrets.SIMCLOUD_APIKEY }}
@@ -159,6 +164,7 @@ jobs:
           GDSFACTORY_DISPLAY_TYPE: klayout
         run: |
           make docs
+          python .github/test_doc_errors.py
       - name: Expose docs artifact
         uses: actions/upload-artifact@v3
         if: always()
