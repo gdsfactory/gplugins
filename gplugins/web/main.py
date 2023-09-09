@@ -1,5 +1,4 @@
 import base64
-import contextlib
 import importlib
 import os
 import pathlib
@@ -78,11 +77,13 @@ async def root(request: Request):
 async def get_pdk_list() -> list[str]:
     pdks_installed = []
     for pdk in pdks:
-        with contextlib.suppress(ImportError, AttributeError):
+        try:
             m = importlib.import_module(pdk)
             m.PDK
             pdks_installed.append(pdk)
-    return pdks_installed
+        except Exception as e:
+            logger.error(f"Could not import {pdk} {e}")
+    return sorted(pdks_installed)
 
 
 class PDKItem(BaseModel):
