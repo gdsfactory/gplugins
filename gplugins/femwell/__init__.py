@@ -1,5 +1,5 @@
 from __future__ import annotations
 
-from .solve_thermal import solve_thermal
+from .mode_solver import compute_component_slice_modes, compute_cross_section_modes
 
-__all__ = ("solve_thermal",)
+__all__ = ("compute_cross_section_modes", "compute_component_slice_modes")
