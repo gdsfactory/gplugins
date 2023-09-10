@@ -15,7 +15,7 @@ from gplugins.gmsh.parse_component import (
     process_buffers,
 )
 from gplugins.gmsh.parse_gds import cleanup_component
-from gplugins.gmsh.parse_layerstack import (
+from gplugins.utils.parse_layerstack import (
     get_layers_at_z,
     order_layerstack,
 )

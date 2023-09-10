@@ -9,13 +9,6 @@ from gplugins.gmsh.parse_gds import (
     tile_shapes,
     to_polygons,
 )
-from gplugins.gmsh.parse_layerstack import (
-    get_layer_overlaps_z,
-    get_layers_at_z,
-    list_unique_layerstack_z,
-    map_unique_layerstack_z,
-    order_layerstack,
-)
 from gplugins.gmsh.uz_xsection_mesh import (
     get_u_bounds_layers,
     get_u_bounds_polygons,
@@ -23,6 +16,13 @@ from gplugins.gmsh.uz_xsection_mesh import (
     uz_xsection_mesh,
 )
 from gplugins.gmsh.xy_xsection_mesh import xy_xsection_mesh
+from gplugins.utils.parse_layerstack import (
+    get_layer_overlaps_z,
+    get_layers_at_z,
+    list_unique_layerstack_z,
+    map_unique_layerstack_z,
+    order_layerstack,
+)
 
 __all__ = [
     "mesh_from_polygons",
