@@ -33,6 +33,7 @@ parts:
       - file: plugins_fdtd
         sections:
           - file: notebooks/tidy3d_00_tidy3d
+          - file: notebooks/fdtdz_01.py
           - file: notebooks/meep_01_sparameters
           - file: notebooks/meep_02_gratings
           - file: notebooks/lumerical_1_fdtd_sparameters
