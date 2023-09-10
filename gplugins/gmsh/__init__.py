@@ -9,7 +9,7 @@ from gplugins.gmsh.parse_gds import (
     tile_shapes,
     to_polygons,
 )
-from gplugins.gmsh.parse_layerstack import (
+from gplugins.utils.parse_layerstack import (
     get_layer_overlaps_z,
     get_layers_at_z,
     list_unique_layerstack_z,

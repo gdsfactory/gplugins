@@ -17,7 +17,7 @@ from shapely.ops import unary_union
 
 from gplugins.gmsh.parse_component import bufferize
 from gplugins.gmsh.parse_gds import cleanup_component
-from gplugins.gmsh.parse_layerstack import (
+from gplugins.utils.parse_layerstack import (
     list_unique_layerstack_z,
     order_layerstack,
 )
