@@ -12,4 +12,4 @@ if __name__ == "__main__":
             print(error)
         raise ValueError(f"{len(error_files)} errors in notebooks")
     else:
-        print("No errors in notebooks")
+        print(f"No errors in notebooks in {dirpath}")
