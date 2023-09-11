@@ -36,7 +36,7 @@ DEFAULT_CS_COLORS = {
 
 def get_internal_netlist_attributes(
     route_inst_def: dict[str, dict], route_info: dict | None, component: Component
-):
+) -> dict[str, Any] | None:
     if route_info:
         link = _get_link_name(component)
         component_name = route_inst_def["component"]
@@ -47,14 +47,14 @@ def get_internal_netlist_attributes(
         return None
 
 
-def _get_link_name(component: Component):
+def _get_link_name(component: Component) -> str:
     ports = sorted(component.ports.keys())
     if len(ports) != 2:
         raise ValueError("routing components must have two ports")
     return ":".join(ports)
 
 
-def _node_to_inst_port(node: str):
+def _node_to_inst_port(node: str) -> tuple[str, str]:
     ip = node.split(",")
     if len(ip) == 2:
         inst, port = ip
@@ -92,7 +92,7 @@ def sum_route_attrs(records):
 
 def report_pathlengths(
     pic: Component, result_dir, visualize=False, component_connectivity=None
-):
+) -> None:
     print(f"Reporting pathlengths for {pic.name}...")
     pathlength_graph = get_edge_based_route_attr_graph(
         pic, recursive=True, component_connectivity=component_connectivity
@@ -187,7 +187,9 @@ def _get_subinst_node_name(node_name, inst_name):
     )
 
 
-def idealized_mxn_connectivity(inst_name: str, ref: ComponentReference, g: nx.Graph):
+def idealized_mxn_connectivity(
+    inst_name: str, ref: ComponentReference, g: nx.Graph
+) -> None:
     """
     Connects all input ports to all output ports of m x n components, with idealized routes
 
@@ -195,6 +197,7 @@ def idealized_mxn_connectivity(inst_name: str, ref: ComponentReference, g: nx.Gr
         inst_name: The name of the instance we are providing internal routing for.
         ref: The component reference.
         g: The main graph we are adding connectivity to.
+
     Returns:
         None (graph is modified in-place)
     """
@@ -214,7 +217,7 @@ def _get_edge_based_route_attr_graph(
     component_connectivity=None,
     netlist=None,
     netlists=None,
-):
+) -> nx.Graph:
     connections = netlist["connections"]
     top_level_ports = netlist["ports"]
     g = nx.Graph()
