@@ -11,3 +11,5 @@ if __name__ == "__main__":
             error = error_file.read_text()
             print(error)
         raise ValueError(f"{len(error_files)} errors in notebooks")
+    else:
+        print("No errors in notebooks")
