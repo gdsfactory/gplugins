@@ -50,9 +50,10 @@ jupytext:
 	jupytext docs/**/*.ipynb --to py
 
 notebooks:
-	jupytext docs/**/*.py --to ipynb
+	python -m ipykernel install --name kernel_name --user
+	GDSFACTORY_DISPLAY_TYPE=klayout jupytext docs/notebooks/*.py --to ipynb --execute
 
-docs:
+docs: notebooks
 	jb build docs
 
 .PHONY: drc doc docs

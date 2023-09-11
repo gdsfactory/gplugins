@@ -44,7 +44,8 @@ dev = [
   "pyswarms",
   "autograd",
   "hyperopt",
-  "ray"
+  "ray",
+  'papermill'
 ]
 devsim = [
   "devsim",
