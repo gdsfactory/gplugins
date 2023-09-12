@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-import pathlib
+from collections.abc import Sequence
+from pathlib import Path
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -12,8 +14,8 @@ class ElectrostaticResults(BaseModel):
     """Results class for electrostatic simulations."""
 
     capacitance_matrix: CDict
-    mesh_location: pathlib.Path | None = None
-    field_file_location: pathlib.Path | None = None
+    mesh_location: Path | None = None
+    field_file_location: Path | None = None
 
     # TODO uncomment after move to pydantic v2
     # @computed_field
@@ -35,8 +37,17 @@ class ElectrostaticResults(BaseModel):
     #     return matrix
 
 
+class DrivenFullWaveResults(BaseModel):
+    """Results class for driven full-wave simulations."""
+
+    scattering_matrix: Any  # TODO convert to SDict or similar
+    mesh_location: Path | None = None
+    field_file_locations: Sequence[Path] | None = None
+
+
 __all__ = (
     "CDict",
-    "RFMaterialSpec",
+    "DrivenFullWaveResults",
     "ElectrostaticResults",
+    "RFMaterialSpec",
 )
