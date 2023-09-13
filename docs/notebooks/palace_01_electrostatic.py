@@ -33,7 +33,6 @@
 # ## Geometry, layer config and materials
 
 # %% tags=["hide-input"]
-
 import os
 from math import inf
 from pathlib import Path
@@ -109,7 +108,7 @@ help(run_capacitive_simulation_palace)
 #    The meshing parameters and element order shown here are very lax. As such, the computed capacitances are not very accurate.
 # ```
 
-# %%
+# %% tags=["hide-output"]
 results = run_capacitive_simulation_palace(
     c,
     layer_stack=layer_stack,

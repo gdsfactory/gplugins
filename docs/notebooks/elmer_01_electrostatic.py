@@ -36,7 +36,6 @@
 # ## Geometry, layer config and materials
 
 # %% tags=["hide-input"]
-
 import os
 from math import inf
 from pathlib import Path
@@ -112,7 +111,6 @@ help(run_capacitive_simulation_elmer)
 # ```
 
 # %% tags=["hide-output"]
-
 results = run_capacitive_simulation_elmer(
     c,
     layer_stack=layer_stack,

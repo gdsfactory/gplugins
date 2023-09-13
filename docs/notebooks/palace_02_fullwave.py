@@ -29,7 +29,7 @@
 # This effectively solves the scattering parameters for the terminals.
 #
 # In this notebook, we the same interdigital capacitor as in {doc}`palace_01_electrostatic.py` but add lumped ports to the geometry.
-# Afterwards, the capacitance matrix can be computed from the scattering parameters as described in {eq}`s_to_y_to_c`.
+# Afterwards, the capacitance matrix can be computed from the scattering parameters as described in Eq. {eq}`s_to_y_to_c`.
 #
 # ## Installation
 # See [Palace – Installation](https://awslabs.github.io/palace/stable/install/) for installation or compilation instructions. Gplugins assumes `palace` is available in your PATH environment variable.
@@ -43,8 +43,7 @@
 #
 # ## Geometry, layer config and materials
 
-# %%
-
+# %% tags=["hide-input"]
 import os
 from math import inf
 from pathlib import Path
@@ -113,7 +112,6 @@ cap = c << interdigital_capacitor_enclosed(
 c.show()
 
 # %%
-
 # Add lumped port rectangles manually, see examples for https://awslabs.github.io/palace/stable/examples/cpw/
 lumped_port_1_1 = gf.components.bbox(((-40, 11), (-46, 5)), layer=LAYER.PORT)
 lumped_port_1_2 = gf.components.bbox(((-40, -11), (-46, -5)), layer=LAYER.PORT)
@@ -143,7 +141,7 @@ c.show()
 # %%
 help(run_scattering_simulation_palace)
 
-# %%
+# %% tags=["hide-output"]
 results = run_scattering_simulation_palace(
     c,
     layer_stack=layer_stack,
