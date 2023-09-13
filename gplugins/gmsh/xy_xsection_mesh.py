@@ -66,16 +66,25 @@ def xy_xsection_mesh(
 
     # Find layers present at this z-level
     layers = get_layers_at_z(layerstack, z)
+    # Order the layers by their mesh_order in the layerstack
+    layers = sorted(layers, key=lambda x: layerstack.layers[x].mesh_order)
 
     # Determine effective buffer (or even presence of layer) at this z-level
     shapes = OrderedDict()
-    for layername, polygons in layer_polygons_dict.items():
+    for layername in layers:
+        polygons = layer_polygons_dict[layername]
         if layername in layers:
             # Calculate the buffer
-            z_fraction = (z - layerstack.layers[layername].zmin) / (
-                layerstack.layers[layername].zmin
-                + layerstack.layers[layername].thickness
-            )
+            if layerstack.layers[layername].thickness < 0:
+                zmin = (
+                    layerstack.layers[layername].zmin
+                    + layerstack.layers[layername].thickness
+                )
+                thickness = abs(layerstack.layers[layername].thickness)
+            else:
+                zmin = layerstack.layers[layername].zmin
+                thickness = layerstack.layers[layername].thickness
+            z_fraction = (z - zmin) / thickness
             if layerstack.layers[layername].z_to_bias:
                 fractions, buffers = zip(*layerstack.layers[layername].z_to_bias)
                 buffer = np.interp(z_fraction, fractions, buffers)
