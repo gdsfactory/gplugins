@@ -79,6 +79,7 @@ def to_lines(geometries):
 def tile_shapes(shapes_dict):
     """Break up shapes in order so that plane is tiled with non-overlapping layers."""
     shapes_tiled_dict = {}
+
     for lower_index, (lower_name, lower_shapes) in reversed(
         list(enumerate(shapes_dict.items()))
     ):
