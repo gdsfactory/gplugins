@@ -22,6 +22,8 @@
 # %%
 import gdsfactory as gf
 
+gf.config.CONF.display_type = "klayout"
+
 xs_top = [0, 10, 20, 40, 50, 80]
 pitch = 127.0
 N = len(xs_top)
