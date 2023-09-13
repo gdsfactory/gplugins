@@ -12,12 +12,10 @@ from shapely.ops import unary_union
 from gplugins.gmsh.mesh import mesh_from_polygons
 from gplugins.gmsh.parse_component import (
     merge_by_material_func,
-    process_buffers,
 )
 from gplugins.gmsh.parse_gds import cleanup_component
 from gplugins.utils.parse_layerstack import (
     get_layers_at_z,
-    order_layerstack,
 )
 
 
@@ -66,27 +64,24 @@ def xy_xsection_mesh(
         component, layerstack, round_tol, simplify_tol
     )
 
-    # GDS polygons to simulation polygons
-    buffered_layer_polygons_dict, buffered_layerstack = process_buffers(
-        layer_polygons_dict, layerstack
-    )
-
     # Find layers present at this z-level
-    layers = get_layers_at_z(buffered_layerstack, z)
+    layers = get_layers_at_z(layerstack, z)
 
-    # Remove terminal layers and merge polygons
-    layer_order = order_layerstack(buffered_layerstack)  # gds layers
-    ordered_layers = [value for value in layer_order if value in set(layers)]
-    shapes = OrderedDict() if extra_shapes_dict is None else extra_shapes_dict
-    for layername in ordered_layers:
-        for simulation_layername, (
-            gds_layername,
-            _next_simulation_layername,
-            this_layer_polygons,
-            _next_layer_polygons,
-        ) in buffered_layer_polygons_dict.items():
-            if simulation_layername == layername:
-                shapes[gds_layername] = this_layer_polygons
+    # Determine effective buffer (or even presence of layer) at this z-level
+    shapes = OrderedDict()
+    for layername, polygons in layer_polygons_dict.items():
+        if layername in layers:
+            # Calculate the buffer
+            z_fraction = (z - layerstack.layers[layername].zmin) / (
+                layerstack.layers[layername].zmin
+                + layerstack.layers[layername].thickness
+            )
+            if layerstack.layers[layername].z_to_bias:
+                fractions, buffers = zip(*layerstack.layers[layername].z_to_bias)
+                buffer = np.interp(z_fraction, fractions, buffers)
+                shapes[layername] = polygons.buffer(buffer, join_style=2)
+            else:
+                shapes[layername] = polygons
 
     # Add background polygon
     if background_tag is not None:
