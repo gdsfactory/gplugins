@@ -189,7 +189,7 @@ class RegionCollection:
         fill_cell = kf.KCell(fill_cellname)
         for layer in fill_layers:
             layer = kf.kcl.layer(*layer)
-            fill_cell << kf.cells.waveguide.waveguide(
+            fill_cell << kf.cells.straight.straight(
                 width=size[0], length=size[1], layer=layer
             )
 
@@ -233,7 +233,12 @@ if __name__ == "__main__":
     d.show()
 
     # d["SLAB150"] = d.WG - d.FLOORPLAN
-    # fill_cell = d.get_fill(
-    #     d.FLOORPLAN - d.WG, size=(0.1, 0.1), spacing=(0.1, 0.1), fill_layers=(l.WG,)
-    # )
-    # fill_cell.write("fill.gds")
+    fill_cell = d.get_fill(
+        d[LAYER.FLOORPLAN] - d[LAYER.WG],
+        size=(0.1, 0.1),
+        spacing=(0.1, 0.1),
+        fill_layers=(d[LAYER.WG],),
+    )
+    c = d.get_kcell()
+    _ = c << fill_cell
+    fill_cell.write("fill.gds")

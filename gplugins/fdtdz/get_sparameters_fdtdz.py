@@ -15,7 +15,7 @@ from gplugins.fdtdz.get_ports_fdtdz import get_mode_port
 
 def get_sparameters_fdtdz(
     component: Component,
-    layerstack: LayerStack = None,
+    layerstack: LayerStack | None = None,
     nm_per_pixel: int = 20,
     extend_ports_length: float | None = 2.0,
     zmin: float = -0.75,
@@ -27,6 +27,22 @@ def get_sparameters_fdtdz(
     default_index: float = 1.44,
 ) -> dict[str, Any]:
     r"""Returns Simulation dict from gdsfactory Component and LayerStack.
+
+    Args:
+        component: gdsfactory component.
+        layerstack: gdsfactory layerstack.
+        nm_per_pixel: nm per pixel.
+        extend_ports_length: length to extend ports.
+        zmin: can be used to clip the layerstack at the lower end; upper end determined by zz * num_per_pixel
+        zz: number of vertical grid points
+        tt: tt.
+        wavelength: wavelength.
+        port_margin: port_margin.
+        material_name_to_fdtdz: material_name_to_fdtdz.
+        default_index: default_index.
+
+    Returns:
+        simulation dict: sim, monitors, sources.
 
     .. code::
 
@@ -63,21 +79,16 @@ def get_sparameters_fdtdz(
              |_______|_______________________|
 
 
-    Args:
-
-
-    Returns:
-        simulation dict: sim, monitors, sources.
 
     Make sure you review the simulation before you simulate a component
 
     .. code::
 
         import gdsfactory as gf
-        import gdsfactory.simulation.meep as gm
+        import gplugins.fdtdz as gz
 
         c = gf.components.bend_circular()
-        gm.write_sparameters_meep(c, run=False)
+        sp = gz.get_sparameters(c, run=False)
 
     """
 
@@ -105,6 +116,7 @@ def get_sparameters_fdtdz(
         component=component_extended,
         layerstack=layerstack,
         zmin=zmin,
+        zz=zz,
         material_name_to_index=material_name_to_fdtdz,
         default_index=default_index,
     )
@@ -126,16 +138,13 @@ def get_sparameters_fdtdz(
         excitations.append(excitation)
         positions.append(pos)
 
-    # Call scatterz
-    sout = scatter(
+    return scatter(
         epsilon=epsilon,
         omega=jnp.array([omega]),
         modes=tuple(excitations),
         pos=tuple(positions),
         sim_params=SimParams(tt=tt, omega_range=(omega, omega)),
     )
-
-    return sout
 
 
 if __name__ == "__main__":
