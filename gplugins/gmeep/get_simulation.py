@@ -45,6 +45,7 @@ def get_simulation(
     port_monitor_offset: float = 0,
     dispersive: bool = False,
     material_name_to_meep: dict[str, str | float] | None = None,
+    continuous_source: bool = False,
     **settings,
 ) -> dict[str, Any]:
     r"""Returns Simulation dict from gdsfactory Component.
@@ -112,6 +113,7 @@ def get_simulation(
         dispersive: use dispersive material models (requires higher resolution).
         material_name_to_meep: map layer_stack names with meep material database name
             or refractive index. dispersive materials have a wavelength dependent index.
+        continuous_source: if True, defines a continuous source at (wavelength_start + wavelength_stop)/2 instead of the ramped source
 
     Keyword Args:
         settings: extra simulation settings (resolution, symmetries, etc.)
@@ -236,7 +238,9 @@ def get_simulation(
 
     sources = [
         mp.EigenModeSource(
-            src=mp.GaussianSource(fcen, fwidth=frequency_width),
+            src=mp.ContinuousSource(fcen)
+            if continuous_source
+            else mp.GaussianSource(fcen, fwidth=frequency_width),
             size=size,
             center=center,
             eig_band=1,
@@ -314,6 +318,7 @@ if __name__ == "__main__":
         # port_source_offset=-0.1,
         # port_field_monitor_offset=-0.1,
         # port_margin=2.5,
+        continuous_source=True,
     )
     sim = sim_dict["sim"]
     sim.plot2D()
