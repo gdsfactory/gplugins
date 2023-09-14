@@ -4,13 +4,23 @@ from collections.abc import Callable
 
 import matplotlib.pyplot as plt
 import numpy as np
-from gdsfactory.typings import Array
 from meep import mpb
+from numpy.typing import ArrayLike
 from pydantic import BaseModel
 from scipy.interpolate import RectBivariateSpline
 
 # cmap_default = 'viridis'
 cmap_default = "RdBu"
+
+
+class ModeData(BaseModel):
+    E: ArrayLike | None = None
+    H: ArrayLike | None = None
+    eps: ArrayLike | None = None
+    y: ArrayLike | None = None
+    z: ArrayLike | None = None
+
+    model_config = dict(arbitrary_types_allowed=True)
 
 
 class Mode(BaseModel):
@@ -27,8 +37,8 @@ class Mode(BaseModel):
         E: field.
         H: field.
         eps: permittivity.
-        y: width.
-        z: thickness.
+        y: width in um.
+        z: thickness in um.
 
     """
 
@@ -39,11 +49,13 @@ class Mode(BaseModel):
     fraction_te: float | None = None
     fraction_tm: float | None = None
     effective_area: float | None = None
-    E: Array[float] | None = None
-    H: Array[float] | None = None
-    eps: Array[float] | None = None
-    y: Array[float] | None = None
-    z: Array[float] | None = None
+    E: ArrayLike | None = None
+    H: ArrayLike | None = None
+    eps: ArrayLike | None = None
+    y: ArrayLike | None = None
+    z: ArrayLike | None = None
+
+    model_config = dict(arbitrary_types_allowed=True)
 
     def __repr__(self) -> str:
         """Return a string representation of the object."""
@@ -478,7 +490,6 @@ if __name__ == "__main__":
 
     ys = np.linspace(-3, 3, 2000)
     zs = np.linspace(-1.5, 1.5, 2000)
-    m[1].grid_interp()
 
     Ex_interp = m[1].Ex_grid_interp(ys, zs)
     Ey_interp = m[1].Ey_grid_interp(ys, zs)

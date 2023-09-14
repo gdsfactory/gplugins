@@ -21,6 +21,7 @@ docs/notebooks/rib_strip_pathlengths/
 docs/notebooks/rib_strip_pathlengths/
 mask.csv
 mask.yml
+gplugins/modes/data
 
 # Run files
 sim_run.yaml
