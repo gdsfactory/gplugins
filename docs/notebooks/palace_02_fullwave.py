@@ -233,4 +233,5 @@ if results.field_file_locations:
 # ## Bibliography
 # ```{bibliography}
 # :style: unsrt
+# :filter: docname in docnames
 # ```
