@@ -72,7 +72,7 @@ sim.plot2D()
 plt.show()
 # -
 
-# Then we directly execute the simulation:
+# ## FDFD simulation
 
 sim.init_sim()
 sim.solve_cw(1e-6, 10000, 10)
@@ -95,3 +95,25 @@ plt.imshow(ez_data.transpose(), interpolation="spline36", cmap="RdBu", alpha=0.9
 plt.axis("off")
 plt.show()
 # -
+
+# ## Steady-state FDTD simulation
+#
+# We can also just run the time-domain simulation with the continuous source until the field is stabilized:
+
+sim.run(until=400)
+
+# +
+eps_data = sim.get_epsilon()
+ez_data = np.real(sim.get_efield_z())
+
+import matplotlib.pyplot as plt
+
+plt.figure()
+sim.plot2D(
+    fields=mp.Ez,
+    plot_sources_flag=True,
+    plot_monitors_flag=False,
+    plot_boundaries_flag=True,
+)
+plt.axis("off")
+plt.show()
