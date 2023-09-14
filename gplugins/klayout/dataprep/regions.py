@@ -74,7 +74,7 @@ class RegionCollection:
     """
 
     def __init__(self, gdspath, cell_name: str | None = None) -> None:
-        lib = kf.kcell.KCLayout(name=cell_name or f"Unnamed_{str(uuid.uuid4())[:8]}")
+        lib = kf.kcell.KCLayout()
         lib.read(filename=str(gdspath))
         self.layout = lib.cell_by_name(cell_name) if cell_name else lib.top_cell()
         self.lib = lib
@@ -240,5 +240,5 @@ if __name__ == "__main__":
         fill_layers=(d[LAYER.WG],),
     )
     c = d.get_kcell()
-    c << fill_cell
+    _ = c << fill_cell
     fill_cell.write("fill.gds")
