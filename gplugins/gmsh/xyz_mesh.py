@@ -33,6 +33,9 @@ def define_prisms(
     prisms_list = []
     buffered_layerstack = bufferize(layerstack)
 
+    if resolutions is None:
+        resolutions = {}
+
     for layername in buffered_layerstack.layers.keys():
         if layer_polygons_dict[layername].is_empty:
             continue
