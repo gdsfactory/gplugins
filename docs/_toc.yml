@@ -37,6 +37,7 @@ parts:
           - file: notebooks/fdtdz_01.py
           - file: notebooks/meep_01_sparameters
           - file: notebooks/meep_02_gratings
+          - file: notebooks/meep_03_fields
           - file: notebooks/lumerical_1_fdtd_sparameters
       - file: plugins_circuits
         sections:

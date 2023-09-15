@@ -6,6 +6,8 @@ import meep as mp
 import meep.materials as mat
 import numpy as np
 
+from gplugins.utils import optical_constants
+
 material_name_to_meep_default = {
     "si": "Si",
     "sin": "Si3N4_NIR",
@@ -50,6 +52,17 @@ def get_material(
     if isinstance(meep_name, int | float):
         # if material is only a number, we can return early regardless of dispersion
         return mp.Medium(index=meep_name)
+    elif isinstance(meep_name, complex | np.complex64 | np.complex128):
+        # if it is a complex number, perform a quick conversion to Meep conductivity
+        return mp.Medium(
+            epsilon=optical_constants.permittivity_real_from_index(
+                n=np.real(meep_name),
+                k=np.imag(meep_name),
+            ),
+            D_conductivity=optical_constants.D_conductivity_um(
+                n=np.real(meep_name), k=np.imag(meep_name), wavelength=wavelength
+            ),
+        )
 
     material = getattr(mat, meep_name)
 

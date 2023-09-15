@@ -19,14 +19,12 @@ from scipy.interpolate import interp2d
 
 from gplugins.modes.find_mode_dispersion import find_mode_dispersion
 
-PATH.modes = pathlib.Path.cwd() / "data"
-
 nm = 1e-3
 width0 = 465 * nm
 thickness0 = 215 * nm
 
 
-@pydantic.validate_arguments
+@pydantic.validate_call
 def find_neff_ng_dw_dh(
     width: float = width0,
     thickness: float = thickness0,
@@ -108,11 +106,15 @@ def plot_neff_ng_dw_dh(
         thickness: waveguide thickness in um.
         wavelength: in um.
         mode_number: 1 is the fundamental first order mode.
+        kwargs: keyword arguments for find_neff_ng_dw_dh.
 
     """
     filepath = pathlib.Path(PATH.modes / "mpb_dw_dh_dispersion.csv")
     m = find_mode_dispersion(
-        core_width=width, core_thickness=thickness, wavelength=wavelength
+        core_width=width,
+        core_thickness=thickness,
+        wavelength=wavelength,
+        mode_number=mode_number,
     )
     neff0 = m.neff
     ng0 = m.ng
