@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from typing import Any
 
 import gdsfactory as gf
 import numpy as np
@@ -21,7 +22,13 @@ from gplugins.utils.parse_layerstack import (
 )
 
 
-def define_prisms(layer_polygons_dict, layerstack, model, scale_factor, resolutions):
+def define_prisms(
+    layer_polygons_dict: dict,
+    layerstack: LayerStack,
+    model: Any,
+    resolutions: dict,
+    scale_factor: float = 1,
+):
     """Define meshwell prism dimtags from gdsfactory information."""
     prisms_list = []
     buffered_layerstack = bufferize(layerstack)
