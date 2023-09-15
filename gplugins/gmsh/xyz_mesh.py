@@ -195,6 +195,8 @@ def xyz_mesh(
     if resolutions:
         for r in resolutions.values():
             r["resolution"] *= global_scaling_premesh
+    else:
+        resolutions = {}
 
     # Assign resolutions to derived logical layers
     for entry in prisms_list:
