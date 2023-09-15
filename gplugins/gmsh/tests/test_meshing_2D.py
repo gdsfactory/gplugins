@@ -41,7 +41,6 @@ def test_gmsh_xy_xsection_mesh() -> None:
     import gdsfactory as gf
 
     waveguide = gf.components.straight_pin(length=10, taper=None)
-    waveguide.show()
 
     from gdsfactory.pdk import get_layer_stack
 
@@ -72,4 +71,3 @@ def test_gmsh_xy_xsection_mesh() -> None:
 if __name__ == "__main__":
     test_gmsh_xy_xsection_mesh()
     # test_gmsh_uz_xsection_mesh()
-    # test_gmsh_xyz_rib_vias()

@@ -7,7 +7,7 @@ from typing import Any
 import numpy as np
 from gdsfactory.config import get_number_of_cores
 from gdsfactory.geometry.union import union
-from gdsfactory.technology import LayerStack
+from gdsfactory.technology import LayerLevel, LayerStack
 from gdsfactory.typings import ComponentOrReference
 from meshwell.model import Model
 from meshwell.polysurface import PolySurface
@@ -16,9 +16,7 @@ from shapely.geometry import Polygon
 from shapely.ops import unary_union
 
 from gplugins.gmsh.parse_gds import cleanup_component
-from gplugins.utils.parse_layerstack import (
-    get_layers_at_z,
-)
+from gplugins.utils.parse_layerstack import get_layers_at_z, list_unique_layerstack_z
 
 
 def apply_effective_buffers(layer_polygons_dict, layerstack, z):
@@ -91,7 +89,7 @@ def xy_xsection_mesh(
     resolutions: dict | None = None,
     default_characteristic_length: float = 0.5,
     background_tag: str | None = None,
-    background_padding: Sequence[float, float, float, float] = (2.0,) * 4,
+    background_padding: Sequence[float, float, float, float, float, float] = (2.0,) * 6,
     global_scaling: float = 1,
     global_scaling_premesh: float = 1,
     global_2D_algorithm: int = 6,
@@ -144,6 +142,10 @@ def xy_xsection_mesh(
 
     # Add background polygon
     if background_tag is not None:
+        # get min and max z values in LayerStack
+        zs = list_unique_layerstack_z(layerstack)
+        zmin, zmax = np.min(zs), np.max(zs)
+
         bounds = unary_union(list(shapes_dict.values())).bounds
         shapes_dict[background_tag] = Polygon(
             [
@@ -152,6 +154,21 @@ def xy_xsection_mesh(
                 [bounds[2] + background_padding[2], bounds[3] + background_padding[3]],
                 [bounds[2] + background_padding[2], bounds[1] - background_padding[1]],
             ]
+        )
+        layerstack = LayerStack(
+            layers=layerstack.layers
+            | {
+                background_tag: LayerLevel(
+                    layer=(9999, 0),  # TODO something like LAYERS.BACKGROUND?
+                    thickness=(
+                        (zmax + background_padding[5]) - (zmin - background_padding[2])
+                    )
+                    * global_scaling_premesh,
+                    zmin=(zmin - background_padding[2]) * global_scaling_premesh,
+                    material=background_tag,
+                    mesh_order=2**63 - 1,
+                )
+            }
         )
 
     # Define polysurfaces
