@@ -177,7 +177,7 @@ def xyz_mesh(
 
     # Meshwell Prisms from gdsfactory polygons and layerstack
     model = Model(n_threads=n_threads)
-    prisms_dict = define_prisms(
+    prisms_list = define_prisms(
         layer_polygons_dict=layer_polygons_dict,
         layerstack=layerstack,
         model=model,
@@ -193,14 +193,16 @@ def xyz_mesh(
         for r in resolutions.values():
             r["resolution"] *= global_scaling_premesh
 
-    for key in prisms_dict:
+    # Assign resolutions to derived logical layers
+    for entry in prisms_list:
+        key = entry.physical_name
         if layer_portname_delimiter in key:
             base_key = key.split(layer_portname_delimiter)[0]
             if key not in resolutions and base_key in resolutions:
-                resolutions[key] = resolutions[base_key]
+                entry.resolution = resolutions[base_key]
 
     return model.mesh(
-        entities_list=prisms_dict,
+        entities_list=prisms_list,
         default_characteristic_length=default_characteristic_length,
         global_scaling=global_scaling,
         global_2D_algorithm=global_2D_algorithm,
