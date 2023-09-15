@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections import OrderedDict
 from collections.abc import Sequence
 
 import gdsfactory as gf
@@ -19,17 +18,15 @@ from gplugins.gmsh.parse_component import bufferize
 from gplugins.gmsh.parse_gds import cleanup_component
 from gplugins.utils.parse_layerstack import (
     list_unique_layerstack_z,
-    order_layerstack,
 )
 
 
-def define_prisms(layer_polygons_dict, layerstack, model, scale_factor):
+def define_prisms(layer_polygons_dict, layerstack, model, scale_factor, resolutions):
     """Define meshwell prism dimtags from gdsfactory information."""
-    prisms_dict = OrderedDict()
+    prisms_list = []
     buffered_layerstack = bufferize(layerstack)
-    ordered_layerstack = order_layerstack(layerstack)
 
-    for layername in ordered_layerstack:
+    for layername in buffered_layerstack.layers.keys():
         if layer_polygons_dict[layername].is_empty:
             continue
 
@@ -44,15 +41,22 @@ def define_prisms(layer_polygons_dict, layerstack, model, scale_factor):
 
         buffer_dict = dict(zip(zs, buffers))
 
-        prisms_dict[layername] = Prism(
-            polygons=scale(
-                layer_polygons_dict[layername], *(scale_factor,) * 2, origin=(0, 0, 0)
-            ),
-            buffers=buffer_dict,
-            model=model,
+        prisms_list.append(
+            Prism(
+                polygons=scale(
+                    layer_polygons_dict[layername],
+                    *(scale_factor,) * 2,
+                    origin=(0, 0, 0),
+                ),
+                buffers=buffer_dict,
+                model=model,
+                resolution=resolutions.get(layername, None),
+                mesh_order=buffered_layerstack.layers.get(layername).mesh_order,
+                physical_name=layername,
+            )
         )
 
-    return prisms_dict
+    return prisms_list
 
 
 def xyz_mesh(
@@ -167,7 +171,11 @@ def xyz_mesh(
     # Meshwell Prisms from gdsfactory polygons and layerstack
     model = Model(n_threads=n_threads)
     prisms_dict = define_prisms(
-        layer_polygons_dict, layerstack, model, global_scaling_premesh
+        layer_polygons_dict=layer_polygons_dict,
+        layerstack=layerstack,
+        model=model,
+        scale_factor=global_scaling_premesh,
+        resolutions=resolutions,
     )
 
     import copy
@@ -185,8 +193,7 @@ def xyz_mesh(
                 resolutions[key] = resolutions[base_key]
 
     return model.mesh(
-        entities_dict=prisms_dict,
-        resolutions=resolutions,
+        entities_list=prisms_dict,
         default_characteristic_length=default_characteristic_length,
         global_scaling=global_scaling,
         global_2D_algorithm=global_2D_algorithm,
