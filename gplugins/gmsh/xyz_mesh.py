@@ -33,6 +33,9 @@ def define_prisms(
     prisms_list = []
     buffered_layerstack = bufferize(layerstack)
 
+    if resolutions is None:
+        resolutions = {}
+
     for layername in buffered_layerstack.layers.keys():
         if layer_polygons_dict[layername].is_empty:
             continue
@@ -192,6 +195,8 @@ def xyz_mesh(
     if resolutions:
         for r in resolutions.values():
             r["resolution"] *= global_scaling_premesh
+    else:
+        resolutions = {}
 
     # Assign resolutions to derived logical layers
     for entry in prisms_list:

@@ -61,6 +61,9 @@ def define_polysurfaces(
     """Define meshwell polysurfaces dimtags from gdsfactory information."""
     polysurfaces_list = []
 
+    if resolutions is None:
+        resolutions = {}
+
     for layername in polygons_dict.keys():
         if polygons_dict[layername].is_empty:
             continue
