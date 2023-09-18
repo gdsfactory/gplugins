@@ -3,7 +3,6 @@ from hashlib import md5
 
 import gdsfactory as gf
 import numpy as np
-from custom_types import AnyShapelyPolygon, GFComponent
 from gdsfactory.component import Component
 from gdsfactory.technology import LayerLevel, LayerStack
 from pydantic import (
@@ -15,6 +14,8 @@ from pydantic import (
 from shapely import MultiPolygon, Polygon
 
 from gplugins.gmsh.parse_gds import cleanup_component
+
+from .custom_types import AnyShapelyPolygon, GFComponent
 
 
 class SimulationComponentBase(BaseModel):
