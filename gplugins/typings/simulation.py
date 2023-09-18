@@ -9,16 +9,13 @@ import numpy as np
 from numpy.typing import NDArray
 from pydantic import BaseModel, computed_field
 
-__all__ = ["CDict", "DrivenFullWaveResults", "ElectrostaticResults", "RFMaterialSpec"]
-
-CDict = dict(tuple[str, str], float)
-RFMaterialSpec = dict[str, dict[str, float | int]]
+from .materials import CapacitanceDict
 
 
 class ElectrostaticResults(BaseModel):
     """Results class for electrostatic simulations."""
 
-    capacitance_matrix: CDict
+    capacitance_matrix: CapacitanceDict
     mesh_location: Path | None = None
     field_file_location: Path | None = None
 

@@ -18,7 +18,8 @@ from numpy import isfinite
 from pandas import read_csv
 
 from gplugins.async_utils import execute_and_stream_output, run_async_with_event_loop
-from gplugins.typings import ElectrostaticResults, RFMaterialSpec
+from gplugins.typings.materials import RFMaterialSpec
+from gplugins.typings.simulation import ElectrostaticResults
 
 ELECTROSTATIC_SIF = "electrostatic.sif"
 ELECTROSTATIC_TEMPLATE = Path(__file__).parent / f"{ELECTROSTATIC_SIF}.j2"
