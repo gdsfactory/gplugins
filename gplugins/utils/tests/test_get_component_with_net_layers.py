@@ -55,12 +55,12 @@ def test_remove_empty_layerstack_layers():
     )
 
     # Test remove old layers
-    remove_empty_layerstack_layers(
+    new_layerstack = remove_empty_layerstack_layers(
         net_component,
         net_layerstack,
     )
     # Assert that "metal3" does not exist in the layers
-    assert "metal3" not in net_layerstack.layers
+    assert "metal3" not in new_layerstack.layers
 
 
 if __name__ == "__main__":
