@@ -9,14 +9,14 @@ def get_component_layer_stack(
     component: Component,
     layer_stack: LayerStack,
 ) -> LayerStack:
-    """Returns a new layer_stack without layers that don't appear in the provided component.
+    """Returns a new layer_stack only with layers that appear in the provided component.
 
     Arguments:
         component: to process.
         layer_stack: to process.
 
     Returns:
-        new_layer_stack: without layers that do not appear in component
+        new_layer_stack: without layers that do not appear in component.
     """
     new_layer_stack = layer_stack.model_copy()
 
@@ -54,7 +54,7 @@ def get_component_with_new_port_layers(
         new_layer_names: list of new layer names to create.
 
     Returns:
-        new component with port_polygons tagged on new layers
+        new component with port_polygons tagged on new layers.
     """
 
     if (
@@ -69,7 +69,7 @@ def get_component_with_new_port_layers(
     new_layers = new_layers or [None] * len(port_names)
     new_layer_names = new_layer_names or [None] * len(port_names)
 
-    # Initialize returned component and layer_stack
+    # copy original component
     component = component.copy()
 
     # For each port to consider, convert relevant polygons
@@ -86,15 +86,21 @@ def get_component_with_new_port_layers(
             new_layer_spec = (port_layer[0], port_layer[1] + 1)
 
         new_layer_name = new_layer_name or f"{port.name}_port"
-
         for polygon in polygons:
-            # If polygon belongs to port, create a unique new layer, and add the polygon to it
+            # If polygon belongs to port, create a unique new layer based on the old one, and add the polygon to it
+
+            offset_polygon = gdstk.offset(
+                gdstk.Polygon(polygon), gf.get_active_pdk().grid_size
+            )
             if gdstk.inside(
                 [port.center],
-                gdstk.offset(gdstk.Polygon(polygon), gf.get_active_pdk().grid_size),
+                offset_polygon,
             )[0]:
                 new_layer_number = get_layer(new_layer_spec)
-                layer_stack.layers[new_layer_name] = new_layer_number
+                port_layername = layer_stack.get_layer_to_layername()[port.layer][0]
+                new_layerlevel = layer_stack.layers[port_layername].model_copy()
+                layer_stack.layers[new_layer_name] = new_layerlevel
+                layer_stack.layers[new_layer_name].layer = new_layer_number
                 component.add_polygon(polygon, layer=new_layer_number)
 
             # Otherwise put the polygon back on the same layer

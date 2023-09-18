@@ -6,13 +6,13 @@ from gplugins.utils.get_component_with_new_port_layers import (
     get_component_with_new_port_layers,
 )
 
-layer_stack = LAYER_STACK.model_copy()
-port_names = ["r_e2", "l_e4"]
+port_names = ("r_e2", "l_e4")
 layernames_before = set(LAYER_STACK.layers.keys())
 original_component = straight_heater_metal()
 
 
 def test_component_with_new_port_layers():
+    layer_stack = LAYER_STACK.model_copy()
     get_component_with_new_port_layers(
         original_component,
         layer_stack=layer_stack,
@@ -32,6 +32,7 @@ def test_component_with_new_port_layers():
 
 
 def test_remove_empty_layer_stack_layers():
+    layer_stack = LAYER_STACK.model_copy()
     new_component = get_component_with_new_port_layers(
         original_component,
         layer_stack=layer_stack,
@@ -47,5 +48,14 @@ def test_remove_empty_layer_stack_layers():
 
 
 if __name__ == "__main__":
-    # test_component_with_new_port_layers()
     test_remove_empty_layer_stack_layers()
+    test_component_with_new_port_layers()
+    # new_component = get_component_with_new_port_layers(
+    #     original_component,
+    #     layer_stack=layer_stack,
+    #     port_names=port_names,
+    # )
+
+    # new_layer_stack = get_component_layer_stack(
+    #     component=new_component,
+    #     layer_stack=layer_stack)
