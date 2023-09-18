@@ -18,7 +18,8 @@ from numpy import isfinite
 from pandas import read_csv
 
 from gplugins.async_utils import execute_and_stream_output, run_async_with_event_loop
-from gplugins.typings import ElectrostaticResults, RFMaterialSpec
+
+from .types import ElectrostaticResults, RFMaterialSpec
 
 ELECTROSTATIC_JSON = "electrostatic.json"
 ELECTROSTATIC_TEMPLATE = Path(__file__).parent / ELECTROSTATIC_JSON
