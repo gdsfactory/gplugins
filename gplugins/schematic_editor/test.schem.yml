@@ -13,7 +13,7 @@ instances:
     settings: {length: 40}
 schematic_placements:
   mmi1: {rotation: 0.0, dx: -22.832156230736544, dy: -0.9358105716724547}
-  mmi2: {rotation: 0.0, dx: 138.09742564190745, dy: -7.353103838692228}
+  mmi2: {rotation: 0.0, dx: 149.93766895495796, dy: 12.364533535206263}
   s1: {rotation: 0.0, dx: 55.26042176045793, dy: 32.1189871057287}
   s2: {rotation: 0.0, dx: 44.25454877902524, dy: -45.88086750118762}
 nets:
@@ -22,3 +22,4 @@ nets:
 - ['mmi1,o3', 's2,o1']
 - ['mmi2,o1', 's2,o2']
 ports: {o1: 'mmi1,o1', o2: 'mmi2,o3', o3: 'mmi2,o4'}
+schema_version: 1

@@ -7,7 +7,9 @@ import gdsfactory as gf
 import holoviews as hv
 import panel as pn
 import yaml
+from gdsfactory.pdk import get_active_pdk
 from gdsfactory.picmodel import (
+    SCHEMA_VERSION,
     PicYamlConfiguration,
     Route,
     RouteSettings,
@@ -21,14 +23,14 @@ hv.extension("bokeh")
 
 
 class SchematicEditor:
-    def __init__(self, filepath: str | Path, pdk: gf.Pdk | None = None) -> None:
+    def __init__(self, filepath: str | Path, pdk: str | None = None) -> None:
         self._connected_ports = {}
-        self._inst_boxes = list()
+        self._inst_boxes = []
 
         filepath = Path(filepath)
         self.path = filepath
-        self.pdk = pdk or gf.get_active_pdk()
-        self.component_list = list(gf.get_active_pdk().cells.keys())
+        self.pdk = get_active_pdk(name=pdk)
+        self.component_list = list(self.pdk.cells.keys())
         self._initialize_schematic(filepath)
         self.setup_events()
 
@@ -87,7 +89,11 @@ class SchematicEditor:
         else:
             print(f"not file {filepath}")
             self._schematic = SchematicConfiguration(
-                instances={}, schematic_placements={}, nets=[], ports={}
+                instances={},
+                schematic_placements={},
+                nets=[],
+                ports={},
+                schema_version=SCHEMA_VERSION,
             )
 
     def serve(self):
@@ -275,7 +281,7 @@ class SchematicEditor:
             instances=self.instances,
             fig=fig,
             instance_size=50,
-            netlist_filepath=self.path,  # Assuming this is the desired filepath
+            netlist_filename=self.path,  # Assuming this is the desired filepath
         )
         return pn.pane.Bokeh(fig)
 

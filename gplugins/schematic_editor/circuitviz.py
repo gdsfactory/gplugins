@@ -461,9 +461,7 @@ def viz_netlist(netlist, instances, instance_size=20):
     return els
 
 
-def show_netlist(
-    schematic: SchematicConfiguration, instances: dict, netlist_filename
-) -> None:
+def show_netlist(schematic: SchematicConfiguration, instances: dict, netlist_filename):
     global data
     data["netlist"] = schematic
     fig = bp.figure(width=800, height=500)
