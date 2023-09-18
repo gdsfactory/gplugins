@@ -2,12 +2,14 @@ import base64
 import importlib
 import os
 import pathlib
+import shutil
 from glob import glob
 from pathlib import Path
 
 import gdsfactory as gf
+import panel as pn
 import yaml
-from fastapi import FastAPI, Form, HTTPException, Request, status
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -19,6 +21,7 @@ from pydantic import BaseModel
 from starlette.routing import WebSocketRoute
 
 from gplugins.config import PATH
+from gplugins.schematic_editor.schematic_editor import SchematicEditor
 from gplugins.web.middleware import ProxiedHeadersMiddleware
 from gplugins.web.server import LayoutViewServerEndpoint, get_layout_view
 
@@ -34,6 +37,8 @@ app.mount("/static", StaticFiles(directory=PATH.web / "static"), name="static")
 # gdsfiles = StaticFiles(directory=home_path)
 # app.mount("/gds_files", gdsfiles, name="gds_files")
 templates = Jinja2Templates(directory=PATH.web / "templates")
+
+filepath_schematic = PATH.repo / "schematic_editor" / "test.schem.yml"
 
 
 def load_pdk(pdk: str | None = None) -> gf.Pdk:
@@ -73,14 +78,21 @@ async def root(request: Request):
     return templates.TemplateResponse("index.html.j2", {"request": request})
 
 
-@app.get("/schematic_editor", response_class=HTMLResponse)
-def schematic_editor():
-    import panel as pn
+@app.post("/schematic_editor")
+def schematic_editor(
+    request: Request, file: UploadFile = File(...), filepath: str = Form(...)
+):
+    global filepath_schematic
+    filepath_schematic = filepath
 
-    from gplugins.config import PATH
-    from gplugins.schematic_editor.schematic_editor import SchematicEditor
+    # Save the uploaded file
+    dirpath = PATH.extra / "uploaded_files"
+    dirpath.mkdir(parents=True, exist_ok=True)
+    file_location = dirpath / f"{file.filename}"
+    with open(file_location, "wb+") as buffer:
+        shutil.copyfileobj(file.file, buffer)
 
-    editor = SchematicEditor(PATH.module / "schematic_editor" / "test.schem.yml")
+    editor = SchematicEditor(filepath=filepath)
 
     def app(doc):
         pn.extension()
@@ -90,22 +102,18 @@ def schematic_editor():
     return app
 
 
-@app.post("/save_schematic")
-async def save_schematic(data: dict):
+@app.post("/schematic_save")
+async def schematic_save(data: dict):
     """Save schematic data to a file."""
-    with open("schematic_data.yaml", "w") as f:
+    with open(filepath_schematic, "w") as f:
         yaml.dump(data, f)
     return {"status": "success", "message": "Schematic saved successfully"}
 
 
-@app.get("/load_schematic")
-async def load_schematic():
+@app.get("/schematic_load")
+async def schematic_load(request: Request):
     """Load schematic data from a file."""
-    if not os.path.exists("schematic_data.yaml"):
-        raise HTTPException(status_code=404, detail="Schematic file not found.")
-    with open("schematic_data.yaml") as f:
-        data = yaml.safe_load(f)
-    return data
+    return templates.TemplateResponse("schematic_editor.html", {"request": request})
 
 
 @app.get("/pdk-list", response_model=list[str])

@@ -1,10 +1,13 @@
-
 {% include 'header.html.j2' %}
 {% include 'navbar.html.j2' %}
 
+
 <body>
-    <h1>Welcome to the FastAPI Schematic Editor!</h1>
-    <p>To access the schematic editor, <a href="/schematic_editor">click here</a>.</p>
+    <h1>Schematic Editor</h1>
+    <form action="/schematic_editor" enctype="multipart/form-data" method="post">
+        <input type="file" name="file">
+        <button type="submit">Upload</button>
+    </form>
 </body>
 
 {% include 'footer.html.j2' %}

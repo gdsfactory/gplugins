@@ -21,11 +21,11 @@ hv.extension("bokeh")
 
 
 class SchematicEditor:
-    def __init__(self, filename: str | Path, pdk: gf.Pdk | None = None) -> None:
+    def __init__(self, filepath: str | Path, pdk: gf.Pdk | None = None) -> None:
         self._connected_ports = {}
         self._inst_boxes = list()
 
-        filepath = Path(filename)
+        filepath = Path(filepath)
         self.path = filepath
         self.pdk = pdk or gf.get_active_pdk()
         self.component_list = list(gf.get_active_pdk().cells.keys())
@@ -275,7 +275,7 @@ class SchematicEditor:
             instances=self.instances,
             fig=fig,
             instance_size=50,
-            netlist_filename=self.path,  # Assuming this is the desired filename
+            netlist_filepath=self.path,  # Assuming this is the desired filepath
         )
         return pn.pane.Bokeh(fig)
 
@@ -420,7 +420,7 @@ class SchematicEditor:
 
     def instantiate_layout(
         self,
-        output_filename,
+        output_filepath,
         default_router="get_bundle",
         default_cross_section="strip",
     ):
@@ -439,25 +439,25 @@ class SchematicEditor:
             routes=routes,
             ports=schematic.ports,
         )
-        pic_conf.to_yaml(output_filename)
+        pic_conf.to_yaml(output_filepath)
         return pic_conf
 
     def save_schematic_html(
-        self, filename: str | Path, title: str | None = None
+        self, filepath: str | Path, title: str | None = None
     ) -> None:
         """Saves the schematic visualization to a standalone html file (read-only).
 
         Args:
-            filename: the (*.html) filename to write to
+            filepath: the (*.html) filepath to write to
             title: title for the output page
         """
-        filename = Path(filename)
+        filepath = Path(filepath)
         if title is None:
-            title = f"{filename.stem} Schematic"
+            title = f"{filepath.stem} Schematic"
         if "doc" not in circuitviz.data:
             self.visualize()
         if "doc" in circuitviz.data:
-            bokeh.io.save(circuitviz.data["doc"], filename=filename, title=title)
+            bokeh.io.save(circuitviz.data["doc"], filepath=filepath, title=title)
         else:
             raise ValueError(
                 "Unable to save the schematic to a standalone html file! Has the visualization been loaded yet?"
