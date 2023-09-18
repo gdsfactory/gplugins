@@ -62,7 +62,7 @@ from IPython.display import display
 from matplotlib import pyplot as plt
 
 from gplugins.palace import run_scattering_simulation_palace
-from gplugins.typings import RFMaterialSpec
+from gplugins.typings.materials import RFMaterialSpec
 
 gf.config.rich_output()
 PDK = get_generic_pdk()

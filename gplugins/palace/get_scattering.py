@@ -20,7 +20,8 @@ from gdsfactory.technology import LayerStack
 from numpy import isfinite
 
 from gplugins.async_utils import execute_and_stream_output, run_async_with_event_loop
-from gplugins.typings import DrivenFullWaveResults, RFMaterialSpec
+from gplugins.typings.materials import RFMaterialSpec
+from gplugins.typings.simulation import DrivenFullWaveResults
 
 DRIVE_JSON = "driven.json"
 DRIVEN_TEMPLATE = Path(__file__).parent / DRIVE_JSON

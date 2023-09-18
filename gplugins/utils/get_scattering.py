@@ -8,9 +8,7 @@ from gdsfactory.pdk import get_sparameters_path
 from gdsfactory.typings import ComponentSpec
 
 from gplugins.palace.get_scattering import run_scattering_simulation_palace
-from gplugins.typings import (
-    DrivenFullWaveResults,
-)
+from gplugins.typings.simulation import DrivenFullWaveResults
 
 
 def get_scattering(

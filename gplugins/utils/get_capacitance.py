@@ -10,7 +10,7 @@ from gplugins.elmer.get_capacitance import run_capacitive_simulation_elmer
 from gplugins.palace.get_capacitance import (
     run_capacitive_simulation_palace,
 )
-from gplugins.typings import ElectrostaticResults
+from gplugins.typings.simulation import ElectrostaticResults
 
 
 def get_capacitance_path() -> Path:
