@@ -1,24 +1,88 @@
 from __future__ import annotations
 
 from collections import OrderedDict
+from collections.abc import Sequence
+from typing import Any
 
 import numpy as np
-from gdsfactory.technology import LayerStack
+from gdsfactory.config import get_number_of_cores
+from gdsfactory.geometry.union import union
+from gdsfactory.technology import LayerLevel, LayerStack
 from gdsfactory.typings import ComponentOrReference
-from scipy.interpolate import NearestNDInterpolator
+from meshwell.model import Model
+from meshwell.polysurface import PolySurface
+from shapely.affinity import scale
 from shapely.geometry import Polygon
 from shapely.ops import unary_union
 
-from gplugins.gmsh.mesh import mesh_from_polygons
-from gplugins.gmsh.parse_component import (
-    merge_by_material_func,
-    process_buffers,
-)
 from gplugins.gmsh.parse_gds import cleanup_component
-from gplugins.gmsh.parse_layerstack import (
-    get_layers_at_z,
-    order_layerstack,
-)
+from gplugins.utils.parse_layerstack import get_layers_at_z, list_unique_layerstack_z
+
+
+def apply_effective_buffers(layer_polygons_dict, layerstack, z):
+    # Find layers present at this z-level
+    layers = get_layers_at_z(layerstack, z)
+    # Order the layers by their mesh_order in the layerstack
+    layers = sorted(layers, key=lambda x: layerstack.layers[x].mesh_order)
+
+    # Determine effective buffer (or even presence of layer) at this z-level
+    shapes = OrderedDict()
+    for layername in layers:
+        polygons = layer_polygons_dict[layername]
+        if layername in layers:
+            # Calculate the buffer
+            if layerstack.layers[layername].thickness < 0:
+                zmin = (
+                    layerstack.layers[layername].zmin
+                    + layerstack.layers[layername].thickness
+                )
+                thickness = abs(layerstack.layers[layername].thickness)
+            else:
+                zmin = layerstack.layers[layername].zmin
+                thickness = layerstack.layers[layername].thickness
+            z_fraction = (z - zmin) / thickness
+            if layerstack.layers[layername].z_to_bias:
+                fractions, buffers = layerstack.layers[layername].z_to_bias
+                buffer = np.interp(z_fraction, fractions, buffers)
+                shapes[layername] = polygons.buffer(buffer, join_style=2)
+            else:
+                shapes[layername] = polygons
+
+    return shapes
+
+
+def define_polysurfaces(
+    polygons_dict: dict,
+    layerstack: LayerStack,
+    model: Any,
+    resolutions: dict,
+    scale_factor: float = 1,
+):
+    """Define meshwell polysurfaces dimtags from gdsfactory information."""
+    polysurfaces_list = []
+
+    if resolutions is None:
+        resolutions = {}
+
+    for layername in polygons_dict.keys():
+        if polygons_dict[layername].is_empty:
+            continue
+
+        polysurfaces_list.append(
+            PolySurface(
+                polygons=scale(
+                    polygons_dict[layername],
+                    *(scale_factor,) * 2,
+                    origin=(0, 0, 0),
+                ),
+                model=model,
+                resolution=resolutions.get(layername, None),
+                mesh_order=layerstack.layers.get(layername).mesh_order,
+                physical_name=layername,
+            )
+        )
+
+    return polysurfaces_list
 
 
 def xy_xsection_mesh(
@@ -26,19 +90,20 @@ def xy_xsection_mesh(
     z: float,
     layerstack: LayerStack,
     resolutions: dict | None = None,
-    mesh_scaling_factor: float = 1.0,
-    default_resolution_min: float = 0.01,
-    default_resolution_max: float = 0.5,
+    default_characteristic_length: float = 0.5,
     background_tag: str | None = None,
-    background_padding: tuple[float, float, float, float] = (2.0, 2.0, 2.0, 2.0),
+    background_padding: Sequence[float, float, float, float, float, float] = (2.0,) * 6,
+    global_scaling: float = 1,
+    global_scaling_premesh: float = 1,
+    global_2D_algorithm: int = 6,
     filename: str | None = None,
-    global_meshsize_array: np.array | None = None,
-    global_meshsize_interpolant_func: callable | None = NearestNDInterpolator,
-    extra_shapes_dict: OrderedDict | None = None,
-    merge_by_material: bool | None = False,
-    round_tol: int = 4,
-    simplify_tol: float = 1e-4,
-    atol: float | None = 1e-5,
+    verbosity: int | None = 0,
+    round_tol: int = 3,
+    simplify_tol: float = 1e-3,
+    n_threads: int = get_number_of_cores(),
+    portnames: list[str] = None,
+    layer_portname_delimiter: str = "#",
+    gmsh_version: float | None = None,
 ):
     """Mesh xy cross-section of component at height z.
 
@@ -56,42 +121,36 @@ def xy_xsection_mesh(
         global_meshsize_array: np array [x,y,z,lc] to parametrize the mesh
         global_meshsize_interpolant_func: interpolating function for global_meshsize_array
         extra_shapes_dict: Optional[OrderedDict] = OrderedDict of {key: geo} with key a label and geo a shapely (Multi)Polygon or (Multi)LineString of extra shapes to override component
-        merge_by_material: boolean, if True will merge polygons from layers with the same layer.material. Physical keys will be material in this case.
         round_tol: during gds --> mesh conversion cleanup, number of decimal points at which to round the gdsfactory/shapely points before introducing to gmsh
         simplify_tol: during gds --> mesh conversion cleanup, shapely "simplify" tolerance (make it so all points are at least separated by this amount)
         atol: tolerance used to establish equivalency between vertices
     """
+    if portnames:
+        mesh_component = gf.Component()
+        mesh_component << union(component, by_layer=True)
+        mesh_component.add_ports(component.get_ports_list())
+        component = layerstack.get_component_with_net_layers(
+            mesh_component,
+            portnames=portnames,
+            delimiter=layer_portname_delimiter,
+        )
+
     # Fuse and cleanup polygons of same layer in case user overlapped them
     layer_polygons_dict = cleanup_component(
         component, layerstack, round_tol, simplify_tol
     )
 
-    # GDS polygons to simulation polygons
-    buffered_layer_polygons_dict, buffered_layerstack = process_buffers(
-        layer_polygons_dict, layerstack
-    )
-
-    # Find layers present at this z-level
-    layers = get_layers_at_z(buffered_layerstack, z)
-
-    # Remove terminal layers and merge polygons
-    layer_order = order_layerstack(buffered_layerstack)  # gds layers
-    ordered_layers = [value for value in layer_order if value in set(layers)]
-    shapes = OrderedDict() if extra_shapes_dict is None else extra_shapes_dict
-    for layername in ordered_layers:
-        for simulation_layername, (
-            gds_layername,
-            _next_simulation_layername,
-            this_layer_polygons,
-            _next_layer_polygons,
-        ) in buffered_layer_polygons_dict.items():
-            if simulation_layername == layername:
-                shapes[gds_layername] = this_layer_polygons
+    # Determine effective buffer (or even presence of layer) at this z-level
+    shapes_dict = apply_effective_buffers(layer_polygons_dict, layerstack, z)
 
     # Add background polygon
     if background_tag is not None:
-        bounds = unary_union(list(shapes.values())).bounds
-        shapes[background_tag] = Polygon(
+        # get min and max z values in LayerStack
+        zs = list_unique_layerstack_z(layerstack)
+        zmin, zmax = np.min(zs), np.max(zs)
+
+        bounds = unary_union(list(shapes_dict.values())).bounds
+        shapes_dict[background_tag] = Polygon(
             [
                 [bounds[0] - background_padding[0], bounds[1] - background_padding[1]],
                 [bounds[0] - background_padding[0], bounds[3] + background_padding[3]],
@@ -99,22 +158,41 @@ def xy_xsection_mesh(
                 [bounds[2] + background_padding[2], bounds[1] - background_padding[1]],
             ]
         )
+        layerstack = LayerStack(
+            layers=layerstack.layers
+            | {
+                background_tag: LayerLevel(
+                    layer=(9999, 0),  # TODO something like LAYERS.BACKGROUND?
+                    thickness=(
+                        (zmax + background_padding[5]) - (zmin - background_padding[2])
+                    )
+                    * global_scaling_premesh,
+                    zmin=(zmin - background_padding[2]) * global_scaling_premesh,
+                    material=background_tag,
+                    mesh_order=2**63 - 1,
+                )
+            }
+        )
 
-    # Merge by material
-    if merge_by_material:
-        shapes = merge_by_material_func(shapes, layerstack)
+    # Define polysurfaces
+    model = Model(n_threads=n_threads)
+    polysurfaces_list = define_polysurfaces(
+        polygons_dict=shapes_dict,
+        layerstack=layerstack,
+        model=model,
+        scale_factor=global_scaling_premesh,
+        resolutions=resolutions,
+    )
 
     # Mesh
-    return mesh_from_polygons(
-        shapes,
-        resolutions=resolutions,
-        mesh_scaling_factor=mesh_scaling_factor,
+    return model.mesh(
+        entities_list=polysurfaces_list,
+        default_characteristic_length=default_characteristic_length,
+        global_scaling=global_scaling,
+        global_2D_algorithm=global_2D_algorithm,
+        gmsh_version=gmsh_version,
         filename=filename,
-        default_resolution_min=default_resolution_min,
-        default_resolution_max=default_resolution_max,
-        global_meshsize_array=global_meshsize_array,
-        global_meshsize_interpolant_func=global_meshsize_interpolant_func,
-        atol=atol,
+        verbosity=verbosity,
     )
 
 
@@ -123,14 +201,6 @@ if __name__ == "__main__":
 
     c = gf.component.Component()
     waveguide = c << gf.get_component(gf.components.straight_pin(length=10, taper=None))
-    undercut = c << gf.get_component(
-        gf.components.rectangle(
-            size=(5.0, 5.0),
-            layer="UNDERCUT",
-            centered=True,
-        )
-    ).move(destination=[4, 0])
-    c.show()
 
     from gdsfactory.pdk import get_layer_stack
 
@@ -156,7 +226,7 @@ if __name__ == "__main__":
 
     geometry = xy_xsection_mesh(
         component=c,
-        z=-6,
+        z=0.11,
         layerstack=filtered_layerstack,
         resolutions=resolutions,
         # background_tag="Oxide",

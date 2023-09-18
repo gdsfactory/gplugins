@@ -1,6 +1,12 @@
 # [CHANGELOG](https://keepachangelog.com/en/1.0.0/)
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.5.0...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.6.0...main)
+
+## [0.6.0](https://github.com/gdsfactory/gplugins/compare/v0.5.0...v0.6.0)
+
+- add fdtdz plugin
+- add Full-wave driven simulations with Palace
+- fix meep plugin
 
 ## [0.5.0](https://github.com/gdsfactory/gplugins/compare/v0.4.0...v0.5.0)
 

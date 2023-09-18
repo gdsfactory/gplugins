@@ -23,7 +23,7 @@ license = {file = "LICENSE"}
 name = "gplugins"
 readme = "README.md"
 requires-python = ">=3.10"
-version = "0.5.0"
+version = "0.6.0"
 
 [project.optional-dependencies]
 dagster = ["dagster", "dagit"]
@@ -58,7 +58,8 @@ docs = [
   "pyvista[jupyter]<=0.40"
 ]
 femwell = [
-  "femwell>=0.1.6,<0.5.0"
+  "femwell>=0.1.6,<0.6.0",
+  "meshwell>=1.0.0,<1.1.0"
 ]
 gmsh = [
   "gmsh",
@@ -69,7 +70,7 @@ gmsh = [
   "pyvista<=0.40",
   "trimesh",
   "shapely",
-  "meshwell>=0.0.9,<0.5.0"
+  "meshwell>=1.0.0,<1.1.0"
 ]
 klayout = [
   "kfactory[git,ipy]>=0.8.4,<0.9"
@@ -142,7 +143,8 @@ norecursedirs = [
   'gplugins/database',
   'gplugins/devsim',
   'gplugins/sax/integrations',
-  'gplugins/tidy3d/tests/tests_sparameters'
+  'gplugins/tidy3d/tests/tests_sparameters',
+  'gplugins/fdtdz'
 ]
 python_files = ["gplugins/*.py", "notebooks/*.ipynb", "tests/*.py"]
 testpaths = ["gplugins/", "tests"]

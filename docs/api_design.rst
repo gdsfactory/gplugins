@@ -218,3 +218,16 @@ Electrostatics
    :toctree: _autosummary/
 
    run_capacitive_simulation_palace
+
+************
+Full-wave RF
+************
+
+.. currentmodule:: gplugins.palace
+
+.. rubric:: Palace
+
+.. autosummary::
+   :toctree: _autosummary/
+
+   run_scattering_simulation_palace

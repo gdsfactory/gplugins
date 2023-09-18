@@ -22,6 +22,8 @@ execute:
     - "*03_numerical_implantation*"
     - "*02_model_extraction*"
     - "*palace*"
+    - "*fdtdz*"
+    - "*sax_01_sax*"
     # - "*20_schematic_driven_layout*"
     # - "*001_meep_sparameters*"
     # - "*00_tidy3d.ipynb"
@@ -66,6 +68,7 @@ sphinx:
     autodoc_type_aliases:
       "ComponentSpec": "ComponentSpec"
     nb_execution_show_tb: True
+    nb_execution_raise_on_error: true
     nb_custom_formats:
         .py:
             - jupytext.reads

@@ -40,11 +40,6 @@ import gplugins.tidy3d as gt
 from gplugins import utils
 from gplugins.config import PATH
 
-gf.config.rich_output()
-PDK = gf.generic_tech.get_generic_pdk()
-PDK.activate()
-
-
 # %%
 print(gt.materials.MaterialSpecTidy3d)
 
@@ -54,9 +49,8 @@ gt.materials.get_index(
 )  # get the index of a material with a given refractive index float
 
 # %%
-gt.materials.get_index(
-    "SiO2"
-)  # get the index of a material with a name string, for the case that the refractive index has only one variant
+# get the index of a material with a name string, for the case that the refractive index has only one variant
+gt.materials.get_index(("SiO2", "Horiba"))
 
 # %%
 gt.materials.get_index(

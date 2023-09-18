@@ -10,7 +10,10 @@ from gdsfactory.generic_tech import LAYER
 from gdsfactory.technology import LayerStack
 from gdsfactory.technology.layer_stack import LayerLevel
 
-from gplugins.palace import run_capacitive_simulation_palace
+from gplugins.palace import (
+    run_capacitive_simulation_palace,
+    run_scattering_simulation_palace,
+)
 
 layer_stack = LayerStack(
     layers=dict(
@@ -31,28 +34,43 @@ layer_stack = LayerStack(
     )
 )
 material_spec = {
-    "Si": {"relative_permittivity": 11.45},
-    "Nb": {"relative_permittivity": inf},
-    "vacuum": {"relative_permittivity": 1},
+    "Si": {"relative_permittivity": 11.45, "relative_permeability": 1},
+    "Nb": {"relative_permittivity": inf, "relative_permeability": 1},
+    "vacuum": {"relative_permittivity": 1, "relative_permeability": 1},
 }
 
 
 @pytest.fixture
 @gf.cell
-def geometry():
+def geometry(lumped_ports=False):
     simulation_box = [[-200, -200], [200, 200]]
     c = gf.Component()
     cap = c << interdigital_capacitor_enclosed(
         metal_layer=LAYER.WG, gap_layer=LAYER.DEEPTRENCH, enclosure_box=simulation_box
     )
-    c.add_ports(cap.ports)
+    if lumped_ports:
+        lumped_port_1_1 = gf.components.bbox(((-40, 11), (-46, 5)), layer=LAYER.PORT)
+        lumped_port_1_2 = gf.components.bbox(((-40, -11), (-46, -5)), layer=LAYER.PORT)
+        c << lumped_port_1_1
+        c << lumped_port_1_2
+        c.add_port("o1_1", lumped_port_1_1.center, layer=LAYER.PORT, width=1)
+        c.add_port("o1_2", lumped_port_1_2.center, layer=LAYER.PORT, width=1)
+
+        lumped_port_2_1 = gf.components.bbox(((40, 11), (46, 5)), layer=LAYER.PORT)
+        lumped_port_2_2 = gf.components.bbox(((40, -11), (46, -5)), layer=LAYER.PORT)
+        c << lumped_port_2_1
+        c << lumped_port_2_2
+        c.add_port("o2_1", lumped_port_2_1.center, layer=LAYER.PORT, width=1)
+        c.add_port("o2_2", lumped_port_2_2.center, layer=LAYER.PORT, width=1)
+    else:
+        c.add_ports(cap.ports)
     substrate = gf.components.bbox(bbox=simulation_box, layer=LAYER.WAFER)
     c << substrate
     c.flatten()
     return c
 
 
-def get_reasonable_mesh_parameters(c: Component):
+def get_reasonable_mesh_parameters_capacitance(c: Component):
     return dict(
         background_tag="vacuum",
         background_padding=(0,) * 5 + (700,),
@@ -90,7 +108,7 @@ def test_palace_capacitance_simulation_runs(geometry):
         c,
         layer_stack=layer_stack,
         material_spec=material_spec,
-        mesh_parameters=get_reasonable_mesh_parameters(c),
+        mesh_parameters=get_reasonable_mesh_parameters_capacitance(c),
     )
 
 
@@ -103,7 +121,7 @@ def test_palace_capacitance_simulation_n_processes(geometry, n_processes):
         layer_stack=layer_stack,
         material_spec=material_spec,
         n_processes=n_processes,
-        mesh_parameters=get_reasonable_mesh_parameters(c),
+        mesh_parameters=get_reasonable_mesh_parameters_capacitance(c),
     )
 
 
@@ -116,7 +134,7 @@ def test_palace_capacitance_simulation_element_order(geometry, element_order):
         layer_stack=layer_stack,
         material_spec=material_spec,
         element_order=element_order,
-        mesh_parameters=get_reasonable_mesh_parameters(c),
+        mesh_parameters=get_reasonable_mesh_parameters_capacitance(c),
     )
 
 
@@ -131,10 +149,98 @@ def test_palace_capacitance_simulation_flip_chip(geometry):
 
 
 @pytest.mark.skip(reason="TODO")
-def test_palace_capacitance_simulation_pyvist_plot(geometry):
+def test_palace_capacitance_simulation_pyvista_plot(geometry):
     pass
 
 
 @pytest.mark.skip(reason="TODO")
 def test_palace_capacitance_simulation_cdict_form(geometry):
+    pass
+
+
+def get_reasonable_mesh_parameters_scattering(c: Component):
+    return dict(
+        background_tag="vacuum",
+        background_padding=(0,) * 5 + (700,),
+        portnames=c.ports,
+        default_characteristic_length=200,
+        layer_portname_delimiter=(delimiter := "__"),
+        resolutions={
+            "bw": {
+                "resolution": 15,
+            },
+            "substrate": {
+                "resolution": 40,
+            },
+            "vacuum": {
+                "resolution": 40,
+            },
+            **{
+                f"bw{delimiter}{port}": {
+                    "resolution": 20,
+                    "DistMax": 30,
+                    "DistMin": 10,
+                    "SizeMax": 14,
+                    "SizeMin": 3,
+                }
+                for port in c.ports
+            },
+        },
+    )
+
+
+@pytest.mark.skip(reason="Palace not in CI")
+@pytest.mark.parametrize("geometry", [True], indirect=True)
+def test_palace_scattering_simulation_runs(geometry):
+    c = geometry
+    run_scattering_simulation_palace(
+        c,
+        layer_stack=layer_stack,
+        material_spec=material_spec,
+        mesh_parameters=get_reasonable_mesh_parameters_scattering(c),
+    )
+
+
+@pytest.mark.skip(reason="TODO")
+@pytest.mark.parametrize(
+    "geometry, n_processes", [(True, 1), (True, 2), (True, 4)], indirect=["geometry"]
+)
+def test_palace_scattering_simulation_n_processes(geometry, n_processes):
+    c = geometry
+    run_scattering_simulation_palace(
+        c,
+        layer_stack=layer_stack,
+        material_spec=material_spec,
+        n_processes=n_processes,
+        mesh_parameters=get_reasonable_mesh_parameters_scattering(c),
+    )
+
+
+@pytest.mark.skip(reason="TODO")
+@pytest.mark.parametrize(
+    "geometry, element_order", [(True, 1), (True, 2), (True, 3)], indirect=["geometry"]
+)
+def test_palace_scattering_simulation_element_order(geometry, element_order):
+    c = geometry()
+    run_scattering_simulation_palace(
+        c,
+        layer_stack=layer_stack,
+        material_spec=material_spec,
+        element_order=element_order,
+        mesh_parameters=get_reasonable_mesh_parameters_scattering(c),
+    )
+
+
+@pytest.mark.skip(reason="TODO")
+def test_palace_scattering_simulation_mesh_size_field(geometry):
+    pass
+
+
+@pytest.mark.skip(reason="TODO")
+def test_palace_scattering_simulation_flip_chip(geometry):
+    pass
+
+
+@pytest.mark.skip(reason="TODO")
+def test_palace_scattering_simulation_pyvista_plot(geometry):
     pass

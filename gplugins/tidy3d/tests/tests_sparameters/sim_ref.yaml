@@ -131,6 +131,7 @@ medium:
     conductivity: 0.0
     frequency_range: null
     name: null
+    nonlinear_spec: null
     permittivity: 1.0
     type: Medium
 monitors:
@@ -143,6 +144,7 @@ monitors:
     - -1.3
     - -2.4492935982947065e-17
     - 0.0
+    colocate: false
     freqs:
     - 199861638666666.66
     - 199590087527173.9
@@ -194,6 +196,10 @@ monitors:
     - 187849494143222.5
     - 187609584189016.6
     - 187370286250000.0
+    interval_space:
+    - 1
+    - 1
+    - 1
     mode_spec:
         angle_phi: 0.0
         angle_theta: 0.0
@@ -224,6 +230,7 @@ monitors:
     - 1.5
     - 0.0
     - 0.0
+    colocate: false
     freqs:
     - 199861638666666.66
     - 199590087527173.9
@@ -275,6 +282,10 @@ monitors:
     - 187849494143222.5
     - 187609584189016.6
     - 187370286250000.0
+    interval_space:
+    - 1
+    - 1
+    - 1
     mode_spec:
         angle_phi: 0.0
         angle_theta: 0.0
@@ -337,6 +348,7 @@ sources:
         fwidth: 19341448903225.81
         offset: 5.0
         phase: 0.0
+        remove_dc_component: true
         type: GaussianPulse
     type: ModeSource
 structures:
@@ -357,6 +369,7 @@ structures:
         - 169259246959034.88
         - 1208994621135963.5
         name: null
+        nonlinear_spec: null
         poles:
         -   -   imag: -1.823105111824081e+16
                 real: -75963372399806.36
@@ -369,7 +382,7 @@ structures:
         axis: 2
         dilation: 0.0
         reference_plane: middle
-        sidewall_angle: 0.0
+        sidewall_angle: 0.17453292519943295
         slab_bounds:
         - 0.0
         - 0.22
@@ -400,6 +413,7 @@ structures:
         - 21413747041496.2
         - 249827048817455.7
         name: null
+        nonlinear_spec: null
         poles:
         -   -   imag: 6241549589084091.0
                 real: 0.0
@@ -414,4 +428,4 @@ symmetry:
 - 0
 - 0
 type: Simulation
-version: 2.3.3
+version: 2.4.0rc2
