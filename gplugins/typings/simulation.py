@@ -7,13 +7,15 @@ from typing import Any
 
 import numpy as np
 from numpy.typing import NDArray
-from pydantic import BaseModel, computed_field
+from pydantic import BaseModel, ConfigDict, computed_field
 
 from .materials import CapacitanceDict
 
 
 class ElectrostaticResults(BaseModel):
     """Results class for electrostatic simulations."""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     capacitance_matrix: CapacitanceDict
     mesh_location: Path | None = None
