@@ -9,6 +9,7 @@ from gdsfactory.config import get_number_of_cores
 from gdsfactory.geometry.union import union
 from gdsfactory.technology import LayerLevel, LayerStack
 from gdsfactory.typings import ComponentOrReference, List
+from meshwell.gmsh_entity import GMSH_entity
 from meshwell.model import Model
 from meshwell.prism import Prism
 from shapely.affinity import scale
@@ -20,6 +21,53 @@ from gplugins.gmsh.parse_gds import cleanup_component
 from gplugins.utils.parse_layerstack import (
     list_unique_layerstack_z,
 )
+
+
+def define_edgeport(
+    port,
+    port_dict,
+    model,
+    layerlevel,
+):
+    """Creates an unmeshed box at the port location to tag the edge port surfaces in the final mesh."""
+    zmin = port_dict.get("zmin") or layerlevel.zmin
+    zmax = port_dict.get("zmax") or zmin + layerlevel.thickness
+
+    dz = zmax - zmin
+    x, y = port.center
+    width_pad = port_dict.get("width_pad") or 0
+
+    if port.orientation == 180:  # left of simulation
+        dx = 1
+        dy = port.width + 2 * width_pad
+        x -= dx
+        y -= dy / 2
+    elif port.orientation == 0:  # right of simulation
+        dx = 1
+        dy = port.width + 2 * width_pad
+        y -= dy / 2
+    elif port.orientation == 90:  # top of simulation
+        dx = port.width + 2 * width_pad
+        dy = 1
+        x -= dx / 2
+    elif port.orientation == 270:  # bottom of simulation
+        dx = port.width + 2 * width_pad
+        dy = 1
+        y -= dy
+        x -= dx / 2
+
+    box = GMSH_entity(
+        gmsh_function=model.occ.add_box,
+        gmsh_function_kwargs={"x": x, "y": y, "z": zmin, "dx": dx, "dy": dy, "dz": dz},
+        dimension=3,
+        model=model,
+        resolution=port_dict.get("resolution", None),
+        mesh_order=0,  # highest priority
+        mesh_bool=False,
+        physical_name=port_dict.get("physical_name", port.name),
+    )
+
+    return box
 
 
 def define_prisms(
@@ -86,6 +134,7 @@ def xyz_mesh(
     simplify_tol: float = 1e-3,
     n_threads: int = get_number_of_cores(),
     portnames: List[str] = None,
+    edge_ports: List[str] = None,
     layer_portname_delimiter: str = "#",
     gmsh_version: float | None = None,
 ) -> bool:
@@ -108,6 +157,17 @@ def xyz_mesh(
         simplify_tol: during gds --> mesh conversion cleanup, shapely "simplify" tolerance (make it so all points are at least separated by this amount)
         n_threads: for gmsh parallelization
         portnames: list or port polygons to converts into new layers (useful for boundary conditions)
+        edge_ports: dict of portnames to define as a 2D surface at the edge of the simulation.
+            edge_ports = {
+                "e1": {
+                    physical_name: (str), # how to name the 2D surface in the GMSH mesh. Default {port_layer}{layer_portname_delimiter}{port_name}
+                    width_pad: (float), # how much to extend the port width (default 0). Negative to shrink.
+                    zmin: (float), # minimal z-value of the port (default to port layer zmin)
+                    zmax: (float), # maximum z-value of the port (default to port layer zmin + thickness)
+                    resolution: (float), # constant resolution to assign to the gmsh 2D entity
+                },
+                ...
+            }
         layer_portname_delimiter: delimiter for the new layername/portname physicals, formatted as {layername}{delimiter}{portname}
         gmsh_version: Gmsh mesh format version. For example, Palace requires an older version of 2.2,
             see https://mfem.org/mesh-formats/#gmsh-mesh-formats.
@@ -188,6 +248,21 @@ def xyz_mesh(
         resolutions=resolutions,
     )
 
+    # Add edgeports
+    if edge_ports is not None:
+        ports = component.get_ports_dict()
+        port_layernames = layerstack.get_layer_to_layername()
+        for portname, edge_ports_dict in edge_ports.items():
+            port = ports[portname]
+            prisms_list.append(
+                define_edgeport(
+                    port,
+                    edge_ports_dict,
+                    model,
+                    layerlevel=layerstack.layers[port_layernames[port.layer][0]],
+                )
+            )
+
     import copy
 
     resolutions = copy.deepcopy(resolutions)
@@ -224,17 +299,20 @@ if __name__ == "__main__":
 
     # Choose some component
     c = gf.component.Component()
-    waveguide = c << gf.get_component(gf.components.straight_heater_metal(length=40))
+    waveguide = c << gf.get_component(gf.components.straight(length=40))
     c.add_ports(waveguide.get_ports_list())
 
     # Add wafer / vacuum (could be automated)
-    wafer = c << gf.components.bbox(bbox=waveguide.bbox, layer=LAYER.WAFER)
+    wafer = c << gf.components.bbox(
+        bbox=waveguide.bbox,
+        layer=LAYER.WAFER,
+        top=3,
+        bottom=3,
+    )
 
     # Generate a new component and layerstack with new logical layers
     layerstack = get_layer_stack()
 
-    # FIXME: .filtered returns all layers
-    # filtered_layerstack = layerstack.filtered_from_layerspec(layerspecs=c.get_layers())
     filtered_layerstack = LayerStack(
         layers={
             k: layerstack.layers[k]
@@ -243,15 +321,23 @@ if __name__ == "__main__":
                 "box",
                 "clad",
                 # "metal2",
-                "heater",
-                "via2",
+                # "heater",
+                # "via2",
                 "core",
-                "metal3",
+                # "metal3",
                 # "via_contact",
                 # "metal1"
             )
         }
     )
+
+    filtered_layerstack.layers["core"].mesh_order = 1
+    filtered_layerstack.layers["box"].thickness = 3
+    filtered_layerstack.layers["box"].zmin = -3
+    filtered_layerstack.layers["box"].mesh_order = 2
+    filtered_layerstack.layers["clad"].thickness = 3
+    filtered_layerstack.layers["clad"].zmin = 0
+    filtered_layerstack.layers["clad"].mesh_order = 3
 
     resolutions = {
         "core": {"resolution": 0.3},
@@ -263,5 +349,14 @@ if __name__ == "__main__":
         filename="mesh.msh",
         default_characteristic_length=5,
         verbosity=5,
-        portnames=["r_e2", "l_e4"],
+        # portnames=["r_e2", "l_e4"],
+        edge_ports={
+            "o1": {
+                "zmin": -1,
+                "zmax": 1,
+                "resolution": {"resolution": 0.1},
+                "physical_name": "edgeport",
+                "width_pad": 1,
+            }
+        },
     )
