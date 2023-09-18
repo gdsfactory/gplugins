@@ -35,7 +35,7 @@ class SimulationComponentBase(BaseModel):
     pad_xy_outer: NonNegativeFloat = 0.0
     pad_z_inner: NonNegativeFloat = 0.0
     pad_z_outer: NonNegativeFloat = 0.0
-    wafer_layer: tuple[int, int] = (10000, 0)
+    wafer_layer: tuple[int, int] = (99999, 0)
     slice_stack: tuple[int, int] = (0, -1)
 
     def __hash__(self):
