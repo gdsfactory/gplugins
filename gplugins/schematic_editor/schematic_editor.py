@@ -34,6 +34,7 @@ class SchematicEditor:
         self._initialize_schematic(filepath)
         self.setup_events()
 
+    @pn.depends("instances")
     def create_instance_row(self, instance_name=None, instance_type=None) -> pn.Row:
         inst_name = pn.widgets.TextInput(value=instance_name or "")
         inst_type = pn.widgets.TextInput(value=instance_type or "")
@@ -96,7 +97,11 @@ class SchematicEditor:
                 schema_version=SCHEMA_VERSION,
             )
 
-    def serve(self):
+    def refresh_panel(self):
+        circuitviz.update_schematic_plot(
+            schematic=self._schematic,
+            instances=self.symbols,
+        )
         pn.serve(self.panel)
 
     def _get_instance_selector(self, inst_name=None, component_name=None):
@@ -139,6 +144,7 @@ class SchematicEditor:
         remove_button._row = row
         arg1._row = row
         arg3._row = row
+        self.refresh_panel()
         return row
 
     def _update_instance_options(self, **kwargs) -> None:
@@ -200,12 +206,6 @@ class SchematicEditor:
                     child.observe(self._on_net_modified, names=["value"])
                 new_row._associated_component = None
 
-    def _update_schematic_plot(self, **kwargs) -> None:
-        circuitviz.update_schematic_plot(
-            schematic=self._schematic,
-            instances=self.symbols,
-        )
-
     def _on_instance_component_modified(self, change) -> None:
         this_box = change["owner"]
         inst_box = this_box._instance_selector
@@ -224,6 +224,7 @@ class SchematicEditor:
         self._instance_grid.children = tuple(
             child for child in self._instance_grid.children if child is not row
         )
+        self.refresh_panel()
 
     def _get_data_from_row(self, row):
         inst_name, component_name = (w.value for w in row.children)
@@ -288,17 +289,17 @@ class SchematicEditor:
     def visualize(self) -> None:
         circuitviz.show_netlist(self.schematic, self.symbols, self.path)
 
-        self.on_instance_added.append(self._update_schematic_plot)
-        self.on_settings_updated.append(self._update_schematic_plot)
-        self.on_nets_modified.append(self._update_schematic_plot)
-        self.on_instance_removed.append(self._update_schematic_plot)
+        self.on_instance_added.append(self.refresh_panel)
+        self.on_settings_updated.append(self.refresh_panel)
+        self.on_nets_modified.append(self.refresh_panel)
+        self.on_instance_removed.append(self.refresh_panel)
 
     @property
     def instances(self):
         insts = {}
         inst_data = self._schematic.instances
         for inst_name, inst in inst_data.items():
-            component_spec = inst.dict()
+            component_spec = dict(inst)
             # if component_spec['settings'] is None:
             #     component_spec['settings'] = {}
             # validates the settings
@@ -310,15 +311,17 @@ class SchematicEditor:
         insts = {}
         inst_data = self._schematic.instances
         for inst_name, inst in inst_data.items():
-            component_spec = inst.dict()
+            component_spec = dict(inst)
             insts[inst_name] = self.pdk.get_symbol(component_spec)
         return insts
 
+    @pn.depends("instances")
     def add_instance(self, instance_name: str, component: str | gf.Component) -> None:
         self._schematic.add_instance(name=instance_name, component=component)
         for callback in self.on_instance_added:
             callback(instance_name=instance_name)
 
+    @pn.depends("instances")
     def remove_instance(self, instance_name: str) -> None:
         self._schematic.instances.pop(instance_name)
         if instance_name in self._schematic.placements:
@@ -367,7 +370,7 @@ class SchematicEditor:
             callback(old_nets=old_nets, new_nets=self._schematic.nets)
 
     def get_netlist(self):
-        return self._schematic.dict()
+        return dict(self._schematic)
 
     @property
     def schematic(self):
@@ -382,7 +385,7 @@ class SchematicEditor:
         with open(self.path) as f:
             netlist = yaml.safe_load(f)
 
-        schematic = SchematicConfiguration.parse_obj(netlist)
+        schematic = SchematicConfiguration.model_validate(netlist)
         self._schematic = schematic
 
         # process instances
@@ -429,7 +432,7 @@ class SchematicEditor:
         output_filepath,
         default_router="get_bundle",
         default_cross_section="strip",
-    ):
+    ) -> PicYamlConfiguration:
         schematic = self._schematic
         routes = {}
         for inet, net in enumerate(schematic.nets):
@@ -475,5 +478,5 @@ if __name__ == "__main__":
 
     se = SchematicEditor(PATH.module / "schematic_editor" / "test.schem.yml")
     # se = SchematicEditor("a.schem.yml")
-    se.serve()
+    se.refresh_panel()
     # print(se.schematic)
