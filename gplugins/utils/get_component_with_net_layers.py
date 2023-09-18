@@ -8,7 +8,7 @@ def remove_empty_layerstack_layers(
     component: Component,
     layerstack: LayerStack,
 ) -> LayerStack:
-    """Returns a new layerstack without layers that don't appear in the provided polygon.
+    """Returns a new layerstack without layers that don't appear in the provided component.
 
     Arguments:
         component: to process.
