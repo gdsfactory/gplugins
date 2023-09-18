@@ -25,7 +25,8 @@ def get_epsilon_port(
         epsilon (array): The epsilon distribution of the component.
         xmin (array): The x-coordinates of the epsilon distribution.
         ymin (array): The y-coordinates of the epsilon distribution.
-        port_extent_xy (float): The size of the port in the xy-plane. Used to isolate the mode to a given waveguide.
+        port_extent_xy (float): The size of the port in the xy-plane. \
+                Used to isolate the mode to a given waveguide.
         port_offset (pixels): FIXME need to move the port towards the simulation a bit
 
     Returns:
@@ -38,39 +39,20 @@ def get_epsilon_port(
 
     x, y = port.center
     # z_range_indices = np.where((zcoords >= (z - port_size_z)) & (zcoords <= (z + port_size_z)))
-    sgn = 1 if (port.orientation == 180 or port.orientation == 270) else -1
-    if port.orientation == 0 or 180:
-        x_index = (
-            int(np.where(np.isclose(xarray, x, atol=nm_per_pixel * 1e-3 / 2))[0][0] / 2)
-            + sgn * port_offset
-        )  # factor of 2 from Yee grid?
-        port_slice = (
-            epsilon[:, x_index : x_index + 1, :, :]
-            if sgn == 1
-            else epsilon[:, x_index - 1 : x_index, :, :]
-        )
-        y_range_indices = np.where(
-            (yarray <= (y - port_extent_xy)) & (yarray >= (y + port_extent_xy))
-        )
-        port_slice = port_slice.at[:, 0, y_range_indices, :].set(np.min(port_slice))
-    else:
-        y_index = (
-            int(np.where(np.isclose(yarray, y, atol=nm_per_pixel * 1e-3 / 2))[0][0] / 2)
-            + sgn * port_offset
-        )  # factor of 2 from Yee grid?
-        port_slice = (
-            epsilon[:, :, y_index : y_index + 1, :]
-            if sgn == 1
-            else epsilon[:, :, y_index - 1 : y_index, :]
-        )
-        epsilon[:, x_index : x_index + 1, :, :] if sgn == 1 else epsilon[
-            :, x_index - 1 : x_index, :, :
-        ]
-        x_range_indices = np.where(
-            (xarray <= (x - port_extent_xy)) & (xarray >= (x + port_extent_xy))
-        )
-        port_slice = port_slice.at[:, x_range_indices, 0, :].set(np.min(port_slice))
-
+    sgn = 1 if port.orientation in [180, 270] else -1
+    x_index = (
+        int(np.where(np.isclose(xarray, x, atol=nm_per_pixel * 1e-3 / 2))[0][0] / 2)
+        + sgn * port_offset
+    )  # factor of 2 from Yee grid?
+    port_slice = (
+        epsilon[:, x_index : x_index + 1, :, :]
+        if sgn == 1
+        else epsilon[:, x_index - 1 : x_index, :, :]
+    )
+    y_range_indices = np.where(
+        (yarray <= (y - port_extent_xy)) & (yarray >= (y + port_extent_xy))
+    )
+    port_slice = port_slice.at[:, 0, y_range_indices, :].set(np.min(port_slice))
     return port_slice
 
 
@@ -108,7 +90,7 @@ def get_mode_port(
     )
 
     # Position
-    if port.orientation == 0 or port.orientation == 180:
+    if port.orientation in [0, 180]:
         pos = int(np.where(np.isclose(xarray, port.x, atol=nm_per_pixel / 2))[0][0] / 2)
     else:
         pos = int(np.where(np.isclose(yarray, port.y, atol=nm_per_pixel / 2))[0][0] / 2)
@@ -145,7 +127,7 @@ def plot_mode(
 
     # Plot
     fig = plt.figure(figsize=figsize)
-    if port.orientation == 0 or port.orientation == 180:
+    if port.orientation in [0, 180]:
         fig, axs = plt.subplots(1, 3, figsize=figsize)
         im0 = axs[0].imshow(
             epsilon_port[0, 0, :, :].transpose(),
@@ -174,8 +156,6 @@ def plot_mode(
         )
         axs[2].set_title("|Ez|")
         axs[2].set_xlabel("y")
-        axs[2].set_ylabel("z")
-        fig.colorbar(im2, ax=axs[2])
     else:
         fig, axs = plt.subplots(1, 3, figsize=figsize)
         im0 = axs[0].imshow(
@@ -205,9 +185,8 @@ def plot_mode(
         )
         axs[2].set_title("|Ez|")
         axs[2].set_xlabel("x")
-        axs[2].set_ylabel("z")
-        fig.colorbar(im2, ax=axs[2])
-
+    axs[2].set_ylabel("z")
+    fig.colorbar(im2, ax=axs[2])
     plt.show()
     return fig
 

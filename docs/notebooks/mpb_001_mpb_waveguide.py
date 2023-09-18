@@ -85,18 +85,11 @@
 # ```
 
 # %%
-
-import gdsfactory as gf
 import matplotlib.pyplot as plt
 import meep as mp
 import numpy as np
-from gdsfactory.generic_tech import get_generic_pdk
 
 import gplugins.modes as gm
-
-gf.config.rich_output()
-PDK = get_generic_pdk()
-PDK.activate()
 
 # %%
 modes = gm.find_modes_waveguide(

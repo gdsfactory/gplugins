@@ -16,6 +16,7 @@ parts:
           - file: notebooks/meshing_02_2D_xy_mesh
           - file: notebooks/meshing_03_2D_uz_mesh
           - file: notebooks/meshing_04_refinement
+          - file: notebooks/meshing_05_3D
       - file: plugins_process
         sections:
           - file: notebooks/femwell_02_heater
@@ -24,6 +25,7 @@ parts:
           - file: notebooks/tcad_03_numerical_implantation
           - file: notebooks/elmer_01_electrostatic
           - file: notebooks/palace_01_electrostatic
+          - file: notebooks/palace_02_fullwave
       - file: plugins_mode_solver
         sections:
           - file: notebooks/femwell_01_modes
@@ -36,6 +38,7 @@ parts:
           - file: notebooks/fdtdz_01.py
           - file: notebooks/meep_01_sparameters
           - file: notebooks/meep_02_gratings
+          - file: notebooks/meep_03_fields
           - file: notebooks/lumerical_1_fdtd_sparameters
       - file: plugins_circuits
         sections:

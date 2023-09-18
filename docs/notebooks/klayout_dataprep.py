@@ -29,9 +29,7 @@ from gdsfactory.generic_tech.layer_map import LAYER
 
 import gplugins.klayout.dataprep as dp
 
-gf.config.rich_output()
-PDK = gf.generic_tech.get_generic_pdk()
-PDK.activate()
+gf.CONF.display_type = "klayout"
 
 # %% [markdown]
 #
@@ -127,10 +125,9 @@ fill_cell = d.get_fill(
     spacing=[0.1, 0.1],
     fill_layers=[LAYER.WG, LAYER.M1],
 )
+fill_cell
 
 # %%
 c = d.get_kcell()
 c << fill_cell
 c
-
-# %%

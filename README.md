@@ -1,4 +1,4 @@
-# gplugins 0.5.0
+# gplugins 0.6.0
 
 [![docs](https://github.com/gdsfactory/gplugins/actions/workflows/pages.yml/badge.svg)](https://gdsfactory.github.io/gplugins/)
 [![PyPI](https://img.shields.io/pypi/v/gplugins)](https://pypi.org/project/gplugins/)
@@ -22,7 +22,7 @@ gdsfactory plugins:
 - `meep` for FDTD.
 - `mpb` for MPB mode solver.
 - `elmer` for electrostatic (capacitive) simulations.
-- `palace` for electrostatic (capacitive) simulations.
+- `palace` for full-wave driven (S parameter) and electrostatic (capacitive) simulations.
 - `web` for gdsfactory webapp.
 - `vlsir` for parsing GDS-extracted circuit netlists into Spice, Spectre and Xyce Schematic File formats.
 

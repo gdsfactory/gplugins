@@ -41,7 +41,6 @@ def break_geometry(shapes_dict: OrderedDict):
     """
     # Break up shapes in order so that plane is tiled with non-overlapping layers
     shapes_tiled_dict = tile_shapes(shapes_dict)
-
     polygons_broken_dict = OrderedDict()
     lines_broken_dict = OrderedDict()
     for _first_index, (first_name, _init_first_shapes) in enumerate(

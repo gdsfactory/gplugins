@@ -26,15 +26,10 @@
 # You can define materials as a material spec (float, string, tuple[string,string]).
 
 # %%
-import gdsfactory as gf
 import matplotlib.pyplot as plt
 import numpy as np
 
 import gplugins.tidy3d as gt
-
-gf.config.rich_output()
-PDK = gf.generic_tech.get_generic_pdk()
-PDK.activate()
 
 nm = 1e-3
 
