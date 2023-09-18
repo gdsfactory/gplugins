@@ -23,7 +23,7 @@ def test_component_with_net_layers():
     )
     layernames_after = set(net_layer_stack.layers.keys())
 
-    # Check we have two new layers in the layer_stack
+    # Check we have two new layers in the LayerStack
     assert len(layernames_after - layernames_before) == 2
 
     # Check we have one new layer in Component (all metal3 is removed by these operations)

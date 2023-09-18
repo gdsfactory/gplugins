@@ -1,13 +1,13 @@
 import copy
 
 import gdsfactory as gf
-from gdsfactory.typings import Component, layer_stack
+from gdsfactory.typings import Component, LayerStack
 
 
 def remove_empty_layer_stack_layers(
     component: Component,
-    layer_stack: layer_stack,
-) -> layer_stack:
+    layer_stack: LayerStack,
+) -> LayerStack:
     """Returns a new layer_stack without layers that don't appear in the provided component.
 
     Arguments:
@@ -35,12 +35,12 @@ def remove_empty_layer_stack_layers(
 
 def get_component_with_net_layers(
     component: Component,
-    layer_stack: layer_stack,
+    layer_stack: LayerStack,
     portnames: list[str],
     delimiter: str = "#",
     new_layers_init: tuple[int, int] = (10010, 0),
     add_to_layer_stack: bool = True,
-) -> tuple[Component, layer_stack]:
+) -> tuple[Component, LayerStack]:
     """Returns a component where polygons touching a port are put on new logical layers. Useful to quickly define boundary conditions from component ports in simulation. New layers are named "layername{delimiter}portname".
 
     Args:
