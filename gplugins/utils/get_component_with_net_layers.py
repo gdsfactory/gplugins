@@ -4,7 +4,7 @@ import gdsfactory as gf
 from gdsfactory.typings import Component, LayerStack
 
 
-def remove_empty_layer_stack_layers(
+def get_component_layer_stack(
     component: Component,
     layer_stack: LayerStack,
 ) -> LayerStack:

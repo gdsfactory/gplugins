@@ -2,8 +2,8 @@ from gdsfactory.components import straight_heater_metal
 from gdsfactory.generic_tech import LAYER_STACK
 
 from gplugins.utils.get_component_with_net_layers import (
+    get_component_layer_stack,
     get_component_with_net_layers,
-    remove_empty_layer_stack_layers,
 )
 
 
@@ -40,7 +40,7 @@ def test_component_with_net_layers():
             assert getattr(old_layer, varname) == getattr(new_layer, varname)
 
 
-def test_remove_empty_layer_stack_layers():
+def test_get_component_layer_stack():
     # Hardcoded settings for now
     delimiter = "#"
     portnames_to_test = ["r_e2", "l_e4"]
@@ -55,7 +55,7 @@ def test_remove_empty_layer_stack_layers():
     )
 
     # Test remove old layers
-    new_layer_stack = remove_empty_layer_stack_layers(
+    new_layer_stack = get_component_layer_stack(
         net_component,
         net_layer_stack,
     )
@@ -65,4 +65,4 @@ def test_remove_empty_layer_stack_layers():
 
 if __name__ == "__main__":
     test_component_with_net_layers()
-    test_remove_empty_layer_stack_layers()
+    test_get_component_layer_stack()
