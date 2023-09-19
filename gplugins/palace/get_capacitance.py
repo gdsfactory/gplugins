@@ -17,13 +17,13 @@ from gdsfactory.technology import LayerStack
 from numpy import isfinite
 from pandas import read_csv
 
-
 from gplugins.common.base_models.simulation import ElectrostaticResults
 from gplugins.common.types import RFMaterialSpec
 from gplugins.common.utils.async_helpers import (
     execute_and_stream_output,
     run_async_with_event_loop,
 )
+from gplugins.gmsh import get_mesh
 
 ELECTROSTATIC_JSON = "electrostatic.json"
 ELECTROSTATIC_TEMPLATE = Path(__file__).parent / ELECTROSTATIC_JSON
@@ -41,8 +41,22 @@ def _generate_json(
     physical_name_to_dimtag_map: dict[str, tuple[int, int]],
     background_tag: str | None = None,
     simulator_params: Mapping[str, Any] | None = None,
-):
-    """Generates a json file for capacitive Palace simulations."""
+) -> None:
+    """Generates a json file for capacitive Palace simulations.
+
+    Args:
+        simulation_folder: Folder where the json file will be saved.
+        name: Name of the simulation.
+        signals: List of lists of signal names.
+        bodies: Dictionary of bodies with their physical names as keys.
+        ground_layers: List of ground layer names.
+        layer_stack: Layer stack of the circuit.
+        material_spec: Dictionary of material specifications.
+        element_order: Order of the elements.
+        physical_name_to_dimtag_map: Dictionary mapping physical names to dimension tags.
+        background_tag: Physical name of the background.
+        simulator_params: Dictionary of simulator parameters.
+    """
     # TODO: Generalise to merger with the Elmer implementations"""
     used_materials = {v.material for v in layer_stack.layers.values()} | (
         {background_tag} if background_tag else {}
