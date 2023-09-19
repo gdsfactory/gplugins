@@ -32,7 +32,7 @@ from tqdm.notebook import trange
 
 import gplugins.sax as gs
 import gplugins.tidy3d as gt
-from gplugins.config import PATH
+from gplugins.common.config import PATH
 
 gf.config.rich_output()
 PDK = get_generic_pdk()

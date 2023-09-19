@@ -38,7 +38,7 @@ from gdsfactory.components.taper import taper_sc_nc
 
 import gplugins.tidy3d as gt
 from gplugins import utils
-from gplugins.config import PATH
+from gplugins.common.config import PATH
 
 # %%
 print(gt.materials.MaterialSpecTidy3d)

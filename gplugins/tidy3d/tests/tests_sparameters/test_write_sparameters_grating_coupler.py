@@ -4,7 +4,7 @@ import gdsfactory as gf
 import numpy as np
 
 import gplugins.tidy3d as gt
-from gplugins.config import PATH
+from gplugins.common.config import PATH
 
 fiber_port_name = "o2"
 

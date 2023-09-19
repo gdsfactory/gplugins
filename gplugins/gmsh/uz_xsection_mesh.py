@@ -10,6 +10,10 @@ from scipy.interpolate import NearestNDInterpolator
 from shapely.geometry import LineString, MultiPolygon, Point, Polygon
 from shapely.ops import unary_union
 
+from gplugins.common.utils.parse_layerstack import (
+    list_unique_layerstack_z,
+    order_layerstack,
+)
 from gplugins.gmsh.mesh import mesh_from_polygons
 from gplugins.gmsh.parse_component import (
     create_2D_surface_interface,
@@ -17,10 +21,6 @@ from gplugins.gmsh.parse_component import (
     process_buffers,
 )
 from gplugins.gmsh.parse_gds import cleanup_component, to_polygons
-from gplugins.utils.parse_layerstack import (
-    list_unique_layerstack_z,
-    order_layerstack,
-)
 
 
 def get_u_bounds_polygons(

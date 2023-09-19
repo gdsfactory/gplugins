@@ -23,13 +23,13 @@ from gdsfactory.technology import LayerStack
 from gdsfactory.typings import ComponentSpec, PathType, Port, PortSymmetries
 from tqdm.auto import tqdm
 
+from gplugins.common.utils import port_symmetries
+from gplugins.common.utils.get_sparameters_path import (
+    get_sparameters_path_meep as get_sparameters_path,
+)
 from gplugins.gmeep.get_simulation import (
     get_simulation,
     settings_get_simulation,
-)
-from gplugins.utils import port_symmetries
-from gplugins.utils.get_sparameters_path import (
-    get_sparameters_path_meep as get_sparameters_path,
 )
 
 core_materials = multiprocessing.cpu_count()

@@ -1,7 +1,7 @@
 import gdsfactory as gf
 
+from gplugins.common.utils import optical_constants
 from gplugins.gmeep.write_sparameters_meep import write_sparameters_meep
-from gplugins.utils import optical_constants
 
 
 def test_materials_override() -> None:
