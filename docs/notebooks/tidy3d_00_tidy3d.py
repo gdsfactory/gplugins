@@ -37,8 +37,8 @@ import tidy3d as td
 from gdsfactory.components.taper import taper_sc_nc
 
 import gplugins.tidy3d as gt
-from gplugins import utils
-from gplugins.config import PATH
+from gplugins import plot
+from gplugins.common.config import PATH
 
 # %%
 print(gt.materials.MaterialSpecTidy3d)
@@ -242,10 +242,10 @@ fig = gt.plot_simulation(s)
 sp = np.load(
     PATH.sparameters_repo / "bend_circular_radius2_9d7742b34c224827aeae808dc986308e.npz"
 )
-utils.plot.plot_sparameters(sp)
+plot.plot_sparameters(sp)
 
 # %%
-utils.plot.plot_sparameters(sp, keys=("o2@0,o1@0",))
+plot.plot_sparameters(sp, keys=("o2@0,o1@0",))
 
 # %%
 c = gf.components.mmi1x2()
@@ -262,16 +262,16 @@ fig = gt.plot_simulation(s, y=0.63)  # see output
 sp = np.load(PATH.sparameters_repo / "mmi1x2_507de731d50770de9096ac9f23321daa.npz")
 
 # %%
-utils.plot.plot_sparameters(sp)
+plot.plot_sparameters(sp)
 
 # %%
-utils.plot.plot_sparameters(sp, keys=("o1@0,o2@0", "o1@0,o3@0"))
+plot.plot_sparameters(sp, keys=("o1@0,o2@0", "o1@0,o3@0"))
 
 # %%
-utils.plot.plot_loss1x2(sp)
+plot.plot_loss1x2(sp)
 
 # %%
-utils.plot.plot_imbalance1x2(sp)
+plot.plot_imbalance1x2(sp)
 
 # %%
 c = gf.components.mmi2x2_with_sbend(with_sbend=False)
@@ -283,10 +283,10 @@ sp = gt.write_sparameters(c, run=False)
 # %%
 # sp = gt.write_sparameters(c, filepath=PATH.sparameters_repo / 'mmi2x2_without_sbend.npz')
 sp = np.load(PATH.sparameters_repo / "mmi2x2_without_sbend.npz")
-utils.plot.plot_loss2x2(sp)
+plot.plot_loss2x2(sp)
 
 # %%
-utils.plot.plot_imbalance2x2(sp)
+plot.plot_imbalance2x2(sp)
 
 # %% [markdown]
 # ## write_sparameters_batch
@@ -300,7 +300,7 @@ utils.plot.plot_imbalance2x2(sp)
 #
 # sp0 = sps[0]
 # sp = sp0.result()
-# utils.plot.plot_sparameters(sp)
+# plot.plot_sparameters(sp)
 # ```
 
 # %% [markdown]

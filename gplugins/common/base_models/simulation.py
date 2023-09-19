@@ -4,25 +4,25 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
-CDict = dict[tuple[str, str], float]
-RFMaterialSpec = dict[str, dict[str, float | int]]
+from ..types import CapacitanceDict
 
 
 class ElectrostaticResults(BaseModel):
     """Results class for electrostatic simulations."""
 
-    capacitance_matrix: CDict
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    capacitance_matrix: CapacitanceDict
     mesh_location: Path | None = None
     field_file_location: Path | None = None
 
-    # TODO uncomment after move to pydantic v2
     # @computed_field
     # @cached_property
-    # def raw_capacitance_matrix(self) -> ndarray:
-    #     n = int(sqrt(len(self.capacitance_matrix)))
-    #     matrix = zeros((n, n))
+    # def raw_capacitance_matrix(self) -> NDArray:
+    #     n = int(np.sqrt(len(self.capacitance_matrix)))
+    #     matrix = np.zeros((n, n))
 
     #     port_to_index_map = {}
     #     for iname, jname in self.capacitance_matrix.keys():
@@ -43,11 +43,3 @@ class DrivenFullWaveResults(BaseModel):
     scattering_matrix: Any  # TODO convert to SDict or similar
     mesh_location: Path | None = None
     field_file_locations: Sequence[Path] | None = None
-
-
-__all__ = (
-    "CDict",
-    "DrivenFullWaveResults",
-    "ElectrostaticResults",
-    "RFMaterialSpec",
-)

@@ -61,8 +61,8 @@ from gdsfactory.technology.layer_stack import LayerLevel
 from IPython.display import display
 from matplotlib import pyplot as plt
 
+from gplugins.common.types import RFMaterialSpec
 from gplugins.palace import run_scattering_simulation_palace
-from gplugins.typings import RFMaterialSpec
 
 gf.config.rich_output()
 PDK = get_generic_pdk()

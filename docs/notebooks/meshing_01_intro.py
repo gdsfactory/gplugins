@@ -53,6 +53,7 @@ from gdsfactory.generic_tech import LAYER_STACK, get_generic_pdk
 from gdsfactory.technology import LayerStack
 from skfem.io import from_meshio
 
+from gplugins.gmsh.get_mesh import get_mesh
 from gplugins.gmsh.mesh import create_physical_mesh
 
 gf.config.rich_output()
@@ -95,8 +96,12 @@ scene.show()
 
 # The various processing and meshing functions are located under `gplugins.gmsh` and can be called from there, but a shortcut is implemented to mesh directly from a component:
 
-mesh = waveguide.to_gmsh(
-    type="xy", z=0.09, layer_stack=filtered_layerstack, filename="mesh.msh"
+mesh = get_mesh(
+    component=waveguide,
+    type="xy",
+    z=0.09,
+    layer_stack=filtered_layerstack,
+    filename="mesh.msh",
 )
 
 # This returns a gmsh `.msh` mesh, also saved in `filename` if provided, which can be processed:

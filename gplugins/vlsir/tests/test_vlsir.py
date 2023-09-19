@@ -1,7 +1,7 @@
 import pytest
 from gdsfactory.samples.demo.lvs import pads_correct
 
-from gplugins.config import PATH
+from gplugins.common.config import PATH
 from gplugins.verification.get_netlist import get_netlist
 from gplugins.vlsir import export_netlist, kdb_vlsir
 

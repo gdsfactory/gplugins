@@ -176,7 +176,7 @@ def create_2D_surface_interface(
         layer_polygons: shapely polygons.
         thickness_min: distance to define the interfacial region towards the polygon.
         thickness_max: distance to define the interfacial region away from the polygon.
-        simplify: simplification factor for over-parametrized geometries
+        simplify: simplification factor for over-parametrized geometries.
 
     Returns:
         shapely interface polygon

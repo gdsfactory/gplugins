@@ -47,8 +47,8 @@ from gdsfactory.technology import LayerStack
 from gdsfactory.technology.layer_stack import LayerLevel
 from IPython.display import display
 
+from gplugins.common.types import RFMaterialSpec
 from gplugins.palace import run_capacitive_simulation_palace
-from gplugins.typings import RFMaterialSpec
 
 gf.config.rich_output()
 PDK = get_generic_pdk()

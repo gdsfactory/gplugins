@@ -6,11 +6,11 @@ from typing import Any
 import gdsfactory as gf
 from gdsfactory.typings import ComponentSpec
 
+from gplugins.common.base_models.simulation import ElectrostaticResults
 from gplugins.elmer.get_capacitance import run_capacitive_simulation_elmer
 from gplugins.palace.get_capacitance import (
     run_capacitive_simulation_palace,
 )
-from gplugins.typings import ElectrostaticResults
 
 
 def get_capacitance_path() -> Path:

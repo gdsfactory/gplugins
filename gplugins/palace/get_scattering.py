@@ -19,8 +19,13 @@ from gdsfactory.generic_tech import LAYER_STACK
 from gdsfactory.technology import LayerStack
 from numpy import isfinite
 
-from gplugins.async_utils import execute_and_stream_output, run_async_with_event_loop
-from gplugins.typings import DrivenFullWaveResults, RFMaterialSpec
+from gplugins.common.base_models.simulation import DrivenFullWaveResults
+from gplugins.common.types import RFMaterialSpec
+from gplugins.common.utils.async_helpers import (
+    execute_and_stream_output,
+    run_async_with_event_loop,
+)
+from gplugins.gmsh import get_mesh
 
 DRIVE_JSON = "driven.json"
 DRIVEN_TEMPLATE = Path(__file__).parent / DRIVE_JSON
@@ -45,7 +50,27 @@ def _generate_json(
     mesh_refinement_levels: int | None = None,
     only_one_port: bool | None = True,
 ) -> list[Path]:
-    """Generates a json file for full-wave Palace simulations."""
+    """Generates a json file for full-wave Palace simulations.
+
+    Args:
+        simulation_folder: Path to the simulation folder.
+        name: Name of the simulation.
+        bodies: Dictionary of bodies to be simulated.
+        absorbing_surfaces: Collection of surfaces to be treated as absorbing.
+        layer_stack: Layer stack of the simulation.
+        material_spec: Material specification of the simulation.
+        element_order: Element order of the simulation.
+        physical_name_to_dimtag_map: Mapping from physical names to dimension tags.
+        metal_surfaces: Collection of surfaces to be treated as metal.
+        background_tag: Tag of the background material.
+        edge_signals: Collection of edge signals to be excited.
+        internal_signals: Collection of internal signals to be excited.
+        internal_signal_directions: Mapping from internal signals to directions.
+        simulator_params: Parameters of the simulator.
+        driven_settings: Settings of the driven solver.
+        mesh_refinement_levels: Number of mesh refinement levels.
+        only_one_port: Whether to only simulate one port at a time.
+    """
     # TODO: Generalise to merger with the Elmer implementations"""
     used_materials = {v.material for v in layer_stack.layers.values()} | (
         {background_tag} if background_tag else {}
@@ -67,10 +92,9 @@ def _generate_json(
 
     palace_json_data["Model"]["Mesh"] = f"{name}.msh"
     if mesh_refinement_levels:
-        palace_json_data["Model"]["Refinement"] = {}
-        palace_json_data["Model"]["Refinement"][
-            "UniformLevels"
-        ] = mesh_refinement_levels
+        palace_json_data["Model"]["Refinement"] = {
+            "UniformLevels": mesh_refinement_levels
+        }
     palace_json_data["Domains"]["Materials"] = [
         {
             "Attributes": material_to_attributes_map.get(material, None),
@@ -202,23 +226,20 @@ async def _palace(
             "`palace` not found. Make sure it is available in your PATH."
         )
 
-    # TODO handle better than this. Ideally distributed and scheduled with @ray.remote
-    tasks = []
-    for json_file, n_processes_json in zip(json_files, n_processes_per_json):
-        tasks.append(
-            execute_and_stream_output(
-                (
-                    [palace, str(json_file)]
-                    if n_processes == 1
-                    else [palace, "-np", str(n_processes_json), str(json_file)]
-                ),
-                shell=False,
-                log_file_dir=json_file.parent,
-                log_file_str=json_file.stem + "_palace",
-                cwd=simulation_folder,
-            )
+    tasks = [
+        execute_and_stream_output(
+            (
+                [palace, str(json_file)]
+                if n_processes == 1
+                else [palace, "-np", str(n_processes_json), str(json_file)]
+            ),
+            shell=False,
+            log_file_dir=json_file.parent,
+            log_file_str=json_file.stem + "_palace",
+            cwd=simulation_folder,
         )
-
+        for json_file, n_processes_json in zip(json_files, n_processes_per_json)
+    ]
     await asyncio.gather(*tasks)
 
 
@@ -279,8 +300,7 @@ def run_scattering_simulation_palace(
     mesh_parameters: dict[str, Any] | None = None,
     mesh_file: Path | str | None = None,
 ) -> DrivenFullWaveResults:
-    """Run full-wave finite element method simulations using
-    `Palace`_.
+    """Run full-wave finite element method simulations using Palace.
     Returns the field solution and resulting scattering matrix.
 
     .. note:: You should have `palace` in your PATH.
@@ -306,7 +326,7 @@ def run_scattering_simulation_palace(
         mesh_refinement_levels: Refine mesh this many times, see Palace for details.
         only_one_port: Whether to solve only scattering from the first port to other ports, e.g., `S11, S12, S13, ...`
         mesh_parameters:
-            Keyword arguments to provide to :func:`~Component.to_gmsh`.
+            Keyword arguments to provide to :func:`get_mesh`.
         mesh_file: Path to a ready mesh to use. Useful for reusing one mesh file.
             By default a mesh is generated according to ``mesh_parameters``.
 
@@ -339,7 +359,8 @@ def run_scattering_simulation_palace(
     if mesh_file:
         shutil.copyfile(str(mesh_file), str(simulation_folder / filename))
     else:
-        component.to_gmsh(
+        get_mesh(
+            component=component,
             type="3D",
             filename=simulation_folder / filename,
             layer_stack=layer_stack,
@@ -445,13 +466,11 @@ def run_scattering_simulation_palace(
     }
     absorbing_surfaces = {
         k
-        for k in physical_name_to_dimtag_map.keys()
+        for k in physical_name_to_dimtag_map
         if "___None" in k
         and background_tag in k
-        and not any(p in k for p in component.ports)
-    } - set(
-        ground_layers
-    )  # keep metal edge as PEC
+        and all(p not in k for p in component.ports)
+    } - set(ground_layers)
 
     gmsh.finalize()
 
@@ -478,7 +497,7 @@ def run_scattering_simulation_palace(
     results = _read_palace_results(
         simulation_folder,
         filename,
-        [e[0] for e in lumped_two_port_pairs][0 : (1 if only_one_port else -1)],
+        [e[0] for e in lumped_two_port_pairs][: 1 if only_one_port else -1],
         is_temporary=str(simulation_folder) == temp_dir.name,
     )
     temp_dir.cleanup()

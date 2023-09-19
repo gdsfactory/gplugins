@@ -16,11 +16,11 @@ from shapely.affinity import scale
 from shapely.geometry import Polygon
 from shapely.ops import unary_union
 
-from gplugins.gmsh.parse_component import bufferize
-from gplugins.gmsh.parse_gds import cleanup_component
-from gplugins.utils.parse_layerstack import (
+from gplugins.common.utils.parse_layerstack import (
     list_unique_layerstack_z,
 )
+from gplugins.gmsh.parse_component import bufferize
+from gplugins.gmsh.parse_gds import cleanup_component
 
 
 def define_edgeport(

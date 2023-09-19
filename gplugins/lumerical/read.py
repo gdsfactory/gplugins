@@ -10,7 +10,7 @@ from gdsfactory.config import logger
 from gdsfactory.generic_tech import LAYER_STACK
 from gdsfactory.technology import LayerStack
 
-from gplugins.utils.get_sparameters_path import (
+from gplugins.common.utils.get_sparameters_path import (
     get_sparameters_path_lumerical as get_sparameters_path,
 )
 
