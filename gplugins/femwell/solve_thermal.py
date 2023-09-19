@@ -68,6 +68,8 @@ if __name__ == "__main__":
     from gdsfactory.generic_tech import LAYER_STACK
     from skfem import Mesh
 
+    from gplugins.gmsh.get_mesh import get_mesh
+
     LAYER_STACK.layers["heater"].thickness = 0.13
     LAYER_STACK.layers["heater"].zmin = 2.2
     heater_len = 1  # 1 um, so normalized
@@ -83,7 +85,9 @@ if __name__ == "__main__":
 
     # ====== MESH =====
     filtered_layerstack = LAYER_STACK
-    filtered_layerstack.get_component_with_derived_layers(heater).to_gmsh(
+    heater_derived = filtered_layerstack.get_component_with_derived_layers(heater)
+    get_mesh(
+        component=heater_derived,
         type="uz",
         xsection_bounds=[(3, c.bbox[0, 1]), (3, c.bbox[1, 1])],
         # xsection_bounds=[(3, -4), (3, 4)],

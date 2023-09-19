@@ -13,6 +13,7 @@ from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 from skfem.io import from_meshio
 
+from gplugins.gmsh.get_mesh import get_mesh
 from gplugins.gmsh.mesh import create_physical_mesh
 
 PDK = get_generic_pdk()
@@ -49,7 +50,8 @@ def mesh_with_physicals(mesh, filename):
 
 # -
 
-mesh = waveguide.to_gmsh(
+mesh = get_mesh(
+    component=waveguide,
     type="3D",
     layer_stack=filtered_layerstack,
     filename=f"{filename}.msh",
@@ -80,7 +82,8 @@ waveguide.ports.keys()
 print(waveguide.ports["top_e1"])
 print(waveguide.ports["bot_e1"])
 
-mesh = waveguide.to_gmsh(
+mesh = get_mesh(
+    component=waveguide,
     type="3D",
     layer_stack=filtered_layerstack,
     filename=f"{filename}.msh",
