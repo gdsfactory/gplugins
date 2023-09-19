@@ -5,7 +5,7 @@ import numpy as np
 import tidy3d as td
 
 import gplugins.tidy3d as gt
-from gplugins.config import PATH
+from gplugins.common.config import PATH
 
 
 def test_sparameters_straight_3d(overwrite=True) -> None:

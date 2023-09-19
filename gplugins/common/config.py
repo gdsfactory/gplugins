@@ -11,7 +11,7 @@ cwd_config = cwd / "config.yml"
 home_config = home / ".config" / "gplugins.yml"
 config_dir = home / ".config"
 config_dir.mkdir(exist_ok=True)
-module_path = pathlib.Path(__file__).parent.absolute()
+module_path = pathlib.Path(__file__).parents[1].absolute()
 repo_path = module_path.parent
 
 

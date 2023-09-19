@@ -17,7 +17,7 @@ from gdsfactory.typings import PathType
 from meow.base_model import _array as mw_array
 from tqdm.auto import tqdm
 
-from gplugins.utils.get_sparameters_path import (
+from gplugins.common.utils.get_sparameters_path import (
     get_sparameters_path_meow as get_sparameters_path,
 )
 

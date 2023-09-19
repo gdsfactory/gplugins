@@ -5,7 +5,7 @@ from gdsfactory.technology import LayerStack
 from gdsfactory.typings import Float2
 from pjz import _epsilon
 
-from gplugins.utils.parse_layerstack import (
+from gplugins.common.utils.parse_layerstack import (
     get_layer_overlaps_z,
     list_unique_layerstack_z,
     order_layerstack,

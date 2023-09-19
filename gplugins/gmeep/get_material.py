@@ -6,7 +6,7 @@ import meep as mp
 import meep.materials as mat
 import numpy as np
 
-from gplugins.utils import optical_constants
+from gplugins.common.utils import optical_constants
 
 material_name_to_meep_default = {
     "si": "Si",

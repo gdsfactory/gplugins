@@ -17,9 +17,12 @@ from jinja2 import Environment, FileSystemLoader
 from numpy import isfinite
 from pandas import read_csv
 
-from gplugins.async_utils import execute_and_stream_output, run_async_with_event_loop
-from gplugins.typings.materials import RFMaterialSpec
-from gplugins.typings.simulation import ElectrostaticResults
+from gplugins.common.base_models.simulation import ElectrostaticResults
+from gplugins.common.types import RFMaterialSpec
+from gplugins.common.utils.async_helpers import (
+    execute_and_stream_output,
+    run_async_with_event_loop,
+)
 
 ELECTROSTATIC_SIF = "electrostatic.sif"
 ELECTROSTATIC_TEMPLATE = Path(__file__).parent / f"{ELECTROSTATIC_SIF}.j2"
