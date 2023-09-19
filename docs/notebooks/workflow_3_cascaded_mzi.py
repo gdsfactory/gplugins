@@ -33,7 +33,7 @@ import sax
 import tidy3d as td
 
 import gplugins.tidy3d as gt
-from gplugins.config import PATH
+from gplugins.common.config import PATH
 
 # %% [markdown]
 # We start by loading the desired PDK and setting the main geometry and filter parameters, such as DC gap and central wavelength.

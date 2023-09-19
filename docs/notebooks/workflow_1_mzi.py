@@ -161,7 +161,7 @@ import gdsfactory.components as pdk
 
 import gplugins as sim
 import gplugins.tidy3d as gt
-from gplugins.config import PATH
+from gplugins.common.config import PATH
 
 c = pdk.mmi1x2()
 c.plot()

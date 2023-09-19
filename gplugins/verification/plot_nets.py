@@ -37,7 +37,7 @@ def plot_nets(filepath: str | Path) -> None:
 if __name__ == "__main__":
     from gdsfactory.samples.demo.lvs import pads_correct, pads_shorted
 
-    from gplugins.config import PATH
+    from gplugins.common.config import PATH
 
     c = pads_correct()
     c = pads_shorted()
