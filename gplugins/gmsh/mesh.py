@@ -18,7 +18,7 @@ from gplugins.gmsh.refine import (
 )
 
 
-def define_entities(model, shapes_dict: OrderedDict, atol=1e-3):
+def define_entities(model, shapes_dict: OrderedDict, atol: float = 1e-3):
     """Adds the polygons and lines from a "shapes_dict" as physical entities in the pygmsh model "model".
 
     Args:
@@ -127,7 +127,7 @@ def mesh_from_polygons(
     verbosity: bool | None = False,
     atol: float | None = 1e-4,
     periodic_lines: tuple[(str, str)] | None = None,
-):
+) -> meshio.Mesh:
     """Return a 2D mesh from an ordered dict of shapely polygons.
 
     Args:
@@ -222,7 +222,7 @@ def mesh_from_polygons(
     return mesh
 
 
-def create_physical_mesh(mesh, cell_type):
+def create_physical_mesh(mesh, cell_type) -> meshio.Mesh:
     cells = mesh.get_cells_type(cell_type)
     cell_data = mesh.get_cell_data("gmsh:physical", cell_type)
     points = mesh.points

@@ -11,7 +11,7 @@ from gdsfactory.generic_tech import get_generic_pdk
 from gdsfactory.technology import LayerStack
 from skfem.io import from_meshio
 
-from gplugins.gmsh.mesh import create_physical_mesh, get_mesh
+from gplugins.gmsh import create_physical_mesh, get_mesh
 
 gf.config.rich_output()
 PDK = get_generic_pdk()
