@@ -16,7 +16,7 @@ from gdsfactory.generic_tech.simulation_settings import (
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 
-from gplugins.utils.get_sparameters_path import (
+from gplugins.common.utils.get_sparameters_path import (
     get_sparameters_path_lumerical as get_sparameters_path,
 )
 

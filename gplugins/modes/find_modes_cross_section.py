@@ -21,12 +21,12 @@ from gdsfactory.config import PATH
 from gdsfactory.typings import CrossSectionSpec, PathType
 from meep import mpb
 
+from gplugins.common.utils.disable_print import disable_print, enable_print
+from gplugins.common.utils.get_sparameters_path import get_kwargs_hash
 from gplugins.modes.get_mode_solver_cross_section import (
     get_mode_solver_cross_section,
 )
 from gplugins.modes.types import Mode
-from gplugins.utils.disable_print import disable_print, enable_print
-from gplugins.utils.get_sparameters_path import get_kwargs_hash
 
 mpb.Verbosity(0)
 

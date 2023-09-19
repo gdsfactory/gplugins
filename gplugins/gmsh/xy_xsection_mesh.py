@@ -15,8 +15,11 @@ from shapely.affinity import scale
 from shapely.geometry import Polygon
 from shapely.ops import unary_union
 
+from gplugins.common.utils.parse_layerstack import (
+    get_layers_at_z,
+    list_unique_layerstack_z,
+)
 from gplugins.gmsh.parse_gds import cleanup_component
-from gplugins.utils.parse_layerstack import get_layers_at_z, list_unique_layerstack_z
 
 
 def apply_effective_buffers(layer_polygons_dict, layerstack, z):
