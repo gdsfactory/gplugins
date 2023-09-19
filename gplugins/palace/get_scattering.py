@@ -19,6 +19,7 @@ from gdsfactory.generic_tech import LAYER_STACK
 from gdsfactory.technology import LayerStack
 from numpy import isfinite
 
+
 from gplugins.common.base_models.simulation import DrivenFullWaveResults
 from gplugins.common.types import RFMaterialSpec
 from gplugins.common.utils.async_helpers import (
@@ -310,7 +311,7 @@ def run_scattering_simulation_palace(
         mesh_refinement_levels: Refine mesh this many times, see Palace for details.
         only_one_port: Whether to solve only scattering from the first port to other ports, e.g., `S11, S12, S13, ...`
         mesh_parameters:
-            Keyword arguments to provide to :func:`~Component.to_gmsh`.
+            Keyword arguments to provide to :func:`get_mesh`.
         mesh_file: Path to a ready mesh to use. Useful for reusing one mesh file.
             By default a mesh is generated according to ``mesh_parameters``.
 
@@ -343,7 +344,8 @@ def run_scattering_simulation_palace(
     if mesh_file:
         shutil.copyfile(str(mesh_file), str(simulation_folder / filename))
     else:
-        component.to_gmsh(
+        get_mesh(
+            component=component,
             type="3D",
             filename=simulation_folder / filename,
             layer_stack=layer_stack,

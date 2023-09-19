@@ -10,6 +10,7 @@ from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 from skfem.io import from_meshio
 
+from gplugins.gmsh.get_mesh import get_mesh
 from gplugins.gmsh.mesh import create_physical_mesh
 
 gf.config.rich_output()
@@ -45,8 +46,12 @@ def mesh_with_physicals(mesh, filename):
 # At `z=0.09` um, according to the layer stack above we should see polygons from all three layers:
 
 filename = "mesh"
-mesh = waveguide.to_gmsh(
-    type="xy", z=0.09, layer_stack=filtered_layerstack, filename=f"{filename}.msh"
+mesh = get_mesh(
+    component=waveguide,
+    type="xy",
+    z=0.09,
+    layer_stack=filtered_layerstack,
+    filename=f"{filename}.msh",
 )
 mesh = mesh_with_physicals(mesh, filename)
 mesh = from_meshio(mesh)
@@ -54,8 +59,12 @@ mesh.draw().plot()
 
 # At `z=0`, you can see only the core and slab:
 
-mesh = waveguide.to_gmsh(
-    type="xy", z=0.0, layer_stack=filtered_layerstack, filename=f"{filename}.msh"
+mesh = get_mesh(
+    component=waveguide,
+    type="xy",
+    z=0.0,
+    layer_stack=filtered_layerstack,
+    filename=f"{filename}.msh",
 )
 mesh = mesh_with_physicals(mesh, filename)
 mesh = from_meshio(mesh)
@@ -63,8 +72,12 @@ mesh.draw().plot()
 
 # At `z=1.0`, you can only see the vias appear:
 
-mesh = waveguide.to_gmsh(
-    type="xy", z=1.0, layer_stack=filtered_layerstack, filename=f"{filename}.msh"
+mesh = get_mesh(
+    component=waveguide,
+    type="xy",
+    z=1.0,
+    layer_stack=filtered_layerstack,
+    filename=f"{filename}.msh",
 )
 mesh = mesh_with_physicals(mesh, filename)
 mesh = from_meshio(mesh)
@@ -86,8 +99,12 @@ waveguide_trimmed.add_ref(
 waveguide_trimmed
 # -
 
-mesh = waveguide_trimmed.to_gmsh(
-    type="xy", z=0.09, layer_stack=filtered_layerstack, filename=f"{filename}.msh"
+mesh = get_mesh(
+    component=waveguide_trimmed,
+    type="xy",
+    z=0.09,
+    layer_stack=filtered_layerstack,
+    filename=f"{filename}.msh",
 )
 mesh = mesh_with_physicals(mesh, filename)
 mesh = from_meshio(mesh)
