@@ -17,7 +17,7 @@ from loguru import logger
 from pydantic import BaseModel
 from starlette.routing import WebSocketRoute
 
-from gplugins.config import PATH
+from gplugins.common.config import PATH
 from gplugins.web.middleware import ProxiedHeadersMiddleware
 from gplugins.web.server import LayoutViewServerEndpoint, get_layout_view
 

@@ -72,7 +72,7 @@ def add_simulation_markers(
         :include-source:
 
         import gdsfactory as gf
-        from gplugins.utils.add_simulation_markers import add_simulation_markers
+        from gplugins.common.utils.add_simulation_markers import add_simulation_markers
 
         c = gf.components.bend_circular()
         c = add_simulation_markers(c)

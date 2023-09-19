@@ -114,6 +114,8 @@ def tile_shapes(shapes_dict):
 if __name__ == "__main__":
     from gdsfactory.generic_tech import LAYER_STACK
 
+    from gplugins.gmsh.get_mesh import get_mesh
+
     c = gf.components.straight_heater_doped_rib()
-    c.to_gmsh(type="xy", layer_stack=LAYER_STACK, z=0)
-    c.to_gmsh(type="xy", layer_stack=LAYER_STACK, z=0)
+    get_mesh(component=c, type="xy", layer_stack=LAYER_STACK, z=0)
+    get_mesh(component=c, type="xy", layer_stack=LAYER_STACK, z=0)

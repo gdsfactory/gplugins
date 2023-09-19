@@ -6,7 +6,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
-from .materials import CapacitanceDict
+from ..types import CapacitanceDict
 
 
 class ElectrostaticResults(BaseModel):

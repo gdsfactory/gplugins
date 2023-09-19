@@ -7,8 +7,8 @@ from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 from gdsfactory.typings import ComponentSpec, CrossSectionSpec
 
+from gplugins.common.utils.parse_layerstack import order_layerstack
 from gplugins.gmeep.get_material import get_material
-from gplugins.utils.parse_layerstack import order_layerstack
 
 
 def get_meep_geometry_from_component(

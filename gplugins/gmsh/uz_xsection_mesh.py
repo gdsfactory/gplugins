@@ -12,15 +12,15 @@ from meshwell.model import Model
 from shapely.geometry import LineString, MultiPolygon, Point, Polygon
 from shapely.ops import unary_union
 
+from gplugins.common.utils.parse_layerstack import (
+    list_unique_layerstack_z,
+    order_layerstack,
+)
 from gplugins.gmsh.define_polysurfaces import define_polysurfaces
 from gplugins.gmsh.parse_component import (
     process_buffers,
 )
 from gplugins.gmsh.parse_gds import cleanup_component, to_polygons
-from gplugins.utils.parse_layerstack import (
-    list_unique_layerstack_z,
-    order_layerstack,
-)
 
 
 def get_u_bounds_polygons(

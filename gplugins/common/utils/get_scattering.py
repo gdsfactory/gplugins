@@ -4,29 +4,21 @@ from pathlib import Path
 from typing import Any
 
 import gdsfactory as gf
+from gdsfactory.pdk import get_sparameters_path
 from gdsfactory.typings import ComponentSpec
 
-from gplugins.elmer.get_capacitance import run_capacitive_simulation_elmer
-from gplugins.palace.get_capacitance import (
-    run_capacitive_simulation_palace,
-)
-from gplugins.typings.simulation import ElectrostaticResults
+from gplugins.common.base_models.simulation import DrivenFullWaveResults
+from gplugins.palace.get_scattering import run_scattering_simulation_palace
 
 
-def get_capacitance_path() -> Path:
-    return gf.config.PATH.capacitance
-
-
-def get_capacitance(
+def get_scattering(
     component: ComponentSpec,
-    simulator: str = "elmer",
+    simulator: str = "palace",
     simulator_params: Mapping[str, Any] | None = None,
     simulation_folder: Path | str | None = None,
     **kwargs,
-) -> ElectrostaticResults:
-    """Simulate component with an electrostatic simulation and return capacitance matrix.
-    For more details, see Chapter 2.9 `Capacitance matrix` in `N. Savola, “Design and modelling of long-coherence
-    qubits using energy participation ratios” <http://urn.fi/URN:NBN:fi:aalto-202305213270>`_.
+) -> DrivenFullWaveResults:
+    """Simulate component with a full-wave simulation and return scattering matrix.
 
     Args:
         component: component or component factory.
@@ -38,7 +30,7 @@ def get_capacitance(
         **kwargs: Simulation settings propagated to inner :func:`~run_capacitive_simulation_elmer` or
             :func:`~run_capacitive_simulation_palace` implementation.
     """
-    simulation_folder = Path(simulation_folder or get_capacitance_path())
+    simulation_folder = Path(simulation_folder or get_sparameters_path())
     component = gf.get_component(component)
 
     simulation_folder = (
@@ -50,14 +42,15 @@ def get_capacitance(
 
     match simulator:
         case "elmer":
-            return run_capacitive_simulation_elmer(
-                component,
-                simulation_folder=simulation_folder,
-                simulator_params=simulator_params,
-                **kwargs,
-            )
+            raise NotImplementedError("TODO")
+        #     return run_scattering_simulation_elmer(
+        #         component,
+        #         simulation_folder=simulation_folder,
+        #         simulator_params=simulator_params,
+        #         **kwargs,
+        #     )
         case "palace":
-            return run_capacitive_simulation_palace(
+            return run_scattering_simulation_palace(
                 component,
                 simulation_folder=simulation_folder,
                 simulator_params=simulator_params,
@@ -66,11 +59,16 @@ def get_capacitance(
         case _:
             raise UserWarning(f"{simulator=!r} not implemented!")
 
+    # TODO do we need to infer path or be explicit?
+    # component_hash = get_component_hash(component)
+    # kwargs_hash = get_kwargs_hash(**kwargs)
+    # simulation_hash = hashlib.md5((component_hash + kwargs_hash).encode()).hexdigest()
 
-get_capacitance_elmer = partial(get_capacitance, tool="elmer")
-get_capacitance_palace = partial(get_capacitance, tool="palace")
+    # return dirpath / f"{component.name}_{simulation_hash}.npz"
 
+
+get_scattering_elmer = partial(get_scattering, tool="elmer")
+get_scattering_palace = partial(get_scattering, tool="palace")
 
 # if __name__ == "__main__":
-#     c = gf.components.interdigital_capacitor()
-#     print(get_capacitance(c))
+# TODO example

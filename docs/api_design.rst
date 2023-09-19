@@ -93,7 +93,7 @@ FDTD Simulation
 
 .. rubric:: Sparameter utils
 
-.. currentmodule:: gplugins.utils.plot
+.. currentmodule:: gplugins.common.utils.plot
 
 .. autosummary::
    :toctree: _autosummary/
@@ -104,19 +104,19 @@ FDTD Simulation
 
 .. rubric:: common FDTD functions
 
-.. currentmodule:: gplugins.utils.get_effective_indices
+.. currentmodule:: gplugins.common.utils.get_effective_indices
 
 .. autosummary::
    :toctree: _autosummary/
 
    get_effective_indices
 
-.. currentmodule:: gplugins.utils.port_symmetries
+.. currentmodule:: gplugins.common.utils.port_symmetries
 
 .. autosummary::
    :toctree: _autosummary/
 
-.. currentmodule:: gplugins.utils.convert_sparameters
+.. currentmodule:: gplugins.common.utils.convert_sparameters
 
 .. autosummary::
    :toctree: _autosummary/

@@ -14,6 +14,8 @@ from skfem import (
     Mesh,
 )
 
+from gplugins.gmsh.get_mesh import get_mesh
+
 mesh_filename = "mesh.msh"
 
 
@@ -127,7 +129,8 @@ def compute_component_slice_modes(
     """
 
     # Mesh
-    mesh = component.to_gmsh(
+    mesh = get_mesh(
+        component=component,
         type="uz",
         xsection_bounds=xsection_bounds,
         layer_stack=layerstack,

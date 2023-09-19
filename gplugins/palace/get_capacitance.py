@@ -17,9 +17,13 @@ from gdsfactory.technology import LayerStack
 from numpy import isfinite
 from pandas import read_csv
 
-from gplugins.async_utils import execute_and_stream_output, run_async_with_event_loop
-from gplugins.typings.materials import RFMaterialSpec
-from gplugins.typings.simulation import ElectrostaticResults
+from gplugins.common.base_models.simulation import ElectrostaticResults
+from gplugins.common.types import RFMaterialSpec
+from gplugins.common.utils.async_helpers import (
+    execute_and_stream_output,
+    run_async_with_event_loop,
+)
+from gplugins.gmsh import get_mesh
 
 ELECTROSTATIC_JSON = "electrostatic.json"
 ELECTROSTATIC_TEMPLATE = Path(__file__).parent / ELECTROSTATIC_JSON
@@ -37,8 +41,22 @@ def _generate_json(
     physical_name_to_dimtag_map: dict[str, tuple[int, int]],
     background_tag: str | None = None,
     simulator_params: Mapping[str, Any] | None = None,
-):
-    """Generates a json file for capacitive Palace simulations."""
+) -> None:
+    """Generates a json file for capacitive Palace simulations.
+
+    Args:
+        simulation_folder: Folder where the json file will be saved.
+        name: Name of the simulation.
+        signals: List of lists of signal names.
+        bodies: Dictionary of bodies with their physical names as keys.
+        ground_layers: List of ground layer names.
+        layer_stack: Layer stack of the circuit.
+        material_spec: Dictionary of material specifications.
+        element_order: Order of the elements.
+        physical_name_to_dimtag_map: Dictionary mapping physical names to dimension tags.
+        background_tag: Physical name of the background.
+        simulator_params: Dictionary of simulator parameters.
+    """
     # TODO: Generalise to merger with the Elmer implementations"""
     used_materials = {v.material for v in layer_stack.layers.values()} | (
         {background_tag} if background_tag else {}
@@ -186,7 +204,7 @@ def run_capacitive_simulation_palace(
         simulator_params: Palace-specific parameters. This will be expanded to ``solver["Linear"]`` in
             the Palace config, see `Palace documentation <https://awslabs.github.io/palace/stable/config/solver/#solver[%22Linear%22]>`_
         mesh_parameters:
-            Keyword arguments to provide to :func:`~Component.to_gmsh`.
+            Keyword arguments to provide to :func:`get_mesh`.
         mesh_file: Path to a ready mesh to use. Useful for reusing one mesh file.
             By default a mesh is generated according to ``mesh_parameters``.
 
@@ -219,7 +237,8 @@ def run_capacitive_simulation_palace(
     if mesh_file:
         shutil.copyfile(str(mesh_file), str(simulation_folder / filename))
     else:
-        component.to_gmsh(
+        get_mesh(
+            component=component,
             type="3D",
             filename=simulation_folder / filename,
             layer_stack=layer_stack,

@@ -20,6 +20,7 @@ from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 from skfem.io import from_meshio
 
+from gplugins.gmsh.get_mesh import get_mesh
 from gplugins.gmsh.mesh import create_physical_mesh
 
 PDK = get_generic_pdk()
@@ -60,7 +61,8 @@ def mesh_with_physicals(mesh, filename):
 # With `default_resolution_max` set to 1 um and `default_resolution_min` set to 100 nm:
 
 # +
-mesh = waveguide_trimmed.to_gmsh(
+mesh = get_mesh(
+    component=waveguide_trimmed,
     type="uz",
     xsection_bounds=[(4, -4), (4, 4)],
     layer_stack=filtered_layerstack,
@@ -78,7 +80,8 @@ mesh.draw().plot()
 
 # With `default_resolution_max` set to 300 nm and `default_resolution_max` set to 50 nm:
 
-mesh = waveguide_trimmed.to_gmsh(
+mesh = get_mesh(
+    component=waveguide_trimmed,
     type="uz",
     xsection_bounds=[(4, -4), (4, 4)],
     layer_stack=filtered_layerstack,
@@ -101,7 +104,8 @@ mesh.draw().show()
 # For example, to refine within the core only, one could use:
 
 resolutions = {"core": {"resolution": 0.05, "distance": 0}}
-mesh = waveguide_trimmed.to_gmsh(
+mesh = get_mesh(
+    component=waveguide_trimmed,
     type="uz",
     xsection_bounds=[(4, -4), (4, 4)],
     layer_stack=filtered_layerstack,
@@ -117,7 +121,8 @@ mesh.draw().show()
 # Adding a dropoff at the interface:
 
 resolutions = {"core": {"resolution": 0.05, "distance": 5}}
-mesh = waveguide_trimmed.to_gmsh(
+mesh = get_mesh(
+    component=waveguide_trimmed,
     type="uz",
     xsection_bounds=[(4, -4), (4, 4)],
     layer_stack=filtered_layerstack,
@@ -138,7 +143,8 @@ resolutions = {
     "via_contact": {"resolution": 0.2, "distance": 0},
     "oxide": {"resolution": 1, "distance": 0},
 }
-mesh = waveguide_trimmed.to_gmsh(
+mesh = get_mesh(
+    component=waveguide_trimmed,
     type="uz",
     xsection_bounds=[(4, -4), (4, 4)],
     layer_stack=filtered_layerstack,
@@ -178,7 +184,8 @@ for x, y in product(xs, ys):
 
 global_meshsize_array = np.array(global_meshsize_array)
 
-mesh = waveguide_trimmed.to_gmsh(
+mesh = get_mesh(
+    component=waveguide_trimmed,
     type="uz",
     xsection_bounds=[(4, -4), (4, 4)],
     layer_stack=filtered_layerstack,

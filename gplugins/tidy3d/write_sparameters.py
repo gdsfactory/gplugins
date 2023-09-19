@@ -24,12 +24,12 @@ from gdsfactory.typings import (
     Tuple,
 )
 
-from gplugins.tidy3d.get_results import _executor, get_results_batch
-from gplugins.tidy3d.get_simulation import get_simulation, plot_simulation
-from gplugins.utils import port_symmetries
-from gplugins.utils.get_sparameters_path import (
+from gplugins.common.utils import port_symmetries
+from gplugins.common.utils.get_sparameters_path import (
     get_sparameters_path_tidy3d as get_sparameters_path,
 )
+from gplugins.tidy3d.get_results import _executor, get_results_batch
+from gplugins.tidy3d.get_simulation import get_simulation, plot_simulation
 
 
 def parse_port_eigenmode_coeff(

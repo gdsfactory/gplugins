@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from gdsfactory import components
 
-from gplugins.config import PATH
+from gplugins.common.config import PATH
 from gplugins.lumerical.read import read_sparameters_lumerical
 
 factory = {
