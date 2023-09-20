@@ -207,9 +207,8 @@ if __name__ == "__main__":
         waveguide.bbox, top=2, bottom=2, layer=LAYER.WAFER
     )
     c.add_ports(gf.components.straight(length=length).get_ports_list())
-    # c.plot_matplotlib(show_ports=True)
 
-    filtered_layerstack = LayerStack(
+    filtered_layer_stack = LayerStack(
         layers={k: LAYER_STACK.layers[k] for k in ["clad", "box", "core"]}
     )
 
@@ -218,7 +217,7 @@ if __name__ == "__main__":
 
     epsilon = component_to_epsilon_pjz(
         component=c,
-        layerstack=filtered_layerstack,
+        layer_stack=filtered_layer_stack,
         zmin=zmin,
         nm_per_pixel=nm_per_pixel,
     )

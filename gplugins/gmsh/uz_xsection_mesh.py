@@ -12,9 +12,9 @@ from meshwell.model import Model
 from shapely.geometry import LineString, MultiPolygon, Point, Polygon
 from shapely.ops import unary_union
 
-from gplugins.common.utils.parse_layerstack import (
-    list_unique_layerstack_z,
-    order_layerstack,
+from gplugins.common.utils.parse_layer_stack import (
+    list_unique_layer_stack_z,
+    order_layer_stack,
 )
 from gplugins.gmsh.define_polysurfaces import define_polysurfaces
 from gplugins.gmsh.parse_component import (
@@ -93,7 +93,7 @@ def get_u_bounds_layers(
 def get_uz_bounds_layers(
     layer_polygons_dict: dict[str, tuple[str, MultiPolygon, MultiPolygon]],
     xsection_bounds: tuple[tuple[float, float], tuple[float, float]],
-    layerstack: LayerStack,
+    layer_stack: LayerStack,
     u_offset: float = 0.0,
     z_bounds: Optional[tuple[float, float]] = None,
 ):
@@ -119,7 +119,7 @@ def get_uz_bounds_layers(
 
     outplane_bounds_dict = {}
 
-    layer_dict = layerstack.to_dict()
+    layer_dict = layer_stack.to_dict()
 
     # Remove empty entries
     inplane_bounds_dict = {
@@ -193,9 +193,8 @@ def get_uz_bounds_layers(
 def uz_xsection_mesh(
     component: ComponentOrReference,
     xsection_bounds: tuple[tuple[float, float], tuple[float, float]],
-    layerstack: LayerStack,
+    layer_stack: LayerStack,
     resolutions: dict | None = None,
-    mesh_scaling_factor: float = 1.0,
     default_characteristic_length: float = 0.5,
     background_tag: str | None = None,
     background_padding: Sequence[float, float, float, float, float, float] = (2.0,) * 6,
@@ -206,7 +205,6 @@ def uz_xsection_mesh(
     round_tol: int = 4,
     simplify_tol: float = 1e-4,
     u_offset: float = 0.0,
-    atol: float | None = 1e-5,
     left_right_periodic_bcs: bool = False,
     verbosity: int | None = 0,
     n_threads: int = get_number_of_cores(),
@@ -219,7 +217,7 @@ def uz_xsection_mesh(
     Args:
         component (Component): gdsfactory component to mesh
         xsection_bounds (Tuple): Tuple [[x1,y1] , [x2,y2]] parametrizing the line u
-        layerstack (LayerStack): gdsfactory LayerStack to parse
+        layer_stack (LayerStack): gdsfactory LayerStack to parse
         resolutions (Dict): Pairs {"layername": {"resolution": float, "distance": "float}} to roughly control mesh refinement
         mesh_scaling_factor (float): factor multiply mesh geometry by
         default_resolution_min (float): gmsh minimal edge length
@@ -238,13 +236,12 @@ def uz_xsection_mesh(
     """
     # Fuse and cleanup polygons of same layer in case user overlapped them
     layer_polygons_dict = cleanup_component(
-        component, layerstack, round_tol, simplify_tol
+        component, layer_stack, round_tol, simplify_tol
     )
 
     # GDS polygons to simulation polygons
-    # TODO simplify
-    buffered_layer_polygons_dict, buffered_layerstack = process_buffers(
-        layer_polygons_dict, layerstack
+    buffered_layer_polygons_dict, buffered_layer_stack = process_buffers(
+        layer_polygons_dict, layer_stack
     )
 
     # simulation polygons to u-z coordinates along cross-sectional line
@@ -256,14 +253,14 @@ def uz_xsection_mesh(
     bounds_dict = get_uz_bounds_layers(
         buffered_layer_polygons_dict,
         xsection_bounds,
-        buffered_layerstack,
+        buffered_layer_stack,
         u_offset,
         z_bounds=z_bounds,
     )
 
     # u-z coordinates to gmsh-friendly polygons
     # Remove terminal layers and merge polygons
-    layer_order = order_layerstack(layerstack)  # gds layers
+    layer_order = order_layer_stack(layer_stack)  # gds layers
     shapes = {}
     for layername in layer_order:
         current_shapes = []
@@ -277,7 +274,7 @@ def uz_xsection_mesh(
     model = Model(n_threads=n_threads)
     polysurfaces_list = define_polysurfaces(
         polygons_dict=shapes,
-        layerstack=layerstack,
+        layer_stack=layer_stack,
         model=model,
         scale_factor=global_scaling_premesh,
         resolutions=resolutions,
@@ -287,7 +284,7 @@ def uz_xsection_mesh(
     if background_tag is not None:
         # shapes[background_tag] = bounds.buffer(background_padding[0])
         # bounds = unary_union(list(shapes.values())).bounds
-        zs = list_unique_layerstack_z(buffered_layerstack)
+        zs = list_unique_layer_stack_z(buffered_layer_stack)
         zmin = np.min(zs) - background_padding[1]
         zmax = np.max(zs) + background_padding[3]
         umin = -1 * background_padding[0] + u_offset
@@ -405,7 +402,7 @@ if __name__ == "__main__":
     undercut.move(destination=[4, 0])
     c.show()
 
-    filtered_layerstack = LayerStack(
+    filtered_layer_stack = LayerStack(
         layers={
             k: get_layer_stack().layers[k]
             for k in (
@@ -437,7 +434,7 @@ if __name__ == "__main__":
     geometry = uz_xsection_mesh(
         c,
         [(4, -15), (4, 15)],
-        filtered_layerstack,
+        filtered_layer_stack,
         resolutions=resolutions,
         background_tag="Oxide",
         background_padding=(0, 0, 0, 0),

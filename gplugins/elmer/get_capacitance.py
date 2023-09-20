@@ -177,21 +177,17 @@ def run_capacitive_simulation_elmer(
 
     Args:
         component: Simulation environment as a gdsfactory component.
-        element_order:
-            Order of polynomial basis functions.
+        element_order: Order of polynomial basis functions.
             Higher is more accurate but takes more memory and time to run.
         n_processes: Number of processes to use for parallelization
-        layer_stack:
-            :class:`~LayerStack` defining defining what layers to include in the simulation
-            and the material properties and thicknesses.
+        layer_stack: :class:`~LayerStack` defining defining what layers to include \
+                in the simulation and the material properties and thicknesses.
         material_spec:
             :class:`~RFMaterialSpec` defining material parameters for the ones used in ``layer_stack``.
-        simulation_folder:
-            Directory for storing the simulation results.
+        simulation_folder: Directory for storing the simulation results.
             Default is a temporary directory.
         simulator_params: Elmer-specific parameters. See template file for more details.
-        mesh_parameters:
-            Keyword arguments to provide to :func:`get_mesh`.
+        mesh_parameters: Keyword arguments to provide to :func:`get_mesh`.
         mesh_file: Path to a ready mesh to use. Useful for reusing one mesh file.
             By default a mesh is generated according to ``mesh_parameters``.
 

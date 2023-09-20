@@ -42,7 +42,7 @@ material_spec = {
 
 @pytest.fixture
 @gf.cell
-def geometry(lumped_ports=False):
+def geometry(lumped_ports=False) -> Component:
     simulation_box = [[-200, -200], [200, 200]]
     c = gf.Component()
     cap = c << interdigital_capacitor_enclosed(
@@ -74,9 +74,8 @@ def get_reasonable_mesh_parameters_capacitance(c: Component):
     return dict(
         background_tag="vacuum",
         background_padding=(0,) * 5 + (700,),
-        portnames=c.ports,
+        port_names=c.ports,
         default_characteristic_length=200,
-        layer_portname_delimiter=(delimiter := "__"),
         resolutions={
             "bw": {
                 "resolution": 15,
@@ -88,7 +87,7 @@ def get_reasonable_mesh_parameters_capacitance(c: Component):
                 "resolution": 40,
             },
             **{
-                f"bw{delimiter}{port}": {
+                f"bw{port}": {
                     "resolution": 20,
                     "DistMax": 30,
                     "DistMin": 10,
@@ -102,7 +101,7 @@ def get_reasonable_mesh_parameters_capacitance(c: Component):
 
 
 @pytest.mark.skip(reason="Palace not in CI")
-def test_palace_capacitance_simulation_runs(geometry):
+def test_palace_capacitance_simulation_runs(geometry) -> None:
     c = geometry
     run_capacitive_simulation_palace(
         c,
@@ -114,7 +113,7 @@ def test_palace_capacitance_simulation_runs(geometry):
 
 @pytest.mark.skip(reason="TODO")
 @pytest.mark.parametrize("n_processes", [(1), (2), (4)])
-def test_palace_capacitance_simulation_n_processes(geometry, n_processes):
+def test_palace_capacitance_simulation_n_processes(geometry, n_processes) -> None:
     c = geometry
     run_capacitive_simulation_palace(
         c,
@@ -127,7 +126,7 @@ def test_palace_capacitance_simulation_n_processes(geometry, n_processes):
 
 @pytest.mark.skip(reason="TODO")
 @pytest.mark.parametrize("element_order", [(1), (2), (3)])
-def test_palace_capacitance_simulation_element_order(geometry, element_order):
+def test_palace_capacitance_simulation_element_order(geometry, element_order) -> None:
     c = geometry
     run_capacitive_simulation_palace(
         c,
@@ -139,22 +138,22 @@ def test_palace_capacitance_simulation_element_order(geometry, element_order):
 
 
 @pytest.mark.skip(reason="TODO")
-def test_palace_capacitance_simulation_mesh_size_field(geometry):
+def test_palace_capacitance_simulation_mesh_size_field(geometry) -> None:
     pass
 
 
 @pytest.mark.skip(reason="TODO")
-def test_palace_capacitance_simulation_flip_chip(geometry):
+def test_palace_capacitance_simulation_flip_chip(geometry) -> None:
     pass
 
 
 @pytest.mark.skip(reason="TODO")
-def test_palace_capacitance_simulation_pyvista_plot(geometry):
+def test_palace_capacitance_simulation_pyvista_plot(geometry) -> None:
     pass
 
 
 @pytest.mark.skip(reason="TODO")
-def test_palace_capacitance_simulation_cdict_form(geometry):
+def test_palace_capacitance_simulation_cdict_form(geometry) -> None:
     pass
 
 
@@ -162,9 +161,8 @@ def get_reasonable_mesh_parameters_scattering(c: Component):
     return dict(
         background_tag="vacuum",
         background_padding=(0,) * 5 + (700,),
-        portnames=c.ports,
+        port_names=c.ports,
         default_characteristic_length=200,
-        layer_portname_delimiter=(delimiter := "__"),
         resolutions={
             "bw": {
                 "resolution": 15,
@@ -176,7 +174,7 @@ def get_reasonable_mesh_parameters_scattering(c: Component):
                 "resolution": 40,
             },
             **{
-                f"bw{delimiter}{port}": {
+                f"bw{port}": {
                     "resolution": 20,
                     "DistMax": 30,
                     "DistMin": 10,
@@ -191,7 +189,7 @@ def get_reasonable_mesh_parameters_scattering(c: Component):
 
 @pytest.mark.skip(reason="Palace not in CI")
 @pytest.mark.parametrize("geometry", [True], indirect=True)
-def test_palace_scattering_simulation_runs(geometry):
+def test_palace_scattering_simulation_runs(geometry) -> None:
     c = geometry
     run_scattering_simulation_palace(
         c,
@@ -205,7 +203,7 @@ def test_palace_scattering_simulation_runs(geometry):
 @pytest.mark.parametrize(
     "geometry, n_processes", [(True, 1), (True, 2), (True, 4)], indirect=["geometry"]
 )
-def test_palace_scattering_simulation_n_processes(geometry, n_processes):
+def test_palace_scattering_simulation_n_processes(geometry, n_processes) -> None:
     c = geometry
     run_scattering_simulation_palace(
         c,
@@ -220,7 +218,7 @@ def test_palace_scattering_simulation_n_processes(geometry, n_processes):
 @pytest.mark.parametrize(
     "geometry, element_order", [(True, 1), (True, 2), (True, 3)], indirect=["geometry"]
 )
-def test_palace_scattering_simulation_element_order(geometry, element_order):
+def test_palace_scattering_simulation_element_order(geometry, element_order) -> None:
     c = geometry()
     run_scattering_simulation_palace(
         c,
@@ -232,15 +230,15 @@ def test_palace_scattering_simulation_element_order(geometry, element_order):
 
 
 @pytest.mark.skip(reason="TODO")
-def test_palace_scattering_simulation_mesh_size_field(geometry):
+def test_palace_scattering_simulation_mesh_size_field(geometry) -> None:
     pass
 
 
 @pytest.mark.skip(reason="TODO")
-def test_palace_scattering_simulation_flip_chip(geometry):
+def test_palace_scattering_simulation_flip_chip(geometry) -> None:
     pass
 
 
 @pytest.mark.skip(reason="TODO")
-def test_palace_scattering_simulation_pyvista_plot(geometry):
+def test_palace_scattering_simulation_pyvista_plot(geometry) -> None:
     pass

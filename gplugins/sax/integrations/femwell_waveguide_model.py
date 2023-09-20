@@ -11,7 +11,7 @@ from gplugins.sax.build_model import Model
 @ray.remote(num_cpus=1)
 def remote_output_from_inputs(
     cross_section,
-    layerstack,
+    layer_stack,
     wavelength,
     num_modes,
     order,
@@ -29,7 +29,7 @@ def remote_output_from_inputs(
     """
     lams, basis, xs = compute_cross_section_modes(
         cross_section=cross_section,
-        layerstack=layerstack,
+        layer_stack=layer_stack,
         wl=wavelength,
         num_modes=num_modes,
         order=order,
@@ -78,16 +78,16 @@ class FemwellWaveguideModel(Model):
         # Prepare this specific input vector
         input_dict = dict(zip(labels, [float(value) for value in values]))
         # Parse input vector according to parameter type
-        param_dict, layerstack_param_dict, litho_param_dict = self.parse_input_dict(
+        param_dict, layer_stack_param_dict, litho_param_dict = self.parse_input_dict(
             input_dict
         )
         # Apply required transformations depending on parameter type
         input_crosssection = self.trainable_component(param_dict).info["cross_section"]
-        input_layerstack = self.perturb_layerstack(layerstack_param_dict)
-        # Define function input given parameter values and transformed layerstack/component
+        input_layer_stack = self.perturb_layer_stack(layer_stack_param_dict)
+        # Define function input given parameter values and transformed layer_stack/component
         function_input = dict(
             cross_section=input_crosssection,
-            layerstack=input_layerstack,
+            layer_stack=input_layer_stack,
             wavelength=input_dict["wavelength"],
             num_modes=self.num_modes,
             order=self.simulation_settings["order"],
@@ -141,11 +141,11 @@ if __name__ == "__main__":
     )
     c.show()
 
-    layerstack = get_layer_stack()
+    layer_stack = get_layer_stack()
 
-    filtered_layerstack = LayerStack(
+    filtered_layer_stack = LayerStack(
         layers={
-            k: layerstack.layers[k]
+            k: layer_stack.layers[k]
             for k in (
                 "slab90",
                 "core",
@@ -160,7 +160,7 @@ if __name__ == "__main__":
 
     rib_waveguide_model = FemwellWaveguideModel(
         trainable_component=trainable_straight_rib,
-        layerstack=filtered_layerstack,
+        layer_stack=filtered_layer_stack,
         simulation_settings={
             "resolutions": {
                 "core": {"resolution": 0.02, "distance": 2},
@@ -180,7 +180,7 @@ if __name__ == "__main__":
                 min_value=1.545, max_value=1.555, nominal_value=1.55, step=0.005
             ),
             "core_thickness": LayerStackThickness(
-                layerstack=filtered_layerstack,
+                layer_stack=filtered_layer_stack,
                 min_value=0.19,
                 max_value=0.25,
                 nominal_value=0.22,

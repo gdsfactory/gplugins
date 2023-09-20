@@ -970,6 +970,10 @@ def phase_shifter_heater(
     return sax.reciprocal(
         {
             ("o1", "o2"): transmission,
+            ("l_e1", "r_e1"): 0.0,
+            ("l_e2", "r_e2"): 0.0,
+            ("l_e3", "r_e3"): 0.0,
+            ("l_e4", "r_e4"): 0.0,
         }
     )
 
@@ -985,10 +989,11 @@ models = {
 mzi_component = gf.components.mzi_phase_shifter_top_heater_metal(
     delta_length=delta_length
 )
-netlist = mzi_component.get_netlist()
-mzi_circuit, _ = sax.circuit(netlist=netlist, models=models)
+netlist = sax.netlist(mzi_component.get_netlist())
+
+mzi_circuit, _ = sax.circuit(netlist=netlist, models=models, backend="filipsson_gunnar")
 S = mzi_circuit(wl=1.55)
-S
+{k: v for k, v in S.items() if abs(v) > 1e-5}
 
 # +
 wl = np.linspace(1.5, 1.6, 256)

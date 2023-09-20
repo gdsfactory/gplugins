@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from collections import OrderedDict
-from collections.abc import Sequence
 
 import numpy as np
 from gdsfactory.config import get_number_of_cores
@@ -12,38 +11,41 @@ from meshwell.model import Model
 from shapely.geometry import Polygon
 from shapely.ops import unary_union
 
-from gplugins.common.utils.parse_layerstack import (
+from gplugins.common.utils.get_component_with_new_port_layers import (
+    get_component_with_new_port_layers,
+)
+from gplugins.common.utils.parse_layer_stack import (
     get_layers_at_z,
-    list_unique_layerstack_z,
+    list_unique_layer_stack_z,
 )
 from gplugins.gmsh.define_polysurfaces import define_polysurfaces
 from gplugins.gmsh.parse_gds import cleanup_component
 
 
-def apply_effective_buffers(layer_polygons_dict, layerstack, z):
+def apply_effective_buffers(layer_polygons_dict, layer_stack, z):
     # Find layers present at this z-level
-    layers = get_layers_at_z(layerstack, z)
-    # Order the layers by their mesh_order in the layerstack
-    layers = sorted(layers, key=lambda x: layerstack.layers[x].mesh_order)
+    layers = get_layers_at_z(layer_stack, z)
+    # Order the layers by their mesh_order in the layer_stack
+    layers = sorted(layers, key=lambda x: layer_stack.layers[x].mesh_order)
 
     # Determine effective buffer (or even presence of layer) at this z-level
     shapes = OrderedDict()
     for layername in layers:
-        polygons = layer_polygons_dict[layername]
         if layername in layers:
             # Calculate the buffer
-            if layerstack.layers[layername].thickness < 0:
+            if layer_stack.layers[layername].thickness < 0:
                 zmin = (
-                    layerstack.layers[layername].zmin
-                    + layerstack.layers[layername].thickness
+                    layer_stack.layers[layername].zmin
+                    + layer_stack.layers[layername].thickness
                 )
-                thickness = abs(layerstack.layers[layername].thickness)
+                thickness = abs(layer_stack.layers[layername].thickness)
             else:
-                zmin = layerstack.layers[layername].zmin
-                thickness = layerstack.layers[layername].thickness
+                zmin = layer_stack.layers[layername].zmin
+                thickness = layer_stack.layers[layername].thickness
             z_fraction = (z - zmin) / thickness
-            if layerstack.layers[layername].z_to_bias:
-                fractions, buffers = layerstack.layers[layername].z_to_bias
+            polygons = layer_polygons_dict[layername]
+            if layer_stack.layers[layername].z_to_bias:
+                fractions, buffers = layer_stack.layers[layername].z_to_bias
                 buffer = np.interp(z_fraction, fractions, buffers)
                 shapes[layername] = polygons.buffer(buffer, join_style=2)
             else:
@@ -55,11 +57,11 @@ def apply_effective_buffers(layer_polygons_dict, layerstack, z):
 def xy_xsection_mesh(
     component: ComponentOrReference,
     z: float,
-    layerstack: LayerStack,
+    layer_stack: LayerStack,
     resolutions: dict | None = None,
     default_characteristic_length: float = 0.5,
     background_tag: str | None = None,
-    background_padding: Sequence[float, float, float, float, float, float] = (2.0,) * 6,
+    background_padding: tuple[float, float, float, float, float, float] = (2.0,) * 6,
     global_scaling: float = 1,
     global_scaling_premesh: float = 1,
     global_2D_algorithm: int = 6,
@@ -68,8 +70,7 @@ def xy_xsection_mesh(
     round_tol: int = 3,
     simplify_tol: float = 1e-3,
     n_threads: int = get_number_of_cores(),
-    portnames: list[str] = None,
-    layer_portname_delimiter: str = "#",
+    port_names: list[str] | None = None,
     gmsh_version: float | None = None,
 ):
     """Mesh xy cross-section of component at height z.
@@ -77,7 +78,7 @@ def xy_xsection_mesh(
     Args:
         component (Component): gdsfactory component to mesh
         z (float): z-coordinate at which to sample the LayerStack
-        layerstack (LayerStack): gdsfactory LayerStack to parse
+        layer_stack (LayerStack): gdsfactory LayerStack to parse
         resolutions (Dict): Pairs {"layername": {"resolution": float, "distance": "float}} to roughly control mesh refinement
         mesh_scaling_factor (float): factor multiply mesh geometry by
         default_resolution_min (float): gmsh minimal edge length
@@ -92,28 +93,28 @@ def xy_xsection_mesh(
         simplify_tol: during gds --> mesh conversion cleanup, shapely "simplify" tolerance (make it so all points are at least separated by this amount)
         atol: tolerance used to establish equivalency between vertices
     """
-    if portnames:
+    if port_names:
         mesh_component = gf.Component()
-        mesh_component << union(component, by_layer=True)
+        _ = mesh_component << union(component, by_layer=True)
         mesh_component.add_ports(component.get_ports_list())
-        component = layerstack.get_component_with_net_layers(
-            mesh_component,
-            portnames=portnames,
-            delimiter=layer_portname_delimiter,
+        component = get_component_with_new_port_layers(
+            component=mesh_component,
+            port_names=port_names,
+            layer_stack=layer_stack,
         )
 
     # Fuse and cleanup polygons of same layer in case user overlapped them
     layer_polygons_dict = cleanup_component(
-        component, layerstack, round_tol, simplify_tol
+        component, layer_stack, round_tol, simplify_tol
     )
 
     # Determine effective buffer (or even presence of layer) at this z-level
-    shapes_dict = apply_effective_buffers(layer_polygons_dict, layerstack, z)
+    shapes_dict = apply_effective_buffers(layer_polygons_dict, layer_stack, z)
 
     # Add background polygon
     if background_tag is not None:
         # get min and max z values in LayerStack
-        zs = list_unique_layerstack_z(layerstack)
+        zs = list_unique_layer_stack_z(layer_stack)
         zmin, zmax = np.min(zs), np.max(zs)
 
         bounds = unary_union(list(shapes_dict.values())).bounds
@@ -125,8 +126,8 @@ def xy_xsection_mesh(
                 [bounds[2] + background_padding[2], bounds[1] - background_padding[1]],
             ]
         )
-        layerstack = LayerStack(
-            layers=layerstack.layers
+        layer_stack = LayerStack(
+            layers=layer_stack.layers
             | {
                 background_tag: LayerLevel(
                     layer=(9999, 0),  # TODO something like LAYERS.BACKGROUND?
@@ -145,7 +146,7 @@ def xy_xsection_mesh(
     model = Model(n_threads=n_threads)
     polysurfaces_list = define_polysurfaces(
         polygons_dict=shapes_dict,
-        layerstack=layerstack,
+        layer_stack=layer_stack,
         model=model,
         scale_factor=global_scaling_premesh,
         resolutions=resolutions,
@@ -171,7 +172,7 @@ if __name__ == "__main__":
 
     from gdsfactory.pdk import get_layer_stack
 
-    filtered_layerstack = LayerStack(
+    filtered_layer_stack = LayerStack(
         layers={
             k: get_layer_stack().layers[k]
             for k in (
@@ -194,7 +195,7 @@ if __name__ == "__main__":
     geometry = xy_xsection_mesh(
         component=c,
         z=0.11,
-        layerstack=filtered_layerstack,
+        layer_stack=filtered_layer_stack,
         resolutions=resolutions,
         # background_tag="Oxide",
         filename="mesh.msh",

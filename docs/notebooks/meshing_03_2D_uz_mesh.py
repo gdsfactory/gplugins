@@ -26,10 +26,10 @@ waveguide_trimmed.add_ref(
     )
 )
 
-waveguide_trimmed
+waveguide_trimmed.plot()
 # -
 
-filtered_layerstack = LayerStack(
+filtered_layer_stack = LayerStack(
     layers={
         k: get_layer_stack().layers[k]
         for k in (
@@ -57,7 +57,7 @@ mesh = get_mesh(
     component=waveguide_trimmed,
     type="uz",
     xsection_bounds=[(4, -4), (4, 4)],
-    layer_stack=filtered_layerstack,
+    layer_stack=filtered_layer_stack,
     filename=f"{filename}.msh",
 )
 mesh = mesh_with_physicals(mesh, filename)
@@ -68,13 +68,13 @@ mesh.draw().plot()
 
 # ## Mesh background
 #
-# You can add a convenience argument to add a background mesh around the geometry (instead of defining a dummy polygon and layer in the layerstack with low mesh_order):
+# You can add a convenience argument to add a background mesh around the geometry (instead of defining a dummy polygon and layer in the layer_stack with low mesh_order):
 
 mesh = get_mesh(
     component=waveguide_trimmed,
     type="uz",
     xsection_bounds=[(4, -4), (4, 4)],
-    layer_stack=filtered_layerstack,
+    layer_stack=filtered_layer_stack,
     filename=f"{filename}.msh",
     background_tag="oxide",
     background_padding=(2.0, 2.0, 2.0, 2.0),

@@ -44,7 +44,7 @@ component = gf.add_padding_container(
     bottom=3.2,
 )
 
-component.plot_matplotlib()
+component.plot()
 # -
 
 # ## Define a continuous source simulation
