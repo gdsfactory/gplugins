@@ -26,7 +26,7 @@ waveguide_trimmed.add_ref(
     )
 )
 
-waveguide_trimmed
+waveguide_trimmed.plot()
 # -
 
 filtered_layer_stack = LayerStack(

@@ -18,7 +18,7 @@ PDK = get_generic_pdk()
 PDK.activate()
 
 waveguide = gf.components.straight_pin(length=10, taper=None)
-waveguide
+waveguide.plot()
 # -
 
 filtered_layer_stack = LayerStack(
@@ -96,7 +96,7 @@ waveguide_trimmed.add_ref(
     )
 )
 
-waveguide_trimmed
+waveguide_trimmed.plot()
 # -
 
 mesh = get_mesh(

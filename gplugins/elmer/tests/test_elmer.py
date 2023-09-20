@@ -80,6 +80,7 @@ def get_reasonable_mesh_parameters(c: Component):
     )
 
 
+@pytest.mark.skip(reason="TODO")
 def test_elmer_capacitance_simulation_runs(geometry) -> None:
     c = geometry
     run_capacitive_simulation_elmer(

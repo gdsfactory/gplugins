@@ -21,7 +21,7 @@ PDK.activate()
 gf.config.rich_output()
 
 waveguide = gf.components.straight_pin(length=5, taper=None)
-waveguide.plot_matplotlib()
+waveguide.plot()
 
 # +
 filtered_layer_stack = LayerStack(

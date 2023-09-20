@@ -93,7 +93,8 @@ cap = c << interdigital_capacitor_enclosed(
 c.add_ports(cap.ports)
 substrate = gf.components.bbox(bbox=simulation_box, layer=LAYER.WAFER)
 c << substrate
-c.flatten()
+c = c.flatten()
+c.plot()
 
 # %% [markdown]
 # ## Running the simulation

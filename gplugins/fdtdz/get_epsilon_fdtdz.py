@@ -227,7 +227,6 @@ if __name__ == "__main__":
         waveguide.bbox, top=2, bottom=2, layer=LAYER.WAFER
     )
     c.add_ports(gf.components.straight(length=length).get_ports_list())
-    # c.plot_matplotlib(show_ports=True)
 
     filtered_layer_stack = LayerStack(
         layers={k: LAYER_STACK.layers[k] for k in ["clad", "box", "core"]}

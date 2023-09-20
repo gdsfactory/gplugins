@@ -61,7 +61,7 @@ PDK = get_generic_pdk()
 PDK.activate()
 
 waveguide = gf.components.straight_pin(length=10, taper=None)
-waveguide
+waveguide.plot()
 # -
 
 # and a `LayerStack`. Here, we copy the example from `gdsfactory.generic_tech` for clarity).

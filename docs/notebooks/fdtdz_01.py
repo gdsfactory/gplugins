@@ -55,7 +55,7 @@ padding = c << gf.components.bbox(
 )
 c.add_ports(gf.components.straight(length=length).get_ports_list())
 
-c.plot_matplotlib(show_ports=True)
+c.plot()
 # -
 
 # ### Define your LayerStack
