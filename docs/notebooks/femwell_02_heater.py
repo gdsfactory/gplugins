@@ -28,7 +28,7 @@ heater.plot()
 
 print(LAYER_STACK.layers.keys())
 
-filtered_layerstack = LayerStack(
+filtered_layer_stack = LayerStack(
     layers={
         k: gf.pdk.get_layer_stack().layers[k]
         for k in ("slab90", "core", "via_contact", "heater")
@@ -50,7 +50,7 @@ mesh = get_mesh(
     component=heater,
     type="uz",
     xsection_bounds=[(4, -4), (4, 4)],
-    layer_stack=filtered_layerstack,
+    layer_stack=filtered_layer_stack,
     filename=f"{filename}.msh",
 )
 mesh = mesh_with_physicals(mesh, filename)

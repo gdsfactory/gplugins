@@ -18,10 +18,10 @@ PDK = get_generic_pdk()
 PDK.activate()
 
 waveguide = gf.components.straight_pin(length=10, taper=None)
-waveguide
+waveguide.plot()
 # -
 
-filtered_layerstack = LayerStack(
+filtered_layer_stack = LayerStack(
     layers={
         k: get_layer_stack().layers[k]
         for k in (
@@ -50,7 +50,7 @@ mesh = get_mesh(
     component=waveguide,
     type="xy",
     z=0.09,
-    layer_stack=filtered_layerstack,
+    layer_stack=filtered_layer_stack,
     filename=f"{filename}.msh",
 )
 mesh = mesh_with_physicals(mesh, filename)
@@ -63,7 +63,7 @@ mesh = get_mesh(
     component=waveguide,
     type="xy",
     z=0.0,
-    layer_stack=filtered_layerstack,
+    layer_stack=filtered_layer_stack,
     filename=f"{filename}.msh",
 )
 mesh = mesh_with_physicals(mesh, filename)
@@ -76,7 +76,7 @@ mesh = get_mesh(
     component=waveguide,
     type="xy",
     z=1.0,
-    layer_stack=filtered_layerstack,
+    layer_stack=filtered_layer_stack,
     filename=f"{filename}.msh",
 )
 mesh = mesh_with_physicals(mesh, filename)
@@ -96,14 +96,14 @@ waveguide_trimmed.add_ref(
     )
 )
 
-waveguide_trimmed
+waveguide_trimmed.plot()
 # -
 
 mesh = get_mesh(
     component=waveguide_trimmed,
     type="xy",
     z=0.09,
-    layer_stack=filtered_layerstack,
+    layer_stack=filtered_layer_stack,
     filename=f"{filename}.msh",
 )
 mesh = mesh_with_physicals(mesh, filename)

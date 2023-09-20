@@ -84,14 +84,14 @@ if __name__ == "__main__":
     heater.show()
 
     # ====== MESH =====
-    filtered_layerstack = LAYER_STACK
-    heater_derived = filtered_layerstack.get_component_with_derived_layers(heater)
+    filtered_layer_stack = LAYER_STACK
+    heater_derived = filtered_layer_stack.get_component_with_derived_layers(heater)
     get_mesh(
         component=heater_derived,
         type="uz",
         xsection_bounds=[(3, c.bbox[0, 1]), (3, c.bbox[1, 1])],
         # xsection_bounds=[(3, -4), (3, 4)],
-        layer_stack=filtered_layerstack,
+        layer_stack=filtered_layer_stack,
         filename="mesh.msh",
         resolutions={
             "WG": {"resolution": 0.02, "distance": 1.0},

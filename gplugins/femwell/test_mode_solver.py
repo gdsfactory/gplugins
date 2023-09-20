@@ -10,7 +10,7 @@ NUM_MODES = 1
 def compute_modes(
     overwrite: bool = True, with_cache: bool = False, num_modes: int = NUM_MODES
 ) -> Modes:
-    filtered_layerstack = LayerStack(
+    filtered_layer_stack = LayerStack(
         layers={
             k: LAYER_STACK.layers[k]
             for k in (
@@ -22,7 +22,7 @@ def compute_modes(
         }
     )
 
-    filtered_layerstack.layers["core"].thickness = 0.2
+    filtered_layer_stack.layers["core"].thickness = 0.2
 
     resolutions = {
         "core": {"resolution": 0.02, "distance": 2},
@@ -32,7 +32,7 @@ def compute_modes(
     }
     return compute_cross_section_modes(
         cross_section="rib",
-        layerstack=filtered_layerstack,
+        layer_stack=filtered_layer_stack,
         wavelength=1.55,
         num_modes=num_modes,
         order=1,
