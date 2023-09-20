@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from collections import OrderedDict
-from typing import Any
 
 import numpy as np
 from gdsfactory.config import get_number_of_cores
@@ -9,8 +8,6 @@ from gdsfactory.geometry.union import union
 from gdsfactory.technology import LayerLevel, LayerStack
 from gdsfactory.typings import ComponentOrReference
 from meshwell.model import Model
-from meshwell.polysurface import PolySurface
-from shapely.affinity import scale
 from shapely.geometry import Polygon
 from shapely.ops import unary_union
 
@@ -21,6 +18,7 @@ from gplugins.common.utils.parse_layer_stack import (
     get_layers_at_z,
     list_unique_layer_stack_z,
 )
+from gplugins.gmsh.define_polysurfaces import define_polysurfaces
 from gplugins.gmsh.parse_gds import cleanup_component
 
 
@@ -54,40 +52,6 @@ def apply_effective_buffers(layer_polygons_dict, layer_stack, z):
                 shapes[layername] = polygons
 
     return shapes
-
-
-def define_polysurfaces(
-    polygons_dict: dict,
-    layer_stack: LayerStack,
-    model: Any,
-    resolutions: dict,
-    scale_factor: float = 1,
-):
-    """Define meshwell polysurfaces dimtags from gdsfactory information."""
-    polysurfaces_list = []
-
-    if resolutions is None:
-        resolutions = {}
-
-    for layername in polygons_dict.keys():
-        if polygons_dict[layername].is_empty:
-            continue
-
-        polysurfaces_list.append(
-            PolySurface(
-                polygons=scale(
-                    polygons_dict[layername],
-                    *(scale_factor,) * 2,
-                    origin=(0, 0, 0),
-                ),
-                model=model,
-                resolution=resolutions.get(layername, None),
-                mesh_order=layer_stack.layers.get(layername).mesh_order,
-                physical_name=layername,
-            )
-        )
-
-    return polysurfaces_list
 
 
 def xy_xsection_mesh(

@@ -1,11 +1,23 @@
 import importlib.util
 
+import meshio
 from gdsfactory import Component
 from gdsfactory.typings import ComponentSpec, Layer, LayerStack
 
 from gplugins.gmsh.uz_xsection_mesh import uz_xsection_mesh
 from gplugins.gmsh.xy_xsection_mesh import xy_xsection_mesh
 from gplugins.gmsh.xyz_mesh import xyz_mesh
+
+
+def create_physical_mesh(mesh, cell_type) -> meshio.Mesh:
+    cells = mesh.get_cells_type(cell_type)
+    cell_data = mesh.get_cell_data("gmsh:physical", cell_type)
+    points = mesh.points
+    return meshio.Mesh(
+        points=points,
+        cells={cell_type: cells},
+        cell_data={"name_to_read": [cell_data]},
+    )
 
 
 def get_mesh(
