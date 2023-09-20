@@ -1,8 +1,12 @@
 # [CHANGELOG](https://keepachangelog.com/en/1.0.0/)
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.8.0...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.8.1...main)
 
-## [0.8.0](https://github.com/gdsfactory/gplugins/compare/v0.7.0...v0.8.0) [PR](https://github.com/gdsfactory/gplugins/pull/157)
+## [0.8.1](https://github.com/gdsfactory/gplugins/compare/v0.8.0...v0.8.0) [PR](https://github.com/gdsfactory/gplugins/pull/157)
+
+- consolidate meshwell plugin
+
+## [0.8.0](https://github.com/gdsfactory/gplugins/compare/v0.7.0...v0.8.0) [PR](https://github.com/gdsfactory/gplugins/pull/159)
 
 - update to latest tidy3d 2.4 and gdsfactory
 - rename `layerstack` to `layer_stack` to be consistent with gdsfactory
