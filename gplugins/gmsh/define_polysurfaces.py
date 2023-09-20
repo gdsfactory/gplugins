@@ -7,7 +7,7 @@ from shapely.affinity import scale
 
 def define_polysurfaces(
     polygons_dict: dict,
-    layerstack: LayerStack,
+    layer_stack: LayerStack,
     model: Any,
     resolutions: dict,
     scale_factor: float = 1,
@@ -31,7 +31,7 @@ def define_polysurfaces(
                 ),
                 model=model,
                 resolution=resolutions.get(layername, None),
-                mesh_order=layerstack.layers.get(layername).mesh_order,
+                mesh_order=layer_stack.layers.get(layername).mesh_order,
                 physical_name=layername,
             )
         )
