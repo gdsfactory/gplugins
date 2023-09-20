@@ -49,7 +49,7 @@ def test_remove_empty_layer_stack_layers():
 
 if __name__ == "__main__":
     test_remove_empty_layer_stack_layers()
-    test_component_with_new_port_layers()
+    # test_component_with_new_port_layers()
     # new_component = get_component_with_new_port_layers(
     #     original_component,
     #     layer_stack=layer_stack,

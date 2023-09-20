@@ -29,7 +29,7 @@ def get_component_layer_stack(
     ]
     for key in list(new_layer_stack.layers.keys()):
         if key not in layernames_present:
-            del new_layer_stack.layers[key]
+            new_layer_stack.layers.pop(key)
 
     return new_layer_stack
 

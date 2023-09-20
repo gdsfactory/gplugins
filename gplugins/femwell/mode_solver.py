@@ -111,7 +111,6 @@ def compute_component_slice_modes(
         order: order of the mesh elements. 1: linear, 2: quadratic.
         radius: bend radius of the cross-section.
         wafer_padding: padding beyond bbox to add to WAFER layers.
-        bend_radius: bend radius for mode solving (typically called from cross_section)
         solver: can be slepc or scipy.
 
     Keyword Args:
