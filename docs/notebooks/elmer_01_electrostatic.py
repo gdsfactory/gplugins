@@ -123,7 +123,6 @@ results = run_capacitive_simulation_elmer(
         background_padding=(0,) * 5 + (700,),
         port_names=c.ports,
         default_characteristic_length=200,
-        layer_portname_delimiter=(delimiter := "__"),
         resolutions={
             "bw": {
                 "resolution": 15,
@@ -135,7 +134,7 @@ results = run_capacitive_simulation_elmer(
                 "resolution": 40,
             },
             **{
-                f"bw{delimiter}{port}": {
+                f"bw{port}": {
                     "resolution": 20,
                     "DistMax": 30,
                     "DistMin": 10,

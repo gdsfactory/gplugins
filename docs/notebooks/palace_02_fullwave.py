@@ -159,7 +159,6 @@ results = run_scattering_simulation_palace(
         port_names=c.ports,
         verbosity=1,
         default_characteristic_length=200,
-        layer_portname_delimiter=(delimiter := "__"),
         resolutions={
             "bw": {
                 "resolution": 14,
@@ -171,7 +170,7 @@ results = run_scattering_simulation_palace(
                 "resolution": 120,
             },
             **{
-                f"bw_port{delimiter}{port}_vacuum": {
+                f"bw_port{port}_vacuum": {
                     "resolution": 8,
                     "DistMax": 30,
                     "DistMin": 10,

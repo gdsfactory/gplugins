@@ -15,7 +15,7 @@ from gplugins.fdtdz.get_ports_fdtdz import get_mode_port
 
 def get_sparameters_fdtdz(
     component: Component,
-    layerstack: LayerStack | None = None,
+    layer_stack: LayerStack | None = None,
     nm_per_pixel: int = 20,
     extend_ports_length: float | None = 2.0,
     zmin: float = -0.75,
@@ -30,10 +30,10 @@ def get_sparameters_fdtdz(
 
     Args:
         component: gdsfactory component.
-        layerstack: gdsfactory layerstack.
+        layer_stack: gdsfactory layer_stack.
         nm_per_pixel: nm per pixel.
         extend_ports_length: length to extend ports.
-        zmin: can be used to clip the layerstack at the lower end; upper end determined by zz * num_per_pixel
+        zmin: can be used to clip the layer_stack at the lower end; upper end determined by zz * num_per_pixel
         zz: number of vertical grid points
         tt: tt.
         wavelength: wavelength.
@@ -114,7 +114,7 @@ def get_sparameters_fdtdz(
     # Create epsilon distribution
     epsilon = component_to_epsilon_pjz(
         component=component_extended,
-        layerstack=layerstack,
+        layer_stack=layer_stack,
         zmin=zmin,
         zz=zz,
         material_name_to_index=material_name_to_fdtdz,
@@ -161,13 +161,13 @@ if __name__ == "__main__":
     )
     c.add_ports(gf.components.straight(length=length).get_ports_list())
 
-    filtered_layerstack = LayerStack(
+    filtered_layer_stack = LayerStack(
         layers={k: LAYER_STACK.layers[k] for k in ["clad", "box", "core"]}
     )
 
     out = get_sparameters_fdtdz(
         component=c,
-        layerstack=filtered_layerstack,
+        layer_stack=filtered_layer_stack,
         nm_per_pixel=20,
         extend_ports_length=2.0,
         zmin=-0.75,

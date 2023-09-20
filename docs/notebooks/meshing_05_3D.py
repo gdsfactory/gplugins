@@ -24,7 +24,7 @@ waveguide = gf.components.straight_pin(length=5, taper=None)
 waveguide.plot_matplotlib()
 
 # +
-filtered_layerstack = LayerStack(
+filtered_layer_stack = LayerStack(
     layers={
         k: get_layer_stack().layers[k]
         for k in (
@@ -53,7 +53,7 @@ def mesh_with_physicals(mesh, filename):
 mesh = get_mesh(
     component=waveguide,
     type="3D",
-    layer_stack=filtered_layerstack,
+    layer_stack=filtered_layer_stack,
     filename=f"{filename}.msh",
     default_characteristic_length=1,
     verbosity=5,
@@ -85,11 +85,10 @@ print(waveguide.ports["bot_e1"])
 mesh = get_mesh(
     component=waveguide,
     type="3D",
-    layer_stack=filtered_layerstack,
+    layer_stack=filtered_layer_stack,
     filename=f"{filename}.msh",
     default_characteristic_length=1,
     port_names=["top_e1", "bot_e1"],
-    layer_portname_delimiter="#",
 )
 
 # Note the extra layers.

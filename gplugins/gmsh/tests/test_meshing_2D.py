@@ -11,7 +11,7 @@ from gplugins.gmsh.xy_xsection_mesh import xy_xsection_mesh
 def test_gmsh_uz_xsection_mesh() -> None:
     waveguide = gf.components.straight_pin(length=10, taper=None)
 
-    filtered_layerstack = LayerStack(
+    filtered_layer_stack = LayerStack(
         layers={
             k: get_layer_stack().layers[k]
             for k in (
@@ -31,7 +31,7 @@ def test_gmsh_uz_xsection_mesh() -> None:
     uz_xsection_mesh(
         waveguide,
         [(4, -15), (4, 15)],
-        filtered_layerstack,
+        filtered_layer_stack,
         resolutions=resolutions,
         background_tag="Oxide",
     )
@@ -44,7 +44,7 @@ def test_gmsh_xy_xsection_mesh() -> None:
 
     from gdsfactory.pdk import get_layer_stack
 
-    filtered_layerstack = LayerStack(
+    filtered_layer_stack = LayerStack(
         layers={
             k: get_layer_stack().layers[k]
             for k in (
@@ -62,7 +62,7 @@ def test_gmsh_xy_xsection_mesh() -> None:
     xy_xsection_mesh(
         component=waveguide,
         z=0.09,
-        layerstack=filtered_layerstack,
+        layer_stack=filtered_layer_stack,
         resolutions=resolutions,
         background_tag="Oxide",
     )

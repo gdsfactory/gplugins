@@ -43,9 +43,9 @@ def fuse_polygons(
     )
 
 
-def cleanup_component(component, layerstack, round_tol=2, simplify_tol=1e-2):
+def cleanup_component(component, layer_stack, round_tol=2, simplify_tol=1e-2):
     """Process component polygons before meshing."""
-    layerstack_dict = layerstack.to_dict()
+    layer_stack_dict = layer_stack.to_dict()
 
     return {
         layername: fuse_polygons(
@@ -55,7 +55,7 @@ def cleanup_component(component, layerstack, round_tol=2, simplify_tol=1e-2):
             round_tol=round_tol,
             simplify_tol=simplify_tol,
         )
-        for layername, layer in layerstack_dict.items()
+        for layername, layer in layer_stack_dict.items()
         if layer["layer"] is not None
     }
 

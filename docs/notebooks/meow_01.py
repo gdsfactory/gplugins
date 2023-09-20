@@ -26,11 +26,11 @@ c.plot()
 # You also need to explicitly provide a LayerStack to define cross-sections, for instance the generic one:
 
 # +
-layerstack = LAYER_STACK
+layer_stack = LAYER_STACK
 
-filtered_layerstack = gf.technology.LayerStack(
+filtered_layer_stack = gf.technology.LayerStack(
     layers={
-        k: layerstack.layers[k]
+        k: layer_stack.layers[k]
         for k in (
             "slab90",
             "core",
@@ -45,7 +45,9 @@ filtered_layerstack = gf.technology.LayerStack(
 
 # The EME simulator can be instantiated with only these two elements, alongside parameters:
 
-eme = MEOW(component=c, layerstack=filtered_layerstack, wavelength=1.55, overwrite=True)
+eme = MEOW(
+    component=c, layer_stack=filtered_layer_stack, wavelength=1.55, overwrite=True
+)
 
 # Plotting functions allow you to check your simulation:
 
@@ -79,11 +81,11 @@ eme.plot_s_params()
 # Lets sweep the length of the taper.
 
 # +
-layerstack = LAYER_STACK
+layer_stack = LAYER_STACK
 
-filtered_layerstack = gf.technology.LayerStack(
+filtered_layer_stack = gf.technology.LayerStack(
     layers={
-        k: layerstack.layers[k]
+        k: layer_stack.layers[k]
         for k in (
             "slab90",
             "core",
@@ -106,7 +108,7 @@ cells_lengths = [0.1, 0.25, 0.5, 0.75, 1]
 for cell_length in cells_lengths:
     m = MEOW(
         component=c,
-        layerstack=filtered_layerstack,
+        layer_stack=filtered_layer_stack,
         wavelength=1.55,
         overwrite=True,
         spacing_y=-3,
@@ -124,7 +126,7 @@ plt.ylabel("TE0 transmission")
 
 eme = MEOW(
     component=c,
-    layerstack=filtered_layerstack,
+    layer_stack=filtered_layer_stack,
     wavelength=1.55,
     overwrite=True,
     spacing_y=-3,
@@ -161,7 +163,7 @@ for i, length in enumerate(lengths):
     c = gf.components.taper(width1=0.5, width2=2, length=length)
     eme = MEOW(
         component=c,
-        layerstack=filtered_layerstack,
+        layer_stack=filtered_layer_stack,
         wavelength=1.55,
         overwrite=True,
         spacing_y=-3,

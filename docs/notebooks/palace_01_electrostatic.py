@@ -121,7 +121,6 @@ results = run_capacitive_simulation_palace(
         background_padding=(0,) * 5 + (700,),
         port_names=c.ports,
         default_characteristic_length=200,
-        layer_portname_delimiter=(delimiter := "__"),
         resolutions={
             "bw": {
                 "resolution": 15,
@@ -133,7 +132,7 @@ results = run_capacitive_simulation_palace(
                 "resolution": 40,
             },
             **{
-                f"bw{delimiter}{port}": {
+                f"bw{port}": {
                     "resolution": 20,
                     "DistMax": 30,
                     "DistMin": 10,
@@ -152,10 +151,10 @@ if results.field_file_location:
     pv.start_xvfb()
     pv.set_jupyter_backend("panel")
     field = pv.read(results.field_file_location)
-    slice = field.slice_orthogonal(z=layer_stack.layers["bw"].zmin * 1e-6)
+    field_slice = field.slice_orthogonal(z=layer_stack.layers["bw"].zmin * 1e-6)
 
     p = pv.Plotter()
-    p.add_mesh(slice, scalars="E", cmap="turbo")
+    p.add_mesh(field_slice, scalars="E", cmap="turbo")
     p.show_grid()
     p.camera_position = "xy"
     p.enable_parallel_projection()

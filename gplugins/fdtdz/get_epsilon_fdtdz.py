@@ -5,10 +5,10 @@ from gdsfactory.technology import LayerStack
 from gdsfactory.typings import Float2
 from pjz import _epsilon
 
-from gplugins.common.utils.parse_layerstack import (
+from gplugins.common.utils.parse_layer_stack import (
     get_layer_overlaps_z,
-    list_unique_layerstack_z,
-    order_layerstack,
+    list_unique_layer_stack_z,
+    order_layer_stack,
 )
 
 material_name_to_fdtdz = {
@@ -32,7 +32,7 @@ def create_physical_grid(xmin, ymin, zmin, epsilon, nm_per_pixel):
 
 def component_to_epsilon_pjz(
     component,
-    layerstack,
+    layer_stack,
     zmin: float | None = None,
     zz: int = 96,
     nm_per_pixel: float = 20,
@@ -43,8 +43,8 @@ def component_to_epsilon_pjz(
 
     Arguments:
         component: gdsfactory component.
-        layerstack: LayerStack object, with layers to consider.
-        zmin: can be used to clip the layerstack at the lower end; upper end determined by zz * num_per_pixel.
+        layer_stack: LayerStack object, with layers to consider.
+        zmin: can be used to clip the layer_stack at the lower end; upper end determined by zz * num_per_pixel.
         zz: number of vertical grid points.
         nm_per_pixel: resolution (1 simulation pixel = nm_per_pixel nm).
         material_name_to_index: dict mapping LayerStack material names to a real refractive index.
@@ -58,18 +58,18 @@ def component_to_epsilon_pjz(
     material_name_to_index = material_name_to_index or material_name_to_fdtdz
 
     # Parse layerlevels
-    z_values = sorted(list_unique_layerstack_z(layerstack))
+    z_values = sorted(list_unique_layer_stack_z(layer_stack))
     if zmin:
         z_values = [z for z in z_values if zmin <= z]
         z_values.append(zmin)
         z_values = sorted(set(z_values))
         # Patch layer mapping
-        z_to_layername = get_layer_overlaps_z(layerstack, include_zmax=False)
+        z_to_layername = get_layer_overlaps_z(layer_stack, include_zmax=False)
         missing_zs = set(z_to_layername.keys()) - set(z_values)
         z_to_layername[zmin] = z_to_layername[max(missing_zs)]
     else:
         zmin = min(z_values)
-        z_to_layername = get_layer_overlaps_z(layerstack, include_zmax=False)
+        z_to_layername = get_layer_overlaps_z(layer_stack, include_zmax=False)
 
     # For each vertical slice
     initialized = False
@@ -79,15 +79,15 @@ def component_to_epsilon_pjz(
         if level_index != 0:
             interface_positions.append(int((z_value - zmin) * 1e3 / nm_per_pixel))
         # Extract each layer number and material in the current level, in mesh order:
-        level_layerstack = LayerStack(
-            layers={k: layerstack.layers[k] for k in z_to_layername[z_value]}
+        level_layer_stack = LayerStack(
+            layers={k: layer_stack.layers[k] for k in z_to_layername[z_value]}
         )
-        current_layernames = order_layerstack(level_layerstack)[::-1]
+        current_layernames = order_layer_stack(level_layer_stack)[::-1]
         current_layers = [
-            layerstack.layers[layername].layer for layername in current_layernames
+            layer_stack.layers[layername].layer for layername in current_layernames
         ]
         current_indices = [
-            material_name_to_index[layerstack.layers[layername].material] ** 2
+            material_name_to_index[layer_stack.layers[layername].material] ** 2
             for layername in current_layernames
         ]
 
@@ -229,12 +229,12 @@ if __name__ == "__main__":
     c.add_ports(gf.components.straight(length=length).get_ports_list())
     # c.plot_matplotlib(show_ports=True)
 
-    filtered_layerstack = LayerStack(
+    filtered_layer_stack = LayerStack(
         layers={k: LAYER_STACK.layers[k] for k in ["clad", "box", "core"]}
     )
 
     epsilon = component_to_epsilon_pjz(
-        component=c, layerstack=filtered_layerstack, zmin=-0.75
+        component=c, layer_stack=filtered_layer_stack, zmin=-0.75
     )
 
     fig = plot_epsilon(

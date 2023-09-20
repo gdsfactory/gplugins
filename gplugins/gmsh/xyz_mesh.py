@@ -18,8 +18,8 @@ from shapely.ops import unary_union
 from gplugins.common.utils.get_component_with_new_port_layers import (
     get_component_with_new_port_layers,
 )
-from gplugins.common.utils.parse_layerstack import (
-    list_unique_layerstack_z,
+from gplugins.common.utils.parse_layer_stack import (
+    list_unique_layer_stack_z,
 )
 from gplugins.gmsh.parse_component import bufferize
 from gplugins.gmsh.parse_gds import cleanup_component
@@ -74,7 +74,7 @@ def define_edgeport(
 
 def define_prisms(
     layer_polygons_dict: dict,
-    layerstack: LayerStack,
+    layer_stack: LayerStack,
     model: Any,
     resolutions: dict,
     scale_factor: float = 1,
@@ -83,28 +83,28 @@ def define_prisms(
 
     Args:
         layer_polygons_dict: dictionary of polygons for each layer
-        layerstack: gdsfactory LayerStack to parse
+        layer_stack: gdsfactory LayerStack to parse
         model: meshwell Model object
         resolutions: Pairs {"layername": {"resolution": float, "distance": "float}} to roughly control mesh refinement.
         scale_factor: scaling factor to apply to the polygons (default: 1)
     """
     prisms_list = []
-    buffered_layerstack = bufferize(layerstack)
+    buffered_layer_stack = bufferize(layer_stack)
 
     if resolutions is None:
         resolutions = {}
 
-    for layername in buffered_layerstack.layers.keys():
+    for layername in buffered_layer_stack.layers.keys():
         if layer_polygons_dict[layername].is_empty:
             continue
 
-        coords = np.array(buffered_layerstack.layers[layername].z_to_bias[0])
+        coords = np.array(buffered_layer_stack.layers[layername].z_to_bias[0])
         zs = (
-            coords * buffered_layerstack.layers[layername].thickness * scale_factor
-            + buffered_layerstack.layers[layername].zmin * scale_factor
+            coords * buffered_layer_stack.layers[layername].thickness * scale_factor
+            + buffered_layer_stack.layers[layername].zmin * scale_factor
         )
         buffers = (
-            np.array(buffered_layerstack.layers[layername].z_to_bias[1]) * scale_factor
+            np.array(buffered_layer_stack.layers[layername].z_to_bias[1]) * scale_factor
         )
 
         buffer_dict = dict(zip(zs, buffers))
@@ -119,7 +119,7 @@ def define_prisms(
                 buffers=buffer_dict,
                 model=model,
                 resolution=resolutions.get(layername, None),
-                mesh_order=buffered_layerstack.layers.get(layername).mesh_order,
+                mesh_order=buffered_layer_stack.layers.get(layername).mesh_order,
                 physical_name=layername,
             )
         )
@@ -129,7 +129,7 @@ def define_prisms(
 
 def xyz_mesh(
     component: ComponentOrReference,
-    layerstack: LayerStack,
+    layer_stack: LayerStack,
     resolutions: dict | None = None,
     default_characteristic_length: float = 0.5,
     background_tag: str | None = None,
@@ -151,7 +151,7 @@ def xyz_mesh(
 
     Args:
         component: gdsfactory component to mesh
-        layerstack: gdsfactory LayerStack to parse
+        layer_stack: gdsfactory LayerStack to parse
         resolutions: Pairs {"layername": {"resolution": float, "distance": "float}} to roughly control mesh refinement
             default_characteristic_length: gmsh maximum edge length
         background_tag: name of the background layer to add (default: no background added). This will be used as the material as well.
@@ -187,13 +187,13 @@ def xyz_mesh(
         component = get_component_with_new_port_layers(
             component=mesh_component,
             port_names=port_names,
-            layer_stack=layerstack,
+            layer_stack=layer_stack,
         )
 
     # Fuse and cleanup polygons of same layer in case user overlapped them
     # TODO: some duplication with union above, although this also does some useful offsetting
     layer_polygons_dict = cleanup_component(
-        component, layerstack, round_tol, simplify_tol
+        component, layer_stack, round_tol, simplify_tol
     )
 
     # Add background polygon
@@ -202,7 +202,7 @@ def xyz_mesh(
         bounds = bbox.bounds
 
         # get min and max z values in LayerStack
-        zs = list_unique_layerstack_z(layerstack)
+        zs = list_unique_layer_stack_z(layer_stack)
         zmin, zmax = np.min(zs), np.max(zs)
 
         # create Polygon encompassing simulation environment
@@ -230,8 +230,8 @@ def xyz_mesh(
             *(global_scaling_premesh,) * 2,
             origin=(0, 0, 0),
         )
-        layerstack = LayerStack(
-            layers=layerstack.layers
+        layer_stack = LayerStack(
+            layers=layer_stack.layers
             | {
                 background_tag: LayerLevel(
                     layer=(9999, 0),  # TODO something like LAYERS.BACKGROUND?
@@ -246,11 +246,11 @@ def xyz_mesh(
             }
         )
 
-    # Meshwell Prisms from gdsfactory polygons and layerstack
+    # Meshwell Prisms from gdsfactory polygons and layer_stack
     model = Model(n_threads=n_threads)
     prisms_list = define_prisms(
         layer_polygons_dict=layer_polygons_dict,
-        layerstack=layerstack,
+        layer_stack=layer_stack,
         model=model,
         scale_factor=global_scaling_premesh,
         resolutions=resolutions,
@@ -259,7 +259,7 @@ def xyz_mesh(
     # Add edgeports
     if edge_ports is not None:
         ports = component.get_ports_dict()
-        port_layernames = layerstack.get_layer_to_layername()
+        port_layernames = layer_stack.get_layer_to_layername()
         for portname, edge_ports_dict in edge_ports.items():
             port = ports[portname]
             prisms_list.append(
@@ -267,7 +267,7 @@ def xyz_mesh(
                     port,
                     edge_ports_dict,
                     model,
-                    layerlevel=layerstack.layers[port_layernames[port.layer][0]],
+                    layerlevel=layer_stack.layers[port_layernames[port.layer][0]],
                 )
             )
 
@@ -310,12 +310,12 @@ if __name__ == "__main__":
         bottom=3,
     )
 
-    # Generate a new component and layerstack with new logical layers
-    layerstack = get_layer_stack()
+    # Generate a new component and layer_stack with new logical layers
+    layer_stack = get_layer_stack()
 
-    filtered_layerstack = LayerStack(
+    filtered_layer_stack = LayerStack(
         layers={
-            k: layerstack.layers[k]
+            k: layer_stack.layers[k]
             for k in (
                 # "via1",
                 "box",
@@ -331,20 +331,20 @@ if __name__ == "__main__":
         }
     )
 
-    filtered_layerstack.layers["core"].mesh_order = 1
-    filtered_layerstack.layers["box"].thickness = 3
-    filtered_layerstack.layers["box"].zmin = -3
-    filtered_layerstack.layers["box"].mesh_order = 2
-    filtered_layerstack.layers["clad"].thickness = 3
-    filtered_layerstack.layers["clad"].zmin = 0
-    filtered_layerstack.layers["clad"].mesh_order = 3
+    filtered_layer_stack.layers["core"].mesh_order = 1
+    filtered_layer_stack.layers["box"].thickness = 3
+    filtered_layer_stack.layers["box"].zmin = -3
+    filtered_layer_stack.layers["box"].mesh_order = 2
+    filtered_layer_stack.layers["clad"].thickness = 3
+    filtered_layer_stack.layers["clad"].zmin = 0
+    filtered_layer_stack.layers["clad"].mesh_order = 3
 
     resolutions = {
         "core": {"resolution": 0.3},
     }
     geometry = xyz_mesh(
         component=c,
-        layerstack=filtered_layerstack,
+        layer_stack=filtered_layer_stack,
         resolutions=resolutions,
         filename="mesh.msh",
         default_characteristic_length=5,

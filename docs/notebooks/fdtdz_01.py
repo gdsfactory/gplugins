@@ -62,12 +62,12 @@ c.plot_matplotlib(show_ports=True)
 #
 # Here we load the generic LayerStack, but only keep the `core`, `clad`, and `box` layers:
 
-filtered_layerstack = LayerStack(
+filtered_layer_stack = LayerStack(
     layers={
         k: LAYER_STACK.layers[k] for k in ["clad", "box", "core", "slab90", "nitride"]
     }
 )
-filtered_layerstack
+filtered_layer_stack
 
 # We show how to inspect the resulting permittivity below to troubleshoot.
 
@@ -94,7 +94,7 @@ material_name_to_fdtdz = {
 
 out = get_sparameters_fdtdz(
     component=c,
-    layerstack=filtered_layerstack,
+    layer_stack=filtered_layer_stack,
     nm_per_pixel=20,
     extend_ports_length=0.0,
     zmin=-0.5,
@@ -119,7 +119,7 @@ np.abs(out)
 #
 # ### Permittivity distribution
 #
-# Pass the component, layerstack, and minz, and slice the simulation domain to inspect the permittivity.
+# Pass the component, layer_stack, and minz, and slice the simulation domain to inspect the permittivity.
 #
 # For xy-plane visualization, set `x = y = None` and choose a z-value:
 
@@ -130,7 +130,7 @@ zmin = -0.5
 nm_per_pixel = 20
 
 epsilon = component_to_epsilon_pjz(
-    component=c, layerstack=filtered_layerstack, zmin=zmin
+    component=c, layer_stack=filtered_layer_stack, zmin=zmin
 )
 
 fig = plot_epsilon(
