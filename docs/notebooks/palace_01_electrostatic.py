@@ -119,7 +119,7 @@ results = run_capacitive_simulation_palace(
     mesh_parameters=dict(
         background_tag="vacuum",
         background_padding=(0,) * 5 + (700,),
-        portnames=c.ports,
+        port_names=c.ports,
         default_characteristic_length=200,
         layer_portname_delimiter=(delimiter := "__"),
         resolutions={

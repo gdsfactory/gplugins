@@ -74,7 +74,7 @@ def get_reasonable_mesh_parameters_capacitance(c: Component):
     return dict(
         background_tag="vacuum",
         background_padding=(0,) * 5 + (700,),
-        portnames=c.ports,
+        port_names=c.ports,
         default_characteristic_length=200,
         layer_portname_delimiter=(delimiter := "__"),
         resolutions={
@@ -162,7 +162,7 @@ def get_reasonable_mesh_parameters_scattering(c: Component):
     return dict(
         background_tag="vacuum",
         background_padding=(0,) * 5 + (700,),
-        portnames=c.ports,
+        port_names=c.ports,
         default_characteristic_length=200,
         layer_portname_delimiter=(delimiter := "__"),
         resolutions={

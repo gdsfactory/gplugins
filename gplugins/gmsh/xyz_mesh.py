@@ -165,8 +165,8 @@ def xyz_mesh(
         round_tol: during gds --> mesh conversion cleanup, number of decimal points at which to round the gdsfactory/shapely points before introducing to gmsh
         simplify_tol: during gds --> mesh conversion cleanup, shapely "simplify" tolerance (make it so all points are at least separated by this amount)
         n_threads: for gmsh parallelization
-        portnames: list or port polygons to converts into new layers (useful for boundary conditions)
-        edge_ports: dict of portnames to define as a 2D surface at the edge of the simulation.
+        port_names: list or port polygons to converts into new layers (useful for boundary conditions)
+        edge_ports: dict of port_names to define as a 2D surface at the edge of the simulation.
             edge_ports = {
                 "e1": {
                     physical_name: (str), # how to name the 2D surface in the GMSH mesh.
@@ -349,7 +349,7 @@ if __name__ == "__main__":
         filename="mesh.msh",
         default_characteristic_length=5,
         verbosity=5,
-        # portnames=["r_e2", "l_e4"],
+        # port_names=["r_e2", "l_e4"],
         edge_ports={
             "o1": {
                 "zmin": -1,

@@ -67,13 +67,13 @@ mesh.draw().plot(xs=[], ys=[])
 #
 # The default behaviour of the plugin is to create Gmsh physical entities according to layernames. Oftentimes, however, different polygons on the same layer must be accessed separately, for instance to define boundary conditions. In gplugins, these are tagged with the ports of the Component.
 #
-# To use this feature, the `portnames` argument must be passed. For each portname in the list, GDS polygons touching the associated port will be put on a new layer called "{original_layername}{delimiter}{portname}". This new layer is otherwise physically identical to the original one (so same thickness, material, etc.).
+# To use this feature, the `port_names` argument must be passed. For each portname in the list, GDS polygons touching the associated port will be put on a new layer called "{original_layername}{delimiter}{portname}". This new layer is otherwise physically identical to the original one (so same thickness, material, etc.).
 #
 # <div class="alert alert-success">
 # Note: in the future, it would be interesting to broaden what is possible with port entities, for instance allowing 2D planes in a 3D simulation.
 # </div>
 
-# Print the portnames for reference:
+# Print the port_names for reference:
 
 waveguide.ports.keys()
 
@@ -88,7 +88,7 @@ mesh = get_mesh(
     layer_stack=filtered_layerstack,
     filename=f"{filename}.msh",
     default_characteristic_length=1,
-    portnames=["top_e1", "bot_e1"],
+    port_names=["top_e1", "bot_e1"],
     layer_portname_delimiter="#",
 )
 

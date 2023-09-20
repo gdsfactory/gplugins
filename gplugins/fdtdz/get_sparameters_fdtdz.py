@@ -97,7 +97,7 @@ def get_sparameters_fdtdz(
     component_ref.x = 0
     component_ref.y = 0
 
-    optical_portnames = list(component_ref.get_ports_dict(port_type="optical").keys())
+    optical_port_names = list(component_ref.get_ports_dict(port_type="optical").keys())
 
     assert isinstance(
         component, Component
@@ -125,7 +125,7 @@ def get_sparameters_fdtdz(
     omega = 1 / wavelength
     excitations = []
     positions = []
-    for portname in optical_portnames:
+    for portname in optical_port_names:
         excitation, pos, epsilon_port = get_mode_port(
             omega=omega,
             port=component.ports[portname],
