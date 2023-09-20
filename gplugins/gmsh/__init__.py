@@ -8,15 +8,6 @@ from gplugins.common.utils.parse_layer_stack import (
     order_layer_stack,
 )
 from gplugins.gmsh.get_mesh import get_mesh
-from gplugins.gmsh.mesh import create_physical_mesh, mesh_from_polygons
-from gplugins.gmsh.meshtracker import MeshTracker
-from gplugins.gmsh.parse_gds import (
-    cleanup_component,
-    fuse_polygons,
-    round_coordinates,
-    tile_shapes,
-    to_polygons,
-)
 from gplugins.gmsh.uz_xsection_mesh import (
     get_u_bounds_layers,
     get_u_bounds_polygons,
