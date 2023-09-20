@@ -22,8 +22,6 @@ def define_polysurfaces(
         if polygons_dict[layername].is_empty:
             continue
 
-        print(layername)
-
         polysurfaces_list.append(
             PolySurface(
                 polygons=scale(

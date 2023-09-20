@@ -211,6 +211,7 @@ def uz_xsection_mesh(
     verbosity: int | None = 0,
     n_threads: int = get_number_of_cores(),
     gmsh_version: float | None = None,
+    interface_delimiter: str = "___",
     **kwargs,
 ):
     """Mesh uz cross-section of component along line u = [[x1,y1] , [x2,y2]].
@@ -319,11 +320,19 @@ def uz_xsection_mesh(
     if left_right_periodic_bcs:
         # Figure out bbox of simulation
         for polygon in shapes.values():
-            minx, miny, maxx, maxy = polygon.bounds
-            minu = min(minx, minu)
-            minz = min(miny, minz)
-            maxu = max(maxx, maxu)
-            maxz = max(maxy, maxz)
+            if not polygon.is_empty:
+                minx, miny, maxx, maxy = polygon.bounds
+                minu = min(minx, minu)
+                minz = min(miny, minz)
+                maxu = max(maxx, maxu)
+                maxz = max(maxy, maxz)
+            minu += u_offset
+            maxu += u_offset
+            if background_tag:
+                minu -= background_padding[0]
+                maxu += background_padding[2]
+                minz -= background_padding[1]
+                maxz += background_padding[3]
         # Create boundary rectangles
         left_line_rectangle = GMSH_entity(
             gmsh_function=model.occ.add_rectangle,
@@ -355,10 +364,16 @@ def uz_xsection_mesh(
             physical_name="right_line",
             mesh_bool=False,
         )
+        # Give meshwell all possible boundary interfaces
+        periodic_entities = [
+            (
+                f"left_line{interface_delimiter}{entity.physical_name}",
+                f"right_line{interface_delimiter}{entity.physical_name}",
+            )
+            for entity in polysurfaces_list
+        ]
         polysurfaces_list.append(left_line_rectangle)
         polysurfaces_list.append(right_line_rectangle)
-        # Give meshwell all possible bundary interfaces
-        periodic_entities = [("left_line", "right_line")]
 
     # Mesh
     return model.mesh(
@@ -370,6 +385,7 @@ def uz_xsection_mesh(
         gmsh_version=gmsh_version,
         filename=filename,
         verbosity=verbosity,
+        interface_delimiter=interface_delimiter,
     )
 
 
@@ -429,7 +445,7 @@ if __name__ == "__main__":
         round_tol=3,
         simplify_tol=1e-3,
         u_offset=-15,
-        # left_right_periodic_bcs=True,
+        left_right_periodic_bcs=True,
     )
 
     import meshio
