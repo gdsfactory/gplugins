@@ -17,10 +17,6 @@ from gplugins.gmsh.uz_xsection_mesh import (
 from gplugins.gmsh.xy_xsection_mesh import xy_xsection_mesh
 
 __all__ = [
-    "MeshTracker",
-    "cleanup_component",
-    "create_physical_mesh",
-    "fuse_polygons",
     "get_layer_overlaps_z",
     "get_layers_at_z",
     "get_u_bounds_layers",
@@ -29,11 +25,8 @@ __all__ = [
     "get_mesh",
     "list_unique_layer_stack_z",
     "map_unique_layer_stack_z",
-    "mesh_from_polygons",
     "order_layer_stack",
     "round_coordinates",
-    "tile_shapes",
-    "to_polygons",
     "uz_xsection_mesh",
     "xy_xsection_mesh",
 ]

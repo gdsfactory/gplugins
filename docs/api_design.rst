@@ -12,14 +12,6 @@ Meshing
 .. autosummary::
    :toctree: _autosummary/
 
-    create_physical_mesh
-    mesh_from_polygons
-    MeshTracker
-    cleanup_component
-    fuse_polygons
-    round_coordinates
-    tile_shapes
-    to_polygons
     get_layer_overlaps_z
     get_layers_at_z
     list_unique_layer_stack_z
