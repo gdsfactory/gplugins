@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections.abc import Sequence
 from typing import Any
 
 import gdsfactory as gf
@@ -16,6 +15,9 @@ from shapely.affinity import scale
 from shapely.geometry import Polygon
 from shapely.ops import unary_union
 
+from gplugins.common.utils.get_component_with_new_port_layers import (
+    get_component_with_new_port_layers,
+)
 from gplugins.common.utils.parse_layerstack import (
     list_unique_layerstack_z,
 )
@@ -77,7 +79,15 @@ def define_prisms(
     resolutions: dict,
     scale_factor: float = 1,
 ):
-    """Define meshwell prism dimtags from gdsfactory information."""
+    """Define meshwell prism dimtags from gdsfactory information.
+
+    Args:
+        layer_polygons_dict: dictionary of polygons for each layer
+        layerstack: gdsfactory LayerStack to parse
+        model: meshwell Model object
+        resolutions: Pairs {"layername": {"resolution": float, "distance": "float}} to roughly control mesh refinement.
+        scale_factor: scaling factor to apply to the polygons (default: 1)
+    """
     prisms_list = []
     buffered_layerstack = bufferize(layerstack)
 
@@ -123,7 +133,7 @@ def xyz_mesh(
     resolutions: dict | None = None,
     default_characteristic_length: float = 0.5,
     background_tag: str | None = None,
-    background_padding: Sequence[float, float, float, float, float, float] = (2.0,) * 6,
+    background_padding: tuple[float, float, float, float, float, float] = (2.0,) * 6,
     global_scaling: float = 1,
     global_scaling_premesh: float = 1,
     global_2D_algorithm: int = 6,
@@ -133,9 +143,8 @@ def xyz_mesh(
     round_tol: int = 3,
     simplify_tol: float = 1e-3,
     n_threads: int = get_number_of_cores(),
-    portnames: List[str] = None,
-    edge_ports: List[str] = None,
-    layer_portname_delimiter: str = "#",
+    port_names: List[str] | None = None,
+    edge_ports: List[str] | None = None,
     gmsh_version: float | None = None,
 ) -> bool:
     """Full 3D mesh of component.
@@ -160,7 +169,7 @@ def xyz_mesh(
         edge_ports: dict of portnames to define as a 2D surface at the edge of the simulation.
             edge_ports = {
                 "e1": {
-                    physical_name: (str), # how to name the 2D surface in the GMSH mesh. Default {port_layer}{layer_portname_delimiter}{port_name}
+                    physical_name: (str), # how to name the 2D surface in the GMSH mesh.
                     width_pad: (float), # how much to extend the port width (default 0). Negative to shrink.
                     zmin: (float), # minimal z-value of the port (default to port layer zmin)
                     zmax: (float), # maximum z-value of the port (default to port layer zmin + thickness)
@@ -168,18 +177,17 @@ def xyz_mesh(
                 },
                 ...
             }
-        layer_portname_delimiter: delimiter for the new layername/portname physicals, formatted as {layername}{delimiter}{portname}
         gmsh_version: Gmsh mesh format version. For example, Palace requires an older version of 2.2,
             see https://mfem.org/mesh-formats/#gmsh-mesh-formats.
     """
-    if portnames:
+    if port_names:
         mesh_component = gf.Component()
-        mesh_component << union(component, by_layer=True)
+        _ = mesh_component << union(component, by_layer=True)
         mesh_component.add_ports(component.get_ports_list())
-        component = layerstack.get_component_with_net_layers(
-            mesh_component,
-            portnames=portnames,
-            delimiter=layer_portname_delimiter,
+        component = get_component_with_new_port_layers(
+            component=mesh_component,
+            port_names=port_names,
+            layer_stack=layerstack,
         )
 
     # Fuse and cleanup polygons of same layer in case user overlapped them
@@ -272,14 +280,6 @@ def xyz_mesh(
             r["resolution"] *= global_scaling_premesh
     else:
         resolutions = {}
-
-    # Assign resolutions to derived logical layers
-    for entry in prisms_list:
-        key = entry.physical_name
-        if layer_portname_delimiter in key:
-            base_key = key.split(layer_portname_delimiter)[0]
-            if key not in resolutions and base_key in resolutions:
-                entry.resolution = resolutions[base_key]
 
     return model.mesh(
         entities_list=prisms_list,

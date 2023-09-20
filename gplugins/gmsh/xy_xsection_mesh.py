@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from collections import OrderedDict
-from collections.abc import Sequence
 from typing import Any
 
 import numpy as np
@@ -15,6 +14,9 @@ from shapely.affinity import scale
 from shapely.geometry import Polygon
 from shapely.ops import unary_union
 
+from gplugins.common.utils.get_component_with_new_port_layers import (
+    get_component_with_new_port_layers,
+)
 from gplugins.common.utils.parse_layerstack import (
     get_layers_at_z,
     list_unique_layerstack_z,
@@ -31,7 +33,6 @@ def apply_effective_buffers(layer_polygons_dict, layerstack, z):
     # Determine effective buffer (or even presence of layer) at this z-level
     shapes = OrderedDict()
     for layername in layers:
-        polygons = layer_polygons_dict[layername]
         if layername in layers:
             # Calculate the buffer
             if layerstack.layers[layername].thickness < 0:
@@ -44,6 +45,7 @@ def apply_effective_buffers(layer_polygons_dict, layerstack, z):
                 zmin = layerstack.layers[layername].zmin
                 thickness = layerstack.layers[layername].thickness
             z_fraction = (z - zmin) / thickness
+            polygons = layer_polygons_dict[layername]
             if layerstack.layers[layername].z_to_bias:
                 fractions, buffers = layerstack.layers[layername].z_to_bias
                 buffer = np.interp(z_fraction, fractions, buffers)
@@ -95,7 +97,7 @@ def xy_xsection_mesh(
     resolutions: dict | None = None,
     default_characteristic_length: float = 0.5,
     background_tag: str | None = None,
-    background_padding: Sequence[float, float, float, float, float, float] = (2.0,) * 6,
+    background_padding: tuple[float, float, float, float, float, float] = (2.0,) * 6,
     global_scaling: float = 1,
     global_scaling_premesh: float = 1,
     global_2D_algorithm: int = 6,
@@ -104,8 +106,7 @@ def xy_xsection_mesh(
     round_tol: int = 3,
     simplify_tol: float = 1e-3,
     n_threads: int = get_number_of_cores(),
-    portnames: list[str] = None,
-    layer_portname_delimiter: str = "#",
+    port_names: list[str] | None = None,
     gmsh_version: float | None = None,
 ):
     """Mesh xy cross-section of component at height z.
@@ -128,14 +129,14 @@ def xy_xsection_mesh(
         simplify_tol: during gds --> mesh conversion cleanup, shapely "simplify" tolerance (make it so all points are at least separated by this amount)
         atol: tolerance used to establish equivalency between vertices
     """
-    if portnames:
+    if port_names:
         mesh_component = gf.Component()
-        mesh_component << union(component, by_layer=True)
+        _ = mesh_component << union(component, by_layer=True)
         mesh_component.add_ports(component.get_ports_list())
-        component = layerstack.get_component_with_net_layers(
-            mesh_component,
-            portnames=portnames,
-            delimiter=layer_portname_delimiter,
+        component = get_component_with_new_port_layers(
+            component=mesh_component,
+            port_names=port_names,
+            layer_stack=layerstack,
         )
 
     # Fuse and cleanup polygons of same layer in case user overlapped them

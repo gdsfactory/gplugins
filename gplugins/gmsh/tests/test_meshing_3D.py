@@ -15,7 +15,7 @@ def test_gmsh_xyz_mesh() -> None:
     c.add_ports(waveguide.get_ports_list())
 
     # Add wafer / vacuum (could be automated)
-    c << gf.components.bbox(bbox=waveguide.bbox, layer=LAYER.WAFER)
+    _ = c << gf.components.bbox(bbox=waveguide.bbox, layer=LAYER.WAFER)
 
     # Generate a new component and layerstack with new logical layers
     layerstack = get_layer_stack()
@@ -50,10 +50,8 @@ def test_gmsh_xyz_mesh() -> None:
         filename="mesh.msh",
         default_characteristic_length=5,
         verbosity=5,
-        portnames=["r_e2", "l_e4"],
+        port_names=["r_e2", "l_e4"],
     )
-
-    pass
 
 
 if __name__ == "__main__":
