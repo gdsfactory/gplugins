@@ -121,7 +121,7 @@ results = run_capacitive_simulation_elmer(
     mesh_parameters=dict(
         background_tag="vacuum",
         background_padding=(0,) * 5 + (700,),
-        port_names=c.ports,
+        port_names=c.ports.keys(),
         default_characteristic_length=200,
         resolutions={
             "bw": {

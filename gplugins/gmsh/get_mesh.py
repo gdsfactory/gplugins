@@ -38,7 +38,7 @@ def get_mesh(
 
     # Add WAFER layer:
     padded_component = Component()
-    padded_component << component
+    _ = padded_component << component
     (xmin, ymin), (xmax, ymax) = component.bbox
     points = [
         [xmin - wafer_padding, ymin - wafer_padding],
