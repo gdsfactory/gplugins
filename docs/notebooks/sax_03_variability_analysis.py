@@ -130,8 +130,8 @@ from gdsfactory.technology import LayerStack
 
 from gplugins.sax.parameter import NamedParameter
 
-# gdsfactory layerstack
-filtered_layerstack = LayerStack(
+# gdsfactory layer_stack
+filtered_layer_stack = LayerStack(
     layers={
         k: get_layer_stack().layers[k]
         for k in (
@@ -179,14 +179,14 @@ sim_settings = dict(
     port_symmetries=port_symmetries_coupler,
     run=True,
     overwrite=False,
-    layer_stack=filtered_layerstack,
+    layer_stack=filtered_layer_stack,
     z=0.1,
 )
 
 
 coupler_model = MeepFDTDModel(
     trainable_component=trainable_coupler,
-    layerstack=filtered_layerstack,
+    layer_stack=filtered_layer_stack,
     simulation_settings={
         "sim_settings": sim_settings,
     },

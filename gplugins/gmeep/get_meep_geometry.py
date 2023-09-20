@@ -7,7 +7,7 @@ from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 from gdsfactory.typings import ComponentSpec, CrossSectionSpec
 
-from gplugins.common.utils.parse_layerstack import order_layerstack
+from gplugins.common.utils.parse_layer_stack import order_layer_stack
 from gplugins.gmeep.get_material import get_material
 
 
@@ -43,8 +43,8 @@ def get_meep_geometry_from_component(
     geometry = []
     layer_to_polygons = component_with_booleans.get_polygons(by_spec=True)
 
-    ordered_layerstack_keys = order_layerstack(layer_stack)[::-1]
-    for layername in ordered_layerstack_keys:
+    ordered_layer_stack_keys = order_layer_stack(layer_stack)[::-1]
+    for layername in ordered_layer_stack_keys:
         layer = layer_stack.layers[layername].layer
         polygons = layer_to_polygons[layer_stack.layers[layername].layer]
         if layer in layer_to_thickness and layer in layer_to_material:

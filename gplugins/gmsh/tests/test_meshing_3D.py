@@ -15,16 +15,16 @@ def test_gmsh_xyz_mesh() -> None:
     c.add_ports(waveguide.get_ports_list())
 
     # Add wafer / vacuum (could be automated)
-    c << gf.components.bbox(bbox=waveguide.bbox, layer=LAYER.WAFER)
+    _ = c << gf.components.bbox(bbox=waveguide.bbox, layer=LAYER.WAFER)
 
-    # Generate a new component and layerstack with new logical layers
-    layerstack = get_layer_stack()
+    # Generate a new component and layer_stack with new logical layers
+    layer_stack = get_layer_stack()
 
     # FIXME: .filtered returns all layers
-    # filtered_layerstack = layerstack.filtered_from_layerspec(layerspecs=c.get_layers())
-    filtered_layerstack = LayerStack(
+    # filtered_layer_stack = layer_stack.filtered_from_layerspec(layerspecs=c.get_layers())
+    filtered_layer_stack = LayerStack(
         layers={
-            k: layerstack.layers[k]
+            k: layer_stack.layers[k]
             for k in (
                 # "via1",
                 "box",
@@ -45,15 +45,13 @@ def test_gmsh_xyz_mesh() -> None:
     }
     xyz_mesh(
         component=c,
-        layerstack=filtered_layerstack,
+        layer_stack=filtered_layer_stack,
         resolutions=resolutions,
         filename="mesh.msh",
         default_characteristic_length=5,
         verbosity=5,
-        portnames=["r_e2", "l_e4"],
+        port_names=["r_e2", "l_e4"],
     )
-
-    pass
 
 
 if __name__ == "__main__":

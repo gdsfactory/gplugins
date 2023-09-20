@@ -16,13 +16,13 @@ class MeowEMEModel(Model):
 
     def get_results(self, input_dict):
         """Setup and run a simulation with one set of inputs."""
-        param_dict, layerstack_param_dict = self.parse_input_dict(input_dict)
+        param_dict, layer_stack_param_dict = self.parse_input_dict(input_dict)
         input_component = self.component(param_dict)
-        input_layerstack = self.perturb_layerstack(layerstack_param_dict)
+        input_layer_stack = self.perturb_layer_stack(layer_stack_param_dict)
 
         eme = MEOW(
             component=input_component,
-            layerstack=input_layerstack,
+            layer_stack=input_layer_stack,
             wavelength=float(input_dict["wavelength"])
             if "wavelength" in input_dict
             else 1.55,
@@ -63,9 +63,9 @@ if __name__ == "__main__":
     )
     c.show()
 
-    # layerstack = gf.tech.get_layer_stack_generic()
+    # layer_stack = gf.tech.get_layer_stack_generic()
 
-    filtered_layerstack = LayerStack(
+    filtered_layer_stack = LayerStack(
         layers={
             k: get_layer_stack().layers[k]
             for k in (
@@ -86,7 +86,7 @@ if __name__ == "__main__":
 
     strip_strip_taper_model = MeowEMEModel(
         component=trainable_strip_strip_taper,
-        layerstack=filtered_layerstack,
+        layer_stack=filtered_layer_stack,
         simulation_settings={
             "mode_res": 100,
             "cell_length": 0.5,
@@ -104,7 +104,7 @@ if __name__ == "__main__":
                 min_value=1.545, max_value=1.555, nominal_value=1.55, step=0.005
             ),
             "core_thickness": LayerStackThickness(
-                layerstack=filtered_layerstack,
+                layer_stack=filtered_layer_stack,
                 min_value=0.19,
                 max_value=0.25,
                 nominal_value=0.22,

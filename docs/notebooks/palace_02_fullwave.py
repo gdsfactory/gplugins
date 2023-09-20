@@ -156,10 +156,9 @@ results = run_scattering_simulation_palace(
     mesh_parameters=dict(
         background_tag="vacuum",
         background_padding=(0,) * 5 + (700,),
-        portnames=c.ports,
+        port_names=c.ports,
         verbosity=1,
         default_characteristic_length=200,
-        layer_portname_delimiter=(delimiter := "__"),
         resolutions={
             "bw": {
                 "resolution": 14,
@@ -171,7 +170,7 @@ results = run_scattering_simulation_palace(
                 "resolution": 120,
             },
             **{
-                f"bw_port{delimiter}{port}_vacuum": {
+                f"bw_port{port}_vacuum": {
                     "resolution": 8,
                     "DistMax": 30,
                     "DistMin": 10,

@@ -14,7 +14,7 @@ classifiers = [
   "Operating System :: OS Independent"
 ]
 dependencies = [
-  "gdsfactory[cad]>=7.4.0",
+  "gdsfactory[cad]>=7.6.1",
   "pint"
 ]
 description = "gdsfactory plugins"
@@ -23,7 +23,7 @@ license = {file = "LICENSE"}
 name = "gplugins"
 readme = "README.md"
 requires-python = ">=3.10"
-version = "0.7.0"
+version = "0.8.0"
 
 [project.optional-dependencies]
 dagster = ["dagster", "dagit"]
@@ -49,7 +49,7 @@ dev = [
 devsim = [
   "devsim",
   "pyvista<=0.40",
-  "tidy3d>=2.4.0rc2,<2.5.0"
+  "tidy3d>=2.4.0,<2.5.0"
 ]
 docs = [
   "jupytext",
@@ -58,7 +58,7 @@ docs = [
   "pyvista[jupyter]<=0.40"
 ]
 femwell = [
-  "femwell>=0.1.6,<0.7.0",
+  "femwell>=0.1.6,<0.8.0",
   "meshwell>=1.0.0,<1.1.0"
 ]
 gmsh = [
@@ -76,10 +76,10 @@ klayout = [
   "kfactory[git,ipy]>=0.8.4,<0.9"
 ]
 meow = [
-  "jaxlib==0.4.14",
-  "jax==0.4.14",
-  "meow-sim>=0.8.0,<0.9.0",
-  "tidy3d>=2.4.0rc2,<2.5.0"
+  "jaxlib",
+  "jax",
+  "meow-sim>=0.8.1,<0.9.0",
+  "tidy3d>=2.4.0,<2.5.0"
 ]
 sax = [
   "jaxlib==0.4.14",
@@ -92,7 +92,7 @@ schematic = [
   "natsort"
 ]
 tidy3d = [
-  "tidy3d>=2.4.0rc2,<2.5.0"
+  "tidy3d>=2.4.0,<2.5.0"
 ]
 vlsir = [
   "vlsir>=4.0.0,<5.0.0",

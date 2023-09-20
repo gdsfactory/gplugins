@@ -37,7 +37,7 @@ waveguide_trimmed.add_ref(
 )
 
 
-filtered_layerstack = LayerStack(
+filtered_layer_stack = LayerStack(
     layers={
         k: get_layer_stack().layers[k]
         for k in (
@@ -65,7 +65,7 @@ mesh = get_mesh(
     component=waveguide_trimmed,
     type="uz",
     xsection_bounds=[(4, -4), (4, 4)],
-    layer_stack=filtered_layerstack,
+    layer_stack=filtered_layer_stack,
     filename=f"{filename}.msh",
     background_tag="oxide",
     background_padding=(2.0, 2.0, 2.0, 2.0),
@@ -84,7 +84,7 @@ mesh = get_mesh(
     component=waveguide_trimmed,
     type="uz",
     xsection_bounds=[(4, -4), (4, 4)],
-    layer_stack=filtered_layerstack,
+    layer_stack=filtered_layer_stack,
     filename=f"{filename}.msh",
     background_tag="oxide",
     background_padding=(2.0, 2.0, 2.0, 2.0),
@@ -108,7 +108,7 @@ mesh = get_mesh(
     component=waveguide_trimmed,
     type="uz",
     xsection_bounds=[(4, -4), (4, 4)],
-    layer_stack=filtered_layerstack,
+    layer_stack=filtered_layer_stack,
     filename=f"{filename}.msh",
     background_tag="oxide",
     background_padding=(2.0, 2.0, 2.0, 2.0),
@@ -125,7 +125,7 @@ mesh = get_mesh(
     component=waveguide_trimmed,
     type="uz",
     xsection_bounds=[(4, -4), (4, 4)],
-    layer_stack=filtered_layerstack,
+    layer_stack=filtered_layer_stack,
     filename=f"{filename}.msh",
     background_tag="oxide",
     background_padding=(2.0, 2.0, 2.0, 2.0),
@@ -147,7 +147,7 @@ mesh = get_mesh(
     component=waveguide_trimmed,
     type="uz",
     xsection_bounds=[(4, -4), (4, 4)],
-    layer_stack=filtered_layerstack,
+    layer_stack=filtered_layer_stack,
     filename=f"{filename}.msh",
     background_tag="oxide",
     background_padding=(2.0, 2.0, 2.0, 2.0),
@@ -188,7 +188,7 @@ mesh = get_mesh(
     component=waveguide_trimmed,
     type="uz",
     xsection_bounds=[(4, -4), (4, 4)],
-    layer_stack=filtered_layerstack,
+    layer_stack=filtered_layer_stack,
     filename=f"{filename}.msh",
     background_tag="oxide",
     background_padding=(2.0, 2.0, 2.0, 2.0),

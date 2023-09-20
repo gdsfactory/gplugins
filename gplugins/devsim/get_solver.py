@@ -45,8 +45,8 @@ class DDComponent:
         self,
         component: Component,
         xsection_bounds: tuple[tuple[float, float], tuple[float, float]],
-        full_layerstack: LayerStack,
-        physical_layerstack: LayerStack,
+        full_layer_stack: LayerStack,
+        physical_layer_stack: LayerStack,
         doping_info: dict[str, DopingLayerLevel],
         contact_info=dict,
         resolutions: dict[str, dict] | None = None,
@@ -67,9 +67,9 @@ class DDComponent:
             # Device parameters
             component: component
             xsection_bounds: line defined by [x1,y1], [x2,y2] to use for the meshing
-            full_layerstack: complete layerstack associated with component
-            physical_layerstack: layerstack subset of full_layerstack that is used to create the physical mesh
-            doping_info: dict relating some full_layerstack layers and doping profiles (see doping submodule), e.g.
+            full_layer_stack: complete layer_stack associated with component
+            physical_layer_stack: layer_stack subset of full_layer_stack that is used to create the physical mesh
+            doping_info: dict relating some full_layer_stack layers and doping profiles (see doping submodule), e.g.
 
                 doping_info = {
                     "N": DopingLayerLevel(          # key is a name (not used currently)
@@ -120,8 +120,8 @@ class DDComponent:
         # Set attributes
         self.component = component
         self.xsection_bounds = xsection_bounds
-        self.full_layerstack = full_layerstack or get_layer_stack()
-        self.physical_layerstack = physical_layerstack
+        self.full_layer_stack = full_layer_stack or get_layer_stack()
+        self.physical_layer_stack = physical_layer_stack
         self.doping_info = doping_info or get_doping_info_generic()
         self.contact_info = contact_info
         self.resolutions = resolutions or {}
@@ -206,8 +206,8 @@ class DDComponent:
         self.device, self.regions, self.interfaces = create_2Duz_simulation(
             component=self.component,
             xsection_bounds=self.xsection_bounds,
-            full_layerstack=self.full_layerstack,
-            physical_layerstack=self.physical_layerstack,
+            full_layer_stack=self.full_layer_stack,
+            physical_layer_stack=self.physical_layer_stack,
             doping_info=self.doping_info,
             contact_info=self.contact_info,
             resolutions=self.resolutions,
@@ -423,7 +423,7 @@ if __name__ == "__main__":
 
     # We will restrict the physical mesh to a subset of layers:
     layermap = gf.tech.LayerMap()
-    physical_layerstack = LayerStack(
+    physical_layer_stack = LayerStack(
         layers={
             k: get_layer_stack().layers[k]
             for k in (
@@ -480,8 +480,8 @@ if __name__ == "__main__":
     c = DDComponent(
         component=waveguide,
         xsection_bounds=[(4, -4), (4, 4)],
-        full_layerstack=get_layer_stack(),
-        physical_layerstack=physical_layerstack,
+        full_layer_stack=get_layer_stack(),
+        physical_layer_stack=physical_layer_stack,
         doping_info=get_doping_info_generic(),
         contact_info=contact_info,
         resolutions=resolutions,
@@ -511,8 +511,8 @@ if __name__ == "__main__":
     c = DDComponent(
         component=waveguide,
         xsection_bounds=[(4, -4), (4, 4)],
-        full_layerstack=get_layer_stack(),
-        physical_layerstack=physical_layerstack,
+        full_layer_stack=get_layer_stack(),
+        physical_layer_stack=physical_layer_stack,
         doping_info=get_doping_info_generic(),
         contact_info=contact_info,
         resolutions=resolutions,
