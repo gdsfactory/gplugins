@@ -45,7 +45,7 @@ def geometry():
     )
     c.add_ports(cap.ports)
     substrate = gf.components.bbox(bbox=simulation_box, layer=LAYER.WAFER)
-    c << substrate
+    _ = c << substrate
     c.flatten()
     return c
 
@@ -54,7 +54,7 @@ def get_reasonable_mesh_parameters(c: Component):
     return dict(
         background_tag="vacuum",
         background_padding=(0,) * 5 + (700,),
-        port_names=c.ports,
+        port_names=list(c.ports.keys()),
         default_characteristic_length=200,
         resolutions={
             "bw": {
