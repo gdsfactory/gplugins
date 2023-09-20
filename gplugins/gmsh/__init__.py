@@ -7,7 +7,7 @@ from gplugins.common.utils.parse_layer_stack import (
     map_unique_layer_stack_z,
     order_layer_stack,
 )
-from gplugins.gmsh.get_mesh import get_mesh
+from gplugins.gmsh.get_mesh import create_physical_mesh, get_mesh
 from gplugins.gmsh.uz_xsection_mesh import (
     get_u_bounds_layers,
     get_u_bounds_polygons,
@@ -29,5 +29,6 @@ __all__ = [
     "round_coordinates",
     "uz_xsection_mesh",
     "xy_xsection_mesh",
+    "create_physical_mesh",
 ]
 __version__ = "0.0.2"
