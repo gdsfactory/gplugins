@@ -36,7 +36,6 @@
 # ## Geometry, layer config and materials
 
 # %% tags=["hide-input"]
-
 import os
 from math import inf
 from pathlib import Path
@@ -94,7 +93,8 @@ cap = c << interdigital_capacitor_enclosed(
 c.add_ports(cap.ports)
 substrate = gf.components.bbox(bbox=simulation_box, layer=LAYER.WAFER)
 c << substrate
-c.flatten()
+c = c.flatten()
+c.plot()
 
 # %% [markdown]
 # ## Running the simulation
@@ -111,7 +111,7 @@ help(run_capacitive_simulation_elmer)
 #    The meshing parameters and element order shown here are very lax. As such, the computed capacitances are not very accurate.
 # ```
 
-# %%
+# %% tags=["hide-output"]
 results = run_capacitive_simulation_elmer(
     c,
     layer_stack=layer_stack,
@@ -122,9 +122,8 @@ results = run_capacitive_simulation_elmer(
     mesh_parameters=dict(
         background_tag="vacuum",
         background_padding=(0,) * 5 + (700,),
-        portnames=c.ports,
+        port_names=c.ports.keys(),
         default_characteristic_length=200,
-        layer_portname_delimiter=(delimiter := "__"),
         resolutions={
             "bw": {
                 "resolution": 15,
@@ -136,7 +135,7 @@ results = run_capacitive_simulation_elmer(
                 "resolution": 40,
             },
             **{
-                f"bw{delimiter}{port}": {
+                f"bw{port}": {
                     "resolution": 20,
                     "DistMax": 30,
                     "DistMin": 10,
@@ -156,10 +155,10 @@ if results.field_file_location:
     pv.start_xvfb()
     pv.set_jupyter_backend("panel")
     field = pv.read(results.field_file_location)
-    slice = field.slice_orthogonal(z=layer_stack.layers["bw"].zmin * 1e-6)
+    field_slice = field.slice_orthogonal(z=layer_stack.layers["bw"].zmin * 1e-6)
 
     p = pv.Plotter()
-    p.add_mesh(slice, scalars="electric field", cmap="turbo")
+    p.add_mesh(field_slice, scalars="electric field", cmap="turbo")
     p.show_grid()
     p.camera_position = "xy"
     p.enable_parallel_projection()

@@ -44,10 +44,13 @@ repos:
         args: [--autofix]
 
   - repo: https://github.com/aristanetworks/j2lint.git
-    rev: 1f242682122fa258557e429f1b92fadd6d2be2d4
+    rev: 742a25ef5da996b9762f167ebae9bc8223e8382e
     hooks:
       - id: j2lint
-        args: [--ignore, jinja-statements-delimiter, jinja-statements-indentation, --]
+        types: [file]
+        files: \.(j2|yml|yaml)$
+        args: [--extensions, "j2,yml,yaml", --ignore, jinja-statements-delimiter, jinja-statements-indentation, --]
+        exclude: .github/.*
 
   - repo: https://github.com/markdownlint/markdownlint.git
     rev: v0.12.0

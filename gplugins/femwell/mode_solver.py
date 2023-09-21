@@ -14,6 +14,8 @@ from skfem import (
     Mesh,
 )
 
+from gplugins.gmsh.get_mesh import get_mesh
+
 mesh_filename = "mesh.msh"
 
 
@@ -26,7 +28,7 @@ def load_mesh_basis(mesh_filename: PathType):
 
 def compute_cross_section_modes(
     cross_section: CrossSectionSpec,
-    layerstack: LayerStack,
+    layer_stack: LayerStack,
     wavelength: float = 1.55,
     num_modes: int = 4,
     order: int = 1,
@@ -40,7 +42,7 @@ def compute_cross_section_modes(
 
     Args:
         cross_section:
-        layerstack:
+        layer_stack:
         wavelength: in um.
         num_modes: to compute.
         order: order of the mesh elements. 1: linear, 2: quadratic.
@@ -76,7 +78,7 @@ def compute_cross_section_modes(
     return compute_component_slice_modes(
         component=c,
         xsection_bounds=xsection_bounds,
-        layerstack=layerstack,
+        layer_stack=layer_stack,
         wavelength=wavelength,
         num_modes=num_modes,
         order=order,
@@ -89,7 +91,7 @@ def compute_cross_section_modes(
 def compute_component_slice_modes(
     component: ComponentSpec,
     xsection_bounds: tuple[tuple[float, float], tuple[float, float]],
-    layerstack: LayerStack,
+    layer_stack: LayerStack,
     wavelength: float = 1.55,
     num_modes: int = 4,
     order: int = 1,
@@ -103,13 +105,12 @@ def compute_component_slice_modes(
     Args:
         component: gdsfactory component.
         xsection_bounds: xy line defining where to take component cross_section.
-        layerstack: gdsfactory layerstack.
+        layer_stack: gdsfactory layer_stack.
         wavelength: wavelength (um).
         num_modes: number of modes to return.
         order: order of the mesh elements. 1: linear, 2: quadratic.
         radius: bend radius of the cross-section.
         wafer_padding: padding beyond bbox to add to WAFER layers.
-        bend_radius: bend radius for mode solving (typically called from cross_section)
         solver: can be slepc or scipy.
 
     Keyword Args:
@@ -127,10 +128,11 @@ def compute_component_slice_modes(
     """
 
     # Mesh
-    mesh = component.to_gmsh(
+    mesh = get_mesh(
+        component=component,
         type="uz",
         xsection_bounds=xsection_bounds,
-        layer_stack=layerstack,
+        layer_stack=layer_stack,
         filename=mesh_filename,
         wafer_padding=wafer_padding,
         **kwargs,
@@ -139,7 +141,7 @@ def compute_component_slice_modes(
     # Assign materials to mesh elements
     mesh, basis0 = load_mesh_basis(mesh_filename)
     epsilon = basis0.zeros(dtype=complex)
-    for layername, layer in layerstack.layers.items():
+    for layername, layer in layer_stack.layers.items():
         if layername in mesh.subdomains.keys():
             epsilon[basis0.get_dofs(elements=layername)] = (
                 get_material_index(layer.material, wavelength) ** 2
@@ -166,7 +168,7 @@ if __name__ == "__main__":
 
     start = time.time()
 
-    filtered_layerstack = LayerStack(
+    filtered_layer_stack = LayerStack(
         layers={
             k: get_layer_stack().layers[k]
             for k in (
@@ -178,7 +180,7 @@ if __name__ == "__main__":
         }
     )
 
-    filtered_layerstack.layers["core"].thickness = 0.2
+    filtered_layer_stack.layers["core"].thickness = 0.2
 
     resolutions = {
         "core": {"resolution": 0.02, "distance": 2},
@@ -193,7 +195,7 @@ if __name__ == "__main__":
     if cross_section:
         modes = compute_cross_section_modes(
             cross_section="rib",
-            layerstack=filtered_layerstack,
+            layer_stack=filtered_layer_stack,
             wavelength=1.55,
             num_modes=4,
             order=1,
@@ -209,7 +211,7 @@ if __name__ == "__main__":
         modes = compute_component_slice_modes(
             component,
             [[0, -3], [0, 3]],
-            layerstack=filtered_layerstack,
+            layer_stack=filtered_layer_stack,
             wavelength=1.55,
             num_modes=4,
             order=1,

@@ -35,11 +35,11 @@ c = gf.components.straight(
 c.plot()
 
 # +
-layerstack = get_layer_stack()
+layer_stack = get_layer_stack()
 
-filtered_layerstack = LayerStack(
+filtered_layer_stack = LayerStack(
     layers={
-        k: layerstack.layers[k]
+        k: layer_stack.layers[k]
         for k in (
             "slab90",
             "core",
@@ -67,7 +67,7 @@ from gplugins.sax.integrations.femwell_waveguide_model import FemwellWaveguideMo
 
 rib_waveguide_model = FemwellWaveguideModel(
     trainable_component=trainable_straight_rib,
-    layerstack=filtered_layerstack,
+    layer_stack=filtered_layer_stack,
     simulation_settings={
         "resolutions": {
             "core": {"resolution": 0.02, "distance": 2},
@@ -87,7 +87,7 @@ rib_waveguide_model = FemwellWaveguideModel(
             min_value=1.545, max_value=1.555, nominal_value=1.55, step=0.005
         ),
         "core_thickness": LayerStackThickness(
-            layerstack=filtered_layerstack,
+            layer_stack=filtered_layer_stack,
             min_value=0.21,
             max_value=0.23,
             nominal_value=0.22,

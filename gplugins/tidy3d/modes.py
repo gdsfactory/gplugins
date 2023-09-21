@@ -18,12 +18,12 @@ from collections.abc import Sequence
 from typing import Any, Literal
 
 import numpy as np
-import pydantic
+import pydantic.v1 as pydantic
 import tidy3d as td
 import xarray
 from gdsfactory.config import PATH, logger
 from gdsfactory.typings import PathType
-from pydantic import BaseModel
+from pydantic.v1 import BaseModel, ConfigDict
 from tidy3d.plugins import waveguide
 from tqdm.auto import tqdm
 
@@ -58,7 +58,7 @@ def custom_serializer(data: str | float | BaseModel) -> str:
     raise ValueError(f"Unsupported data type: {type(data)}")
 
 
-class Waveguide(pydantic.BaseModel):
+class Waveguide(BaseModel):
     """Waveguide Model.
 
     All dimensions must be specified in μm (1e-6 m).
@@ -155,15 +155,11 @@ class Waveguide(pydantic.BaseModel):
 
     _cached_data = pydantic.PrivateAttr()
     _waveguide = pydantic.PrivateAttr()
-
-    class Config:
-        """pydantic config."""
-
-        extra = "forbid"
+    model_config = ConfigDict(extra="forbid")
 
     @pydantic.validator("wavelength")
-    def _fix_wavelength_type(cls, value):
-        return np.array(value, dtype=float)
+    def _fix_wavelength_type(cls, v):
+        return np.array(v, dtype=float)
 
     @property
     def filepath(self) -> pathlib.Path | None:
@@ -272,7 +268,7 @@ class Waveguide(pydantic.BaseModel):
 
             wg = self.waveguide
 
-            fields = wg.mode_solver.data._centered_fields
+            fields = wg.mode_solver.data.field_components
             self._cached_data = {
                 f + c: fields[f + c].squeeze(drop=True).values
                 for f in "EH"
@@ -377,13 +373,14 @@ class Waveguide(pydantic.BaseModel):
         """Plot the waveguide grid."""
         self.waveguide.plot_grid(z=0)
 
-    def plot_index(self, **kwargs) -> None:
+    def plot_index(self, **kwargs):
         """Plot the waveguide index distribution.
 
         Keyword arguments are passed to xarray.DataArray.plot.
         """
         artist = self.index.real.plot(**kwargs)
         artist.axes.set_aspect("equal")
+        return artist
 
     def plot_field(
         self,
@@ -392,7 +389,7 @@ class Waveguide(pydantic.BaseModel):
         mode_index: int = 0,
         wavelength: float | None = None,
         **kwargs,
-    ) -> None:
+    ):
         """Plot the selected field distribution from a waveguide mode.
 
         Parameters:
@@ -445,6 +442,7 @@ class Waveguide(pydantic.BaseModel):
         data_array.name = field_name
         artist = data_array.plot(**kwargs)
         artist.axes.set_aspect("equal")
+        return artist
 
     def _ipython_display_(self) -> None:
         """Show index in matplotlib for Jupyter Notebooks."""
@@ -1006,14 +1004,13 @@ if __name__ == "__main__":
     #     overwrite=True
     # )
 
-    import matplotlib.pyplot as plt
-
     strip = Waveguide(
         wavelength=1.55,
         core_width=1.0,
         slab_thickness=0.0,
         # core_material="si",
-        core_material=td.material_library["cSi"]["Li1993_293K"],
+        # core_material=td.material_library["cSi"]["Li1993_293K"],
+        core_material=3.47,
         clad_material="sio2",
         core_thickness=220 * nm,
         num_modes=4,
@@ -1021,8 +1018,8 @@ if __name__ == "__main__":
     # strip._data
     # strip.filepath
     # strip.plot_index()
-    strip.plot_field("Ex", mode_index=0, wavelength=1.55, value="dB")
-    plt.show()
+    # strip.plot_field("Ex", mode_index=0, wavelength=1.55, value="dB")
+    # plt.show()
     # w = np.linspace(400 * nm, 1000 * nm, 7)
     # n_eff = sweep_n_eff(strip, core_width=w)
     # fraction_te = sweep_fraction_te(strip, core_width=w)

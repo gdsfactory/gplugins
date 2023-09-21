@@ -32,8 +32,8 @@ um_to_cm = 1e-4
 def create_2Duz_simulation(
     component: Component,
     xsection_bounds: tuple[tuple[float, float], tuple[float, float]],
-    full_layerstack: LayerStack,
-    physical_layerstack: LayerStack,
+    full_layer_stack: LayerStack,
+    physical_layer_stack: LayerStack,
     doping_info,  # Dict[str, DopingLayerLevel],
     contact_info,
     resolutions: dict[str, dict] | None = None,
@@ -49,9 +49,9 @@ def create_2Duz_simulation(
     global_meshsize_interpolant_func: callable | None = NearestNDInterpolator,
 ):
     # Replace relevant physical entities by contacts
-    simulation_layertack = physical_layerstack
+    simulation_layertack = physical_layer_stack
     for contact_name, contact_dict in contact_info.items():
-        contact_layer = full_layerstack.layers[
+        contact_layer = full_layer_stack.layers[
             contact_dict["physical_layerlevel_to_replace"]
         ]
         layerlevel = LayerLevel(
@@ -89,8 +89,8 @@ def create_2Duz_simulation(
     # Regions, tagged by material
     regions = {}
     create_gmsh_mesh(file=temp_file_name, mesh=devsim_mesh_name)
-    simulation_layerstack_dict = simulation_layertack.to_dict()
-    for name, values in simulation_layerstack_dict.items():
+    simulation_layer_stack_dict = simulation_layertack.to_dict()
+    for name, values in simulation_layer_stack_dict.items():
         add_gmsh_region(
             mesh=devsim_mesh_name,
             gmsh_name=name,
@@ -102,7 +102,7 @@ def create_2Duz_simulation(
         else:
             regions[values["material"]] = [name]
     if background_tag:
-        simulation_layerstack_dict[background_tag] = {"material": background_tag}
+        simulation_layer_stack_dict[background_tag] = {"material": background_tag}
         add_gmsh_region(
             mesh=devsim_mesh_name,
             gmsh_name=background_tag,
@@ -131,7 +131,7 @@ def create_2Duz_simulation(
     # Interfaces (that are not contacts), labeled by material-material
     interfaces = {}
     for (name1, values1), (name2, values2) in combinations(
-        simulation_layerstack_dict.items(), 2
+        simulation_layer_stack_dict.items(), 2
     ):
         interface = f"{name1}___{name2}"
         if interface not in mesh.cell_sets_dict.keys():
@@ -250,7 +250,7 @@ if __name__ == "__main__":
 
     # We will restrict the physical mesh to a subset of layers:
     layermap = LAYER
-    physical_layerstack = LayerStack(
+    physical_layer_stack = LayerStack(
         layers={
             k: LAYER_STACK.layers[k]
             for k in (
@@ -314,8 +314,8 @@ if __name__ == "__main__":
     device_name, regions, interfaces = create_2Duz_simulation(
         component=waveguide,
         xsection_bounds=[(4, -4), (4, 4)],
-        full_layerstack=LAYER_STACK,
-        physical_layerstack=physical_layerstack,
+        full_layer_stack=LAYER_STACK,
+        physical_layer_stack=physical_layer_stack,
         doping_info=get_doping_info_generic(),
         contact_info=contact_info,
         resolutions=resolutions,

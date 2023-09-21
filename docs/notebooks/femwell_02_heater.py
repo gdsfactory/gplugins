@@ -11,7 +11,7 @@ from gdsfactory.generic_tech import get_generic_pdk
 from gdsfactory.technology import LayerStack
 from skfem.io import from_meshio
 
-from gplugins.gmsh.mesh import create_physical_mesh
+from gplugins.gmsh import create_physical_mesh, get_mesh
 
 gf.config.rich_output()
 PDK = get_generic_pdk()
@@ -28,7 +28,7 @@ heater.plot()
 
 print(LAYER_STACK.layers.keys())
 
-filtered_layerstack = LayerStack(
+filtered_layer_stack = LayerStack(
     layers={
         k: gf.pdk.get_layer_stack().layers[k]
         for k in ("slab90", "core", "via_contact", "heater")
@@ -46,10 +46,11 @@ def mesh_with_physicals(mesh, filename):
 
 # -
 
-mesh = heater.to_gmsh(
+mesh = get_mesh(
+    component=heater,
     type="uz",
     xsection_bounds=[(4, -4), (4, 4)],
-    layer_stack=filtered_layerstack,
+    layer_stack=filtered_layer_stack,
     filename=f"{filename}.msh",
 )
 mesh = mesh_with_physicals(mesh, filename)

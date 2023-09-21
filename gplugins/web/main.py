@@ -1,5 +1,4 @@
 import base64
-import contextlib
 import importlib
 import os
 import pathlib
@@ -7,7 +6,6 @@ from glob import glob
 from pathlib import Path
 
 import gdsfactory as gf
-import orjson
 from fastapi import FastAPI, Form, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -19,7 +17,7 @@ from loguru import logger
 from pydantic import BaseModel
 from starlette.routing import WebSocketRoute
 
-from gplugins.config import PATH
+from gplugins.common.config import PATH
 from gplugins.web.middleware import ProxiedHeadersMiddleware
 from gplugins.web.server import LayoutViewServerEndpoint, get_layout_view
 
@@ -78,11 +76,13 @@ async def root(request: Request):
 async def get_pdk_list() -> list[str]:
     pdks_installed = []
     for pdk in pdks:
-        with contextlib.suppress(ImportError, AttributeError):
+        try:
             m = importlib.import_module(pdk)
             m.PDK
             pdks_installed.append(pdk)
-    return pdks_installed
+        except Exception as e:
+            logger.error(f"Could not import {pdk} {e}")
+    return sorted(pdks_installed)
 
 
 class PDKItem(BaseModel):
@@ -117,7 +117,7 @@ async def gds_list(request: Request):
 
 
 @app.get("/gds_current", response_class=HTMLResponse)
-async def gds_current(request: Request) -> RedirectResponse:
+async def gds_current() -> RedirectResponse:
     """List all saved GDS files."""
     if CONF.last_saved_files:
         return RedirectResponse(f"/view/{CONF.last_saved_files[-1].stem}")
@@ -188,20 +188,12 @@ async def view_cell(request: Request, cell_name: str, variant: str | None = None
     )
 
 
-def _parse_value(value: str):
-    if not value.startswith("{") and not value.startswith("["):
-        return value
-    try:
-        return orjson.loads(value.replace("'", '"'))
-    except orjson.JSONDecodeError as e:
-        raise ValueError(f"Unable to decode parameter value, {value}: {e.msg}") from e
-
-
 @app.post("/update/{cell_name}")
 async def update_cell(request: Request, cell_name: str):
     """Cell name is the name of the PCell function."""
     data = await request.form()
-    settings = {k: _parse_value(v) for k, v in data.items() if v != ""}
+    settings = {k: v for k, v in data.items() if v != ""}
+
     if not settings:
         return RedirectResponse(
             f"/view/{cell_name}",

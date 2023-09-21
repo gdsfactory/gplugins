@@ -12,19 +12,11 @@ Meshing
 .. autosummary::
    :toctree: _autosummary/
 
-    create_physical_mesh
-    mesh_from_polygons
-    MeshTracker
-    cleanup_component
-    fuse_polygons
-    round_coordinates
-    tile_shapes
-    to_polygons
     get_layer_overlaps_z
     get_layers_at_z
-    list_unique_layerstack_z
-    map_unique_layerstack_z
-    order_layerstack
+    list_unique_layer_stack_z
+    map_unique_layer_stack_z
+    order_layer_stack
     get_u_bounds_layers
     get_u_bounds_polygons
     get_uz_bounds_layers
@@ -93,7 +85,7 @@ FDTD Simulation
 
 .. rubric:: Sparameter utils
 
-.. currentmodule:: gplugins.utils.plot
+.. currentmodule:: gplugins.common.utils.plot
 
 .. autosummary::
    :toctree: _autosummary/
@@ -104,19 +96,19 @@ FDTD Simulation
 
 .. rubric:: common FDTD functions
 
-.. currentmodule:: gplugins.utils.get_effective_indices
+.. currentmodule:: gplugins.common.utils.get_effective_indices
 
 .. autosummary::
    :toctree: _autosummary/
 
    get_effective_indices
 
-.. currentmodule:: gplugins.utils.port_symmetries
+.. currentmodule:: gplugins.common.utils.port_symmetries
 
 .. autosummary::
    :toctree: _autosummary/
 
-.. currentmodule:: gplugins.utils.convert_sparameters
+.. currentmodule:: gplugins.common.utils.convert_sparameters
 
 .. autosummary::
    :toctree: _autosummary/
@@ -208,3 +200,26 @@ Electrostatics
    :toctree: _autosummary/
 
    run_capacitive_simulation_elmer
+
+
+.. currentmodule:: gplugins.palace
+
+.. rubric:: Palace
+
+.. autosummary::
+   :toctree: _autosummary/
+
+   run_capacitive_simulation_palace
+
+************
+Full-wave RF
+************
+
+.. currentmodule:: gplugins.palace
+
+.. rubric:: Palace
+
+.. autosummary::
+   :toctree: _autosummary/
+
+   run_scattering_simulation_palace

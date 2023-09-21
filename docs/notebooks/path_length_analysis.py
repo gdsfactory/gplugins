@@ -22,6 +22,8 @@
 # %%
 import gdsfactory as gf
 
+gf.config.CONF.display_type = "klayout"
+
 xs_top = [0, 10, 20, 40, 50, 80]
 pitch = 127.0
 N = len(xs_top)
@@ -78,4 +80,3 @@ report_pathlengths(
 
 # %% [markdown]
 # Clicking any of the routes or checking any of the boxes should highlight the respective route in the color shown in the table to the right to help you better identify them. Hovering over any of the routes or ports will display additional information.
-# ![pathlength report](images/pathlength_report_highlighted.png)

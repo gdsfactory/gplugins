@@ -43,12 +43,9 @@ def fuse_polygons(
     )
 
 
-def cleanup_component(component, layerstack, round_tol=2, simplify_tol=1e-2):
-    """Process component polygons before meshing.
-
-    Uses layerstack (design intent) names.
-    """
-    layerstack_dict = layerstack.to_dict()
+def cleanup_component(component, layer_stack, round_tol=2, simplify_tol=1e-2):
+    """Process component polygons before meshing."""
+    layer_stack_dict = layer_stack.to_dict()
 
     return {
         layername: fuse_polygons(
@@ -58,7 +55,7 @@ def cleanup_component(component, layerstack, round_tol=2, simplify_tol=1e-2):
             round_tol=round_tol,
             simplify_tol=simplify_tol,
         )
-        for layername, layer in layerstack_dict.items()
+        for layername, layer in layer_stack_dict.items()
         if layer["layer"] is not None
     }
 
@@ -101,6 +98,7 @@ def to_lines(geometries):
 def tile_shapes(shapes_dict):
     """Break up shapes in order so that plane is tiled with non-overlapping layers."""
     shapes_tiled_dict = {}
+
     for lower_index, (lower_name, lower_shapes) in reversed(
         list(enumerate(shapes_dict.items()))
     ):
@@ -135,6 +133,8 @@ def tile_shapes(shapes_dict):
 if __name__ == "__main__":
     from gdsfactory.generic_tech import LAYER_STACK
 
+    from gplugins.gmsh.get_mesh import get_mesh
+
     c = gf.components.straight_heater_doped_rib()
-    c.to_gmsh(type="xy", layer_stack=LAYER_STACK, z=0)
-    c.to_gmsh(type="xy", layer_stack=LAYER_STACK, z=0)
+    get_mesh(component=c, type="xy", layer_stack=LAYER_STACK, z=0)
+    get_mesh(component=c, type="xy", layer_stack=LAYER_STACK, z=0)

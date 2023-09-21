@@ -1,261 +1,110 @@
 from __future__ import annotations
 
-from collections.abc import Iterator
-
 import matplotlib.pyplot as plt
-import numpy as np
-import skfem
-from matplotlib.animation import FuncAnimation
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-from scipy.sparse.linalg import splu
-from skfem import (
-    Basis,
-    BilinearForm,
-    ElementTriP0,
-    ElementTriP1,
-    LinearForm,
-    asm,
-    condense,
-    penalize,
-    solve,
-)
-from skfem.helpers import dot, grad
-from skfem.visuals.matplotlib import draw, plot
+
+thermal_conductivities = {
+    "*Al": 28.0,
+    "*Ni": 90.9,  # unchecked
+    "*Cu": 398,  # unchecked
+    "*Sn": 90.9,  # unchecked
+    "*Si": 90.0,
+    "*SiN": 2.1,
+    "*TiN": 28,
+    "*GENERIC_OXIDE": 1.4,
+    "*Air": 0.024,
+}
+materials_dict = {
+    "*Al": [
+        "M1",
+        "VIA1",
+        "M2",
+        "VIA1",
+        "M3",
+        "VIAC",
+    ],
+    "*Ni": ["BUMP_NI"],
+    "*Cu": ["BUMP_CU"],
+    "*Sn": ["BUMP_SN"],
+    "*Si": ["WG", "SLAB90", "SLAB150"],
+    "*SiN": ["WGN", "NITRIDE_PASSIVATION"],
+    "*TiN": ["HEATER"],
+    "*GENERIC_OXIDE": [
+        "BOX",
+        "CLAD",
+    ],
+    "*Air": ["UNDERCUT", "UNDERCUT_BACKGROUND"],
+}
 
 
-def solve_thermal(
-    mesh_filename: str,
-    thermal_conductivity: dict[str, float],
-    specific_conductivity: dict[str, float],
-    thermal_diffusivity: dict[str, float],
-    currents: dict[str, float],
-) -> None:
-    """Thermal simulation.
+def get_thermal_conductivities(basis):
+    thermal_conductivity = basis.zeros()
 
-    Args:
-        mesh_filename: Name of the mesh to load.
-        thermal_conductivity: thermal conductivity in W/m‧K.
-        specific_conductivity: specific conductivity in S/m.
-        thermal_diffusivity:
-        currents: current flowing through the layer in A.
+    for domain in basis.mesh.subdomains:
+        # Find which material this domain is
+        # We can override the material properties by
+        # adding the layer to the thermal_conductivities dict. Check for that
+        # case
+        if domain in thermal_conductivities:
+            thermal_conductivity[
+                basis.get_dofs(elements=domain)
+            ] = thermal_conductivities[domain]
+        else:
+            for material, labels in materials_dict.items():
+                if domain in labels:
+                    # Assign the right values
+                    thermal_conductivity[
+                        basis.get_dofs(elements=domain)
+                    ] = thermal_conductivities[material]
+                    break
 
-    Returns:
-        nothing yet, WIP.
-    """
-    mesh = skfem.Mesh.load(mesh_filename)
+    thermal_conductivity *= 1e-12  # 1e-12 -> conversion from 1/m^2 -> 1/um^2
 
-    @BilinearForm
-    def conduction(u, v, w):
-        return dot(w["thermal_conductivity"] * u.grad, grad(v))
-
-    @LinearForm
-    def unit_load(v, _):
-        return v
-
-    basis = Basis(mesh, ElementTriP1())
-    joule_heating_rhs = basis.zeros()
-    for domain, current in currents.items():  # sum up the sources for the heating
-        core_basis = Basis(mesh, basis.elem, elements=mesh.subdomains[domain])
-        asm_core_unit_load = asm(unit_load, core_basis)
-        core_area = np.sum(asm_core_unit_load)
-        joule_heating = (current / core_area) ** 2 / specific_conductivity[domain]
-        joule_heating_rhs += joule_heating * asm_core_unit_load
-
-    basis0 = basis.with_element(ElementTriP0())
-    thermal_conductivity_p0 = basis0.zeros()
-    for domain in thermal_conductivity:
-        thermal_conductivity_p0[
-            basis0.get_dofs(elements=domain)
-        ] = thermal_conductivity[domain]
-    thermal_conductivity_p0 *= 1e-12  # 1e-12 -> conversion from 1/m^2 -> 1/um^2
-
-    thermal_conductivity_lhs = asm(
-        conduction,
-        basis,
-        thermal_conductivity=basis0.interpolate(thermal_conductivity_p0),
-    )
-
-    temperature = solve(
-        *condense(
-            thermal_conductivity_lhs,
-            joule_heating_rhs,
-            D=basis.get_dofs(mesh.boundaries["bottom"]),
-        )
-    )
-
-    ax = draw(mesh)
-    ax.show()
-
-    ax = draw(mesh, boundaries_only=True)
-    plot(basis0, thermal_conductivity_p0 * 1e12, ax=ax, colorbar=True)
-    ax.figure.set_size_inches(10, 7)
-    ax.set_axis_on()
-    ax.figure.tight_layout()
-    ax.show()
-
-    ax = draw(mesh, boundaries_only=True)
-    plot(basis, joule_heating_rhs, ax=ax, colorbar=True, shading="gouraud")
-    ax.figure.set_size_inches(10, 7)
-    ax.set_axis_on()
-    ax.figure.tight_layout()
-    ax.show()
-
-    ax = draw(mesh, boundaries_only=True)
-    plot(basis, temperature, ax=ax, colorbar=True, shading="gouraud")
-    ax.figure.set_size_inches(10, 7)
-    ax.set_axis_on()
-    ax.figure.tight_layout()
-    ax.show()
-
-    print("max temp steady", np.max(temperature))
-    print("average team steady", np.mean(temperature))
-
-    thermal_diffusivity_p0 = basis0.zeros()
-    for domain in thermal_diffusivity:
-        thermal_diffusivity_p0[basis0.get_dofs(elements=domain)] = thermal_diffusivity[
-            domain
-        ]
-
-    thermal_diffusivity_p0 *= 1e12  # 1e-12 -> conversion from m^2 -> um^2
-
-    @BilinearForm
-    def diffusivity_laplace(u, v, w):
-        return dot(grad(u) * w["thermal_conductivity"], grad(v))
-
-    @BilinearForm
-    def mass(u, v, w):
-        return u * v / (w["thermal_diffusivity"] / w["thermal_conductivity"])
-
-    L = asm(
-        diffusivity_laplace,
-        basis,
-        thermal_diffusivity=basis0.interpolate(thermal_diffusivity_p0),
-        thermal_conductivity=basis0.interpolate(thermal_conductivity_p0),
-    )
-    M = asm(
-        mass,
-        basis,
-        thermal_diffusivity=basis0.interpolate(thermal_diffusivity_p0),
-        thermal_conductivity=basis0.interpolate(thermal_conductivity_p0),
-    )
-
-    dt = 0.1e-6
-    theta = 0.5  # Crank–Nicolson
-    steps = 200
-
-    L0, M0 = penalize(L, M, D=basis.get_dofs(mesh.boundaries["bottom"]))
-    A = M0 + theta * L0 * dt
-    B = M0 - (1 - theta) * L0 * dt
-
-    backsolve = splu(A.T).solve  # .T as splu prefers CSC
-
-    def evolve(
-        t: float, u: np.ndarray, heating: np.ndarray
-    ) -> Iterator[tuple[float, np.ndarray]]:
-        i = 0
-        while True:
-            t_temperature[i] = t, np.mean(u)
-            i += 1
-            yield t, u
-            t, u = t + dt, backsolve(B @ u + heating * dt)
-
-    ax = draw(mesh, boundaries_only=True)
-    ax.set_axis_on()
-    ax = plot(mesh, temperature, ax=ax, shading="gouraud")
-    title = ax.set_title("t = 0.00")
-    field = ax.get_children()[1]  # vertex-based temperature-colour
-    fig = ax.get_figure()
-
-    divider = make_axes_locatable(ax)
-    cax = divider.append_axes("right", size="5%", pad=0.05)
-    fig.colorbar(field, cax=cax)
-
-    def update(event) -> None:
-        t, u = event
-        title.set_text(f"$t$ = {t * 1e6:.2f}us")
-        field.set_array(u)
-
-    t_temperature = np.zeros((steps + 2, 2))
-    animation = FuncAnimation(
-        fig,
-        update,
-        evolve(0.0, temperature * 0.01, joule_heating_rhs),
-        repeat=False,
-        interval=30,
-        save_count=steps,
-    )
-    animation.save("heater_up.gif", "imagemagick")
-    t_temperature_up = t_temperature
-
-    t_temperature = np.zeros((steps + 2, 2))
-    animation = FuncAnimation(
-        fig,
-        update,
-        evolve(0.0, temperature, 0),
-        repeat=False,
-        interval=30,
-        save_count=steps,
-    )
-    animation.save("heater_down.gif", "imagemagick")
-    t_temperature_down = t_temperature
-
-    plt.figure()
-    plt.plot(t_temperature[:-1, 0] * 1e6, t_temperature_up[:-1, 1])
-    plt.plot(t_temperature[:-1, 0] * 1e6, t_temperature_down[:-1, 1])
-    plt.plot(
-        t_temperature[:-1, 0] * 1e6, t_temperature[:-1, 1] * 0 + np.mean(temperature)
-    )
-    plt.xlabel("Time [us]")
-    plt.ylabel("Average temperature offset [T]")
-    plt.savefig("heater.svg", bbox_inches="tight")
-    plt.show()
+    return thermal_conductivity
 
 
 if __name__ == "__main__":
     import gdsfactory as gf
-    import gmsh
+    from femwell.visualization import plot_domains
     from gdsfactory.generic_tech import LAYER_STACK
+    from skfem import Mesh
 
-    from gplugins.gmsh.mesh2D import mesh2D
+    from gplugins.gmsh.get_mesh import get_mesh
 
     LAYER_STACK.layers["heater"].thickness = 0.13
     LAYER_STACK.layers["heater"].zmin = 2.2
-    print(LAYER_STACK.layers.keys())
-    #  LAYER_STACK.layers["core"].thickness = 2
+    heater_len = 1  # 1 um, so normalized
 
-    heater1 = gf.components.straight_heater_metal(length=50, heater_width=2)
-    heater2 = gf.components.straight_heater_metal(length=50, heater_width=2).move(
-        [0, -10]
+    sheet_resistance_TiN = 10
+    heater_width = 2
+    heater_res = heater_len * sheet_resistance_TiN / heater_width
+
+    c = heater = gf.components.straight_heater_metal(
+        length=50, heater_width=heater_width
     )
+    heater.show()
 
-    heaters = gf.Component("heaters")
-    heaters << heater1
-    # heaters << heater2
-    heaters.show()
-
-    geometry = mesh2D(
-        heaters,
-        ((25, -25), (25, 25)),
-        base_resolution=0.4,
-        exclude_layers=((1, 10),),
-        padding=(10, 10, 1, 1),
-        refine_resolution={(1, 0): 0.01, (47, 0): 0.005},
-    )
-
-    gmsh.write("mesh.msh")
-    gmsh.clear()
-    geometry.__exit__()
-
-    solve_thermal(
-        mesh_filename="mesh.msh",
-        thermal_conductivity={"(47, 0)": 28, "oxide": 1.38, "(1, 0)": 148},
-        specific_conductivity={"(47, 0)_0": 2.3e6},
-        thermal_diffusivity={
-            "(47, 0)": 28 / 598 / 5240,
-            "oxide": 1.38 / 709 / 2203,
-            "(1, 0)": 148 / 711 / 2330,
+    # ====== MESH =====
+    filtered_layer_stack = LAYER_STACK
+    heater_derived = filtered_layer_stack.get_component_with_derived_layers(heater)
+    get_mesh(
+        component=heater_derived,
+        type="uz",
+        xsection_bounds=[(3, c.bbox[0, 1]), (3, c.bbox[1, 1])],
+        # xsection_bounds=[(3, -4), (3, 4)],
+        layer_stack=filtered_layer_stack,
+        filename="mesh.msh",
+        resolutions={
+            "WG": {"resolution": 0.02, "distance": 1.0},
+            "SLAB150": {"resolution": 0.02, "distance": 1.0},
+            "SLAB90": {"resolution": 0.02, "distance": 1.0},
+            "WGN": {"resolution": 0.04, "distance": 1.0},
+            "HEATER": {"resolution": 0.1, "distance": 1.0},
         },
-        # specific_heat={"(47, 0)_0": 598, 'oxide': 709, '(1, 0)': 711},
-        # density={"(47, 0)_0": 5240, 'oxide': 2203, '(1, 0)': 2330},
-        currents={"(47, 0)_0": 0.007},
+        default_resolution_max=0.3,
+        z_bounds=(1.0, 8.0),
     )
+    mesh = Mesh.load("mesh.msh")
+
+    plot_domains(mesh)
+    plt.show()
+    mesh.draw().show()
