@@ -23,7 +23,7 @@ license = {file = "LICENSE"}
 name = "gplugins"
 readme = "README.md"
 requires-python = ">=3.10"
-version = "0.8.3"
+version = "0.8.4"
 
 [project.optional-dependencies]
 dagster = ["dagster", "dagit"]
@@ -60,7 +60,7 @@ docs = [
   "pyvista[jupyter]<=0.40"
 ]
 femwell = [
-  "femwell>=0.1.6,<0.8.3",
+  "femwell>=0.1.6,<0.8.4",
   "meshwell>=1.0.0,<1.1.0"
 ]
 gmsh = [
@@ -216,7 +216,7 @@ message_template = "Bump to {new_version}"
 tag_template = "v{new_version}"
 
 [tool.tbump.version]
-current = "0.8.3"
+current = "0.8.4"
 regex = '''
   (?P<major>\d+)
   \.

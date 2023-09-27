@@ -4,6 +4,14 @@
 
 <!-- towncrier release notes start -->
 
+## [0.8.4](https://github.com/gdsfactory/kfactory/releases/v0.8.4) - 2023-09-27
+
+
+### Added
+
+- added towncrier [#164](https://github.com/gdsfactory/kfactory/issues/164)
+
+
 ## [0.8.2](https://github.com/gdsfactory/gplugins/compare/v0.8.1...v0.8.2
 
 - compatible with latest gdsfactory [PR](https://github.com/gdsfactory/gplugins/pull/163)
