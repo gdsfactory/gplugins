@@ -184,6 +184,8 @@ mypkg = ["*.csv", "*.yaml"]
 [tool.setuptools.packages]
 find = {}
 
+[tool.tbump]
+
 [[tool.tbump.file]]
 src = "README.md"
 
