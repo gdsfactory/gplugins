@@ -23,7 +23,7 @@ license = {file = "LICENSE"}
 name = "gplugins"
 readme = "README.md"
 requires-python = ">=3.10"
-version = "0.8.1"
+version = "0.8.2"
 
 [project.optional-dependencies]
 dagster = ["dagster", "dagit"]
@@ -58,7 +58,7 @@ docs = [
   "pyvista[jupyter]<=0.40"
 ]
 femwell = [
-  "femwell>=0.1.6,<0.8.1",
+  "femwell>=0.1.6,<0.8.2",
   "meshwell>=1.0.0,<1.1.0"
 ]
 gmsh = [
@@ -78,7 +78,7 @@ klayout = [
 meow = [
   "jaxlib",
   "jax",
-  "meow-sim>=0.8.1,<0.9.0",
+  "meow-sim>=0.8.2,<0.9.0",
   "tidy3d>=2.4.0,<2.5.0"
 ]
 sax = [
