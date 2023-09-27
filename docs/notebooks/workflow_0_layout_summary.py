@@ -240,7 +240,7 @@ def ring_single(
     length_y: float = 0.6,
     coupler_ring: ComponentSpec = coupler_ring,
     bend: ComponentSpec = bend_euler,
-    cross_section: ComponentSpec = "strip",
+    cross_section: ComponentSpec = "xs_sc",
     **kwargs,
 ) -> gf.Component:
     """Returns a single ring.

@@ -169,7 +169,7 @@ script = wc.write_drc_deck_macro(rules=rules, layers=None)
 
 # %%
 connectivity_checks = [
-    wc.ConnectivyCheck(cross_section="strip", pin_length=1 * nm, pin_layer=(1, 10)),
+    wc.ConnectivyCheck(cross_section="xs_sc", pin_length=1 * nm, pin_layer=(1, 10)),
     wc.ConnectivyCheck(
         cross_section="strip_auto_widen", pin_length=1 * nm, pin_layer=(1, 10)
     ),

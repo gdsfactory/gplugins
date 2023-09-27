@@ -7,7 +7,7 @@ import pytest
 from gplugins.path_length_analysis.path_length_analysis import report_pathlengths
 
 primitive_components = ["straight", "bend_euler", "bend_circular"]
-supported_cross_sections = ["rib", "strip"]
+supported_cross_sections = ["xs_rc", "xs_sc"]
 
 _this_dir = pathlib.Path(__file__).parent
 
@@ -62,7 +62,7 @@ def test_multi_path_extraction():
     expected_total_length2 = sum(lengths2)
     insts = []
     for i, length in enumerate(lengths1):
-        inst = c << gf.get_component("straight", cross_section="strip", length=length)
+        inst = c << gf.get_component("straight", cross_section="xs_sc", length=length)
         inst.name = f"s1-{i}"
         if insts:
             inst.connect("o1", insts[-1].ports["o2"])
@@ -70,7 +70,7 @@ def test_multi_path_extraction():
 
     insts = []
     for i, length in enumerate(lengths2):
-        inst = c << gf.get_component("straight", cross_section="strip", length=length)
+        inst = c << gf.get_component("straight", cross_section="xs_sc", length=length)
         inst.movey(-100)
         inst.name = f"s2-{i}"
         if insts:
@@ -84,7 +84,7 @@ def test_multi_path_extraction():
 
 
 @gf.cell
-def pathlength_test_subckt(lengths, cross_section: str = "strip"):
+def pathlength_test_subckt(lengths, cross_section: str = "xs_sc"):
     c1 = gf.Component()
 
     insts = []
@@ -103,7 +103,7 @@ def pathlength_test_subckt(lengths, cross_section: str = "strip"):
 
 def test_hierarchical_pathlength_extraction():
     component_name = f"{test_hierarchical_pathlength_extraction.__name__}"
-    cross_section = "strip"
+    cross_section = "xs_sc"
     c = gf.Component(component_name)
     lengths = [10, 20, 45, 30]
     expected_total_length_c1 = sum(lengths)
@@ -133,7 +133,7 @@ def test_hierarchical_pathlength_extraction():
 
 def test_transformed_hierarchical_pathlength_extraction():
     component_name = f"{test_transformed_hierarchical_pathlength_extraction.__name__}"
-    cross_section = "strip"
+    cross_section = "xs_sc"
     c = gf.Component(component_name)
     lengths = [10, 20, 45, 30]
     expected_total_length_c1 = sum(lengths)

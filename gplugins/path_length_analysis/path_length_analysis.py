@@ -26,8 +26,8 @@ from bokeh.plotting import figure, from_networkx
 from gdsfactory.component import Component, ComponentReference
 
 DEFAULT_CS_COLORS = {
-    "rib": "red",
-    "strip": "blue",
+    "xs_rc": "red",
+    "xs_sc": "blue",
     "r2s": "purple",
     "m1": "#00FF92",
     "m2": "gold",

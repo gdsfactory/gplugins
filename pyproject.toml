@@ -14,7 +14,7 @@ classifiers = [
   "Operating System :: OS Independent"
 ]
 dependencies = [
-  "gdsfactory[cad]>=7.6.1",
+  "gdsfactory[cad]>=7.8.0,<7.9",
   "pint"
 ]
 description = "gdsfactory plugins"
