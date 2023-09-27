@@ -185,13 +185,18 @@ mypkg = ["*.csv", "*.yaml"]
 find = {}
 
 [tool.tbump]
-regex = '''
-  (?P<major>\d+)
-  \.
-  (?P<minor>\d+)
-  \.
-  (?P<patch>\d+)
-  '''
+
+[[tool.tbump.before_commit]]
+cmd = "towncrier build --yes --version {new_version}"
+name = "create & check changelog"
+
+[[tool.tbump.before_commit]]
+cmd = "git add CHANGELOG.md"
+name = "create & check changelog"
+
+[[tool.tbump.before_commit]]
+cmd = "grep -q -F {new_version} CHANGELOG.md"
+name = "create & check changelog"
 
 [[tool.tbump.file]]
 src = "README.md"
@@ -207,4 +212,11 @@ message_template = "Bump to {new_version}"
 tag_template = "v{new_version}"
 
 [tool.tbump.version]
-current = "0.8.1"
+current = "0.8.2"
+regex = '''
+  (?P<major>\d+)
+  \.
+  (?P<minor>\d+)
+  \.
+  (?P<patch>\d+)
+  '''
