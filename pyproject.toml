@@ -185,6 +185,13 @@ mypkg = ["*.csv", "*.yaml"]
 find = {}
 
 [tool.tbump]
+regex = '''
+  (?P<major>\d+)
+  \.
+  (?P<minor>\d+)
+  \.
+  (?P<patch>\d+)
+  '''
 
 [[tool.tbump.file]]
 src = "README.md"
@@ -194,6 +201,10 @@ src = "pyproject.toml"
 
 [[tool.tbump.file]]
 src = "gplugins/__init__.py"
+
+[tool.tbump.git]
+message_template = "Bump to {new_version}"
+tag_template = "v{new_version}"
 
 [tool.tbump.version]
 current = "0.8.1"
