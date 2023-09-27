@@ -70,7 +70,7 @@ report_pathlengths(
 )
 
 # %% [markdown]
-# You should see an interactive webpage like the following appear, summarizing the paths in your PIC.
+# You should see an interactive webpage like the following appear in your browser, summarizing the paths in your PIC.
 #
 # To the left is a stick diagram, showing all the instances and paths in your circuit (with straight lines connecting ports for simplification).
 # To the right is a table of the aggregate paths from all routing components in your circuit (those with `route_info` included in their `info` dictionary).

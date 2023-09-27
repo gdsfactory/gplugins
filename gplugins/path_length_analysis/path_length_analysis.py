@@ -29,8 +29,8 @@ DEFAULT_CS_COLORS = {
     "xs_rc": "red",
     "xs_sc": "blue",
     "r2s": "purple",
-    "m1": "#00FF92",
-    "m2": "gold",
+    "xs_m1": "#00FF92",
+    "xs_m2": "gold",
 }
 
 
@@ -91,8 +91,20 @@ def sum_route_attrs(records):
 
 
 def report_pathlengths(
-    pic: Component, result_dir, visualize=False, component_connectivity=None
+    pic: Component,
+    result_dir: str | Path,
+    visualize: bool = False,
+    component_connectivity=None,
 ) -> None:
+    """Reports pathlengths for a given PIC.
+
+    Args:
+        pic: a PIC Component.
+        result_dir: the directory to write the pathlength table to.
+        visualize: whether to visualize the pathlength graph.
+        component_connectivity: a dictionary of component connectivity information.
+    """
+
     print(f"Reporting pathlengths for {pic.name}...")
     pathlength_graph = get_edge_based_route_attr_graph(
         pic, recursive=True, component_connectivity=component_connectivity
@@ -100,8 +112,7 @@ def report_pathlengths(
     route_records = get_paths(pathlength_graph)
 
     if route_records:
-        if not result_dir.is_dir():
-            result_dir.mkdir()
+        result_dir.mkdir(exist_ok=True, parents=True)
         pathlength_table_filename = result_dir / f"{pic.name}.pathlengths.csv"
 
         df = pd.DataFrame.from_records(route_records)
@@ -325,7 +336,8 @@ def get_edge_based_route_attr_graph(
     Args:
         pic: the pic to generate a graph from.
         recursive: True to expand all hierarchy. False to only report top-level connectivity.
-        component_connectivity: a function to report connectivity for base components. None to treat as black boxes with no internal connectivity.
+        component_connectivity: a function to report connectivity for base components.\
+                None to treat as black boxes with no internal connectivity.
 
     Returns:
         A NetworkX Graph
@@ -359,14 +371,14 @@ def get_pathlength_widgets(
     Gets a dictionary of bokeh widgets which can be used to visualize pathlength.
 
     Args:
-        pic: the component to analyze
-        G: the connectivity graph
-        paths: a list of dictionaries of path attributes
-        cs_colors: a dictionary mapping cross-section names to colors to use in the plot
-        default_color: the default color to use for unmapped cross-section types
+        pic: the component to analyze.
+        G: the connectivity graph.
+        paths: a list of dictionaries of path attributes.
+        cs_colors: a dictionary mapping cross-section names to colors to use in the plot.
+        default_color: the default color to use for unmapped cross-section types.
 
     Returns:
-        A dictionary of linked bokeh widgets: the pathlength_table and the pathlength_plot
+        A dictionary of linked bokeh widgets: the pathlength_table and the pathlength_plot.
     """
     inst_infos = {}
     node_positions = {}
@@ -531,11 +543,11 @@ def visualize_graph(
     Visualizes a pathlength graph with bokeh and shows the output html.
 
     Args:
-        pic: the circuit component
-        G: the connectivity graph
-        paths: the path statistics
-        result_dir: the directory (name or Path) in which to store results
-        cs_colors: a mapping of cross-section names to colors to use in the visualization
+        pic: the circuit component.
+        G: the connectivity graph.
+        paths: the path statistics.
+        result_dir: the directory (name or Path) in which to store results.
+        cs_colors: a mapping of cross-section names to colors to use in the visualization.
     """
     widgets = get_pathlength_widgets(pic, G, paths, cs_colors=cs_colors)
     plot = widgets["pathlength_plot"]
