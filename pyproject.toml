@@ -226,11 +226,11 @@ regex = '''
   '''
 
 [tool.towncrier]
-directory = "changelog.d"
+directory = ".changelog.d"
 filename = "CHANGELOG.md"
 issue_format = "[#{issue}](https://github.com/gdsfactory/kfactory/issues/{issue})"
 start_string = "<!-- towncrier release notes start -->\n"
-template = "changelog.d/changelog_template.jinja"
+template = ".changelog.d/changelog_template.jinja"
 title_format = "## [{version}](https://github.com/gdsfactory/kfactory/releases/v{version}) - {project_date}"
 underlines = ["", "", ""]
 
