@@ -44,6 +44,7 @@ dev = [
   "pyswarms",
   "autograd",
   "hyperopt",
+  "tbump",
   "ray"
 ]
 devsim = [
@@ -78,7 +79,7 @@ klayout = [
 meow = [
   "jaxlib",
   "jax",
-  "meow-sim>=0.8.2,<0.9.0",
+  "meow-sim>0.8,<0.9",
   "tidy3d>=2.4.0,<2.5.0"
 ]
 sax = [
@@ -182,3 +183,15 @@ mypkg = ["*.csv", "*.yaml"]
 
 [tool.setuptools.packages]
 find = {}
+
+[[tool.tbump.file]]
+src = "README.md"
+
+[[tool.tbump.file]]
+src = "pyproject.toml"
+
+[[tool.tbump.file]]
+src = "gplugins/__init__.py"
+
+[tool.tbump.version]
+current = "0.8.1"
