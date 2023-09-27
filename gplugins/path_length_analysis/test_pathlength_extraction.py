@@ -7,7 +7,7 @@ import pytest
 from gplugins.path_length_analysis.path_length_analysis import report_pathlengths
 
 primitive_components = ["straight", "bend_euler", "bend_circular"]
-supported_cross_sections = ["rib", "strip"]
+supported_cross_sections = ["xs_rc", "xs_sc"]
 
 _this_dir = pathlib.Path(__file__).parent
 
@@ -17,7 +17,7 @@ if not results_dir.is_dir():
 
 
 @pytest.mark.parametrize("component_name", primitive_components)
-def test_primitives_have_route_info(component_name):
+def test_primitives_have_route_info(component_name) -> None:
     c = gf.get_component(component_name)
     assert "route_info" in c.info
     assert "length" in c.info
@@ -26,7 +26,7 @@ def test_primitives_have_route_info(component_name):
 
 
 @pytest.mark.parametrize("cross_section", supported_cross_sections)
-def test_pathlength_extraction(cross_section):
+def test_pathlength_extraction(cross_section) -> None:
     component_name = f"{test_pathlength_extraction.__name__}_{cross_section}"
     c = gf.Component(component_name)
     lengths = [10, 20, 45, 30]
@@ -53,7 +53,7 @@ def test_pathlength_extraction(cross_section):
     assert {src_port, dst_port} == {"o1", "o2"}
 
 
-def test_multi_path_extraction():
+def test_multi_path_extraction() -> None:
     component_name = f"{test_multi_path_extraction.__name__}"
     c = gf.Component(component_name)
     lengths1 = [10, 20, 45, 30]
@@ -62,20 +62,13 @@ def test_multi_path_extraction():
     expected_total_length2 = sum(lengths2)
     insts = []
     for i, length in enumerate(lengths1):
-        inst = c << gf.get_component("straight", cross_section="strip", length=length)
-        inst.name = f"s1-{i}"
-        if insts:
-            inst.connect("o1", insts[-1].ports["o2"])
-        insts.append(inst)
-
+        inst = c << gf.get_component("straight", cross_section="xs_sc", length=length)
+        append_instances("s1-", i, inst, insts)
     insts = []
     for i, length in enumerate(lengths2):
-        inst = c << gf.get_component("straight", cross_section="strip", length=length)
+        inst = c << gf.get_component("straight", cross_section="xs_sc", length=length)
         inst.movey(-100)
-        inst.name = f"s2-{i}"
-        if insts:
-            inst.connect("o1", insts[-1].ports["o2"])
-        insts.append(inst)
+        append_instances("s2-", i, inst, insts)
     report_pathlengths(c, result_dir=results_dir)
     data = pd.read_csv(results_dir / f"{component_name}.pathlengths.csv")
     assert data.shape[0] == 2
@@ -83,8 +76,15 @@ def test_multi_path_extraction():
     assert set(extracted_lengths) == {expected_total_length1, expected_total_length2}
 
 
+def append_instances(arg0, i, inst, insts) -> None:
+    inst.name = f"{arg0}{i}"
+    if insts:
+        inst.connect("o1", insts[-1].ports["o2"])
+    insts.append(inst)
+
+
 @gf.cell
-def pathlength_test_subckt(lengths, cross_section: str = "strip"):
+def pathlength_test_subckt(lengths, cross_section: str = "xs_sc"):
     c1 = gf.Component()
 
     insts = []
@@ -101,9 +101,9 @@ def pathlength_test_subckt(lengths, cross_section: str = "strip"):
     return c1
 
 
-def test_hierarchical_pathlength_extraction():
+def test_hierarchical_pathlength_extraction() -> None:
     component_name = f"{test_hierarchical_pathlength_extraction.__name__}"
-    cross_section = "strip"
+    cross_section = "xs_sc"
     c = gf.Component(component_name)
     lengths = [10, 20, 45, 30]
     expected_total_length_c1 = sum(lengths)
@@ -131,9 +131,9 @@ def test_hierarchical_pathlength_extraction():
     assert {src_port, dst_port} == {"o1", "o2"}
 
 
-def test_transformed_hierarchical_pathlength_extraction():
+def test_transformed_hierarchical_pathlength_extraction() -> None:
     component_name = f"{test_transformed_hierarchical_pathlength_extraction.__name__}"
-    cross_section = "strip"
+    cross_section = "xs_sc"
     c = gf.Component(component_name)
     lengths = [10, 20, 45, 30]
     expected_total_length_c1 = sum(lengths)
@@ -159,3 +159,7 @@ def test_transformed_hierarchical_pathlength_extraction():
     src_port = data["src_port"][0]
     dst_port = data["dst_port"][0]
     assert {src_port, dst_port} == {"o1", "o2"}
+
+
+if __name__ == "__main__":
+    test_hierarchical_pathlength_extraction()

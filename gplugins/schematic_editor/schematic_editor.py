@@ -417,7 +417,7 @@ class SchematicEditor:
         self,
         output_filename,
         default_router="get_bundle",
-        default_cross_section="strip",
+        default_cross_section="xs_sc",
     ):
         schematic = self._schematic
         routes = {}

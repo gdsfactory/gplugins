@@ -194,7 +194,7 @@ if __name__ == "__main__":
 
     if cross_section:
         modes = compute_cross_section_modes(
-            cross_section="rib",
+            cross_section="xs_rc",
             layer_stack=filtered_layer_stack,
             wavelength=1.55,
             num_modes=4,

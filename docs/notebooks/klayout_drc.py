@@ -39,6 +39,8 @@ from gplugins.klayout.drc.write_drc import (
     write_drc_deck_macro,
 )
 
+gf.CONF.display_type = "klayout"
+
 # %%
 help(write_drc_deck_macro)
 
@@ -169,15 +171,12 @@ script = wc.write_drc_deck_macro(rules=rules, layers=None)
 
 # %%
 connectivity_checks = [
-    wc.ConnectivyCheck(cross_section="strip", pin_length=1 * nm, pin_layer=(1, 10)),
+    wc.ConnectivyCheck(cross_section="xs_sc", pin_length=1 * nm, pin_layer=(1, 10)),
     wc.ConnectivyCheck(
-        cross_section="strip_auto_widen", pin_length=1 * nm, pin_layer=(1, 10)
+        cross_section="xs_sc_auto_widen", pin_length=1 * nm, pin_layer=(1, 10)
     ),
 ]
 rules = [
     wc.write_connectivity_checks_per_section(connectivity_checks=connectivity_checks),
-    "DEVREC",
 ]
 script = wc.write_drc_deck_macro(rules=rules, layers=None)
-
-# %%
