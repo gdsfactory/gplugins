@@ -23,7 +23,7 @@ license = {file = "LICENSE"}
 name = "gplugins"
 readme = "README.md"
 requires-python = ">=3.10"
-version = "0.8.2"
+version = "0.8.3"
 
 [project.optional-dependencies]
 dagster = ["dagster", "dagit"]
@@ -45,6 +45,7 @@ dev = [
   "autograd",
   "hyperopt",
   "tbump",
+  "towncrier",
   "ray"
 ]
 devsim = [
@@ -59,7 +60,7 @@ docs = [
   "pyvista[jupyter]<=0.40"
 ]
 femwell = [
-  "femwell>=0.1.6,<0.8.2",
+  "femwell>=0.1.6,<0.8.3",
   "meshwell>=1.0.0,<1.1.0"
 ]
 gmsh = [
@@ -178,6 +179,9 @@ select = [
 "docs/notebooks/meep_01_sparameters.py" = ["F821", 'E402']
 "docs/notebooks/tcad_02_analytical_process.py" = ["F821", 'E402', 'F405', 'F403']
 
+[tool.ruff.pydocstyle]
+convention = "google"
+
 [tool.setuptools.package-data]
 mypkg = ["*.csv", "*.yaml"]
 
@@ -212,7 +216,7 @@ message_template = "Bump to {new_version}"
 tag_template = "v{new_version}"
 
 [tool.tbump.version]
-current = "0.8.2"
+current = "0.8.3"
 regex = '''
   (?P<major>\d+)
   \.
@@ -220,3 +224,42 @@ regex = '''
   \.
   (?P<patch>\d+)
   '''
+
+[tool.towncrier]
+directory = "changelog.d"
+filename = "CHANGELOG.md"
+issue_format = "[#{issue}](https://github.com/gdsfactory/kfactory/issues/{issue})"
+start_string = "<!-- towncrier release notes start -->\n"
+template = "changelog.d/changelog_template.jinja"
+title_format = "## [{version}](https://github.com/gdsfactory/kfactory/releases/v{version}) - {project_date}"
+underlines = ["", "", ""]
+
+[[tool.towncrier.type]]
+directory = "security"
+name = "Security"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "removed"
+name = "Removed"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "deprecated"
+name = "Deprecated"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "added"
+name = "Added"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "changed"
+name = "Changed"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "fixed"
+name = "Fixed"
+showcontent = true
