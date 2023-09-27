@@ -26,7 +26,6 @@ __all__ = [
     "list_unique_layer_stack_z",
     "map_unique_layer_stack_z",
     "order_layer_stack",
-    "round_coordinates",
     "uz_xsection_mesh",
     "xy_xsection_mesh",
     "create_physical_mesh",
