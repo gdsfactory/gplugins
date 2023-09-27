@@ -4,7 +4,7 @@
 
 ## [0.8.2](https://github.com/gdsfactory/gplugins/compare/v0.8.1...v0.8.2
 
-- compatible with latest gdsfactory
+- compatible with latest gdsfactory [PR](https://github.com/gdsfactory/gplugins/pull/163)
 
 ## [0.8.1](https://github.com/gdsfactory/gplugins/compare/v0.8.0...v0.8.1) [PR](https://github.com/gdsfactory/gplugins/pull/157)
 
