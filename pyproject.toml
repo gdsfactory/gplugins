@@ -231,7 +231,7 @@ filename = "CHANGELOG.md"
 issue_format = "[#{issue}](https://github.com/gdsfactory/gplugins/issues/{issue})"
 start_string = "<!-- towncrier release notes start -->\n"
 template = ".changelog.d/changelog_template.jinja"
-title_format = "## [{version}](https://github.com/gdsfactory/gplugins/releases/v{version}) - {project_date}"
+title_format = "## [{version}](https://github.com/gdsfactory/gplugins/releases/tag/v{version}) - {project_date}"
 underlines = ["", "", ""]
 
 [[tool.towncrier.type]]
