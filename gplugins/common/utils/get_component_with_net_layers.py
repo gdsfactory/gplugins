@@ -35,8 +35,8 @@ def get_component_layer_stack(
 
 
 def get_component_with_net_layers(
-    layer_stack,
     component,
+    layer_stack,
     port_names: list[str],
     delimiter: str = "#",
     new_layers_init: tuple[int, int] = (10010, 0),
@@ -46,8 +46,10 @@ def get_component_with_net_layers(
 
     Uses port's layer attribute to decide which polygons need to be renamed.
     New layers are named "layername{delimiter}portname".
+
     Args:
         component: to process.
+        layer_stack: to process.
         port_names: list of port_names to process into new layers.
         delimiter: the new layer created is called "layername{delimiter}portname".
         new_layers_init: initial layer number for the temporary new layers.
