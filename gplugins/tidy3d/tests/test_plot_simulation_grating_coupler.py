@@ -3,7 +3,7 @@ from __future__ import annotations
 import gdsfactory as gf
 
 import gplugins.tidy3d as gt
-from gplugins.config import PATH
+from gplugins.common.config import PATH
 
 fiber_port_name = "o2"
 

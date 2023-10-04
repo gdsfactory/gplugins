@@ -10,9 +10,9 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import pandas as pd
-from sax.typing_ import Float, Model
+from sax.saxtypes import Float, Model
 
-from gplugins.utils.get_sparameters_path import (
+from gplugins.common.utils.get_sparameters_path import (
     get_sparameters_path_lumerical,
     get_sparameters_path_meep,
     get_sparameters_path_tidy3d,

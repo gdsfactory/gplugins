@@ -10,6 +10,7 @@ output as um/lambda, e.g. 1.5um would correspond to the frequency
 1/1.5 = 0.6667.
 
 """
+import json
 import pathlib
 import pickle
 from functools import partial
@@ -20,11 +21,11 @@ from gdsfactory.config import PATH
 from gdsfactory.typings import PathType
 from meep import mpb
 
+from gplugins.common.utils.disable_print import disable_print, enable_print
+from gplugins.common.utils.get_sparameters_path import get_kwargs_hash
 from gplugins.modes.get_mode_solver_coupler import get_mode_solver_coupler
 from gplugins.modes.get_mode_solver_rib import get_mode_solver_rib
-from gplugins.modes.types import Mode
-from gplugins.utils.disable_print import disable_print, enable_print
-from gplugins.utils.get_sparameters_path import get_kwargs_hash
+from gplugins.modes.types import Mode, ModeData
 
 mpb.Verbosity(0)
 
@@ -145,12 +146,22 @@ def find_modes_waveguide(
     if cache_path:
         cache_path = pathlib.Path(cache_path)
         cache_path.mkdir(exist_ok=True, parents=True)
-        filepath = cache_path / f"{h}_{mode_number}.pkl"
+        filepath = cache_path / f"{h}_{mode_number}.json"
 
         if filepath.exists() and not overwrite:
             for index, i in enumerate(range(mode_number, mode_number + nmodes)):
-                filepath = cache_path / f"{h}_{index}.pkl"
-                mode = pickle.loads(filepath.read_bytes())
+                filepath_json = cache_path / f"{h}_{index}.json"
+                filepath_pickle = cache_path / f"{h}_{index}.pkl"
+                mode_data = pickle.loads(filepath_pickle.read_bytes())
+                d = json.loads(filepath_json.read_text())
+                mode = Mode(
+                    E=mode_data.E,
+                    H=mode_data.H,
+                    eps=mode_data.eps,
+                    y=mode_data.y,
+                    z=mode_data.z,
+                    **d,
+                )
                 modes[i] = mode
             return modes
 
@@ -180,8 +191,20 @@ def find_modes_waveguide(
     for index, i in enumerate(range(mode_number, mode_number + nmodes)):
         Ei = mode_solver.get_efield(i)
         Hi = mode_solver.get_hfield(i)
+        Ei = np.array(Ei)
+        Hi = np.array(Hi)
         y_num = np.shape(Ei[:, :, 0, 0])[0]
         z_num = np.shape(Ei[:, :, 0, 0])[1]
+        y = np.linspace(
+            -1 * mode_solver.info["sy"] / 2.0,
+            mode_solver.info["sy"] / 2.0,
+            y_num,
+        )
+        z = np.linspace(
+            -1 * mode_solver.info["sz"] / 2.0,
+            mode_solver.info["sz"] / 2.0,
+            z_num,
+        )
 
         modes[i] = Mode(
             mode_number=i,
@@ -189,21 +212,24 @@ def find_modes_waveguide(
             wavelength=wavelength,
             E=Ei,
             H=Hi,
-            eps=mode_solver.get_epsilon().T,
-            y=np.linspace(
-                -1 * mode_solver.info["sy"] / 2.0,
-                mode_solver.info["sy"] / 2.0,
-                y_num,
-            ),
-            z=np.linspace(
-                -1 * mode_solver.info["sz"] / 2.0,
-                mode_solver.info["sz"] / 2.0,
-                z_num,
-            ),
+            eps=np.array(mode_solver.get_epsilon().T),
+            y=y,
+            z=z,
+        )
+        mode_data = ModeData(
+            E=Ei,
+            H=Hi,
+            eps=np.array(mode_solver.get_epsilon().T),
+            y=y,
+            z=z,
         )
         if cache_path:
-            filepath = cache_path / f"{h}_{index}.pkl"
-            filepath.write_bytes(pickle.dumps(modes[i]))
+            filepath_json = cache_path / f"{h}_{index}.json"
+            filepath_pickle = cache_path / f"{h}_{index}.pkl"
+            filepath_json.write_text(
+                modes[i].model_dump_json(exclude={"E", "H", "eps", "y", "z"})
+            )
+            filepath_pickle.write_bytes(pickle.dumps(modes[i]))
 
     return modes
 
@@ -212,7 +238,7 @@ find_modes_coupler = partial(find_modes_waveguide, single_waveguide=False)
 
 
 if __name__ == "__main__":
-    m = find_modes_waveguide(core_width=0.5)
+    m = find_modes_waveguide(core_width=0.612)
     print(m)
 
     m1 = m[1]

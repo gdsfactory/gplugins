@@ -8,7 +8,7 @@ import sax
 
 
 @gf.cell
-def mzis():
+def mzis() -> gf.Component:
     c = gf.Component()
     c1 = c << gf.components.mzi(delta_length=10)
     c2 = c << gf.components.mzi(delta_length=10)
@@ -19,12 +19,12 @@ def mzis():
     return c
 
 
-def straight(wl=1.5, length=10.0, neff=2.4) -> sax.SDict:
+def straight(wl: float = 1.5, length: float = 10.0, neff: float = 2.4) -> sax.SDict:
     """Straight model."""
     return sax.reciprocal({("o1", "o2"): jnp.exp(2j * jnp.pi * neff * length / wl)})
 
 
-def mmi1x2():
+def mmi1x2() -> sax.SDict:
     """Assumes a perfect 1x2 splitter."""
     return sax.reciprocal(
         {

@@ -20,7 +20,7 @@ class Model:
     def __init__(
         self,
         trainable_component: callable,
-        layerstack: LayerStack,
+        layer_stack: LayerStack,
         trainable_parameters: None
         | (dict[str, LayerStackThickness | NamedParameter]) = None,
         non_trainable_parameters: None
@@ -58,7 +58,7 @@ class Model:
 
         Attributes:
             trainable_component: callable wrapping component associated with model
-            layerstack: complete layerstack associated with model
+            layer_stack: complete layer_stack associated with model
             trainable parameters: parameters that are model features that need to be learned (e.g. width, layer thicknesses, wavelength, materials properties)
             non_trainable_parameters: parameters for input_dict whose effect on S-parameters is known and does not need to be trained (e.g. length for a waveguide)
             simulation_settings: simulation parameters that can impact model quality (e.g. resolution, domain size). Set their converged property to True to skip convergence tuning.
@@ -75,7 +75,7 @@ class Model:
             restart_cluster: if instantiating multiple models in the same Python session, whether to restart the cluster.
         """
         self.trainable_component = trainable_component
-        self.layerstack = layerstack
+        self.layer_stack = layer_stack
         self.trainable_parameters = trainable_parameters or {}
         self.non_trainable_parameters = non_trainable_parameters or {}
         self.simulation_settings = simulation_settings or {}
@@ -131,31 +131,31 @@ class Model:
                 values are the new values to assign to these parameters.
         """
         param_dict = {}
-        layerstack_param_dict = {}
+        layer_stack_param_dict = {}
         litho_param_dict = {}
         for key, value in input_dict.items():
             if type(self.trainable_parameters[key]) is NamedParameter:
                 param_dict[key] = value
             elif type(self.trainable_parameters[key]) is LayerStackThickness:
-                layerstack_param_dict[key] = value
+                layer_stack_param_dict[key] = value
             elif type(self.trainable_parameters[key]) is LithoParameter:
                 litho_param_dict[key] = value
-        return param_dict, layerstack_param_dict, litho_param_dict
+        return param_dict, layer_stack_param_dict, litho_param_dict
 
-    def perturb_layerstack(self, layerstack_param_dict):
-        """Returns a temporary LayerStack with a new thickness value for the (current) LayerStackThickness objects in layerstack_param_dict.
+    def perturb_layer_stack(self, layer_stack_param_dict):
+        """Returns a temporary LayerStack with a new thickness value for the (current) LayerStackThickness objects in layer_stack_param_dict.
 
         Args:
-            layerstack_param_dict: key needs to match a key in self.trainable_parameters having for value a LayerStackThickness object
+            layer_stack_param_dict: key needs to match a key in self.trainable_parameters having for value a LayerStackThickness object
                                     value is the thickness to assign to this parameter
         """
-        perturbed_layerstack = copy.deepcopy(self.layerstack)
-        for key, thickness in layerstack_param_dict.items():
+        perturbed_layer_stack = copy.deepcopy(self.layer_stack)
+        for key, thickness in layer_stack_param_dict.items():
             LayerStackThickness_obj = self.trainable_parameters[key]
-            perturbed_layerstack.layers[
+            perturbed_layer_stack.layers[
                 LayerStackThickness_obj.layername
             ].thickness = thickness
-        return perturbed_layerstack
+        return perturbed_layer_stack
 
     def perturb_geometry(self, current_component, litho_param_dict):
         """Returns a temporary Component on which all the morphological operations contained in the current litho_param_dict have been applied.

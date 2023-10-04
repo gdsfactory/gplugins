@@ -20,12 +20,12 @@ import numpy as np
 import pyvista as pv
 import tidy3d as td
 from devsim.python_packages import model_create, simple_physics
-from pydantic import BaseModel, Extra
+from pydantic import BaseModel, ConfigDict
 from scipy.interpolate import griddata
 
+from gplugins.common.utils.disable_print import disable_print, enable_print
 from gplugins.tidy3d.materials import get_nk
 from gplugins.tidy3d.modes import Precision, Waveguide
-from gplugins.utils.disable_print import disable_print, enable_print
 
 if TYPE_CHECKING:
     from gdsfactory.typings import MaterialSpec
@@ -171,11 +171,7 @@ class PINWaveguide(BaseModel):
     atol: float = 1e8
     rtol: float = 1e-8
     max_iter: int = 60
-
-    class Config:
-        """Enable adding new."""
-
-        extra = Extra.allow
+    model_config = ConfigDict(extra="allow")
 
     # @property
     # def t_sim(self):

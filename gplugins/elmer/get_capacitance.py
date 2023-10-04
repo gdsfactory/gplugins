@@ -3,7 +3,6 @@ from __future__ import annotations
 import inspect
 import itertools
 import shutil
-import subprocess
 from collections.abc import Iterable, Mapping, Sequence
 from math import inf
 from pathlib import Path
@@ -18,7 +17,13 @@ from jinja2 import Environment, FileSystemLoader
 from numpy import isfinite
 from pandas import read_csv
 
-from gplugins.typings import ElectrostaticResults, RFMaterialSpec
+from gplugins.common.base_models.simulation import ElectrostaticResults
+from gplugins.common.types import RFMaterialSpec
+from gplugins.common.utils.async_helpers import (
+    execute_and_stream_output,
+    run_async_with_event_loop,
+)
+from gplugins.gmsh import get_mesh
 
 ELECTROSTATIC_SIF = "electrostatic.sif"
 ELECTROSTATIC_TEMPLATE = Path(__file__).parent / f"{ELECTROSTATIC_SIF}.j2"
@@ -61,19 +66,20 @@ def _elmergrid(simulation_folder: Path, name: str, n_processes: int = 1):
     elmergrid = shutil.which("ElmerGrid")
     if elmergrid is None:
         raise RuntimeError(
-            "ElmerGrid not found. Make sure it is available in your PATH."
+            "`ElmerGrid` not found. Make sure it is available in your PATH."
         )
-    with open(simulation_folder / f"{name}_ElmerGrid.log", "w", encoding="utf-8") as fp:
-        subprocess.run(
+    run_async_with_event_loop(
+        execute_and_stream_output(
             [elmergrid, "14", "2", name, "-autoclean"],
-            cwd=simulation_folder,
             shell=False,
-            stdout=fp,
-            stderr=fp,
-            check=True,
+            log_file_dir=simulation_folder,
+            log_file_str=Path(name).stem + "_ElmerGrid",
+            cwd=simulation_folder,
         )
-        if n_processes > 1:
-            subprocess.run(
+    )
+    if n_processes > 1:
+        run_async_with_event_loop(
+            execute_and_stream_output(
                 [
                     elmergrid,
                     "2",
@@ -84,40 +90,37 @@ def _elmergrid(simulation_folder: Path, name: str, n_processes: int = 1):
                     "4",
                     "-removeunused",
                 ],
-                cwd=simulation_folder,
                 shell=False,
-                stdout=fp,
-                stderr=fp,
-                check=True,
+                append=True,
+                log_file_dir=simulation_folder,
+                log_file_str=Path(name).stem + "_ElmerGrid",
+                cwd=simulation_folder,
             )
+        )
 
 
 def _elmersolver(simulation_folder: Path, name: str, n_processes: int = 1):
     """Run simulations with ElmerFEM."""
-    elmersolver = (
-        shutil.which("ElmerSolver")
-        if (no_mpi := n_processes == 1)
-        else shutil.which("ElmerSolver_mpi")
+    elmersolver_name = (
+        "ElmerSolver" if (no_mpi := n_processes == 1) else "ElmerSolver_mpi"
     )
+    elmersolver = shutil.which(elmersolver_name)
     if elmersolver is None:
         raise RuntimeError(
-            ("ElmerSolver" if n_processes == 1 else "ElmerSolver_mpi")
-            + " not found. Make sure it is available in your PATH."
+            f"`{elmersolver_name}` not found. Make sure it is available in your PATH."
         )
     sif_file = str(simulation_folder / f"{Path(name).stem}.sif")
-    with open(
-        simulation_folder / f"{name}_ElmerSolver.log", "w", encoding="utf-8"
-    ) as fp:
-        subprocess.run(
+    run_async_with_event_loop(
+        execute_and_stream_output(
             [elmersolver, sif_file]
             if no_mpi
             else ["mpiexec", "-np", str(n_processes), elmersolver, sif_file],
-            cwd=simulation_folder,
             shell=False,
-            stdout=fp,
-            stderr=fp,
-            check=True,
+            log_file_dir=simulation_folder,
+            log_file_str=Path(name).stem + "_ElmerSolver",
+            cwd=simulation_folder,
         )
+    )
 
 
 def _read_elmer_results(
@@ -174,21 +177,17 @@ def run_capacitive_simulation_elmer(
 
     Args:
         component: Simulation environment as a gdsfactory component.
-        element_order:
-            Order of polynomial basis functions.
+        element_order: Order of polynomial basis functions.
             Higher is more accurate but takes more memory and time to run.
         n_processes: Number of processes to use for parallelization
-        layer_stack:
-            :class:`~LayerStack` defining defining what layers to include in the simulation
-            and the material properties and thicknesses.
+        layer_stack: :class:`~LayerStack` defining defining what layers to include \
+                in the simulation and the material properties and thicknesses.
         material_spec:
             :class:`~RFMaterialSpec` defining material parameters for the ones used in ``layer_stack``.
-        simulation_folder:
-            Directory for storing the simulation results.
+        simulation_folder: Directory for storing the simulation results.
             Default is a temporary directory.
         simulator_params: Elmer-specific parameters. See template file for more details.
-        mesh_parameters:
-            Keyword arguments to provide to :func:`~Component.to_gmsh`.
+        mesh_parameters: Keyword arguments to provide to :func:`get_mesh`.
         mesh_file: Path to a ready mesh to use. Useful for reusing one mesh file.
             By default a mesh is generated according to ``mesh_parameters``.
 
@@ -221,7 +220,8 @@ def run_capacitive_simulation_elmer(
     if mesh_file:
         shutil.copyfile(str(mesh_file), str(simulation_folder / filename))
     else:
-        component.to_gmsh(
+        get_mesh(
+            component=component,
             type="3D",
             filename=simulation_folder / filename,
             layer_stack=layer_stack,

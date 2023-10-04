@@ -34,7 +34,7 @@
 #
 # While the latter method is much simpler for complex geometries, as of 2022 it does not preserve physical and mesh information, requiring manual "retagging" of the entities after the boolean operations, and driving its complexity back to bottom-up construction (especially for arbitrary geometries).
 #
-# As such, gdsfactory uses the first approach, where the mask layers and a layerstack are used as a guide to define the various physical entities, which are returned as tagged objects to the user.
+# As such, gdsfactory uses the first approach, where the mask layers and a layer_stack are used as a guide to define the various physical entities, which are returned as tagged objects to the user.
 #
 # ## Installation
 #
@@ -53,14 +53,14 @@ from gdsfactory.generic_tech import LAYER_STACK, get_generic_pdk
 from gdsfactory.technology import LayerStack
 from skfem.io import from_meshio
 
-from gplugins.gmsh.mesh import create_physical_mesh
+from gplugins.gmsh.get_mesh import create_physical_mesh, get_mesh
 
 gf.config.rich_output()
 PDK = get_generic_pdk()
 PDK.activate()
 
 waveguide = gf.components.straight_pin(length=10, taper=None)
-waveguide
+waveguide.plot()
 # -
 
 # and a `LayerStack`. Here, we copy the example from `gdsfactory.generic_tech` for clarity).
@@ -68,7 +68,7 @@ waveguide
 
 # We can filter this stack to only focus on some layers:
 
-filtered_layerstack = LayerStack(
+filtered_layer_stack = LayerStack(
     layers={
         k: LAYER_STACK.layers[k]
         for k in (
@@ -90,13 +90,17 @@ def mesh_with_physicals(mesh, filename):
 
 # -
 
-scene = waveguide.to_3d(layer_stack=filtered_layerstack)
+scene = waveguide.to_3d(layer_stack=filtered_layer_stack)
 scene.show()
 
 # The various processing and meshing functions are located under `gplugins.gmsh` and can be called from there, but a shortcut is implemented to mesh directly from a component:
 
-mesh = waveguide.to_gmsh(
-    type="xy", z=0.09, layer_stack=filtered_layerstack, filename="mesh.msh"
+mesh = get_mesh(
+    component=waveguide,
+    type="xy",
+    z=0.09,
+    layer_stack=filtered_layer_stack,
+    filename="mesh.msh",
 )
 
 # This returns a gmsh `.msh` mesh, also saved in `filename` if provided, which can be processed:

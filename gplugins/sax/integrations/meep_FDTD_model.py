@@ -70,7 +70,7 @@ class MeepFDTDModel(Model):
         # Prepare this specific input vector
         input_dict = dict(zip(labels, [float(value) for value in values]))
         # Parse input vector according to parameter type
-        param_dict, layerstack_param_dict, litho_param_dict = self.parse_input_dict(
+        param_dict, layer_stack_param_dict, litho_param_dict = self.parse_input_dict(
             input_dict
         )
         input_component = self.perturb_geometry(
@@ -89,7 +89,7 @@ class MeepFDTDModel(Model):
         input_component_file = current_file.with_suffix(".gds")
         input_component.write_gds(input_component_file, with_metadata=True)
 
-        # Define function input given parameter values and transformed layerstack/component
+        # Define function input given parameter values and transformed layer_stack/component
         function_input = dict(
             input_component_file=input_component_file,
             cores=self.num_cpus_per_task,
@@ -107,11 +107,11 @@ if __name__ == "__main__":
     from gplugins.sax.parameter import LithoParameter, NamedParameter
 
     c = gf.components.coupler_full(
-        coupling_length=0.1, dx=10.0, dy=5.0, gap=0.5, dw=0.0, cross_section="strip"
+        coupling_length=0.1, dx=10.0, dy=5.0, gap=0.5, dw=0.0, cross_section="xs_sc"
     )
     c.show(show_ports=True)
 
-    filtered_layerstack = LayerStack(
+    filtered_layer_stack = LayerStack(
         layers={
             k: get_layer_stack().layers[k]
             for k in (
@@ -146,13 +146,13 @@ if __name__ == "__main__":
         port_symmetries=port_symmetries_coupler,
         run=True,
         overwrite=True,
-        layer_stack=filtered_layerstack,
+        layer_stack=filtered_layer_stack,
         z=0.1,
     )
 
     coupler_model = MeepFDTDModel(
         trainable_component=trainable_coupler,
-        layerstack=filtered_layerstack,
+        layer_stack=filtered_layer_stack,
         simulation_settings={
             "sim_settings": sim_settings,
         },

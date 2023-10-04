@@ -8,7 +8,7 @@ from gplugins.meow import MEOW
 
 def test_meow_defaults() -> None:
     c = gf.components.taper_cross_section_linear()
-    filtered_layerstack = LayerStack(
+    filtered_layer_stack = LayerStack(
         layers={
             k: get_layer_stack().layers[k]
             for k in (
@@ -22,7 +22,7 @@ def test_meow_defaults() -> None:
 
     sp = MEOW(
         component=c,
-        layerstack=filtered_layerstack,
+        layer_stack=filtered_layer_stack,
         wavelength=1.55,
         overwrite=True,
     ).compute_sparameters()
@@ -44,7 +44,7 @@ def test_meow_defaults() -> None:
 
 
 def test_cells() -> None:
-    layerstack = LayerStack(
+    layer_stack = LayerStack(
         layers={
             k: get_layer_stack().layers[k]
             for k in (
@@ -57,11 +57,11 @@ def test_cells() -> None:
     )
 
     c = gf.components.taper(length=10, width2=2)
-    m = MEOW(component=c, layerstack=layerstack, wavelength=1.55, cell_length=1)
+    m = MEOW(component=c, layer_stack=layer_stack, wavelength=1.55, cell_length=1)
     assert len(m.cells) == 11, len(m.cells)
 
     c = gf.components.taper(length=1, width2=2)
-    m = MEOW(component=c, layerstack=layerstack, wavelength=1.55, cell_length=1)
+    m = MEOW(component=c, layer_stack=layer_stack, wavelength=1.55, cell_length=1)
     assert len(m.cells) == 4, len(m.cells)
 
 
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     # test_cells()
     # test_meow_defaults()
     c = gf.components.taper_cross_section_linear()
-    filtered_layerstack = LayerStack(
+    filtered_layer_stack = LayerStack(
         layers={
             k: get_layer_stack().layers[k]
             for k in (
@@ -83,7 +83,7 @@ if __name__ == "__main__":
 
     sp = MEOW(
         component=c,
-        layerstack=filtered_layerstack,
+        layer_stack=filtered_layer_stack,
         wavelength=1.55,
         overwrite=True,
     ).compute_sparameters()

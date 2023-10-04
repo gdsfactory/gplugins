@@ -1,3 +1,20 @@
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     custom_cell_magics: kql
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.11.2
+#   kernelspec:
+#     display_name: base
+#     language: python
+#     name: python3
+# ---
+
+# %% [markdown]
 # # SAX circuit simulator
 #
 # [SAX](https://flaport.github.io/sax/) is a circuit solver written in JAX, writing your component models in SAX enables you not only to get the function values but the gradients, this is useful for circuit optimization.
@@ -7,10 +24,10 @@
 # You can install sax with pip (read the SAX install instructions [here](https://github.com/flaport/sax#installation))
 #
 # ```
-# # ! pip install sax
+# ! pip install gplugins[sax]
 # ```
 
-# +
+# %%
 import logging
 import sys
 from functools import partial
@@ -32,7 +49,7 @@ from tqdm.notebook import trange
 
 import gplugins.sax as gs
 import gplugins.tidy3d as gt
-from gplugins.config import PATH
+from gplugins.common.config import PATH
 
 gf.config.rich_output()
 PDK = get_generic_pdk()
@@ -43,8 +60,8 @@ logger.removeHandler(sys.stderr)
 logging.basicConfig(level="WARNING", datefmt="[%X]", handlers=[RichHandler()])
 
 gf.config.set_plot_options(show_subports=False)
-# -
 
+# %% [markdown]
 # ## Scatter *dictionaries*
 #
 # The core datastructure for specifying scatter parameters in SAX is a dictionary... more specifically a dictionary which maps a port combination (2-tuple) to a scatter parameter (or an array of scatter parameters when considering multiple wavelengths for example). Such a specific dictionary mapping is called ann `SDict` in SAX (`SDict ≈ Dict[Tuple[str,str], float]`).
@@ -59,6 +76,7 @@ gf.config.set_plot_options(show_subports=False)
 # o1            o4
 # ```
 
+# %%
 coupling = 0.5
 kappa = coupling**0.5
 tau = (1 - coupling) ** 0.5
@@ -74,9 +92,10 @@ coupler_dict = {
 }
 print(coupler_dict)
 
+# %% [markdown]
 #  it can still be tedious to specify every port in the circuit manually. SAX therefore offers the `reciprocal` function, which auto-fills the reverse connection if the forward connection exist. For example:
 
-# +
+# %%
 coupler_dict = sax.reciprocal(
     {
         ("o1", "o4"): tau,
@@ -87,15 +106,15 @@ coupler_dict = sax.reciprocal(
 )
 
 coupler_dict
-# -
 
+# %% [markdown]
 # ## Parametrized Models
 #
 # Constructing such an `SDict` is easy, however, usually we're more interested in having parametrized models for our components. To parametrize the coupler `SDict`, just wrap it in a function to obtain a SAX `Model`, which is a keyword-only function mapping to an `SDict`:
 #
 
 
-# +
+# %%
 def coupler(coupling=0.5) -> sax.SDict:
     kappa = coupling**0.5
     tau = (1 - coupling) ** 0.5
@@ -112,9 +131,7 @@ def coupler(coupling=0.5) -> sax.SDict:
 coupler(coupling=0.3)
 
 
-# -
-
-
+# %%
 def waveguide(wl=1.55, wl0=1.55, neff=2.34, ng=3.4, length=10.0, loss=0.0) -> sax.SDict:
     dwl = wl - wl0
     dneff_dwl = (ng - neff) / wl0
@@ -128,12 +145,15 @@ def waveguide(wl=1.55, wl0=1.55, neff=2.34, ng=3.4, length=10.0, loss=0.0) -> sa
     )
 
 
+# %% [markdown]
 # ### Waveguide model
 #
 # You can create a dispersive waveguide model in SAX.
 
+# %% [markdown]
 # Lets compute the effective index `neff` and group index `ng` for a 1550nm 500nm straight waveguide
 
+# %%
 nm = 1e-3
 strip = gt.modes.Waveguide(
     wavelength=1.55,
@@ -146,24 +166,32 @@ strip = gt.modes.Waveguide(
 )
 strip.plot_field(field_name="Ex", mode_index=0)  # TE
 
+# %%
 neff = strip.n_eff[0]
-neff
+print(neff)
 
+# %%
 ng = strip.n_group[0]
-ng
+print(ng)
 
+# %%
 straight_sc = partial(gs.models.straight, neff=neff, ng=ng)
 
+# %%
 gs.plot_model(straight_sc)
 plt.ylim(-1, 1)
 
+# %%
 gs.plot_model(straight_sc, phase=True)
 
+# %% [markdown]
 # ### Coupler model
 
+# %%
 c = gf.components.coupler(length=10, gap=0.2)
 c.plot()
 
+# %%
 nm = 1e-3
 cp = gt.modes.WaveguideCoupler(
     wavelength=1.55,
@@ -176,9 +204,10 @@ cp = gt.modes.WaveguideCoupler(
 )
 cp.plot_field(field_name="Ex", mode_index=0)  # even mode
 
+# %%
 cp.plot_field(field_name="Ex", mode_index=1)  # odd mode
 
-# +
+# %%
 coupler = gt.modes.WaveguideCoupler(
     wavelength=1.55,
     core_width=(0.45, 0.45),
@@ -199,28 +228,35 @@ lengths = gt.modes.sweep_coupling_length(coupler, gaps)
 plt.plot(gaps, lengths)
 plt.xlabel("Gap (μm)")
 plt.ylabel("Coupling length (μm)")
-# -
 
+# %% [markdown]
 # For a 200nm gap the effective index difference `dn` is `0.026`, which means that there is 100% power coupling over 29.4
 
+# %%
 coupler_sc = partial(gs.models.coupler, dn=0.026, length=0, coupling0=0)
 gs.plot_model(coupler_sc)
 
+# %% [markdown]
 # If we ignore the coupling from the bend `coupling0 = 0` we know that for a 3dB coupling we need half of the `lc` length, which is the length needed to coupler `100%` of power.
 
+# %%
 coupler_sc = partial(gs.models.coupler, dn=0.026, length=29.4 / 2, coupling0=0)
 gs.plot_model(coupler_sc)
 
+# %% [markdown]
 # ### FDTD Sparameters model
 #
 # You can also fit a model from Sparameter FDTD simulation data from tidy3d, Lumerical or MEEP.
 
+# %% [markdown]
 # ## Model fit
 #
 # You can fit a sax model to Sparameter FDTD simulation data.
 
+# %%
 filepath = PATH.test_data / "sp" / "coupler_G224n_L20_S220.csv"
 
+# %%
 coupler_fdtd = gs.read.model_from_csv(
     filepath=filepath,
     xkey="wavelength_nm",
@@ -228,11 +264,13 @@ coupler_fdtd = gs.read.model_from_csv(
     xunits=1e-3,
 )
 
+# %%
 gs.plot_model(coupler_fdtd)
 
+# %% [markdown]
 # Lets fit the coupler spectrum with a linear regression `sklearn` fit
 
-# +
+# %%
 f = jnp.linspace(constants.c / 1.0e-6, constants.c / 2.0e-6, 500) * 1e-12  # THz
 wl = constants.c / (f * 1e12) * 1e6  # um
 
@@ -245,12 +283,13 @@ k = sd["o1", "o3"]
 t = sd["o1", "o4"]
 s = t + k
 a = t - k
-# -
 
+# %% [markdown]
 # Lets fit the symmetric (t+k) and antisymmetric (t-k) transmission
 #
 # ### Symmetric
 
+# %%
 plt.plot(wl, jnp.abs(s))
 plt.grid(True)
 plt.xlabel("Frequency [THz]")
@@ -259,6 +298,7 @@ plt.title("symmetric (transmission + coupling)")
 plt.legend()
 plt.show()
 
+# %%
 plt.plot(wl, jnp.abs(a))
 plt.grid(True)
 plt.xlabel("Frequency [THz]")
@@ -267,7 +307,7 @@ plt.title("anti-symmetric (transmission - coupling)")
 plt.legend()
 plt.show()
 
-# +
+# %%
 r = LinearRegression()
 
 
@@ -294,7 +334,7 @@ plt.ylabel("Transmission")
 plt.legend()
 plt.show()
 
-# +
+# %%
 r = LinearRegression()
 r.fit(X, jnp.unwrap(jnp.angle(s)))
 asp, bsp = r.coef_, r.intercept_
@@ -313,18 +353,17 @@ plt.legend()
 plt.show()
 
 
-# -
-
-
+# %%
 def fs(x):
     return fsm(x) * jnp.exp(1j * fsp(x))
 
 
+# %% [markdown]
 # Lets fit the symmetric (t+k) and antisymmetric (t-k) transmission
 #
 # ### Anti-Symmetric
 
-# +
+# %%
 r = LinearRegression()
 r.fit(X, jnp.abs(a))
 aam, bam = r.coef_, r.intercept_
@@ -342,7 +381,7 @@ plt.ylabel("Transmission")
 plt.legend()
 plt.show()
 
-# +
+# %%
 r = LinearRegression()
 r.fit(X, jnp.unwrap(jnp.angle(a)))
 aap, bap = r.coef_, r.intercept_
@@ -361,16 +400,15 @@ plt.legend()
 plt.show()
 
 
-# -
-
-
+# %%
 def fa(x):
     return fam(x) * jnp.exp(1j * fap(x))
 
 
+# %% [markdown]
 # ### Total
 
-# +
+# %%
 t_ = 0.5 * (fs(wl) + fa(wl))
 
 plt.plot(wl, jnp.abs(t))
@@ -378,7 +416,7 @@ plt.plot(wl, jnp.abs(t_))
 plt.xlabel("Frequency [THz]")
 plt.ylabel("Transmission")
 
-# +
+# %%
 k_ = 0.5 * (fs(wl) - fa(wl))
 
 plt.plot(wl, jnp.abs(k))
@@ -387,9 +425,7 @@ plt.xlabel("Frequency [THz]")
 plt.ylabel("Coupling")
 
 
-# -
-
-
+# %%
 @jax.jit
 def coupler(wl=1.5):
     wl = jnp.asarray(wl)
@@ -406,7 +442,7 @@ def coupler(wl=1.5):
     return sax.reciprocal(sdict)
 
 
-# +
+# %%
 f = jnp.linspace(constants.c / 1.0e-6, constants.c / 2.0e-6, 500) * 1e-12  # THz
 wl = constants.c / (f * 1e12) * 1e6  # um
 
@@ -441,22 +477,26 @@ plt.xlabel("Frequency [THz]")
 plt.ylabel("Transmission")
 plt.figlegend(bbox_to_anchor=(1.08, 0.9))
 plt.show()
-# -
 
+# %% [markdown]
 # ## SAX gdsfactory Compatibility
 # > From Layout to Circuit Model
 #
 # If you define your SAX S parameter models for your components, you can directly simulate your circuits from gdsfactory
 
+# %%
 mzi = gf.components.mzi(delta_length=10)
-mzi
+mzi.plot()
 
+# %%
 mzi.plot_netlist()
 
+# %%
 netlist = mzi.get_netlist()
 pprint(netlist["connections"])
 
 
+# %% [markdown]
 # The netlist has three different components:
 #
 # 1. straight
@@ -467,7 +507,7 @@ pprint(netlist["connections"])
 #
 
 
-# +
+# %%
 def straight(wl=1.5, length=10.0, neff=2.4) -> sax.SDict:
     return sax.reciprocal({("o1", "o2"): jnp.exp(2j * jnp.pi * neff * length / wl)})
 
@@ -492,11 +532,11 @@ models = {
     "mmi1x2": mmi1x2,
     "straight": straight,
 }
-# -
 
+# %%
 circuit, _ = sax.circuit(netlist=netlist, models=models)
 
-# +
+# %%
 wl = np.linspace(1.5, 1.6)
 S = circuit(wl=wl)
 
@@ -507,12 +547,12 @@ plt.xlabel("λ [nm]")
 plt.ylabel("T")
 plt.grid(True)
 plt.show()
-# -
 
+# %%
 mzi = gf.components.mzi(delta_length=20)  # Double the length, reduces FSR by 1/2
-mzi
+mzi.plot()
 
-# +
+# %%
 circuit, _ = sax.circuit(netlist=mzi.get_netlist(), models=models)
 
 wl = np.linspace(1.5, 1.6, 256)
@@ -525,8 +565,8 @@ plt.xlabel("λ [nm]")
 plt.ylabel("T")
 plt.grid(True)
 plt.show()
-# -
 
+# %% [markdown]
 # ## Layout aware Monte Carlo
 #
 # You can model the manufacturing variations on the performance of photonics thanks to the fast SAX circuit simulator with layout information and wafer maps of waveguide width and layer thickness variations.
@@ -536,11 +576,12 @@ plt.show()
 # - Ring resonators [2017](https://opg.optica.org/oe/fulltext.cfm?uri=oe-25-9-9712&id=363202)
 # - MZI interferometers [2019](https://ieeexplore.ieee.org/abstract/document/8675367)
 
+# %% [markdown]
 # ### Waveguide Model
 #
 # To improve the waveguide model you need to find the effective index of the waveguide in relation to its parameters (width and thickness) using an open source mode solver.
 
-# +
+# %%
 nm = 1e-3
 wavelengths = np.linspace(1.5, 1.6, 10)
 widths = np.linspace(400 * nm, 600 * nm, 5)
@@ -559,15 +600,15 @@ neffs = gt.modes.sweep_n_eff(
 )
 
 neffs = neffs.values.real
-# -
 
+# %%
 plt.pcolormesh(wavelengths, widths, neffs)
 plt.xlabel("λ [μm]")
 plt.ylabel("width [μm]")
 plt.colorbar()
 plt.show()
 
-# +
+# %%
 _grid = [jnp.sort(jnp.unique(widths)), jnp.sort(jnp.unique(wavelengths))]
 _data = jnp.asarray(neffs)
 
@@ -591,8 +632,8 @@ def neff(wl=1.55, width=0.5):
 
 
 neff(wl=[1.52, 1.58], width=[0.5, 0.55])
-# -
 
+# %%
 wavelengths_ = np.linspace(wavelengths.min(), wavelengths.max(), 100)
 widths_ = np.linspace(widths.min(), widths.max(), 100)
 wavelengths_, widths_ = np.meshgrid(wavelengths_, widths_)
@@ -604,7 +645,7 @@ plt.colorbar()
 plt.show()
 
 
-# +
+# %%
 def straight(wl=1.55, length=10.0, width=0.5):
     S = {
         ("o1", "o2"): jnp.exp(2j * np.pi * neff(wl=wl, width=width) / wl * length),
@@ -643,15 +684,18 @@ models = {
     "mmi2x2": mmi2x2,
     "straight": straight,
 }
-# -
 
+# %% [markdown]
 # Even though this still is lossless transmission, we're at least modeling the phase correctly.
 
+# %%
 straight()
 
+# %%
 circuit, _ = sax.circuit(mzi.get_netlist(), models=models)
 circuit()
 
+# %%
 wl = jnp.linspace(1.51, 1.59, 1000)
 S = circuit(wl=wl)
 plt.plot(wl, abs(S["o1", "o2"]) ** 2)
@@ -663,6 +707,7 @@ plt.grid(True)
 plt.show()
 
 
+# %% [markdown]
 # ### Circuit model with variability
 #
 # Let's assume the waveguide width changes with a certain correlation length.
@@ -671,6 +716,7 @@ plt.show()
 #
 
 
+# %%
 def create_wafermaps(placements, correlation_length=1.0, num_maps=1, mean=0.0, std=1.0):
     dx = dy = correlation_length / 200
     xs, ys = [p["x"] for p in placements.values()], [
@@ -704,7 +750,7 @@ def create_wafermaps(placements, correlation_length=1.0, num_maps=1, mean=0.0, s
     return x, y, W
 
 
-# +
+# %%
 placements = mzi.get_netlist()["placements"]
 xm, ym, wmaps = create_wafermaps(
     placements, correlation_length=100, mean=0.5, std=0.002, num_maps=100
@@ -717,9 +763,7 @@ for i, wmap in enumerate(wmaps):
         break
 
 
-# -
-
-
+# %%
 def widths(xw, yw, wmaps, x, y):
     _wmap_grid = [xw, yw]
     params = jnp.stack(jnp.broadcast_arrays(jnp.asarray(x), jnp.asarray(y)), 0)
@@ -731,13 +775,14 @@ def widths(xw, yw, wmaps, x, y):
     return jax.vmap(map_coordinates)(wmaps)
 
 
+# %% [markdown]
 # Let's now sample the MZI width variation on the wafer map (let's assume a single width variation per point):
 #
 #
 # ### Simple MZI
 
 
-# +
+# %%
 @gf.cell
 def simple_mzi():
     global bend_top1_
@@ -789,12 +834,12 @@ def simple_mzi():
 
 
 mzi = simple_mzi()
-mzi
-# -
+mzi.plot()
 
+# %%
 circuit, _ = sax.circuit(mzi.get_netlist(), models=models)
 
-# +
+# %%
 mzi_params = sax.get_settings(circuit)
 placements = mzi.get_netlist()["placements"]
 width_params = {
@@ -821,14 +866,15 @@ rmse = jnp.mean(
 )
 plt.title(f"{rmse=}")
 plt.show()
-# -
 
+# %% [markdown]
 # ### Compact MZI
 #
 # Let's see if we can improve variability (i.e. the RMSE w.r.t. nominal) by making the MZI more compact:
 #
 
 
+# %%
 @gf.cell
 def compact_mzi():
     c = gf.Component()
@@ -889,12 +935,13 @@ def compact_mzi():
     return c
 
 
+# %%
 compact_mzi1 = compact_mzi()
 fig = compact_mzi1.plot()
 placements = compact_mzi1.get_netlist()["placements"]
 mzi3, _ = sax.circuit(compact_mzi1.get_netlist(), models=models)
 
-# +
+# %%
 mzi_params = sax.get_settings(mzi3)
 placements = compact_mzi1.get_netlist()["placements"]
 width_params = {
@@ -921,21 +968,22 @@ rmse = jnp.mean(
 )
 plt.title(f"{rmse=}")
 plt.show()
-# -
 
+# %% [markdown]
 # ## Phase shifter model
 #
 # You can create a phase shifter model that depends on the applied volage.
 # For that you need first to figure out what's the phase shift for different voltages.
 
+# %%
 delta_length = 10
 mzi_component = gf.components.mzi_phase_shifter_top_heater_metal(
     delta_length=delta_length
 )
-mzi_component
+mzi_component.plot()
 
 
-# +
+# %%
 def straight(wl=1.5, length=10.0, neff=2.4) -> sax.SDict:
     return sax.reciprocal({("o1", "o2"): jnp.exp(2j * jnp.pi * neff * length / wl)})
 
@@ -970,6 +1018,10 @@ def phase_shifter_heater(
     return sax.reciprocal(
         {
             ("o1", "o2"): transmission,
+            ("l_e1", "r_e1"): 0.0,
+            ("l_e2", "r_e2"): 0.0,
+            ("l_e3", "r_e3"): 0.0,
+            ("l_e4", "r_e4"): 0.0,
         }
     )
 
@@ -980,17 +1032,19 @@ models = {
     "straight": straight,
     "straight_heater_metal_undercut": phase_shifter_heater,
 }
-# -
 
+# %%
 mzi_component = gf.components.mzi_phase_shifter_top_heater_metal(
     delta_length=delta_length
 )
-netlist = mzi_component.get_netlist()
-mzi_circuit, _ = sax.circuit(netlist=netlist, models=models)
-S = mzi_circuit(wl=1.55)
-S
+netlist = sax.netlist(mzi_component.get_netlist())
 
-# +
+# %%
+mzi_circuit, _ = sax.circuit(netlist=netlist, models=models, backend="filipsson_gunnar")
+S = mzi_circuit(wl=1.55)
+{k: v for k, v in S.items() if abs(v) > 1e-5}
+
+# %%
 wl = np.linspace(1.5, 1.6, 256)
 S = mzi_circuit(wl=wl)
 
@@ -1001,26 +1055,30 @@ plt.xlabel("λ [nm]")
 plt.ylabel("T")
 plt.grid(True)
 plt.show()
-# -
 
+# %% [markdown]
 # Now you can tune the phase shift applied to one of the arms.
 #
 # How do you find out what's the name of the netlist component that you want to tune?
 #
 # You can backannotate the netlist and read the labels on the backannotated netlist or you can plot the netlist
 
+# %%
 mzi_component.plot_netlist()
 
+# %% [markdown]
 # As you can see the top phase shifter instance name `sxt` is hard to see on the netlist.
 # You can also reconstruct the component using the netlist and look at the labels in klayout.
 
+# %%
 mzi_yaml = mzi_component.get_netlist_yaml()
 mzi_component2 = gf.read.from_yaml(mzi_yaml)
 mzi_component2.plot(label_aliases=True)
 
+# %% [markdown]
 # The best way to get a deterministic name of the `instance` is naming the reference on your Pcell.
 
-# +
+# %%
 voltages = np.linspace(-1, 1, num=5)
 voltages = [-0.5, 0, 0.5]
 
@@ -1037,8 +1095,8 @@ for voltage in voltages:
 
 plt.title("MZI vs voltage")
 plt.legend()
-# -
 
+# %% [markdown]
 # ## Optimization
 #
 # You can optimize an MZI to get T=0 at 1530nm.
@@ -1047,7 +1105,7 @@ plt.legend()
 #
 
 
-# +
+# %%
 def straight(wl=1.5, length=10.0, neff=2.4) -> sax.SDict:
     return sax.reciprocal({("o1", "o2"): jnp.exp(2j * jnp.pi * neff * length / wl)})
 
@@ -1072,15 +1130,15 @@ models = {
     "mmi1x2": mmi1x2,
     "straight": straight,
 }
-# -
 
+# %%
 delta_length = 30
 mzi_component = gf.components.mzi(delta_length=delta_length)
 mzi_circuit, _ = sax.circuit(netlist=mzi_component.get_netlist(), models=models)
 S = mzi_circuit(wl=1.55)
-S
+print(S)
 
-# +
+# %%
 wl = np.linspace(1.5, 1.6, 256)
 S = mzi_circuit(wl=wl)
 
@@ -1092,17 +1150,19 @@ plt.ylabel("T")
 plt.plot([1530, 1530], [0, 1])
 plt.grid(True)
 plt.show()
-# -
 
+# %% [markdown]
 # GDSFactory autonames component names for GDS and for netlists uses an incremental name for easier addressing of the references.
 
+# %%
 netlist = mzi_component.get_netlist()
 c = gf.read.from_yaml(netlist)
 c.plot()
 
+# %% [markdown]
 # From this we see that we will need to change `syl` and `straight_9`.
 
-# +
+# %%
 mzi_component = gf.components.mzi(
     delta_length=delta_length,
 )
@@ -1126,12 +1186,13 @@ def loss_fn(delta_length):
     return (abs(S["o1", "o2"]) ** 2).mean()
 
 
-# -
-
+# %%
 # %time loss_fn(20.0)
 
+# %% [markdown]
 # You can use this loss function to define a grad function which works on the parameters of the loss function:
 
+# %%
 grad_fn = jax.jit(
     jax.grad(
         loss_fn,
@@ -1139,17 +1200,20 @@ grad_fn = jax.jit(
     )
 )
 
+# %% [markdown]
 # Next, you need to define a JAX optimizer, which on its own is nothing more than three more functions:
 #
 # 1. an initialization function with which to initialize the optimizer state
 # 2. an update function which will update the optimizer state (and with it the model parameters).
 # 3. a function with the model parameters given the optimizer state.
 
+# %%
 initial_delta_length = 30.0
 init_fn, update_fn, params_fn = opt.adam(step_size=0.1)
 state = init_fn(initial_delta_length)
 
 
+# %%
 def step_fn(step, state):
     settings = params_fn(state)
     loss = loss_fn(settings)
@@ -1158,14 +1222,17 @@ def step_fn(step, state):
     return loss, state
 
 
+# %%
 range_ = trange(100)
 for step in range_:
     loss, state = step_fn(step, state)
     range_.set_postfix(loss=f"{loss:.6f}")
 
+# %%
 delta_length = params_fn(state)
-delta_length
+print(delta_length)
 
+# %%
 S = mzi_circuit(
     wl=wl,
     syl={"length": delta_length / 2 + 2},
@@ -1181,15 +1248,17 @@ plt.grid(True)
 plt.show()
 
 
+# %% [markdown]
 # The minimum of the MZI is perfectly located at 1530nm.
 
+# %% [markdown]
 # ## Hierarchical circuits
 #
 # You can also simulate hierarchical circuits, such as lattice of MZI interferometers.
 #
 
 
-# +
+# %%
 @gf.cell
 def mzis(delta_length=10):
     c = gf.Component()
@@ -1230,17 +1299,19 @@ models = {
 
 
 c2 = mzis()
-c2
-# -
+c2.plot()
 
+# %%
 c2.plot_netlist_flat()
 
+# %%
 c1 = gf.components.mzi(delta_length=10)
-c1
+c1.plot()
 
+# %%
 c1.plot_netlist()
 
-# +
+# %%
 wl = np.linspace(1.5, 1.6)
 netlist1 = c1.get_netlist_recursive()
 circuit1, _ = sax.circuit(netlist=netlist1, models=models)

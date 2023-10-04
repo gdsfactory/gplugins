@@ -32,7 +32,7 @@ logger.removeHandler(sys.stderr)
 logging.basicConfig(level="WARNING", datefmt="[%X]", handlers=[RichHandler()])
 
 # +
-filtered_layerstack = LayerStack(
+filtered_layer_stack = LayerStack(
     layers={
         k: LAYER_STACK.layers[k]
         for k in (
@@ -44,13 +44,13 @@ filtered_layerstack = LayerStack(
     }
 )
 
-filtered_layerstack.layers[
+filtered_layer_stack.layers[
     "core"
-].thickness = 0.22  # Perturb the layerstack before simulating
+].thickness = 0.22  # Perturb the layer_stack before simulating
 
-filtered_layerstack.layers[
+filtered_layer_stack.layers[
     "slab90"
-].thickness = 0.09  # Perturb the layerstack before simulating
+].thickness = 0.09  # Perturb the layer_stack before simulating
 
 resolutions = {
     "core": {"resolution": 0.02, "distance": 2},
@@ -62,7 +62,7 @@ resolutions = {
 
 modes = compute_cross_section_modes(
     cross_section=rib(width=0.6),
-    layerstack=filtered_layerstack,
+    layer_stack=filtered_layer_stack,
     wavelength=1.55,
     num_modes=4,
     resolutions=resolutions,
@@ -90,7 +90,7 @@ all_te_fracs = np.zeros((widths.shape[0], num_modes))
 for i, width in enumerate(tqdm(widths)):
     modes = compute_cross_section_modes(
         cross_section=gf.cross_section.strip(width=width),
-        layerstack=filtered_layerstack,
+        layer_stack=filtered_layer_stack,
         wavelength=1.55,
         num_modes=num_modes,
         resolutions=resolutions,

@@ -335,7 +335,7 @@ if __name__ == "__main__":
         rule_not_inside(layer="VIAC", not_inside="NPP"),
     ]
 
-    layers = LAYER.dict()
+    layers = dict(LAYER)
     layers.update({"WG_PIN": (1, 10)})
 
     drc_rule_deck = write_drc_deck_macro(rules=rules, layers=layers, mode="tiled")

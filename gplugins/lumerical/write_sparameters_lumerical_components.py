@@ -44,6 +44,44 @@ def write_sparameters_lumerical_components(
 
 
 if __name__ == "__main__":
-    from gdsfactory.components import _factory_passives
+    from gdsfactory.components import (
+        bend_euler,
+        bend_s,
+        coupler,
+        coupler_adiabatic,
+        coupler_asymmetric,
+        coupler_full,
+        coupler_ring,
+        coupler_ring_point,
+        coupler_symmetric,
+        crossing,
+        crossing45,
+        mmi1x2,
+        mmi2x2,
+        taper,
+        taper_cross_section_linear,
+        taper_cross_section_parabolic,
+        taper_cross_section_sine,
+    )
 
-    write_sparameters_lumerical_components(factory=_factory_passives.values())
+    factory_passives = dict(
+        bend_euler=bend_euler,
+        bend_s=bend_s,
+        coupler=coupler,
+        coupler_adiabatic=coupler_adiabatic,
+        coupler_asymmetric=coupler_asymmetric,
+        coupler_full=coupler_full,
+        coupler_ring=coupler_ring,
+        coupler_ring_point=coupler_ring_point,
+        coupler_symmetric=coupler_symmetric,
+        crossing=crossing,
+        crossing45=crossing45,
+        taper_cross_section_linear=taper_cross_section_linear,
+        taper_cross_section_sine=taper_cross_section_sine,
+        taper_cross_section_parabolic=taper_cross_section_parabolic,
+        taper=taper,
+        mmi1x2=mmi1x2,
+        mmi2x2=mmi2x2,
+    )
+
+    write_sparameters_lumerical_components(factory=factory_passives.values())

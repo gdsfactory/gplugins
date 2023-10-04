@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 temp.msh2
+docs/notebooks/temporary
 
 # C extensions
 *.so
@@ -19,6 +20,9 @@ _autosummary/
 gplugins/path_length_analysis/test_pathlength_reporting/
 docs/notebooks/rib_strip_pathlengths/
 docs/notebooks/rib_strip_pathlengths/
+mask.csv
+mask.yml
+gplugins/modes/data
 
 # Run files
 sim_run.yaml

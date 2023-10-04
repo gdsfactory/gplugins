@@ -22,6 +22,8 @@
 # %%
 import gdsfactory as gf
 
+gf.config.CONF.display_type = "klayout"
+
 xs_top = [0, 10, 20, 40, 50, 80]
 pitch = 127.0
 N = len(xs_top)
@@ -68,7 +70,7 @@ report_pathlengths(
 )
 
 # %% [markdown]
-# You should see an interactive webpage like the following appear, summarizing the paths in your PIC.
+# You should see an interactive webpage like the following appear in your browser, summarizing the paths in your PIC.
 #
 # To the left is a stick diagram, showing all the instances and paths in your circuit (with straight lines connecting ports for simplification).
 # To the right is a table of the aggregate paths from all routing components in your circuit (those with `route_info` included in their `info` dictionary).
@@ -78,4 +80,3 @@ report_pathlengths(
 
 # %% [markdown]
 # Clicking any of the routes or checking any of the boxes should highlight the respective route in the color shown in the table to the right to help you better identify them. Hovering over any of the routes or ports will display additional information.
-# ![pathlength report](images/pathlength_report_highlighted.png)

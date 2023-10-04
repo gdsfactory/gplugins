@@ -21,6 +21,10 @@ execute:
     - "*ray_optimiser*"
     - "*03_numerical_implantation*"
     - "*02_model_extraction*"
+    - "*palace*"
+    - "*elmer_01_electrostatic*"
+    - "*fdtdz*"
+    # - "*sax_01_sax*"
     # - "*20_schematic_driven_layout*"
     # - "*001_meep_sparameters*"
     # - "*00_tidy3d.ipynb"
@@ -44,9 +48,9 @@ repository:
   path_to_book: docs # Optional path to your book, relative to the repository root
   branch: main # Which branch of the repository should be used when creating links (optional)
 
-launch_buttons:
-  notebook_interface: jupyterlab
-  colab_url: "https://colab.research.google.com"
+# launch_buttons:
+#   notebook_interface: jupyterlab
+#   colab_url: "https://colab.research.google.com"
 
 bibtex_bibfiles:
   - bibliography.bib
@@ -59,13 +63,13 @@ sphinx:
     - "sphinx.ext.napoleon"
     - "sphinx.ext.viewcode"
     - "matplotlib.sphinxext.plot_directive"
-    - "sphinxcontrib.autodoc_pydantic"
     - "sphinxcontrib.bibtex"
   config:
     #autodoc_typehints: description
     autodoc_type_aliases:
       "ComponentSpec": "ComponentSpec"
     nb_execution_show_tb: True
+    nb_execution_raise_on_error: true
     nb_custom_formats:
         .py:
             - jupytext.reads

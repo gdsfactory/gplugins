@@ -16,6 +16,7 @@ parts:
           - file: notebooks/meshing_02_2D_xy_mesh
           - file: notebooks/meshing_03_2D_uz_mesh
           - file: notebooks/meshing_04_refinement
+          - file: notebooks/meshing_05_3D
       - file: plugins_process
         sections:
           - file: notebooks/femwell_02_heater
@@ -23,6 +24,8 @@ parts:
           - file: notebooks/tcad_02_analytical_process
           - file: notebooks/tcad_03_numerical_implantation
           - file: notebooks/elmer_01_electrostatic
+          - file: notebooks/palace_01_electrostatic
+          - file: notebooks/palace_02_fullwave
       - file: plugins_mode_solver
         sections:
           - file: notebooks/femwell_01_modes
@@ -32,8 +35,10 @@ parts:
       - file: plugins_fdtd
         sections:
           - file: notebooks/tidy3d_00_tidy3d
+          - file: notebooks/fdtdz_01.py
           - file: notebooks/meep_01_sparameters
           - file: notebooks/meep_02_gratings
+          - file: notebooks/meep_03_fields
           - file: notebooks/lumerical_1_fdtd_sparameters
       - file: plugins_circuits
         sections:
@@ -41,6 +46,7 @@ parts:
           - file: notebooks/sax_02_model_extraction
           - file: notebooks/sax_03_variability_analysis
           - file: notebooks/lumerical_2_interconnect
+          - file: notebooks/vlsir_netlist
       - file: notebooks/20_schematic_driven_layout
   - caption: Verification
     chapters:
@@ -56,7 +62,6 @@ parts:
     chapters:
       - file: workflow
         sections:
-          - file: notebooks/workflow_0_layout_summary
           - file: notebooks/workflow_1_mzi
           - file: notebooks/workflow_2_ring
           - file: notebooks/workflow_3_cascaded_mzi
@@ -67,5 +72,7 @@ parts:
       - file: changelog
       - url: https://gdsfactory.github.io/gdsfactory
         title: gdsfactory
+      - url: https://github.com/gdsfactory/gdsfactory-photonics-training
+        title: gdsfactory-photonics-training
       - url: https://piel.readthedocs.io/en/latest/index.html
         title: electronics-integration

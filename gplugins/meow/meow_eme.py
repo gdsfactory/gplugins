@@ -17,23 +17,23 @@ from gdsfactory.typings import PathType
 from meow.base_model import _array as mw_array
 from tqdm.auto import tqdm
 
-from gplugins.utils.get_sparameters_path import (
+from gplugins.common.utils.get_sparameters_path import (
     get_sparameters_path_meow as get_sparameters_path,
 )
 
 
-def list_unique_layerstack_z(
-    layerstack: LayerStack,
+def list_unique_layer_stack_z(
+    layer_stack: LayerStack,
 ) -> list[float]:
     """List all unique LayerStack z coordinates.
 
     Args:
-        layerstack: LayerStack
+        layer_stack: LayerStack
     Returns:
-        Sorted set of z-coordinates for this layerstack
+        Sorted set of z-coordinates for this layer_stack
     """
-    thicknesses = [layer.thickness for layer in layerstack.layers.values()]
-    zmins = [layer.zmin for layer in layerstack.layers.values()]
+    thicknesses = [layer.thickness for layer in layer_stack.layers.values()]
+    zmins = [layer.zmin for layer in layer_stack.layers.values()]
     zmaxs = [sum(value) for value in zip(zmins, thicknesses)]
 
     return sorted(set(zmins + zmaxs))
@@ -52,7 +52,7 @@ class MEOW:
     def __init__(
         self,
         component: gf.Component,
-        layerstack,
+        layer_stack,
         wavelength: float = 1.55,
         temperature: float = 25.0,
         num_modes: int = 4,
@@ -73,13 +73,13 @@ class MEOW:
         assumes port 1 is at the left boundary and port 2 at the right boundary.
 
         Note coordinate systems:
-            gdsfactory uses x,y in the plane to represent components, with the layerstack existing in z
+            gdsfactory uses x,y in the plane to represent components, with the layer_stack existing in z
             meow uses x,y to represent a cross-section, with propagation in the z-direction
             hence we have [x,y,z] <--> [y,z,x] for gdsfactory <--> meow
 
         Arguments:
             component: gdsfactory component.
-            layerstack: gdsfactory layerstack.
+            layer_stack: gdsfactory layer_stack.
             wavelength: wavelength in microns (for FDE, and for material properties).
             temperature: temperature in C (for material properties). Unused now.
             num_modes: number of modes to compute for the eigenmode expansion.
@@ -149,7 +149,7 @@ class MEOW:
         z_min, x_min, z_max, x_max = component.bbox.ravel()
         z_min, z_max = min(z_min, z_max) + 1e-10, max(z_min, z_max) - 1e-10
         x_min, x_max = min(x_min, x_max) + 1e-10, max(x_min, x_max) - 1e-10
-        ys = list_unique_layerstack_z(layerstack)
+        ys = list_unique_layer_stack_z(layer_stack)
         y_min, y_max = np.min(ys) + 1e-10, np.max(ys) - 1e-10
 
         self.span_x = x_max - x_min + spacing_x
@@ -170,8 +170,10 @@ class MEOW:
         self.num_cells = max(int(self.span_z / cell_length) + 2, 4)
 
         # Setup simulation
-        self.component, self.layerstack = self.add_global_layers(component, layerstack)
-        self.extrusion_rules = self.layerstack_to_extrusion()
+        self.component, self.layer_stack = self.add_global_layers(
+            component, layer_stack
+        )
+        self.extrusion_rules = self.layer_stack_to_extrusion()
         self.structs = mw.extrude_gds(self.component, self.extrusion_rules)
         self.cells = self.create_cells()
         self.env = mw.Environment(wl=self.wavelength, T=self.temperature)
@@ -199,12 +201,12 @@ class MEOW:
         filepath = filepath or get_sparameters_path(
             component=component,
             dirpath=dirpath,
-            layer_stack=layerstack,
+            layer_stack=layer_stack,
             **sim_settings,
         )
 
         sim_settings = sim_settings.copy()
-        sim_settings["layer_stack"] = layerstack.to_dict()
+        sim_settings["layer_stack"] = layer_stack.to_dict()
         sim_settings["component"] = component.to_dict()
         self.sim_settings = sim_settings
         self.filepath = pathlib.Path(filepath)
@@ -235,7 +237,7 @@ class MEOW:
     def add_global_layers(
         self,
         component,
-        layerstack,
+        layer_stack,
         buffer_y: float = 1,
         global_layer_index: int = 10000,
     ):
@@ -245,7 +247,7 @@ class MEOW:
 
         Arguments:
             component: gdsfactory component.
-            layerstack: gdsfactory LayerStack.
+            layer_stack: gdsfactory LayerStack.
             xspan: from eme setup.
             global_layer_index: int, layer index at which to starting adding the global layers.
                     Default 10000 with +1 increments to avoid clashing with physical layers.
@@ -254,7 +256,7 @@ class MEOW:
         c = gf.Component()
         c.add_ref(component)
         bbox = component.bbox
-        for _layername, layer in layerstack.layers.items():
+        for _layername, layer in layer_stack.layers.items():
             if layer.layer == LAYER.WAFER:
                 c.add_ref(
                     gf.components.bbox(
@@ -268,12 +270,12 @@ class MEOW:
                 layer.layer = (global_layer_index, 0)
                 global_layer_index += 1
 
-        return c, layerstack
+        return c, layer_stack
 
-    def layerstack_to_extrusion(self):
+    def layer_stack_to_extrusion(self):
         """Convert LayerStack to meow extrusions."""
         extrusions = {}
-        for _layername, layer in self.layerstack.layers.items():
+        for _layername, layer in self.layer_stack.layers.items():
             if layer.layer not in extrusions.keys():
                 extrusions[layer.layer] = []
             extrusions[layer.layer].append(
@@ -447,7 +449,7 @@ if __name__ == "__main__":
     c = gf.components.taper(length=10, width2=2)
     c.show()
 
-    filtered_layerstack = LayerStack(
+    filtered_layer_stack = LayerStack(
         layers={
             k: get_layer_stack().layers[k]
             for k in (
@@ -459,7 +461,7 @@ if __name__ == "__main__":
         }
     )
     m = MEOW(
-        component=c, layerstack=filtered_layerstack, wavelength=1.55, overwrite=False
+        component=c, layer_stack=filtered_layer_stack, wavelength=1.55, overwrite=False
     )
     print(len(m.cells))
 

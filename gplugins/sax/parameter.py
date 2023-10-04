@@ -52,34 +52,34 @@ class Parameter:
 class LayerStackThickness(Parameter):
     def __init__(
         self,
-        layerstack: LayerStack | None = None,
+        layer_stack: LayerStack | None = None,
         layername: str | None = "core",
         **kwargs,
     ) -> None:
         """Layerstack thickness parameter.
 
         Arguments:
-            layerstack: LayerStack
-            layername: Name of the layer in the layerstack
+            layer_stack: LayerStack
+            layername: Name of the layer in the layer_stack
             min_value: minimum value of the parameter. Default to layer thickness minus tolerance.
             max_value: maximum value of the parameter. Default to layer thickness plus tolerance.
             nominal_value: nominal value of the parameter. Default to layer thickness.
             step: size of the step going from min_value to max_value when generating data. Default to 3 steps between min and max.
         """
         super().__init__(**kwargs)
-        self.layerstack = layerstack or get_layer_stack()
+        self.layer_stack = layer_stack or get_layer_stack()
         self.layername = layername
         self.min_value = (
             kwargs["min_value"]
-            or self.layerstack.layers[self.layername].thickness
-            - self.layerstack.layers[self.layername].thickness_tolerance
+            or self.layer_stack.layers[self.layername].thickness
+            - self.layer_stack.layers[self.layername].thickness_tolerance
         )
         self.max_value = (
             kwargs["max_value"]
-            or self.layerstack.layers[self.layername].thickness
-            + self.layerstack.layers[self.layername].thickness_tolerance
+            or self.layer_stack.layers[self.layername].thickness
+            + self.layer_stack.layers[self.layername].thickness_tolerance
         )
-        self.nominal_value = self.layerstack.layers[self.layername].thickness
+        self.nominal_value = self.layer_stack.layers[self.layername].thickness
         self.step = kwargs["step"] or np.abs(self.max_value - self.min_value) / 3
         self.current_value = None
         return None
@@ -100,7 +100,7 @@ class LithoParameter(Parameter):
     def __init__(
         self,
         type: str = "layer_dilation_erosion",
-        layerstack: LayerStack | None = None,
+        layer_stack: LayerStack | None = None,
         layername: str | None = "core",
         **kwargs,
     ) -> None:
@@ -117,9 +117,9 @@ class LithoParameter(Parameter):
         self.max_value = kwargs.get("max_value")
         self.nominal_value = kwargs.get("nominal_value")
         self.step = kwargs.get("step")
-        layerstack = layerstack or get_layer_stack()
+        layer_stack = layer_stack or get_layer_stack()
 
-        self.layer = layerstack[layername].layer
+        self.layer = layer_stack[layername].layer
         self.type = type
 
         return None
