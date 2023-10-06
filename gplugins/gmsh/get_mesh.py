@@ -62,6 +62,7 @@ def get_mesh(
 
     # Parse the resolutions dict to set default size_max
     if "resolutions" in kwargs:
+        del kwargs["resolutions"]
         new_resolutions = {}
         for layername, resolutions_dict in kwargs["resolutions"].items():
             if "SizeMax" not in resolutions_dict:
@@ -69,7 +70,8 @@ def get_mesh(
             if "distance" in resolutions_dict and "DistMax" not in resolutions_dict:
                 resolutions_dict["DistMax"] = resolutions_dict["distance"]
             new_resolutions[layername] = resolutions_dict
-    del kwargs["resolutions"]
+    else:
+        new_resolutions = None
 
     if type == "xy":
         if z is None:
