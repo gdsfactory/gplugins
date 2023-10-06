@@ -68,8 +68,8 @@ DEFAULT_INITIALIZATION = """
 
 def write_sdevice_quasistationary_ramp_voltage_dd(
     struct: str = "struct_out_fps.tdr",
-    contacts: Tuple[str] = ("e1", "e2"),
-    ramp_contact_name: str = "e1",
+    contacts: Tuple[str] = ("anode", "cathode"),
+    ramp_contact_name: str = "anode",
     ramp_final_voltage: float = 1.0,
     ramp_initial_step: float = 0.01,
     ramp_increment: float = 1.3,
@@ -157,97 +157,96 @@ def write_sdevice_quasistationary_ramp_voltage_dd(
         f.write("}\n")
 
 
-# def write_sdevice_smallsignalac_ramp_voltage_dd(
-#     struct: str = "./sprocess.tdr",
-#     frequencies: Floats = (1E6,),
-#     contacts: Tuple[str] = ("e1", "e2"),
-#     ramp_contact_name: str = "e1",
-#     ramp_final_voltage: float = 1.0,
-#     ramp_initial_step: float = 0.01,
-#     ramp_increment: float = 1.3,
-#     ramp_max_step: float = 0.2,
-#     ramp_min_step: float = 1e-6,
-#     ramp_sample_voltages: Floats = (0.0, 0.3, 0.6, 0.8, 1.0),
-#     filepath: str = "./sdevice_fps.cmd",
-#     file_settings: str = DEFAULT_FILE_SETTINGS,
-#     output_settings: str = DEFAULT_OUTPUT_SETTINGS,
-#     physics_settings: str = DEFAULT_PHYSICS_SETTINGS,
-#     math_settings: str = DEFAULT_MATH_SETTINGS,
-#     initialization_commands: str = DEFAULT_INITIALIZATION,
-# ):
-#     """Writes a Sentaurus Device TLC file for sweeping DC voltage of one terminal of a Sentaurus Structure (from sprocess or structure editor) and reporting a conductance/capacitance matrix using the drift-diffusion equations (Hole + Electrons + Poisson).
+def write_sdevice_ssac_ramp_voltage_dd(
+    Vfinal: float = 3.0,
+    device_name_extra_str="0",
+    filepath: str = "./sdevice_fps.cmd",
+):
+    Vstring = f"{Vfinal:1.3f}".replace(".", "p").replace("-", "m")
 
-#     You may need to modify the settings or this function itself for better results.
+    text1 = f"""
+Device PN_{Vstring}_{device_name_extra_str} {{
 
-#     Arguments:
-#         struct: Sentaurus Structure object file to run the simulation on.
-#         frequencies: for the AC extraction.
-#         contacts: list of all contact names in the struct.
-#         ramp_contact_name: name of the contact whose voltage to sweep.
-#         ramp_final_voltage: final target voltage.
-#         ramp_initial_step: initial ramp step.
-#         ramp_increment: multiplying factor to increase ramp rate between iterations.
-#         ramp_max_step: maximum ramping step.
-#         ramp_min_step: minimum ramping step.
-#         ramp_sample_voltages: list of voltages between 0V and ramp_final_voltage to report.
-#         filepath: str = Path to the TLC file to be written.
-#         file_settings: "File" field settings to add to the TCL file
-#         output_settings: "Output" field settings to add to the TCL file
-#         physics_settings: "Physics" field settings to add to the TCL file
-#         math_settings: str = "Math" field settings to add to the TCL file
-#         initialization_commands: in the solver, what to execute before the ramp
-#     """
+  Electrode {{
+    {{ Name="anode" Voltage=0.0 }}
+    {{ Name="cathode" Voltage=0.0 }}
+    {{ Name="substrate" Voltage=0.0 }}
+  }}
+"""
+    text2 = f"""
+  File {{
+    Grid = "struct_out_fps.tdr"
+    Current = "plot_{Vstring}"
+    Plot = "tdrdat_{Vstring}"
+  }}
+"""
+    text3 = f"""
+  Physics {{
+    Mobility ( DopingDependence HighFieldSaturation Enormal )
+    EffectiveIntrinsicDensity(BandGapNarrowing (OldSlotboom))
+    Recombination( SRH Auger Avalanche )
+  }}
+  Plot {{
+    eDensity hDensity eMobility hMobility eCurrent hCurrent
+    ElectricField eEparallel hEparallel
+    eQuasiFermi hQuasiFermi
+    Potential Doping SpaceCharge
+    DonorConcentration AcceptorConcentration
+  }}
+}}
 
-#     # Setup TCL file
-#     out_file = pathlib.Path(filepath)
-#     if out_file.exists():
-#         out_file.unlink()
+Math {{
+  Extrapolate
+  RelErrControl
+  Notdamped=50
+  Iterations=20
+  NumberOfThreads=4
+}}
 
-#     # Initialize electrodes
-#     with open(filepath, "a") as f:
-#         f.write("Electrode{\n")
-#         for boundary_name in contacts:
-#             f.write(f'{{ name="{boundary_name}"      voltage=0 }}\n')
-#         f.write("}\n")
+File {{
+  Output = "log_{Vstring}"
+  ACExtract = "acplot_{Vstring}"
+}}
 
-#         # File settings
-#         f.write("File{\n")
-#         f.write(f'Grid    = "{struct}"\n')
-#         f.write(file_settings)
-#         f.write("}\n")
+System {{
+  PN_{Vstring}_{device_name_extra_str} trans (cathode=d anode=g substrate=g)
+  Vsource_pset vg (g 0) {{dc=0}}
+  Vsource_pset vd (d 0) {{dc=0}}
+}}
 
-#         # Output settings
-#         f.write(output_settings)
+Solve {{
+  #-a) zero solution
+  Poisson
+  Coupled {{ Poisson Electron Hole }}
+"""
 
-#         # Physics settings
-#         f.write(physics_settings)
+    text4 = f"""#-b) ramp cathode
+  Quasistationary (
+  InitialStep=0.01 MaxStep=0.04 MinStep=1.e-5
+  Goal {{ Parameter=vd.dc Voltage={Vfinal} }}
+  )
+"""
 
-#         # Math settings
-#         f.write(math_settings)
+    text5 = """
+  { ACCoupled (
+  StartFrequency=1e3 EndFrequency=1e3
+  NumberOfPoints=1 Decade
+  Node(d g) Exclude(vd vg)
 
-#         # Solve settings
-#         f.write("Solve{\n")
-
-#         # Initialization
-#         f.write(initialization_commands)
-
-#         ramp_sample_voltages_str = ""
-#         for voltage in ramp_sample_voltages:
-#             ramp_sample_voltages_str += f" {voltage} ;"
-
-#         f.write(
-#             f"""
-#     Quasistationary (
-#         InitialStep={ramp_initial_step} Increment={ramp_increment}
-#         MaxStep ={ramp_max_step} MinStep = {ramp_min_step}
-#         Goal{{ Name=\"{ramp_contact_name}\" Voltage={ramp_final_voltage} }}
-#     ){{ Coupled {{Poisson Electron Hole }}
-#         Save(FilePrefix=\"sdevice_output\" Time= ({ramp_sample_voltages_str} ) NoOverWrite )
-#     }}
-#     """
-#         )
-#         f.write("}\n")
+  )
+  { Poisson Electron Hole }
+  }
+}
+"""
+    f = open(filepath, "a")
+    f.write(text1)
+    f.write(text2)
+    f.write(text3)
+    f.write(text4)
+    f.write(text5)
+    f.close()
 
 
 if __name__ == "__main__":
-    write_sdevice_quasistationary_ramp_voltage_dd()
+    # write_sdevice_quasistationary_ramp_voltage_dd()
+    write_sdevice_ssac_ramp_voltage_dd()
