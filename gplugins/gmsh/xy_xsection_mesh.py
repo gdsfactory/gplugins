@@ -11,8 +11,8 @@ from meshwell.model import Model
 from shapely.geometry import Polygon
 from shapely.ops import unary_union
 
-from gplugins.common.utils.get_component_with_new_port_layers import (
-    get_component_with_new_port_layers,
+from gplugins.common.utils.get_component_with_net_layers import (
+    get_component_with_net_layers,
 )
 from gplugins.common.utils.parse_layer_stack import (
     get_layers_at_z,
@@ -97,7 +97,7 @@ def xy_xsection_mesh(
         mesh_component = gf.Component()
         _ = mesh_component << union(component, by_layer=True)
         mesh_component.add_ports(component.get_ports_list())
-        component = get_component_with_new_port_layers(
+        component = get_component_with_net_layers(
             component=mesh_component,
             port_names=port_names,
             layer_stack=layer_stack,

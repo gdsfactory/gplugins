@@ -57,7 +57,7 @@ DEVREC.overlapping(DEVREC).output("Component overlap")\n
 
 def write_connectivity_checks_per_section(
     connectivity_checks: list[ConnectivyCheck],
-    device_layer: LayerSpec = None,
+    device_layer: LayerSpec | None = None,
 ) -> str:
     """Return script for port connectivity check.
     Assumes the port pins are inside the Component and each cross_section has pins on a different layer.
@@ -70,24 +70,23 @@ def write_connectivity_checks_per_section(
     script = ""
     device_layer = gf.get_layer(device_layer)
 
-    for cc in connectivity_checks:
+    for i, cc in enumerate(connectivity_checks):
         xs = gf.get_cross_section(cc.cross_section)
-        if not xs.name:
-            raise ValueError("You need to define cross_section name")
-        script += f"""{xs.name}_pin = input{cc.pin_layer}
-{xs.name}_pin = {xs.name}_pin.merged\n
-{xs.name}_pin2 = {xs.name}_pin.rectangles.without_area({xs.width} * {2 * cc.pin_length})"""
+        xs_name = f"xs_{i+1}"
+        script += f"""{xs_name}_pin = input{cc.pin_layer}
+{xs_name}_pin = {xs_name}_pin.merged\n
+{xs_name}_pin2 = {xs_name}_pin.rectangles.without_area({xs.width} * {2 * cc.pin_length})"""
 
         if xs.width_wide:
-            script += f" - {xs.name}_pin.rectangles.with_area({xs.width_wide} * {2 * cc.pin_length})"
+            script += f" - {xs_name}_pin.rectangles.with_area({xs.width_wide} * {2 * cc.pin_length})"
 
-        script += f"""\n{xs.name}_pin2.output(\"port alignment error\")\n
-{xs.name}_pin2 = {xs.name}_pin.sized(0.0).merged\n
-{xs.name}_pin2.non_rectangles.output(\"port width check\")\n\n"""
+        script += f"""\n{xs_name}_pin2.output(\"port alignment error\")\n
+{xs_name}_pin2 = {xs_name}_pin.sized(0.0).merged\n
+{xs_name}_pin2.non_rectangles.output(\"port width check\")\n\n"""
 
     if device_layer:
-        script += f"""DEVREC = input{device_layer}.raw.merged(2)\n
-DEVREC.overlapping(DEVREC).output("Component overlap")\n
+        script += f"""devrec = input{device_layer}.merged(2)\n
+devrec.overlapping(devrec).output("Component overlap")\n
     """
 
     return script
@@ -99,9 +98,9 @@ if __name__ == "__main__":
     nm = 1e-3
 
     connectivity_checks = [
-        # ConnectivyCheck(cross_section="strip", pin_length=1 * nm, pin_layer=(1, 10))
+        # ConnectivyCheck(cross_section="xs_sc", pin_length=1 * nm, pin_layer=(1, 10))
         ConnectivyCheck(
-            cross_section="strip_auto_widen", pin_length=1 * nm, pin_layer=(1, 10)
+            cross_section="xs_sc_auto_widen", pin_length=1 * nm, pin_layer=(1, 10)
         )
     ]
     rules = [

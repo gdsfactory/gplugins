@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 temp.msh2
+docs/notebooks/temporary
 
 # C extensions
 *.so
