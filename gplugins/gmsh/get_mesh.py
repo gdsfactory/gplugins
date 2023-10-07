@@ -1,5 +1,3 @@
-import importlib.util
-
 import meshio
 from gdsfactory import Component
 from gdsfactory.typings import ComponentSpec, Layer, LayerStack
@@ -28,6 +26,7 @@ def get_mesh(
     xsection_bounds=None,
     wafer_padding: float = 0.0,
     wafer_layer: Layer = (99999, 0),
+    default_characteristic_length=0.5,
     **kwargs,
 ):
     """Returns a gmsh mesh of the component for finite element simulation.
@@ -61,13 +60,33 @@ def get_mesh(
     padded_component.add_polygon(points, layer=wafer_layer)
     padded_component.add_ports(component.get_ports_list())
 
+    # Parse the resolutions dict to set default size_max
+    if "resolutions" in kwargs:
+        new_resolutions = {}
+        for layername, resolutions_dict in kwargs["resolutions"].items():
+            if "SizeMax" not in resolutions_dict:
+                resolutions_dict["SizeMax"] = default_characteristic_length
+            if "distance" in resolutions_dict and "DistMax" not in resolutions_dict:
+                resolutions_dict["DistMax"] = resolutions_dict["distance"]
+            new_resolutions[layername] = resolutions_dict
+        del kwargs["resolutions"]
+    else:
+        new_resolutions = None
+
     if type == "xy":
         if z is None:
             raise ValueError(
                 'For xy-meshing, a z-value must be provided via the float argument "z".'
             )
 
-        return xy_xsection_mesh(padded_component, z, layer_stack, **kwargs)
+        return xy_xsection_mesh(
+            component=padded_component,
+            z=z,
+            layer_stack=layer_stack,
+            default_characteristic_length=default_characteristic_length,
+            resolutions=new_resolutions,
+            **kwargs,
+        )
     elif type == "uz":
         if xsection_bounds is None:
             raise ValueError(
@@ -76,15 +95,20 @@ def get_mesh(
             )
 
         return uz_xsection_mesh(
-            padded_component, xsection_bounds, layer_stack, **kwargs
+            component=padded_component,
+            xsection_bounds=xsection_bounds,
+            layer_stack=layer_stack,
+            default_characteristic_length=default_characteristic_length,
+            resolutions=new_resolutions,
+            **kwargs,
         )
     elif type == "3D":
-        spec = importlib.util.find_spec("meshwell")
-        if spec is None:
-            print(
-                "3D meshing requires meshwell, see https://github.com/simbilod/meshwell or run pip install meshwell."
-            )
-
-        return xyz_mesh(padded_component, layer_stack, **kwargs)
+        return xyz_mesh(
+            component=padded_component,
+            layer_stack=layer_stack,
+            default_characteristic_length=default_characteristic_length,
+            resolutions=new_resolutions,
+            **kwargs,
+        )
     else:
         raise ValueError('Required argument "type" must be one of "xy", "uz", or "3D".')
