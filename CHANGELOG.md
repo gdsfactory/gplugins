@@ -1,15 +1,15 @@
-# [CHANGELOG](https://keepachangelog.com/en/1.0.0/)
+# CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.8.4...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.8.5...main)
 
 <!-- towncrier release notes start -->
 
 ## [0.8.5](https://github.com/gdsfactory/gplugins/releases/tag/v0.8.5) - 2023-10-09
 
-
-### Added
-
-- added towncrier [#164](https://github.com/gdsfactory/gplugins/issues/164)
+- Move verification into klayout [#173](https://github.com/$OWNER/$REPOSITORY/pull/#173)
+- Default sizemax [#170](https://github.com/$OWNER/$REPOSITORY/pull/#170)
+- Bump actions/checkout from 3 to 4 [#168](https://github.com/$OWNER/$REPOSITORY/pull/#168)
+- add `get_component_with_net_layers` [#167](https://github.com/$OWNER/$REPOSITORY/pull/#167)
 
 
 ## [0.8.4](https://github.com/gdsfactory/kfactory/releases/v0.8.4) - 2023-09-27
