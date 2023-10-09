@@ -194,6 +194,7 @@ def uz_xsection_mesh(
     component: ComponentOrReference,
     xsection_bounds: tuple[tuple[float, float], tuple[float, float]],
     layer_stack: LayerStack,
+    layer_physical_map: dict,
     resolutions: dict | None = None,
     default_characteristic_length: float = 0.5,
     background_tag: str | None = None,
@@ -278,6 +279,7 @@ def uz_xsection_mesh(
         model=model,
         scale_factor=global_scaling_premesh,
         resolutions=resolutions,
+        layer_physical_map=layer_physical_map,
     )
 
     # Add background polygon

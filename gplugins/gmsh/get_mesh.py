@@ -22,6 +22,7 @@ def get_mesh(
     component: ComponentSpec,
     type: str,
     layer_stack: LayerStack,
+    layer_physical_map: dict | None = None,
     z: float | None = None,
     xsection_bounds=None,
     wafer_padding: float = 0.0,
@@ -35,6 +36,7 @@ def get_mesh(
         component: component
         type: one of "xy", "uz", or "3D". Determines the type of mesh to return.
         layer_stack: LayerStack object containing layer information.
+        layer_physical_map: by default, physical are tagged with layername; this dict allows you to specify custom mappings.
         z: used to define z-slice for xy meshing.
         xsection_bounds: used to define in-plane line for uz meshing.
         wafer_padding: padding beyond bbox to add to WAFER layers.
@@ -73,6 +75,16 @@ def get_mesh(
     else:
         new_resolutions = None
 
+    # Default layer labels
+    if layer_physical_map is None:
+        layer_physical_map = {}
+        for layer_name in layer_stack.layers.keys():
+            layer_physical_map[layer_name] = layer_name
+    else:
+        for layer_name in layer_stack.layers.keys():
+            if layer_name not in layer_physical_map.keys():
+                layer_physical_map[layer_name] = layer_name
+
     if type == "xy":
         if z is None:
             raise ValueError(
@@ -85,6 +97,7 @@ def get_mesh(
             layer_stack=layer_stack,
             default_characteristic_length=default_characteristic_length,
             resolutions=new_resolutions,
+            layer_physical_map=layer_physical_map,
             **kwargs,
         )
     elif type == "uz":
@@ -100,6 +113,7 @@ def get_mesh(
             layer_stack=layer_stack,
             default_characteristic_length=default_characteristic_length,
             resolutions=new_resolutions,
+            layer_physical_map=layer_physical_map,
             **kwargs,
         )
     elif type == "3D":
@@ -108,6 +122,7 @@ def get_mesh(
             layer_stack=layer_stack,
             default_characteristic_length=default_characteristic_length,
             resolutions=new_resolutions,
+            layer_physical_map=layer_physical_map,
             **kwargs,
         )
     else:
