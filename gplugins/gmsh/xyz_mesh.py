@@ -130,6 +130,7 @@ def define_prisms(
 def xyz_mesh(
     component: ComponentOrReference,
     layer_stack: LayerStack,
+    layer_physical_map: dict,
     resolutions: dict | None = None,
     default_characteristic_length: float = 0.5,
     background_tag: str | None = None,
