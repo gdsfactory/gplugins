@@ -42,7 +42,7 @@ from io import StringIO
 from gdsfactory.samples.demo.lvs import pads_correct
 
 import gplugins.vlsir as gs
-from gplugins.verification.get_netlist import get_netlist
+from gplugins.klayout.get_netlist import get_netlist
 
 # %%
 c = pads_correct()
@@ -55,7 +55,7 @@ gdspath = c.write_gds()
 kdbnetlist = get_netlist(gdspath)
 
 # convert it to a VLSIR Package
-pkg = gs.kdb_vlsir(kdbnetlist, domain="gplugins.verification.example")
+pkg = gs.kdb_vlsir(kdbnetlist, domain="gplugins.klayout.example")
 
 # %% [markdown]
 # ## Spectre RF

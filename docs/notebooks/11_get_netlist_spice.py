@@ -25,8 +25,8 @@ import pathlib
 
 from gdsfactory.samples.demo.lvs import pads_correct, pads_shorted
 
-from gplugins.verification.get_netlist import get_l2n, get_netlist
-from gplugins.verification.plot_nets import plot_nets
+from gplugins.klayout.get_netlist import get_l2n, get_netlist
+from gplugins.klayout.plot_nets import plot_nets
 
 c = pads_correct()
 gdspath = c.write_gds()
