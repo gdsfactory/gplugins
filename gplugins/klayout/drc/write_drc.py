@@ -58,13 +58,39 @@ print "run time #{(time_end-time_start).round(3)} seconds \n"
 """
 
 
-def rule_not_inside(layer: str, not_inside: str) -> str:
+def new_layers(**kwargs) -> str:
+    """Returns a string with the new layers."""
+    return "\n".join([f"{name} = input{layer}" for name, layer in kwargs.items()])
+
+
+def size(layer: str, dbu: int, layer_out: str | None = None) -> str:
+    """Returns a string with the sizing operation of a layer by dbu."""
+    layer_out = layer_out or layer
+    return f"{layer_out} = {layer}.size({dbu})"
+
+
+def layer_or(layer_out: str, layer1: str, layer2: str) -> str:
+    """Returns a string with the OR operation."""
+    return f"{layer_out} = {layer1} | {layer2}"
+
+
+def layer_not(layer_out: str, layer1: str, layer2: str) -> str:
+    """Returns a string with the NOT operation."""
+    return f"{layer_out} = {layer1} - {layer2}"
+
+
+def layer_and(layer_out: str, layer1: str, layer2: str) -> str:
+    """Returns a string with the AND operation."""
+    return f"{layer_out} = {layer1} & {layer2}"
+
+
+def check_not_inside(layer: str, not_inside: str) -> str:
     """Checks for that a layer is not inside another layer."""
     error = f"{layer} not inside {not_inside}"
     return f"{layer}.not_inside({not_inside})" f".output({error!r}, {error!r})"
 
 
-def rule_width(value: float, layer: str, angle_limit: float = 90) -> str:
+def check_width(value: float, layer: str, angle_limit: float = 90) -> str:
     """Min feature size."""
     category = "width"
     error = f"{layer} {category} {value}um"
@@ -74,7 +100,7 @@ def rule_width(value: float, layer: str, angle_limit: float = 90) -> str:
     )
 
 
-def rule_space(value: float, layer: str, angle_limit: float = 90) -> str:
+def check_space(value: float, layer: str, angle_limit: float = 90) -> str:
     """Min Space between shapes of layer."""
     category = "space"
     error = f"{layer} {category} {value}um"
@@ -84,13 +110,13 @@ def rule_space(value: float, layer: str, angle_limit: float = 90) -> str:
     )
 
 
-def rule_separation(value: float, layer1: str, layer2: str) -> str:
+def check_separation(value: float, layer1: str, layer2: str) -> str:
     """Min space between different layers."""
     error = f"min {layer1} {layer2} separation {value}um"
     return f"{layer1}.separation({layer2}, {value}).output({error!r}, {error!r})"
 
 
-def rule_enclosing(
+def check_enclosing(
     value: float, layer1: str, layer2: str, angle_limit: float = 90
 ) -> str:
     """Checks if layer1 encloses (is bigger than) layer2 by value."""
@@ -101,7 +127,7 @@ def rule_enclosing(
     )
 
 
-def rule_area(layer: str, min_area_um2: float = 2.0) -> str:
+def check_area(layer: str, min_area_um2: float = 2.0) -> str:
     """Return script for min area checking."""
     return f"""
 
@@ -111,7 +137,7 @@ r_{layer}_a.output("{layer.upper()}_A: {layer} area &lt; min_{layer}_a um2")
 """
 
 
-def rule_density(
+def check_density(
     layer: str = "metal1",
     layer_floorplan: str = "FLOORPLAN",
     min_density=0.2,
@@ -182,29 +208,78 @@ def write_layer_definition(layers: dict[str, Layer]) -> list[str]:
 
     Args:
         layers: layer definitions can be dict, dataclass or pydantic BaseModel.
-
     """
     layers = asdict(layers) if is_dataclass(layers) else layers
     layers = dict(layers)
     return [f"{key} = input({value[0]}, {value[1]})" for key, value in layers.items()]
 
 
-def write_drc_deck(rules: list[str], layers: dict[str, Layer] | None = None) -> str:
-    """Returns drc_rule_deck for KLayout.
+def get_drc_script(
+    rules: list[str],
+    layers: dict[str, Layer] | None = None,
+    mode: str = "tiled",
+    threads: int = 4,
+    tile_size: int = 500,
+    tile_borders: int | None = None,
+) -> str:
+    """Returns drc_check_deck for KLayout.
 
     based on https://github.com/klayoutmatthias/si4all
 
     Args:
         rules: list of rules.
         layers: layer definitions can be dict, dataclass or pydantic BaseModel.
+        mode: tiled, default or deep (hierarchical).
+        threads: number of threads.
+        tile_size: in um for tile mode.
+        tile_borders: sides for each. Defaults None to automatic.
 
+    modes:
+
+    - default
+        - flat polygon handling
+        - single threaded
+        - no overhead
+        - use for small layouts
+        - no side effects
+    - tiled
+        - need to optimize tile size (maybe 500x500um). Works of each tile individually.
+        - finite lookup range
+        - output is flat
+        - multithreading enable
+        - scales with number of CPUs
+        - scales with layout area
+        - predictable runtime and and memory footprint
+    - deep
+        - hierarchical mode
+        - preserves hierarchy in many cases
+        - does not predictably scale with number of CPUs
+        - experimental (either very fast of very slow)
+        - mainly used for LVS layer preparation
+
+    Klayout supports to switch modes and tile parameters during execution.
+    However this function does support switching modes yet.
     """
-    script = []
+    script = ""
+    if mode == "tiled":
+        script += f"""
+threads({threads})
+tiles({tile_size})
+"""
+        if tile_borders:
+            script += f"""
+tile_borders({tile_borders})
+"""
+    elif mode == "deep":
+        script += """
+deep
+"""
+    script += "\n"
     if layers:
-        script += write_layer_definition(layers=layers)
-    script += ["\n"]
-    script += rules
-    return "\n".join(script)
+        script += "\n".join(write_layer_definition(layers=layers))
+    script += "\n\n"
+    script += "\n".join(rules)
+    return script
 
 
 modes = ["tiled", "default", "deep"]
@@ -236,59 +311,33 @@ def write_drc_deck_macro(
         tile_size: in um for tile mode.
         tile_borders: sides for each. Defaults None to automatic.
 
-    modes:
-
-    - default
-        - flat polygon handling
-        - single threaded
-        - no overhead
-        - use for small layouts
-        - no side effects
-    - tiled
-        - need to optimize tile size (maybe 500x500um). Works of each tile individually.
-        - finite lookup range
-        - output is flat
-        - multithreading enable
-        - scales with number of CPUs
-        - scales with layout area
-        - predictable runtime and and memory footprint
-    - deep
-        - hierarchical mode
-        - preserves hierarchy in many cases
-        - does not predictably scale with number of CPUs
-        - experimental (either very fast of very slow)
-        - mainly used for LVS layer preparation
-
-    Klayout supports to switch modes and tile parameters during execution.
-    However this function does support switching modes.
-
     .. code::
 
         import gdsfactory as gf
         from gplugins.klayout.drc.write_drc import (
             write_drc_deck_macro,
-            rule_enclosing,
-            rule_width,
-            rule_space,
-            rule_separation,
-            rule_area,
-            rule_density,
+            check_enclosing,
+            check_width,
+            check_space,
+            check_separation,
+            check_area,
+            check_density,
         )
         from gdsfactory.generic_tech import LAYER
         rules = [
-            rule_width(layer="WG", value=0.2),
-            rule_space(layer="WG", value=0.2),
-            rule_separation(layer1="HEATER", layer2="M1", value=1.0),
-            rule_enclosing(layer1="VIAC", layer2="M1", value=0.2),
-            rule_area(layer="WG", min_area_um2=0.05),
-            rule_density(
+            check_width(layer="WG", value=0.2),
+            check_space(layer="WG", value=0.2),
+            check_separation(layer1="HEATER", layer2="M1", value=1.0),
+            check_enclosing(layer1="VIAC", layer2="M1", value=0.2),
+            check_area(layer="WG", min_area_um2=0.05),
+            check_density(
                 layer="WG", layer_floorplan="FLOORPLAN", min_density=0.5, max_density=0.6
             ),
-            rule_not_inside(layer="VIAC", not_inside="NPP"),
+            check_not_inside(layer="VIAC", not_inside="NPP"),
         ]
 
-        drc_rule_deck = write_drc_deck_macro(rules=rules, layers=LAYER, mode="tiled")
-        print(drc_rule_deck)
+        drc_check_deck = write_drc_deck_macro(rules=rules, layers=LAYER, mode="tiled")
+        print(drc_check_deck)
 
     """
     if mode not in modes:
@@ -296,21 +345,14 @@ def write_drc_deck_macro(
 
     script = get_drc_script_start(name=name, shortcut=shortcut)
 
-    if mode == "tiled":
-        script += f"""
-threads({threads})
-tiles({tile_size})
-"""
-        if tile_borders:
-            script += f"""
-tile_borders({tile_borders})
-"""
-    elif mode == "deep":
-        script += """
-deep
-"""
-
-    script += write_drc_deck(rules=rules, layers=layers)
+    script += get_drc_script(
+        rules=rules,
+        layers=layers,
+        threads=threads,
+        tile_size=tile_size,
+        tile_borders=tile_borders,
+        mode=mode,
+    )
 
     script += drc_script_end
     filepath = filepath or get_klayout_path() / "drc" / f"{name}.lydrc"
@@ -327,16 +369,18 @@ if __name__ == "__main__":
     from gdsfactory.generic_tech import LAYER
 
     rules = [
-        rule_width(layer="WG", value=0.2),
-        rule_space(layer="WG", value=0.2),
-        rule_separation(layer1="HEATER", layer2="M1", value=1.0),
-        rule_enclosing(layer1="VIAC", layer2="M1", value=0.2),
-        rule_area(layer="WG", min_area_um2=0.05),
-        rule_not_inside(layer="VIAC", not_inside="NPP"),
+        # check_width(layer="WG", value=0.2),
+        # check_space(layer="WG", value=0.2),
+        # check_separation(layer1="HEATER", layer2="M1", value=1.0),
+        # check_enclosing(layer1="VIAC", layer2="M1", value=0.2),
+        # check_area(layer="WG", min_area_um2=0.05),
+        # check_not_inside(layer="VIAC", not_inside="NPP"),
+        new_layers(TRENCHES=(2, 33)),
+        size(layer="WG", dbu=1000),
     ]
 
     layers = dict(LAYER)
-    layers.update({"WG_PIN": (1, 10)})
-
-    drc_rule_deck = write_drc_deck_macro(rules=rules, layers=layers, mode="tiled")
-    print(drc_rule_deck)
+    layers["WG_PIN"] = (1, 10)
+    # drc_check_deck = write_drc_deck_macro(rules=rules, layers=layers, mode="tiled")
+    script = get_drc_script(rules=rules, layers=layers, mode="tiled")
+    print(script)
