@@ -8,6 +8,7 @@ from shapely.affinity import scale
 def define_polysurfaces(
     polygons_dict: dict,
     layer_stack: LayerStack,
+    layer_physical_map: dict,
     model: Any,
     resolutions: dict,
     scale_factor: float = 1,
@@ -32,7 +33,9 @@ def define_polysurfaces(
                 model=model,
                 resolution=resolutions.get(layername, None),
                 mesh_order=layer_stack.layers.get(layername).mesh_order,
-                physical_name=layername,
+                physical_name=layer_physical_map[layername]
+                if layername in layer_physical_map
+                else layername,
             )
         )
 
