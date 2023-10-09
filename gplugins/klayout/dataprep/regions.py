@@ -3,7 +3,7 @@ import uuid
 import gdsfactory as gf
 import kfactory as kf
 from gdsfactory.component import GDSDIR_TEMP
-from gdsfactory.typings import LayerSpecs, PathType, Tuple
+from gdsfactory.typings import PathType
 from kfactory import kdb
 
 
@@ -157,65 +157,19 @@ class RegionCollection:
     def __delattr__(self, element) -> None:
         setattr(self, element, Region())
 
-    def get_fill(
-        self,
-        region,
-        size: Tuple[float, float],
-        spacing: Tuple[float, float],
-        fill_layers: LayerSpecs | None,
-        cellname: str = "Unamed",
-        fill_cellname: str = "Unnamed_fill",
-    ) -> kf.KCell:
-        """Generates rectangular fill on a set of layers in the region specified.
-
-        Args:
-            region: to fill, usually the result of prior boolean operations.
-            size: (x,y) dimensions of the fill cell (um).
-            spacing: (x,y) spacing of the fill cell (um).
-            fill_layers: layers of the fill cell (can be multiple).
-            fill_name: fill cell name.
-            fill_cellname: fill cell name.
-        """
-        if fill_cellname == "Unnamed_fill":
-            uid = str(uuid.uuid4())[:8]
-            fill_cellname += f"_{uid}"
-
-        if cellname == "Unnamed":
-            uid = str(uuid.uuid4())[:8]
-            cellname += f"_{uid}"
-
-        fill_layers = fill_layers or ()
-
-        fill_cell = kf.KCell(fill_cellname)
-        for layer in fill_layers:
-            layer = kf.kcl.layer(*layer)
-            _ = fill_cell << kf.cells.straight.straight(
-                width=size[0], length=size[1], layer=layer
-            )
-
-        fc_index = fill_cell.cell_index()  # fill cell index
-        fc_box = fill_cell.bbox().enlarged(spacing[0] / 2 * 1e3, spacing[1] / 2 * 1e3)
-        fill_margin = kf.kdb.Point(0, 0)
-
-        fill = kf.KCell(cellname)
-        return fill.fill_region(
-            region, fc_index, fc_box, None, region, fill_margin, None
-        )
-
 
 if __name__ == "__main__":
     import kfactory as kf
     from gdsfactory.generic_tech import LAYER
 
     c = gf.Component()
-    ring = c << gf.components.coupler_ring(
-        # cross_section=gf.cross_section.rib_conformal, radius=20
-    )
+    ring = c << gf.components.coupler_ring()
+    floorplan = c << gf.components.bbox(ring.bbox, layer=LAYER.FLOORPLAN)
+
     # ring = c << gf.components.coupler_ring()
     gdspath = c.write_gds()
     c.show()
 
-    # floorplan = c << gf.components.bbox(ring.bbox, layer=l.FLOORPLAN)
     # gdspath = c.write_gds()
 
     d = RegionCollection(gdspath)
@@ -228,17 +182,6 @@ if __name__ == "__main__":
     # d[LAYER.DEEP_ETCH] = d[LAYER.SLAB90]  # copy layer
     # d[LAYER.SLAB90].clear()  # clear slab150
 
-    # d.write_gds("out.gds", keep_original=True)
-    # gf.show("out.gds")
+    d.write_gds("out.gds", keep_original=True)
+    gf.show("out.gds")
     d.show()
-
-    # d["SLAB150"] = d.WG - d.FLOORPLAN
-    fill_cell = d.get_fill(
-        d[LAYER.FLOORPLAN] - d[LAYER.WG],
-        size=(0.1, 0.1),
-        spacing=(0.1, 0.1),
-        fill_layers=(LAYER.WG,),
-    )
-    c = d.get_kcell()
-    _ = c << fill_cell
-    c.write("fill.gds")

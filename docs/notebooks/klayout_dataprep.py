@@ -94,7 +94,7 @@ d[LAYER.SLAB90].smooth(
 d.plot()
 
 # %% [markdown]
-# ### Booleans
+# ## Booleans
 #
 # You can derive layers and do boolean operations.
 #
@@ -105,29 +105,43 @@ d.plot()
 
 
 # %% [markdown]
-# ### Fill
+# ## Fill
 #
-# You can add rectangular fill, using booleans to decide where to add it:
 
 # %%
-region = d[LAYER.FLOORPLAN] = d[LAYER.WG] + 50
-region.round_corners(1 * 1e3, 1 * 1e3, 100)  # round corners by 1um
-d.show()
-d.plot()
+import gdsfactory as gf
+import kfactory as kf
+from kfactory.utils.fill import fill_tiled
 
-# %%
-fill_region = d[LAYER.FLOORPLAN] - d[LAYER.WG]
-
-# %%
-fill_cell = d.get_fill(
-    fill_region,
-    size=[0.1, 0.1],
-    spacing=[0.1, 0.1],
-    fill_layers=[LAYER.WG, LAYER.M1],
+c = kf.KCell("ToFill")
+c.shapes(kf.kcl.layer(1, 0)).insert(
+    kf.kdb.DPolygon.ellipse(kf.kdb.DBox(5000, 3000), 512)
 )
-fill_cell
+c.shapes(kf.kcl.layer(10, 0)).insert(
+    kf.kdb.DPolygon(
+        [kf.kdb.DPoint(0, 0), kf.kdb.DPoint(5000, 0), kf.kdb.DPoint(5000, 3000)]
+    )
+)
 
-# %%
-c = d.get_kcell()
-c << fill_cell
-c
+fc = kf.KCell("fill")
+fc.shapes(fc.kcl.layer(2, 0)).insert(kf.kdb.DBox(20, 40))
+fc.shapes(fc.kcl.layer(3, 0)).insert(kf.kdb.DBox(30, 15))
+
+# fill.fill_tiled(c, fc, [(kf.kcl.layer(1,0), 0)], exclude_layers = [(kf.kcl.layer(10,0), 100), (kf.kcl.layer(2,0), 0), (kf.kcl.layer(3,0),0)], x_space=5, y_space=5)
+fill_tiled(
+    c,
+    fc,
+    [(kf.kcl.layer(1, 0), 0)],
+    exclude_layers=[
+        (kf.kcl.layer(10, 0), 100),
+        (kf.kcl.layer(2, 0), 0),
+        (kf.kcl.layer(3, 0), 0),
+    ],
+    x_space=5,
+    y_space=5,
+)
+
+gdspath = "mzi_fill.gds"
+c.write(gdspath)
+c = gf.import_gds(gdspath)
+c.plot()
