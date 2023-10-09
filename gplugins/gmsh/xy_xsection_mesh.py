@@ -58,6 +58,7 @@ def xy_xsection_mesh(
     component: ComponentOrReference,
     z: float,
     layer_stack: LayerStack,
+    layer_physical_map: dict,
     resolutions: dict | None = None,
     default_characteristic_length: float = 0.5,
     background_tag: str | None = None,
@@ -150,6 +151,7 @@ def xy_xsection_mesh(
         model=model,
         scale_factor=global_scaling_premesh,
         resolutions=resolutions,
+        layer_physical_map=layer_physical_map,
     )
 
     # Mesh
