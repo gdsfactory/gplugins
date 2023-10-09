@@ -2,7 +2,7 @@ import pytest
 from gdsfactory.samples.demo.lvs import pads_correct
 
 from gplugins.common.config import PATH
-from gplugins.verification.get_netlist import get_netlist
+from gplugins.klayout.get_netlist import get_netlist
 from gplugins.vlsir import export_netlist, kdb_vlsir
 
 
@@ -12,7 +12,7 @@ def test_kdb_vlsir() -> None:
     c = pads_correct()
     gdspath = c.write_gds()
     kdbnet = get_netlist(gdspath)
-    pkg = kdb_vlsir(kdbnet, domain="gplugins.verification.example")
+    pkg = kdb_vlsir(kdbnet, domain="gplugins.klayout.example")
     assert pkg is not None
     assert len(pkg.modules) == 7
     assert len(pkg.modules[6].instances) == 10
@@ -25,7 +25,7 @@ def test_export_netlist() -> None:
     c = pads_correct()
     gdspath = c.write_gds()
     kdbnet = get_netlist(gdspath)
-    pkg = kdb_vlsir(kdbnet, domain="gplugins.verification.example")
+    pkg = kdb_vlsir(kdbnet, domain="gplugins.klayout.example")
     outfile = PATH.module / "vlsir" / "tests" / "resources" / "pads_correct"
     format_to_suffix = {
         "spice": ".sp",

@@ -75,7 +75,7 @@ gmsh = [
   "meshwell>=1.0.0,<1.1.0"
 ]
 klayout = [
-  "kfactory[git,ipy]>=0.8.4,<0.9"
+  "kfactory[git,ipy]>=0.9.3,<0.10"
 ]
 meow = [
   "jaxlib",

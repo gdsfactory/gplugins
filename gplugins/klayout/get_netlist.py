@@ -11,7 +11,7 @@ def get_l2n(gdspath, klayout_tech_path: PathType | None = None) -> kdb.LayoutToN
         klayout_tech_path: Path to the klayout technology file.
 
     """
-    lib = kf.kcell.KCLayout()
+    lib = kf.kcell.KCLayout(str(gdspath))
     lib.read(filename=str(gdspath))
     c = lib[0]
 

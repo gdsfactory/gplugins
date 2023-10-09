@@ -74,7 +74,7 @@ class RegionCollection:
     """
 
     def __init__(self, gdspath, cell_name: str | None = None) -> None:
-        lib = kf.kcell.KCLayout()
+        lib = kf.kcell.KCLayout(str(gdspath))
         lib.read(filename=str(gdspath))
         self.layout = lib.cell_by_name(cell_name) if cell_name else lib.top_cell()
         self.lib = lib
@@ -189,7 +189,7 @@ class RegionCollection:
         fill_cell = kf.KCell(fill_cellname)
         for layer in fill_layers:
             layer = kf.kcl.layer(*layer)
-            fill_cell << kf.cells.straight.straight(
+            _ = fill_cell << kf.cells.straight.straight(
                 width=size[0], length=size[1], layer=layer
             )
 
@@ -220,7 +220,7 @@ if __name__ == "__main__":
 
     d = RegionCollection(gdspath)
     d[LAYER.N] = d[LAYER.WG].copy()
-    d[LAYER.WG].clear()
+    # d[LAYER.WG].clear()
 
     # d[LAYER.SLAB90] += 2  # grow slab by 2um
     # d[LAYER.SLAB90] -= 2  # shrink slab by 2um
@@ -237,8 +237,8 @@ if __name__ == "__main__":
         d[LAYER.FLOORPLAN] - d[LAYER.WG],
         size=(0.1, 0.1),
         spacing=(0.1, 0.1),
-        fill_layers=(d[LAYER.WG],),
+        fill_layers=(LAYER.WG,),
     )
     c = d.get_kcell()
     _ = c << fill_cell
-    fill_cell.write("fill.gds")
+    c.write("fill.gds")
