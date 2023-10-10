@@ -28,7 +28,7 @@ class LayeredComponentBase(BaseModel):
     )
 
     component: GFComponent
-    layer_stack: LayerStack
+    layerstack: LayerStack
     extend_ports: NonNegativeFloat = 0.0
     port_offset: float = 0.0
     pad_xy_inner: float = 0.0
@@ -90,14 +90,14 @@ class LayeredComponentBase(BaseModel):
     @cached_property
     def polygons(self) -> dict[str, AnyShapelyPolygon]:
         return cleanup_component(
-            self.gds_component, self.layer_stack, round_tol=3, simplify_tol=1e-3
+            self.gds_component, self.layerstack, round_tol=3, simplify_tol=1e-3
         )
 
     @cached_property
     def geometry_layers(self) -> dict[str, LayerLevel]:
         layers = {
             k: v
-            for k, v in self.layer_stack.layers.items()
+            for k, v in self.layerstack.layers.items()
             if not self.polygons[k].is_empty
         }
         return dict(tuple(layers.items())[slice(*self.slice_stack)])
@@ -168,7 +168,7 @@ class LayeredComponentBase(BaseModel):
     def device_layers(self) -> tuple[str, ...]:
         return tuple(
             k
-            for k, v in self.layer_stack.layers.items()
+            for k, v in self.layerstack.layers.items()
             if v.layer in self.component.layers
         )
 
@@ -198,7 +198,7 @@ class LayeredComponentBase(BaseModel):
     def get_layer_bbox(
         self, layername: str
     ) -> tuple[tuple[float, float, float], tuple[float, float, float]]:
-        layer = self.layer_stack[layername]
+        layer = self.layerstack[layername]
         bounds_xy = self.polygons[layername].bounds
         zmin, zmax = sorted([layer.zmin, layer.zmin + layer.thickness])
 
