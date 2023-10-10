@@ -7,12 +7,13 @@ from pydantic import (
     NonNegativeFloat,
 )
 
-from .base import SimulationComponentBase
+from gplugins.common.base_models.component import LayeredComponentBase
+
 from .custom_types import Tidy3DMedium
 from .util import sort_layers
 
 
-class Tidy3DComponent(SimulationComponentBase):
+class Tidy3DComponent(LayeredComponentBase):
     material_mapping: dict[str, Tidy3DMedium]
     extend_ports: NonNegativeFloat = 1.0
     port_offset: float = 0.2
