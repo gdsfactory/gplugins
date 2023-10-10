@@ -63,10 +63,10 @@ def new_layers(**kwargs) -> str:
     return "\n".join([f"{name} = input{layer}" for name, layer in kwargs.items()])
 
 
-def size(layer: str, dbu: int, layer_out: str | None = None) -> str:
-    """Returns a string with the sizing operation of a layer by dbu."""
+def size(layer: str, value: int | float, layer_out: str | None = None) -> str:
+    """Returns a string with the sizing operation of a layer by value."""
     layer_out = layer_out or layer
-    return f"{layer_out} = {layer}.size({dbu})"
+    return f"{layer_out} = {layer}.size({value})"
 
 
 def layer_or(layer_out: str, layer1: str, layer2: str) -> str:
@@ -90,8 +90,13 @@ def check_not_inside(layer: str, not_inside: str) -> str:
     return f"{layer}.not_inside({not_inside})" f".output({error!r}, {error!r})"
 
 
-def check_width(value: float, layer: str, angle_limit: float = 90) -> str:
-    """Min feature size."""
+def check_width(value: float | int, layer: str, angle_limit: float = 90.0) -> str:
+    """Min feature size.
+
+    Args:
+        value: width in um if float, dbu if int (nm).
+        angle_limit: angle limit in degrees.
+    """
     category = "width"
     error = f"{layer} {category} {value}um"
     return (
@@ -100,8 +105,13 @@ def check_width(value: float, layer: str, angle_limit: float = 90) -> str:
     )
 
 
-def check_space(value: float, layer: str, angle_limit: float = 90) -> str:
-    """Min Space between shapes of layer."""
+def check_space(value: float | int, layer: str, angle_limit: float = 90.0) -> str:
+    """Min Space between shapes of layer.
+
+    Args:
+        value: width in um if float, dbu if int (nm).
+        angle_limit: angle limit in degrees.
+    """
     category = "space"
     error = f"{layer} {category} {value}um"
     return (
@@ -110,16 +120,30 @@ def check_space(value: float, layer: str, angle_limit: float = 90) -> str:
     )
 
 
-def check_separation(value: float, layer1: str, layer2: str) -> str:
-    """Min space between different layers."""
+def check_separation(value: float | int, layer1: str, layer2: str) -> str:
+    """Min space between different layers.
+
+    Args:
+        value: width in um if float, dbu if int (nm).
+        layer1: layer name.
+        layer2: layer name.
+    """
     error = f"min {layer1} {layer2} separation {value}um"
     return f"{layer1}.separation({layer2}, {value}).output({error!r}, {error!r})"
 
 
 def check_enclosing(
-    value: float, layer1: str, layer2: str, angle_limit: float = 90
+    value: float | int, layer1: str, layer2: str, angle_limit: float = 90.0
 ) -> str:
-    """Checks if layer1 encloses (is bigger than) layer2 by value."""
+    """Checks if layer1 encloses (is bigger than) layer2 by value.
+
+    Args:
+        value: width in um if float, dbu if int (nm).
+        layer1: layer name.
+        layer2: layer name.
+        angle_limit: angle limit in degrees.
+
+    """
     error = f"{layer1} enclosing {layer2} by {value}um"
     return (
         f"{layer1}.enclosing({layer2}, angle_limit({angle_limit}), {value})"
@@ -127,8 +151,14 @@ def check_enclosing(
     )
 
 
-def check_area(layer: str, min_area_um2: float = 2.0) -> str:
-    """Return script for min area checking."""
+def check_area(layer: str, min_area_um2: float | int = 2.0) -> str:
+    """Return script for min area checking.
+
+    Args:
+        layer1: layer name.
+        min_area_um2: min area in um2. int if dbu, float if um.
+
+    """
     return f"""
 
 min_{layer}_a = {min_area_um2}.um2
@@ -140,8 +170,8 @@ r_{layer}_a.output("{layer.upper()}_A: {layer} area &lt; min_{layer}_a um2")
 def check_density(
     layer: str = "metal1",
     layer_floorplan: str = "FLOORPLAN",
-    min_density=0.2,
-    max_density=0.8,
+    min_density: float = 0.2,
+    max_density: float = 0.8,
 ) -> str:
     """Return script to ensure density of layer is within min and max.
 
@@ -369,18 +399,18 @@ if __name__ == "__main__":
     from gdsfactory.generic_tech import LAYER
 
     rules = [
-        # check_width(layer="WG", value=0.2),
-        # check_space(layer="WG", value=0.2),
-        # check_separation(layer1="HEATER", layer2="M1", value=1.0),
-        # check_enclosing(layer1="VIAC", layer2="M1", value=0.2),
-        # check_area(layer="WG", min_area_um2=0.05),
-        # check_not_inside(layer="VIAC", not_inside="NPP"),
-        new_layers(TRENCHES=(2, 33)),
-        size(layer="WG", dbu=1000),
+        check_width(layer="WG", value=0.2),
+        check_space(layer="WG", value=0.2),
+        check_separation(layer1="HEATER", layer2="M1", value=1.0),
+        check_enclosing(layer1="VIAC", layer2="M1", value=0.2),
+        check_area(layer="WG", min_area_um2=0.05),
+        check_not_inside(layer="VIAC", not_inside="NPP"),
+        # new_layers(TRENCHES=(2, 33)),
+        # size(layer="WG", dbu=1000),
     ]
 
     layers = dict(LAYER)
     layers["WG_PIN"] = (1, 10)
-    # drc_check_deck = write_drc_deck_macro(rules=rules, layers=layers, mode="tiled")
+    drc_check_deck = write_drc_deck_macro(rules=rules, layers=layers, mode="tiled")
     script = get_drc_script(rules=rules, layers=layers, mode="tiled")
     print(script)
