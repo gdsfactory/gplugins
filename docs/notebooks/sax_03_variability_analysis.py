@@ -60,8 +60,8 @@ poly3 = c.add_polygon(
     ],
     layer="WG",
 )
-c.add_port(name="o1", center=(0, 1), width=1, orientation=0, layer=1)
-c.add_port(name="o2", center=(3, -2), width=1, orientation=90, layer=1)
+c.add_port(name="o1", center=(0, 1), width=1, orientation=0, layer="WG")
+c.add_port(name="o2", center=(3, -2), width=1, orientation=90, layer="SLAB90")
 c.plot()
 # -
 

@@ -1,10 +1,27 @@
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     custom_cell_magics: kql
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.11.2
+#   kernelspec:
+#     display_name: base
+#     language: python
+#     name: python3
+# ---
+
+# %% [markdown]
 # # Thermal
 #
 # You can use our FEM [femwell plugin](https://helgegehring.github.io/femwell/) for thermal simulations.
 # You can simulate directly the component layout and include important effects such as metal dummy fill.
 #
 
-# +
+# %%
 import gdsfactory as gf
 import meshio
 from gdsfactory.generic_tech import get_generic_pdk
@@ -16,18 +33,20 @@ from gplugins.gmsh import create_physical_mesh, get_mesh
 gf.config.rich_output()
 PDK = get_generic_pdk()
 PDK.activate()
+gf.CONF.display_type = "klayout"
 
 LAYER_STACK = PDK.layer_stack
 
 LAYER_STACK.layers["heater"].thickness = 0.13
 LAYER_STACK.layers["heater"].zmin = 2.2
 
-heater = gf.components.straight_heater_metal(length=50, heater_width=2)
+heater = gf.components.straight_heater_metal(length=50)
 heater.plot()
-# -
 
+# %%
 print(LAYER_STACK.layers.keys())
 
+# %%
 filtered_layer_stack = LayerStack(
     layers={
         k: gf.pdk.get_layer_stack().layers[k]
@@ -35,7 +54,7 @@ filtered_layer_stack = LayerStack(
     }
 )
 
-# +
+# %%
 filename = "mesh"
 
 
@@ -44,8 +63,7 @@ def mesh_with_physicals(mesh, filename):
     return create_physical_mesh(mesh_from_file, "triangle")
 
 
-# -
-
+# %%
 mesh = get_mesh(
     component=heater,
     type="uz",
@@ -57,27 +75,10 @@ mesh = mesh_with_physicals(mesh, filename)
 mesh = from_meshio(mesh)
 mesh.draw().plot()
 
-# FIXME!
-#
-# ```python
-# solve_thermal(
-#     mesh_filename="mesh.msh",
-#     thermal_conductivity={"heater": 28, "oxide": 1.38, "core": 148},
-#     specific_conductivity={"heater": 2.3e6},
-#     thermal_diffusivity={
-#         "heater": 28 / 598 / 5240,
-#         "oxide": 1.38 / 709 / 2203,
-#         "core": 148 / 711 / 2330,
-#     },
-#     # specific_heat={"(47, 0)_0": 598, 'oxide': 709, '(1, 0)': 711},
-#     # density={"(47, 0)_0": 5240, 'oxide': 2203, '(1, 0)': 2330},
-#     currents={"heater": 0.007},
-# )
-# ```
-
+# %% [markdown]
 # Example based on [femwell](https://helgegehring.github.io/femwell/index.html)
 
-# +
+# %%
 from collections import OrderedDict
 
 import matplotlib.pyplot as plt
@@ -90,7 +91,7 @@ from skfem import Basis, ElementTriP0
 from skfem.io import from_meshio
 from tqdm import tqdm
 
-# +
+# %%
 w_sim = 8 * 2
 h_clad = 2.8
 h_box = 2
@@ -161,11 +162,11 @@ mesh = from_meshio(
     mesh_from_OrderedDict(polygons, resolutions, default_resolution_max=0.6)
 )
 mesh.draw().show()
-# -
 
+# %% [markdown]
 # And then we solve it!
 
-# +
+# %%
 currents = np.linspace(0.0, 7.4e-3, 10)
 current_densities = currents / polygons["heater"].area
 neffs = []

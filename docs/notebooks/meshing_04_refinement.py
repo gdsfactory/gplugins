@@ -10,18 +10,15 @@
 # # %matplotlib widget
 
 # +
-from itertools import product
 
 import gdsfactory as gf
 import meshio
-import numpy as np
 from gdsfactory.generic_tech import get_generic_pdk
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 from skfem.io import from_meshio
 
-from gplugins.gmsh.get_mesh import get_mesh
-from gplugins.gmsh.mesh import create_physical_mesh
+from gplugins.gmsh.get_mesh import create_physical_mesh, get_mesh
 
 PDK = get_generic_pdk()
 PDK.activate()
@@ -99,7 +96,7 @@ mesh.draw().show()
 #
 # An advantage of finite-volume and finite-element schemes is the ability for different nodes to have different characteristics lengths.
 #
-# This simply achieved to first order here by supplying a `resolutions` dict with keys referencing the `LayerStack` names, and for value a second dict with keys `resolution` and `distance` which control, respectively, the characteristic length within a region and the dropoff away from interfaces with this region.
+# This simply achieved to first order here by supplying a `resolutions` dict with keys referencing the `LayerStack` names, and for value a second dict with keys `resolution` and `DistMax / SizeMax` (see gmsh documentation) which control, respectively, the characteristic length within a region and the dropoff away from interfaces with this region.
 #
 # For example, to refine within the core only, one could use:
 
@@ -120,7 +117,7 @@ mesh.draw().show()
 
 # Adding a dropoff at the interface:
 
-resolutions = {"core": {"resolution": 0.05, "distance": 5}}
+resolutions = {"core": {"resolution": 0.05, "DistMax": 1, "SizeMax": 0.2}}
 mesh = get_mesh(
     component=waveguide_trimmed,
     type="uz",
@@ -138,10 +135,10 @@ mesh.draw().show()
 # Refining multiple elements simultaneously:
 
 resolutions = {
-    "core": {"resolution": 0.05, "distance": 1},
-    "slab90": {"resolution": 0.02, "distance": 1},
-    "via_contact": {"resolution": 0.2, "distance": 0},
-    "oxide": {"resolution": 1, "distance": 0},
+    "core": {"resolution": 0.05, "DistMax": 1, "SizeMax": 0.2},
+    "slab90": {"resolution": 0.02, "DistMax": 1, "SizeMax": 0.2},
+    "via_contact": {"resolution": 0.2},
+    "oxide": {"resolution": 1},
 }
 mesh = get_mesh(
     component=waveguide_trimmed,
@@ -152,49 +149,6 @@ mesh = get_mesh(
     background_tag="oxide",
     background_padding=(2.0, 2.0, 2.0, 2.0),
     resolutions=resolutions,
-)
-mesh = mesh_with_physicals(mesh, filename)
-mesh = from_meshio(mesh)
-mesh.draw().show()
-
-# ## Fine mesh refinement
-#
-# You can fine mesh refine with the `global_meshsize_array` (default `None`) and `global_meshsize_interpolant_func` (default `scipy.interpolate.NearestNDInterpolator`) arguments, which define the characteristic length callback used by gmsh to select characteristic lengths at a local level.
-#
-# The `global_meshsize_array` has form [x,y,z,lc], with `x,y,z` in mesh units; here, `x` is `u` $\in$ [-2, 10] considering the y-coordinates of the xsection_bounds and the background padding, `y` $\in$ [-2,3], and `z` is always 0. These values could be estimated from the component bounding box.
-#
-# In practice, this array would most likely result from a physical simulation using the simulation domain coordinates, which would also yield a higher quality mesh by virtue of being smoother.
-#
-# For instance, if one wants to refine in a circle around the waveguide core, and have some asymmetry about the y-axis, a meshsize array like so could be defined:
-
-# +
-xs = np.linspace(-2, 10, 800)
-ys = np.linspace(-2, 3, 800)
-global_meshsize_array = []
-
-ls_large = 1
-ls_small = 0.05
-
-r = 0.75
-for x, y in product(xs, ys):
-    if (x - 4.0) ** 2 + (y) ** 2 <= r**2:
-        global_meshsize_array.append([x, y, 0, ls_small])
-    else:
-        global_meshsize_array.append([x, y, 0, ls_large])
-
-global_meshsize_array = np.array(global_meshsize_array)
-
-mesh = get_mesh(
-    component=waveguide_trimmed,
-    type="uz",
-    xsection_bounds=[(4, -4), (4, 4)],
-    layer_stack=filtered_layer_stack,
-    filename=f"{filename}.msh",
-    background_tag="oxide",
-    background_padding=(2.0, 2.0, 2.0, 2.0),
-    global_meshsize_array=global_meshsize_array,
-    default_resolution_min=ls_small,
-    default_resolution_max=ls_large,
 )
 mesh = mesh_with_physicals(mesh, filename)
 mesh = from_meshio(mesh)

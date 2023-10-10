@@ -30,34 +30,36 @@ from gdsfactory.generic_tech import LAYER
 from gdsfactory.typings import Float2, Layer
 
 from gplugins.klayout.drc.write_drc import (
-    rule_area,
-    rule_density,
-    rule_enclosing,
-    rule_separation,
-    rule_space,
-    rule_width,
+    check_area,
+    check_density,
+    check_enclosing,
+    check_separation,
+    check_space,
+    check_width,
     write_drc_deck_macro,
 )
+
+gf.CONF.display_type = "klayout"
 
 # %%
 help(write_drc_deck_macro)
 
 # %%
 rules = [
-    rule_width(layer="WG", value=0.2),
-    rule_space(layer="WG", value=0.2),
-    rule_width(layer="M1", value=1),
-    rule_width(layer="M2", value=2),
-    rule_space(layer="M2", value=2),
-    rule_separation(layer1="HEATER", layer2="M1", value=1.0),
-    rule_enclosing(layer1="M1", layer2="VIAC", value=0.2),
-    rule_area(layer="WG", min_area_um2=0.05),
-    rule_density(
+    check_width(layer="WG", value=0.2),
+    check_space(layer="WG", value=0.2),
+    check_width(layer="M1", value=1),
+    check_width(layer="M2", value=2),
+    check_space(layer="M2", value=2),
+    check_separation(layer1="HEATER", layer2="M1", value=1.0),
+    check_enclosing(layer1="M1", layer2="VIAC", value=0.2),
+    check_area(layer="WG", min_area_um2=0.05),
+    check_density(
         layer="WG", layer_floorplan="FLOORPLAN", min_density=0.5, max_density=0.6
     ),
 ]
 
-drc_rule_deck = write_drc_deck_macro(
+drc_check_deck = write_drc_deck_macro(
     rules=rules,
     layers=LAYER,
     shortcut="Ctrl+Shift+D",
@@ -169,15 +171,12 @@ script = wc.write_drc_deck_macro(rules=rules, layers=None)
 
 # %%
 connectivity_checks = [
-    wc.ConnectivyCheck(cross_section="strip", pin_length=1 * nm, pin_layer=(1, 10)),
+    wc.ConnectivyCheck(cross_section="xs_sc", pin_length=1 * nm, pin_layer=(1, 10)),
     wc.ConnectivyCheck(
-        cross_section="strip_auto_widen", pin_length=1 * nm, pin_layer=(1, 10)
+        cross_section="xs_sc_auto_widen", pin_length=1 * nm, pin_layer=(1, 10)
     ),
 ]
 rules = [
     wc.write_connectivity_checks_per_section(connectivity_checks=connectivity_checks),
-    "DEVREC",
 ]
 script = wc.write_drc_deck_macro(rules=rules, layers=None)
-
-# %%

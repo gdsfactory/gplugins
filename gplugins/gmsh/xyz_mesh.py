@@ -15,8 +15,8 @@ from shapely.affinity import scale
 from shapely.geometry import Polygon
 from shapely.ops import unary_union
 
-from gplugins.common.utils.get_component_with_new_port_layers import (
-    get_component_with_new_port_layers,
+from gplugins.common.utils.get_component_with_net_layers import (
+    get_component_with_net_layers,
 )
 from gplugins.common.utils.parse_layer_stack import (
     list_unique_layer_stack_z,
@@ -75,6 +75,7 @@ def define_edgeport(
 def define_prisms(
     layer_polygons_dict: dict,
     layer_stack: LayerStack,
+    layer_physical_map: dict,
     model: Any,
     resolutions: dict,
     scale_factor: float = 1,
@@ -84,6 +85,7 @@ def define_prisms(
     Args:
         layer_polygons_dict: dictionary of polygons for each layer
         layer_stack: gdsfactory LayerStack to parse
+        layer_physical_map: map layer names to physical names
         model: meshwell Model object
         resolutions: Pairs {"layername": {"resolution": float, "distance": "float}} to roughly control mesh refinement.
         scale_factor: scaling factor to apply to the polygons (default: 1)
@@ -120,7 +122,9 @@ def define_prisms(
                 model=model,
                 resolution=resolutions.get(layername, None),
                 mesh_order=buffered_layer_stack.layers.get(layername).mesh_order,
-                physical_name=layername,
+                physical_name=layer_physical_map[layername]
+                if layername in layer_physical_map
+                else layername,
             )
         )
 
@@ -130,6 +134,7 @@ def define_prisms(
 def xyz_mesh(
     component: ComponentOrReference,
     layer_stack: LayerStack,
+    layer_physical_map: dict,
     resolutions: dict | None = None,
     default_characteristic_length: float = 0.5,
     background_tag: str | None = None,
@@ -184,7 +189,7 @@ def xyz_mesh(
         mesh_component = gf.Component()
         _ = mesh_component << union(component, by_layer=True)
         mesh_component.add_ports(component.get_ports_list())
-        component = get_component_with_new_port_layers(
+        component = get_component_with_net_layers(
             component=mesh_component,
             port_names=port_names,
             layer_stack=layer_stack,
@@ -254,6 +259,7 @@ def xyz_mesh(
         model=model,
         scale_factor=global_scaling_premesh,
         resolutions=resolutions,
+        layer_physical_map=layer_physical_map,
     )
 
     # Add edgeports

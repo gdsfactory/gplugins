@@ -1,12 +1,35 @@
-# [CHANGELOG](https://keepachangelog.com/en/1.0.0/)
+# CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.8.0...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.8.5...main)
 
-## [0.8.0](https://github.com/gdsfactory/gplugins/compare/v0.7.0...v0.8.0) [PR](https://github.com/gdsfactory/gplugins/pull/157)
+<!-- towncrier release notes start -->
+
+## [0.8.5](https://github.com/gdsfactory/gplugins/releases/tag/v0.8.5) - 2023-10-09
+
+- Move verification into klayout [#173](https://github.com/$OWNER/$REPOSITORY/pull/#173)
+- Default sizemax [#170](https://github.com/$OWNER/$REPOSITORY/pull/#170)
+- Bump actions/checkout from 3 to 4 [#168](https://github.com/$OWNER/$REPOSITORY/pull/#168)
+- add `get_component_with_net_layers` [#167](https://github.com/$OWNER/$REPOSITORY/pull/#167)
+
+
+## [0.8.4](https://github.com/gdsfactory/kfactory/releases/v0.8.4) - 2023-09-27
+
+- added towncrier [#164](https://github.com/gdsfactory/gplugins/issues/164)
+
+
+## [0.8.2](https://github.com/gdsfactory/gplugins/compare/v0.8.1...v0.8.2)
+
+- compatible with latest gdsfactory [PR](https://github.com/gdsfactory/gplugins/pull/163)
+
+## [0.8.1](https://github.com/gdsfactory/gplugins/compare/v0.8.0...v0.8.1) [PR](https://github.com/gdsfactory/gplugins/pull/157)
+
+- consolidate meshwell plugin
+
+## [0.8.0](https://github.com/gdsfactory/gplugins/compare/v0.7.0...v0.8.0) [PR](https://github.com/gdsfactory/gplugins/pull/159)
 
 - update to latest tidy3d 2.4 and gdsfactory
 - rename `layerstack` to `layer_stack` to be consistent with gdsfactory
-- rename portnames to port_names  to be consistent with python convention
+- rename portnames to `port_names`  to be consistent with python convention
 - fixes https://github.com/gdsfactory/gplugins/issues/153
 
 ## [0.7.0](https://github.com/gdsfactory/gplugins/compare/v0.6.0...v0.7.0)

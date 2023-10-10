@@ -5,7 +5,7 @@ from gdsfactory.generic_tech import LAYER
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 
-from gplugins.gmsh.xyz_mesh import xyz_mesh
+from gplugins.gmsh.get_mesh import get_mesh
 
 
 def test_gmsh_xyz_mesh() -> None:
@@ -43,7 +43,8 @@ def test_gmsh_xyz_mesh() -> None:
     resolutions = {
         "core": {"resolution": 0.3},
     }
-    xyz_mesh(
+    get_mesh(
+        type="3D",
         component=c,
         layer_stack=filtered_layer_stack,
         resolutions=resolutions,

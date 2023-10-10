@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Sphinx docs to gh-pages
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/cache@v3
         with:
           path: |
@@ -22,6 +22,7 @@ jobs:
         with:
           python-version: '3.10'
           mamba-version: "*"
+          conda-version: '23.7.4'
           channels: conda-forge,defaults
           channel-priority: true
           activate-environment: anaconda-client-env
