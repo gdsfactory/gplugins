@@ -3,8 +3,9 @@ import klayout.db as kdb
 from gdsfactory.typings import PathType
 
 
-
-def get_l2n(gdspath: PathType, klayout_tech_path: PathType | None = None) -> kdb.LayoutToNetlist:
+def get_l2n(
+    gdspath: PathType, klayout_tech_path: PathType | None = None
+) -> kdb.LayoutToNetlist:
     """Get the layout to netlist object from a given GDS and klayout technology file.
 
     Args:
@@ -24,7 +25,7 @@ def get_l2n(gdspath: PathType, klayout_tech_path: PathType | None = None) -> kdb
         technology.load(str(klayout_tech_path))
 
     l2n = kf.kdb.LayoutToNetlist(c.begin_shapes_rec(0))
-    for l_idx in c.kcl.layer_indices():
+    for l_idx in c.kcl.layer_indexes():
         l2n.connect(l2n.make_layer(l_idx, f"layer{l_idx}"))
     l2n.extract_netlist()
     return l2n
