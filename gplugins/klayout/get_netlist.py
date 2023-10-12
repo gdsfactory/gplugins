@@ -25,6 +25,7 @@ def get_l2n(
         technology.load(str(klayout_tech_path))
 
     l2n = kf.kdb.LayoutToNetlist(c.begin_shapes_rec(0))
+    l2n.threads = kf.config.n_threads
     for l_idx in c.kcl.layer_indexes():
         l2n.connect(l2n.make_layer(l_idx, f"layer{l_idx}"))
     l2n.extract_netlist()
