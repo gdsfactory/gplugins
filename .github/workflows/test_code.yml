@@ -149,6 +149,7 @@ jobs:
         with:
           python-version: '3.10'
           mamba-version: "*"
+          conda-version: '23.7.4'
           channels: conda-forge,defaults
           channel-priority: true
           activate-environment: anaconda-client-env
