@@ -19,7 +19,7 @@ class Tidy3DComponent(LayeredComponentBase):
     port_offset: float = 0.2
     pad_xy_inner: NonNegativeFloat = 1.0
     pad_xy_outer: NonNegativeFloat = 3.0
-    pad_z_inner: NonNegativeFloat = 1.0
+    pad_z_inner: float = 1.0
     pad_z_outer: NonNegativeFloat = 3.0
 
     @cached_property
