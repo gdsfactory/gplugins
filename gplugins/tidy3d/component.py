@@ -9,7 +9,7 @@ from pydantic import (
 
 from gplugins.common.base_models.component import LayeredComponentBase
 
-from .custom_types import Tidy3DMedium
+from .types import Tidy3DMedium
 from .util import sort_layers
 
 
