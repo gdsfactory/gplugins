@@ -82,7 +82,9 @@ class LayeredComponentBase(BaseModel):
     @cached_property
     def gds_ports(self) -> dict[str, gf.Port]:
         return {
-            n: p.move_polar_copy(self.extend_ports - self.port_offset, p.orientation)
+            n: p.move_polar_copy(
+                self.extend_ports + self.pad_xy_inner - self.port_offset, p.orientation
+            )
             for n, p in self.component.ports.items()
         }
 
