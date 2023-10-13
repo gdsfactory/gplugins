@@ -181,20 +181,23 @@ class LayeredComponentBase(BaseModel):
     @cached_property
     def port_sizes(self):
         # TODO calculate maximum port sizes from neighbors
-        for name, port in self.gds_ports.items():
-            print(name, self.port_center(port))
+        for idx, name in enumerate(self.gds_ports.keys()):
+            print(name, self.port_centers[idx])
 
     def get_port_center(self, port: gf.Port) -> tuple[float, float, float]:
-        layer_czs = np.array(tuple(self.layer_centers.values()))
+        layers = self.get_layer_names_from_index(port.layer)
         return (
             *port.center,
-            np.mean(
-                [
-                    layer_czs[idx, 2]
-                    for idx, layer in enumerate(self.geometry_layers.values())
-                    if layer.layer == port.layer
-                ]
-            ),
+            np.mean([self.get_layer_center(layer)[2] for layer in layers]),
+        )
+
+    def get_layer_names_from_index(
+        self, layer_index: tuple[int, int]
+    ) -> tuple[str, ...]:
+        return tuple(
+            k
+            for k, v in self.layer_stack.layers.items()
+            if tuple(v.layer) == layer_index
         )
 
     def get_layer_bbox(
