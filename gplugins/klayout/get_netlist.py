@@ -3,12 +3,17 @@ import klayout.db as kdb
 from gdsfactory.typings import PathType
 
 
-def get_l2n(gdspath, klayout_tech_path: PathType | None = None) -> kdb.LayoutToNetlist:
-    """Returns the layout to netlist object.
+def get_l2n(
+    gdspath: PathType, klayout_tech_path: PathType | None = None
+) -> kdb.LayoutToNetlist:
+    """Get the layout to netlist object from a given GDS and klayout technology file.
 
     Args:
         gdspath: Path to the GDS file.
         klayout_tech_path: Path to the klayout technology file.
+
+    Returns:
+        kdb.LayoutToNetlist: The layout to netlist object.
 
     """
     lib = kf.kcell.KCLayout(str(gdspath))
@@ -20,14 +25,15 @@ def get_l2n(gdspath, klayout_tech_path: PathType | None = None) -> kdb.LayoutToN
         technology.load(str(klayout_tech_path))
 
     l2n = kf.kdb.LayoutToNetlist(c.begin_shapes_rec(0))
-    for l_idx in c.kcl.layer_indices():
+    l2n.threads = kf.config.n_threads
+    for l_idx in c.kcl.layer_indexes():
         l2n.connect(l2n.make_layer(l_idx, f"layer{l_idx}"))
     l2n.extract_netlist()
     return l2n
 
 
-def get_netlist(gdspath, **kwargs) -> kdb.Netlist:
-    """Returns the SPICE netlist of a GDS file.
+def get_netlist(gdspath: PathType, **kwargs) -> kdb.Netlist:
+    """Returns the SPICE netlist from a given GDS and klayout technology file.
 
     Args:
         gdspath: Path to the GDS file.
@@ -35,6 +41,8 @@ def get_netlist(gdspath, **kwargs) -> kdb.Netlist:
     Keyword Args:
         klayout_tech_path: Path to the klayout technology file.
 
+    Returns:
+        kdb.Netlist: The SPICE netlist of the GDS file.
     """
     l2n = get_l2n(gdspath=gdspath, **kwargs)
     netlist = l2n.netlist()
