@@ -55,9 +55,6 @@ parts:
       - file: notebooks/11_get_netlist
       - file: notebooks/11_get_netlist_spice
       - file: notebooks/path_length_analysis.py
-  - caption: Validation
-    chapters:
-      - file: notebooks/12_database
   - caption: Workflows
     chapters:
       - file: workflow
