@@ -1,6 +1,11 @@
+from pathlib import Path
+
+import gdsfactory as gf
 import kfactory as kf
 import klayout.db as kdb
 from gdsfactory.typings import PathType
+
+from gplugins.common.config import PATH
 
 
 def get_l2n(
@@ -20,13 +25,18 @@ def get_l2n(
     lib.read(filename=str(gdspath))
     c = lib[0]
 
-    if klayout_tech_path:
-        technology = kdb.Technology()
-        technology.load(str(klayout_tech_path))
+    tech_dir = PATH.klayout
+    tech_dir.mkdir(exist_ok=True, parents=True)
+    if not klayout_tech_path:
+        gf.get_active_pdk().klayout_technology.write_tech(tech_dir)
+        klayout_tech_path = Path(tech_dir) / "tech.lyt"
+
+    technology = kdb.Technology()
+    technology.load(str(klayout_tech_path))
+    lib.technology_name = technology.name
 
     l2n = kf.kdb.LayoutToNetlist(c.begin_shapes_rec(0))
-    l2n.threads = kf.config.n_threads
-    for l_idx in c.kcl.layer_indexes():
+    for l_idx in c.kcl.layer_indices():
         l2n.connect(l2n.make_layer(l_idx, f"layer{l_idx}"))
     l2n.extract_netlist()
     return l2n
@@ -51,8 +61,6 @@ def get_netlist(gdspath: PathType, **kwargs) -> kdb.Netlist:
 
 if __name__ == "__main__":
     from gdsfactory.samples.demo.lvs import pads_correct, pads_shorted
-
-    from gplugins.common.config import PATH
 
     c = pads_correct()
     c = pads_shorted()
