@@ -332,7 +332,7 @@ def write_sprocess(
         for _layername, layer in waferstack.layers.items():
             if layer.info and layer.info["active"] is True:
                 f.write(
-                    f"""refinebox name= Global min= {{ {layer.zmin - layer.thickness:1.3f} {xmin} {ymin} }} max= {{ {layer.zmin:1.3f} {xmax} {ymax} }} refine.min.edge= {{ 0.001 0.001 0.001 }} refine.max.edge= {{ 0.05 0.05 0.05 }} refine.fields= {{ NetActive }} def.max.asinhdiff= 0.5 adaptive {layer.material}
+                    f"""refinebox name= Global min= {{ {layer.zmin - layer.thickness:1.3f} {xmin} {ymin} }} max= {{ {layer.zmin:1.3f} {xmax} {ymax} }} refine.min.edge= {{ 0.0005 0.0005 0.0005 }} refine.max.edge= {{ 0.01 0.01 0.01 }}  refine.fields= {{ NetActive }} def.max.asinhdiff= 0.5 adaptive {layer.material}
 """
                 )
         f.write("grid remesh\n")
