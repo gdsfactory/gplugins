@@ -161,7 +161,7 @@ def write_sprocess(
     directory: Path = None,
     filename: str = "sprocess_fps.cmd",
     struct_prefix: str = "struct_",
-    structout: str = "struct_out.tdr",
+    structout: str | None = None,
     round_tol: int = 3,
     simplify_tol: float = 1e-3,
     split_steps: bool = True,
@@ -191,7 +191,7 @@ def write_sprocess(
         directory: directory to save all output in
         filename: name of the final sprocess command file
         struct_prefix: prefixes of the final sprocess command file
-        structout: tdr file containing the final structure, ready for sdevice simulation
+        structout: tdr file containing the final structure, ready for sdevice simulation. Defaults to component name.
         contact_portnames Tuple(str): list of portnames to convert into device contacts
         round_tol (int): for gds cleanup (grid snapping by rounding coordinates)
         simplify_tol (float): for gds cleanup (shape simplification)
@@ -204,6 +204,8 @@ def write_sprocess(
     """
 
     directory = Path(directory) or Path("./sprocess/")
+
+    structout = structout or component.name + ".tdr"
 
     # Setup TCL file
     out_file = pathlib.Path(directory / filename)
@@ -351,7 +353,7 @@ if __name__ == "__main__":
     from gdsfactory.generic_tech.layer_stack import WAFER_STACK, get_process
 
     # Create a component with the right contacts
-    c = gf.Component()
+    c = gf.Component(name="test_pn")
 
     length = 3
 
@@ -409,6 +411,11 @@ if __name__ == "__main__":
         split_steps=True,
     )
 
+    contact_str = f"""contact name=cathode aluminum silicon xlo=0.0 xhi=0.2 ylo=0.0 yhi=1 zlo=0 zhi=0
+contact name=anode aluminum silicon xlo=0.0 xhi=0.2 ylo={c.ysize-1:1.3f} yhi={c.ysize:1.3f} zlo=0 zhi=0
+contact name=substrate box silicon xlo=4.2 xhi=4.3 ylo=0.0 yhi={c.ysize:1.3f} zlo=0 zhi=0
+    """
+
     write_sprocess(
         component=c,
         waferstack=WAFER_STACK,
@@ -423,4 +430,5 @@ if __name__ == "__main__":
         initial_z_resolutions={"core": 0.005, "box": 0.05, "substrate": 0.5},
         initial_xy_resolution=0.05,
         split_steps=True,
+        contact_str=contact_str,
     )

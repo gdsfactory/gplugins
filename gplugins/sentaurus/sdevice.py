@@ -1,6 +1,7 @@
 import pathlib
 
 from gdsfactory.typings import Floats, Tuple
+from pathlib import Path
 
 DEFAULT_OUTPUT_SETTINGS = """Plot{
   *--Density and Currents, etc
@@ -21,7 +22,7 @@ DEFAULT_OUTPUT_SETTINGS = """Plot{
 
   *--Generation/Recombination
   SRH Band2Band * Auger
-  AvalancheGeneration eAvalancheGeneration hAvalancheGeneration
+  AvalancheGeneration eAvalancheGeneration hAvalancheGeneration eAlphaAvalanche hAlphaAvalanche
 
   *--Driving forces
   eGradQuasiFermi/Vector hGradQuasiFermi/Vector
@@ -39,12 +40,16 @@ DEFAULT_OUTPUT_SETTINGS = """Plot{
 """
 
 DEFAULT_PHYSICS_SETTINGS = """Physics{
-  Recombination(
-    SRH(DopingDep)
-    Auger
-  )
-  Mobility( DopingDep HighFieldSaturation)
-  EffectiveIntrinsicDensity( OldSlotboom )
+    Mobility ( DopingDependence HighFieldSaturation Enormal )
+    EffectiveIntrinsicDensity(BandGapNarrowing (OldSlotboom))
+    Recombination( SRH Auger Avalanche )
+}
+"""
+
+PHYSICS_SETTINGS_AVALANCHE = """Physics{
+    Mobility ( DopingDependence Enormal eHighFieldsaturation(GradQuasiFermi) hHighFieldsaturation(GradQuasiFermi) )
+    EffectiveIntrinsicDensity(BandGapNarrowing (OldSlotboom))
+Recombination( SRH Auger( WithGeneration ) Avalanche( vanOverstraetendeMan ) )
 }
 """
 
@@ -59,28 +64,22 @@ DEFAULT_MATH_SETTINGS = """Math{
 }
 """
 
-DEFAULT_INITIALIZATION = """
-    NewCurrentPrefix=\"init\"
-    Coupled(Iterations=100){ Poisson }
-    Coupled{ Poisson Electron Hole }
-"""
-
 
 def write_sdevice_quasistationary_ramp_voltage_dd(
-    struct: str = "struct_out_fps.tdr",
-    contacts: Tuple[str] = ("anode", "cathode"),
-    ramp_contact_name: str = "anode",
+    struct: str = "./sprocess/struct_out_fps.tdr",
+    contacts: Tuple[str] = ("anode", "cathode", "substrate"),
+    ramp_contact_name: str = "cathode",
     ramp_final_voltage: float = 1.0,
     ramp_initial_step: float = 0.01,
     ramp_increment: float = 1.3,
     ramp_max_step: float = 0.2,
     ramp_min_step: float = 1e-6,
     ramp_sample_voltages: Floats = (0.0, 0.3, 0.6, 0.8, 1.0),
-    filepath: str = "./sdevice_fps.cmd",
+    filepath: str = "./sdevice/sdevice_fps.cmd",
+    directory: Path = None,
     output_settings: str = DEFAULT_OUTPUT_SETTINGS,
     physics_settings: str = DEFAULT_PHYSICS_SETTINGS,
     math_settings: str = DEFAULT_MATH_SETTINGS,
-    initialization_commands: str = DEFAULT_INITIALIZATION,
 ):
     """Writes a Sentaurus Device TLC file for sweeping DC voltage of one terminal of a Sentaurus Structure (from sprocess or structure editor) using the drift-diffusion equations (Hole + Electrons + Poisson).
 
@@ -103,6 +102,8 @@ def write_sdevice_quasistationary_ramp_voltage_dd(
         math_settings: str = "Math" field settings to add to the TCL file
         initialization_commands: in the solver, what to execute before the ramp
     """
+
+    directory = directory or Path("./sdevice/")
 
     # Setup TCL file
     out_file = pathlib.Path(filepath)
@@ -134,6 +135,12 @@ def write_sdevice_quasistationary_ramp_voltage_dd(
         f.write("Solve{\n")
 
         # Initialization
+        initialization_commands = f"""
+            NewCurrentPrefix=\"{str(directory)}/init\"
+            Coupled(Iterations=100){{ Poisson }}
+            Coupled{{ Poisson Electron Hole }}
+        """
+
         f.write(initialization_commands)
 
         ramp_sample_voltages_str = ""
@@ -150,7 +157,7 @@ def write_sdevice_quasistationary_ramp_voltage_dd(
         MaxStep ={ramp_max_step} MinStep = {ramp_min_step}
         Goal{{ Name=\"{ramp_contact_name}\" Voltage={ramp_final_voltage} }}
     ){{ Coupled {{Poisson Electron Hole }}
-        Save(FilePrefix=\"sweep\" Time= ({ramp_sample_voltages_str} ) NoOverWrite )
+        Save(FilePrefix=\"{str(directory)}/sweep\" Time= ({ramp_sample_voltages_str} ) NoOverWrite )
     }}
     """
         )
@@ -248,5 +255,13 @@ Solve {{
 
 
 if __name__ == "__main__":
-    # write_sdevice_quasistationary_ramp_voltage_dd()
-    write_sdevice_ssac_ramp_voltage_dd()
+    import numpy as np
+
+    write_sdevice_quasistationary_ramp_voltage_dd(
+        struct="./sprocess/test_pn_fps.tdr",
+        directory="./sdevice",
+        physics_settings=PHYSICS_SETTINGS_AVALANCHE,
+        ramp_final_voltage=50,
+        ramp_sample_voltages=np.linspace(0, 1, 11),
+    )
+    # write_sdevice_ssac_ramp_voltage_dd()
