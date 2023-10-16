@@ -66,7 +66,7 @@ class LayeredComponentBase(BaseModel):
             left=self.pad_xy_outer,
             right=self.pad_xy_outer,
         )
-        c.add_ports(self.gds_ports)
+        c.add_ports(self.ports)
         c.copy_child_info(self.component)
         return c
 
@@ -80,13 +80,13 @@ class LayeredComponentBase(BaseModel):
         return tuple(map(tuple, bbox))
 
     @cached_property
-    def gds_ports(self) -> dict[str, gf.Port]:
-        return {
-            n: p.move_polar_copy(
+    def ports(self) -> dict[str, gf.Port]:
+        return tuple(
+            p.move_polar_copy(
                 self.extend_ports + self.pad_xy_inner - self.port_offset, p.orientation
             )
-            for n, p in self.component.ports.items()
-        }
+            for p in self.component.ports.values()
+        )
 
     @computed_field
     @cached_property
@@ -175,14 +175,12 @@ class LayeredComponentBase(BaseModel):
         )
 
     @cached_property
-    def port_centers(self) -> tuple[tuple[float, float, float], ...]:
-        return tuple(self.get_port_center(p) for p in self.gds_ports.values())
+    def port_names(self) -> tuple[str, ...]:
+        return tuple(p.name for p in self.ports)
 
     @cached_property
-    def port_sizes(self):
-        # TODO calculate maximum port sizes from neighbors
-        for idx, name in enumerate(self.gds_ports.keys()):
-            print(name, self.port_centers[idx])
+    def port_centers(self) -> tuple[tuple[float, float, float], ...]:
+        return tuple(self.get_port_center(p) for p in self.ports)
 
     def get_port_center(self, port: gf.Port) -> tuple[float, float, float]:
         layers = self.get_layer_names_from_index(port.layer)
