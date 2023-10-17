@@ -48,7 +48,8 @@ def get_l2n(
             for connection in connectivity.each_connection()
         ]
         for connectivity in technology.component("connectivity").each()
-    ][0]
+    ]
+    layer_connection_iter = layer_connection_iter[0] if layer_connection_iter else []
     correct_layer_names = set(sum(layer_connection_iter, ()))
 
     # define the layers to be extracted
