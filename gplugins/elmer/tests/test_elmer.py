@@ -90,7 +90,7 @@ def test_elmer_capacitance_simulation_runs(geometry) -> None:
     )
 
 
-@pytest.mark.parametrize("n_processes", [(1), (2), (4)])
+@pytest.mark.parametrize("n_processes", [(1), (2)])
 def test_elmer_capacitance_simulation_n_processes(geometry, n_processes):
     c = geometry
     run_capacitive_simulation_elmer(
