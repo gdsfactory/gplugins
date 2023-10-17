@@ -189,17 +189,6 @@ jobs:
             ~/.gdsfactory/
           key: 0.0.1
           restore-keys: 0.0.1
-      - uses: conda-incubator/setup-miniconda@v2
-        with:
-          python-version: "3.10"
-          mamba-version: "*"
-          conda-version: "23.7.4"
-          channels: conda-forge,defaults
-          channel-priority: true
-          activate-environment: anaconda-client-env
-      - name: Add conda to system path
-        run: |
-          echo $CONDA/bin >> $GITHUB_PATH
       - name: Install dependencies
         run: |
           make dev
@@ -211,10 +200,11 @@ jobs:
           jupytext docs/${{ matrix.notebook }}.py --to ipynb
           # papermill docs/${{ matrix.notebook }}.ipynb docs/${{ matrix.notebook }}.ipynb
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
-          name: docs
-          path: docs/${{ matrix.notebook}}.ipynb
+          name: notebooks
+          path: |
+            docs/${{ matrix.notebook}}.ipynb
           retention-days: 1
   test_docs_combine:
     runs-on: ubuntu-latest
@@ -230,7 +220,7 @@ jobs:
           python-version: 3.11
       - uses: actions/download-artifact@v3
         with:
-          name: mask
+          name: notebooks
       - name: Install dependencies
         run: |
           make dev
