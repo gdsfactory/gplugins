@@ -151,6 +151,7 @@ def xyz_mesh(
     port_names: List[str] | None = None,
     edge_ports: List[str] | None = None,
     gmsh_version: float | None = None,
+    layer_port_delimiter: str | None = None,
 ) -> bool:
     """Full 3D mesh of component.
 
@@ -184,6 +185,7 @@ def xyz_mesh(
             }
         gmsh_version: Gmsh mesh format version. For example, Palace requires an older version of 2.2,
             see https://mfem.org/mesh-formats/#gmsh-mesh-formats.
+        layer_port_delimiter: Delimiter to use for new layers generated for ports: "layer{delimiter}port_name".
     """
     if port_names:
         mesh_component = gf.Component()
@@ -193,6 +195,7 @@ def xyz_mesh(
             component=mesh_component,
             port_names=port_names,
             layer_stack=layer_stack,
+            **(dict(delimiter=layer_port_delimiter) if layer_port_delimiter else {}),
         )
 
     # Fuse and cleanup polygons of same layer in case user overlapped them
