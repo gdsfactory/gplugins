@@ -233,7 +233,7 @@ jobs:
         with:
           name: notebooks
           path: |
-            docs/*.ipynb
+            docs/notebooks/*.ipynb
           retention-days: 1
   test_docs_combine:
     runs-on: ubuntu-latest
