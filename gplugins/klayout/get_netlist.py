@@ -54,7 +54,10 @@ def get_l2n(
     # define the layers to be extracted
     for l_idx in c.kcl.layer_indexes():
         layer_info = c.kcl.get_info(l_idx)
-        names = reversed_layer_map[(layer_info.layer, layer_info.datatype)]
+        names = reversed_layer_map.get(
+            (layer_info.layer, layer_info.datatype),
+            {f"{layer_info.layer}_{layer_info.datatype}"},
+        )
         try:
             same_name_as_in_connections = next(iter(correct_layer_names & names))
         except StopIteration:
