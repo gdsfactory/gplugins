@@ -189,8 +189,7 @@ jobs:
           SIMCLOUD_APIKEY: ${{ secrets.SIMCLOUD_APIKEY }}
           GDSFACTORY_DISPLAY_TYPE: klayout
         run: |
-          jupytext docs/${{ matrix.notebook }}.py --to ipynb
-          papermill docs/${{ matrix.notebook }}.ipynb docs/${{ matrix.notebook }}.ipynb
+          jupytext docs/${{ matrix.notebook }}.py --to ipynb --execute
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
