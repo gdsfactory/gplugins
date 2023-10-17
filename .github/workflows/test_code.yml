@@ -150,13 +150,11 @@ jobs:
           - notebooks/meshing_05_3D
           - notebooks/femwell_02_heater
           - notebooks/tcad_02_analytical_process
-          - notebooks/tcad_03_numerical_implantation
           - notebooks/femwell_01_modes
           - notebooks/tidy3d_01_tidy3d_modes
           - notebooks/meow_01
           - notebooks/tidy3d_00_tidy3d
           - notebooks/sax_01_sax
-          - notebooks/sax_03_variability_analysis
           - notebooks/vlsir_netlist
           - notebooks/20_schematic_driven_layout
           - notebooks/klayout_dataprep
@@ -227,6 +225,9 @@ jobs:
           jupytext docs/notebooks/palace_02_fullwave.py --to ipynb
           jupytext docs/notebooks/palace_01_electrostatic.py --to ipynb
           jupytext docs/notebooks/sax_02_model_extraction.py --to ipynb
+          jupytext docs/notebooks/sax_03_variability_analysis.py --to ipynb
+          jupytext docs/notebooks/tcad_03_numerical_implantation.py --to ipynb
+
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
