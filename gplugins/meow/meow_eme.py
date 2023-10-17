@@ -149,7 +149,7 @@ class MEOW:
         z_min, x_min, z_max, x_max = component.bbox.ravel()
         z_min, z_max = min(z_min, z_max) + 1e-10, max(z_min, z_max) - 1e-10
         x_min, x_max = min(x_min, x_max) + 1e-10, max(x_min, x_max) - 1e-10
-        layer_stack = layer_stack.model_dump()
+        layer_stack = layer_stack.model_copy()
         ys = list_unique_layer_stack_z(layer_stack)
         y_min, y_max = np.min(ys) + 1e-10, np.max(ys) - 1e-10
 
