@@ -143,6 +143,44 @@ jobs:
       fail-fast: false
       matrix:
         notebook:
+          - file: notebooks/ray_optimiser
+          - file: notebooks/pso
+          - file: notebooks/meshing_01_intro
+          - file: notebooks/meshing_02_2D_xy_mesh
+          - file: notebooks/meshing_03_2D_uz_mesh
+          - file: notebooks/meshing_04_refinement
+          - file: notebooks/meshing_05_3D
+          - file: notebooks/femwell_02_heater
+          - file: notebooks/devsim_01_pin_waveguide
+          - file: notebooks/tcad_02_analytical_process
+          - file: notebooks/tcad_03_numerical_implantation
+          - file: notebooks/elmer_01_electrostatic
+          - file: notebooks/palace_01_electrostatic
+          - file: notebooks/palace_02_fullwave
+          - file: notebooks/femwell_01_modes
+          - file: notebooks/tidy3d_01_tidy3d_modes
+          - file: notebooks/mpb_001_mpb_waveguide
+          - file: notebooks/meow_01
+          - file: notebooks/tidy3d_00_tidy3d
+          - file: notebooks/fdtdz_01.py
+          - file: notebooks/meep_01_sparameters
+          - file: notebooks/meep_02_gratings
+          - file: notebooks/meep_03_fields
+          - file: notebooks/lumerical_1_fdtd_sparameters
+          - file: notebooks/sax_01_sax
+          - file: notebooks/sax_02_model_extraction
+          - file: notebooks/sax_03_variability_analysis
+          - file: notebooks/lumerical_2_interconnect
+          - file: notebooks/vlsir_netlist
+          - file: notebooks/20_schematic_driven_layout
+          - file: notebooks/klayout_dataprep
+          - file: notebooks/klayout_drc
+          - file: notebooks/11_get_netlist
+          - file: notebooks/11_get_netlist_spice
+          - file: notebooks/path_length_analysis.py
+          - file: notebooks/workflow_1_mzi
+          - file: notebooks/workflow_2_ring
+          - file: notebooks/workflow_3_cascaded_mzi
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v3
