@@ -7,11 +7,11 @@ author: gdsfactory
 # Force re-execution of notebooks on each build.
 # See https://jupyterbook.org/content/execute.html
 execute:
-  execute_notebooks: cache
+  execute_notebooks: "off"
   timeout: 600
   allow_errors: false
+  # execute_notebooks: cache
   # execute_notebooks: force
-  # execute_notebooks: "off"
   # exclude_patterns:
   #   - '*notebooks/devsim/01_pin_waveguide*'
   exclude_patterns:

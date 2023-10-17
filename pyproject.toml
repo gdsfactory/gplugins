@@ -30,6 +30,7 @@ dagster = ["dagster", "dagit"]
 dev = [
   "pre-commit",
   "pytest",
+  "papermill",
   "pytest-cov",
   "pytest_regressions",
   "jsondiff",
