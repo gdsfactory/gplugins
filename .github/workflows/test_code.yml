@@ -63,10 +63,12 @@ jobs:
           init-shell: bash
       - name: Install dependencies
         run: |
+          micromamba create -p ./env
+          micromamba activate ./env/
+          micromamba install -c conda-forge pymeep=*=mpi_mpich_* nlopt -y
           pip install -e .[dev]
       - name: Test with pytest
         run: |
-          make meep
           pytest gplugins/gmeep gplugins/modes
   test_non_pip:
     runs-on: ${{ matrix.os }}
