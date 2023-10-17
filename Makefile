@@ -9,7 +9,7 @@ gmsh:
 	sudo apt-get install -y python3-gmsh gmsh libglu1-mesa libxi-dev libxmu-dev libglu1-mesa-dev
 
 meep:
-	mamba install -c conda-forge pymeep=*=mpi_mpich_* nlopt -y
+	micromamba install -c conda-forge pymeep=*=mpi_mpich_* nlopt -y
 
 elmer:
 	sudo apt-add-repository ppa:elmer-csc-ubuntu/elmer-csc-ppa
