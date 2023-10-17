@@ -137,40 +137,26 @@ jobs:
   #       with:
   #         token: ${{ secrets.CODECOV_TOKEN }}
   #         fail_ci_if_error: false
-  test_docs:
+  convert_notebooks_and_run:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         notebook:
-          - notebooks/ray_optimiser
-          - notebooks/pso
           - notebooks/meshing_01_intro
           - notebooks/meshing_02_2D_xy_mesh
           - notebooks/meshing_03_2D_uz_mesh
           - notebooks/meshing_04_refinement
           - notebooks/meshing_05_3D
           - notebooks/femwell_02_heater
-          - notebooks/devsim_01_pin_waveguide
           - notebooks/tcad_02_analytical_process
           - notebooks/tcad_03_numerical_implantation
-          - notebooks/elmer_01_electrostatic
-          - notebooks/palace_01_electrostatic
-          - notebooks/palace_02_fullwave
           - notebooks/femwell_01_modes
           - notebooks/tidy3d_01_tidy3d_modes
-          - notebooks/mpb_001_mpb_waveguide
           - notebooks/meow_01
           - notebooks/tidy3d_00_tidy3d
-          - notebooks/fdtdz_01
-          - notebooks/meep_01_sparameters
-          - notebooks/meep_02_gratings
-          - notebooks/meep_03_fields
-          - notebooks/lumerical_1_fdtd_sparameters
           - notebooks/sax_01_sax
-          - notebooks/sax_02_model_extraction
           - notebooks/sax_03_variability_analysis
-          - notebooks/lumerical_2_interconnect
           - notebooks/vlsir_netlist
           - notebooks/20_schematic_driven_layout
           - notebooks/klayout_dataprep
@@ -204,7 +190,7 @@ jobs:
           GDSFACTORY_DISPLAY_TYPE: klayout
         run: |
           jupytext docs/${{ matrix.notebook }}.py --to ipynb
-          # papermill docs/${{ matrix.notebook }}.ipynb docs/${{ matrix.notebook }}.ipynb
+          papermill docs/${{ matrix.notebook }}.ipynb docs/${{ matrix.notebook }}.ipynb
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
@@ -212,9 +198,60 @@ jobs:
           path: |
             docs/${{ matrix.notebook}}.ipynb
           retention-days: 1
+  convert_notebooks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gdsfactory/
+          key: 0.0.1
+          restore-keys: 0.0.1
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: '3.10'
+          mamba-version: "*"
+          conda-version: '23.7.4'
+          channels: conda-forge,defaults
+          channel-priority: true
+          activate-environment: anaconda-client-env
+      - name: Add conda to system path
+        run: |
+          echo $CONDA/bin >> $GITHUB_PATH
+      - name: Install dependencies
+        run: |
+          make dev meep
+      - name: Test documentation
+        env:
+          SIMCLOUD_APIKEY: ${{ secrets.SIMCLOUD_APIKEY }}
+          GDSFACTORY_DISPLAY_TYPE: klayout
+        run: |
+          jupytext docs/notebooks/ray_optimiser.py --to ipynb
+          jupytext docs/notebooks/pso.py --to ipynb
+          jupytext docs/notebooks/devsim_01_pin_waveguide.py --to ipynb
+          jupytext docs/notebooks/mpb_001_mpb_waveguide.py --to ipynb
+          jupytext docs/notebooks/fdtdz_01.py --to ipynb
+          jupytext docs/notebooks/meep_01_sparameters.py --to ipynb
+          jupytext docs/notebooks/meep_02_gratings.py --to ipynb
+          jupytext docs/notebooks/meep_03_fields.py --to ipynb
+          jupytext docs/notebooks/mpb_001_mpb_waveguide.py --to ipynb
+          jupytext docs/notebooks/lumerical_2_interconnect.py --to ipynb
+          jupytext docs/notebooks/lumerical_1_fdtd_sparameters.py --to ipynb
+          jupytext docs/notebooks/elmer_01_electrostatic.py --to ipynb
+          jupytext docs/notebooks/palace_02_fullwave.py --to ipynb
+          jupytext docs/notebooks/palace_01_electrostatic.py --to ipynb
+          jupytext docs/notebooks/sax_02_model_extraction.py --to ipynb
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: notebooks
+          path: |
+            docs/*.ipynb
+          retention-days: 1
   test_docs_combine:
     runs-on: ubuntu-latest
-    needs: [test_docs]
+    needs: [convert_notebooks, convert_notebooks_and_run ]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v3
