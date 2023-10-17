@@ -13,7 +13,7 @@ from gdsfactory.config import PATH, logger
 from gdsfactory.generic_tech import LAYER
 from gdsfactory.pdk import get_active_pdk, get_layer_stack
 from gdsfactory.technology import LayerStack
-from gdsfactory.typings import PathType
+from gdsfactory.typings import Component, PathType
 from meow.base_model import _array as mw_array
 from tqdm.auto import tqdm
 
@@ -149,6 +149,7 @@ class MEOW:
         z_min, x_min, z_max, x_max = component.bbox.ravel()
         z_min, z_max = min(z_min, z_max) + 1e-10, max(z_min, z_max) - 1e-10
         x_min, x_max = min(x_min, x_max) + 1e-10, max(x_min, x_max) - 1e-10
+        layer_stack = layer_stack.model_dump()
         ys = list_unique_layer_stack_z(layer_stack)
         y_min, y_max = np.min(ys) + 1e-10, np.max(ys) - 1e-10
 
@@ -240,7 +241,7 @@ class MEOW:
         layer_stack,
         buffer_y: float = 1,
         global_layer_index: int = 10000,
-    ):
+    ) -> tuple[Component, LayerStack]:
         """Adds bbox polygons for global layers.
 
         LAYER.WAFER layers are represented as polygons of size [bbox.x, xspan (meow coords)]
