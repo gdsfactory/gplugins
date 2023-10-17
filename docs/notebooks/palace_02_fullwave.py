@@ -1,7 +1,7 @@
 # ---
 # jupyter:
 #   jupytext:
-#     cell_metadata_filter: -all
+#     cell_metadata_filter: tags,-all
 #     custom_cell_magics: kql
 #     text_representation:
 #       extension: .py
@@ -9,9 +9,9 @@
 #       format_version: '1.3'
 #       jupytext_version: 1.15.0
 #   kernelspec:
-#     display_name: base
-#     language: python
-#     name: python3
+#     display_name: ''
+#     language: ''
+#     name: ''
 # ---
 
 # %% [markdown]
@@ -37,7 +37,7 @@
 # Alternatively, [Singularity / Apptainer](https://apptainer.org/) containers may be used. Instructions for building and an example definition file are found at [Palace – Build using Singularity/Apptainer](https://awslabs.github.io/palace/dev/install/#Build-using-Singularity/Apptainer).
 # Afterwards, an easy install method is to add a script to `~/.local/bin` (or elsewhere in `PATH`) calling the Singularity container. For example, one may create a `palace` file containing
 # ```console
-# #!/bin/bash
+# !/bin/bash
 # singularity exec ~/palace.sif /opt/palace/bin/palace "$@"
 # ```
 #

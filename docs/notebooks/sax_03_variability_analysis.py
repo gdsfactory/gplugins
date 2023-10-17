@@ -1,3 +1,18 @@
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.15.0
+#   kernelspec:
+#     display_name: ''
+#     language: ''
+#     name: ''
+# ---
+
 # # Variability analysis
 #
 # You can study the effect of variability on device performance using the same methods to iterate component parameters to build models.
