@@ -1,11 +1,25 @@
+import importlib
+
 import gdsfactory as gf
 import numpy as np
+import pytest
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 
 from gplugins.meow import MEOW
 
 
+@pytest.fixture
+def reload_pdk_after():
+    """
+    Reload PDK after test. This is required as MEOW modifies the PDK layers.
+    See https://github.com/gdsfactory/gplugins/issues/187
+    """
+    yield
+    importlib.reload(gf)
+
+
+@pytest.mark.usefixtures("reload_pdk_after")
 def test_meow_defaults() -> None:
     c = gf.components.taper_cross_section_linear()
     filtered_layer_stack = LayerStack(
@@ -43,6 +57,7 @@ def test_meow_defaults() -> None:
     assert abs(sp["o2@0,o2@0"]) < 0.05
 
 
+@pytest.mark.usefixtures("reload_pdk_after")
 def test_cells() -> None:
     layer_stack = LayerStack(
         layers={
