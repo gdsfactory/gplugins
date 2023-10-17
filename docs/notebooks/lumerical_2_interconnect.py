@@ -1,3 +1,18 @@
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.15.0
+#   kernelspec:
+#     display_name: ''
+#     language: ''
+#     name: ''
+# ---
+
 # # Lumerical INTERCONNECT
 #
 # The Lumerical INTERCONNECT plugin in gdsfactory can run circuit simulations in INTERCONNECT directly from gdsfactory components.

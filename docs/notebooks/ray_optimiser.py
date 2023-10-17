@@ -1,3 +1,18 @@
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.15.0
+#   kernelspec:
+#     display_name: ''
+#     language: ''
+#     name: ''
+# ---
+
 # # Ray Tune generic black-box optimiser
 #
 # [Ray Tune](https://docs.ray.io/en/latest/tune/index.html) is a hyperparameter tuning library primarily developed for machine learning.

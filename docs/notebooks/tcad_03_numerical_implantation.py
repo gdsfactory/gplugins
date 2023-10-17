@@ -1,3 +1,18 @@
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.15.0
+#   kernelspec:
+#     display_name: ''
+#     language: ''
+#     name: ''
+# ---
+
 # # Monte-Carlo implant simulations
 #
 # To go beyond implant tables and perform implant simulations on complex geometries, you can call install [PySRIM](https://pypi.org/project/pysrim/) with `pip install pysrim`

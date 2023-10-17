@@ -1,3 +1,18 @@
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.15.0
+#   kernelspec:
+#     display_name: ''
+#     language: ''
+#     name: ''
+# ---
+
 # # 3D meshing and net entities
 #
 # The same API can be used to mesh a component in 3D. Furthermore, there are simple ways to tag elements attached to ports to define simulation boundary conditions.

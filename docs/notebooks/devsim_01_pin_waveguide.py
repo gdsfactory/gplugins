@@ -1,3 +1,18 @@
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.15.0
+#   kernelspec:
+#     display_name: ''
+#     language: ''
+#     name: ''
+# ---
+
 # # DEVSIM TCAD simulator
 #
 # [DEVSIM](https://devsim.org/) is an open-source semiconductor device simulator. See [publication](https://joss.theoj.org/papers/10.21105/joss.03898).

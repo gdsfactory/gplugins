@@ -52,6 +52,9 @@ jupytext:
 notebooks:
 	jupytext docs/**/*.py --to ipynb
 
+notebooks-clean:
+	jupytext docs/notebooks/*.py --to py  --update-metadata '{"kernelspec": {"display_name": "", "language": "", "name": ""}}'
+
 docs:
 	jb build docs
 

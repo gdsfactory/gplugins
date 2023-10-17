@@ -1,17 +1,17 @@
 # ---
 # jupyter:
 #   jupytext:
-#     cell_metadata_filter: -all
+#     cell_metadata_filter: tags,-all
 #     custom_cell_magics: kql
 #     text_representation:
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.11.2
+#       jupytext_version: 1.15.0
 #   kernelspec:
-#     display_name: base
-#     language: python
-#     name: python3
+#     display_name: ''
+#     language: ''
+#     name: ''
 # ---
 
 # %% [markdown]
@@ -29,7 +29,7 @@
 # ```
 # Afterwards, an easy install method is to add scripts to `~/.local/bin` (or elsewhere in `PATH`) calling the Singularity container for each of the necessary executables. For example, one may create a `ElmerSolver_mpi` file containing
 # ```console
-# #!/bin/bash
+# !/bin/bash
 # singularity exec <CONTAINER_LOCATION>/elmer.sif ElmerSolver_mpi $@
 # ```
 #
