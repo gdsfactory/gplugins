@@ -20,9 +20,8 @@ jobs:
           restore-keys: 0.0.1
       - uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: '3.10'
-          mamba-version: "*"
-          conda-version: '23.7.4'
+          python-version: '3.11'
+          mamba-version: ">=1.5.2"
           channels: conda-forge,defaults
           channel-priority: true
           activate-environment: anaconda-client-env

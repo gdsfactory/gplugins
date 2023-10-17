@@ -8,8 +8,8 @@ parts:
     chapters:
       - file: plugins_optimization
         sections:
-          - file: notebooks/ray_optimiser
-          - file: notebooks/pso
+          - file: notebook_/ray_optimiser
+          - file: notebook_/pso
       - file: plugins_mesh
         sections:
           - file: notebooks/meshing_01_intro
@@ -20,12 +20,12 @@ parts:
       - file: plugins_process
         sections:
           - file: notebooks/femwell_02_heater
-          - file: notebooks/devsim_01_pin_waveguide
+          - file: notebook_/devsim_01_pin_waveguide
           - file: notebooks/tcad_02_analytical_process
-          - file: notebooks/tcad_03_numerical_implantation
-          - file: notebooks/elmer_01_electrostatic
-          - file: notebooks/palace_01_electrostatic
-          - file: notebooks/palace_02_fullwave
+          - file: notebook_/tcad_03_numerical_implantation
+          - file: notebook_/elmer_01_electrostatic
+          - file: notebook_/palace_01_electrostatic
+          - file: notebook_/palace_02_fullwave
       - file: plugins_mode_solver
         sections:
           - file: notebooks/femwell_01_modes
@@ -35,17 +35,17 @@ parts:
       - file: plugins_fdtd
         sections:
           - file: notebooks/tidy3d_00_tidy3d
-          - file: notebooks/fdtdz_01
+          - file: notebook_/fdtdz_01
           - file: notebooks/meep_01_sparameters
           - file: notebooks/meep_02_gratings
           - file: notebooks/meep_03_fields
-          - file: notebooks/lumerical_1_fdtd_sparameters
+          - file: notebooks2/lumerical_1_fdtd_sparameters
       - file: plugins_circuits
         sections:
           - file: notebooks/sax_01_sax
           - file: notebooks/sax_02_model_extraction
           - file: notebooks/sax_03_variability_analysis
-          - file: notebooks/lumerical_2_interconnect
+          - file: notebook_/lumerical_2_interconnect
           - file: notebooks/vlsir_netlist
       - file: notebooks/20_schematic_driven_layout
   - caption: Verification
