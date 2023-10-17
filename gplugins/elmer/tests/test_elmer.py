@@ -80,7 +80,6 @@ def get_reasonable_mesh_parameters(c: Component):
     )
 
 
-@pytest.mark.skip(reason="FIXME")
 def test_elmer_capacitance_simulation_runs(geometry) -> None:
     c = geometry
     run_capacitive_simulation_elmer(
@@ -91,7 +90,6 @@ def test_elmer_capacitance_simulation_runs(geometry) -> None:
     )
 
 
-@pytest.mark.skip(reason="FIXME")
 @pytest.mark.parametrize("n_processes", [(1), (2), (4)])
 def test_elmer_capacitance_simulation_n_processes(geometry, n_processes):
     c = geometry
@@ -104,7 +102,6 @@ def test_elmer_capacitance_simulation_n_processes(geometry, n_processes):
     )
 
 
-@pytest.mark.skip(reason="FIXME")
 @pytest.mark.parametrize("element_order", [(1), (2), (3)])
 def test_elmer_capacitance_simulation_element_order(geometry, element_order) -> None:
     c = geometry
