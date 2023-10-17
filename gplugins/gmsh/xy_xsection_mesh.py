@@ -73,6 +73,7 @@ def xy_xsection_mesh(
     n_threads: int = get_number_of_cores(),
     port_names: list[str] | None = None,
     gmsh_version: float | None = None,
+    layer_port_delimiter: str | None = None,
 ):
     """Mesh xy cross-section of component at height z.
 
@@ -93,6 +94,7 @@ def xy_xsection_mesh(
         round_tol: during gds --> mesh conversion cleanup, number of decimal points at which to round the gdsfactory/shapely points before introducing to gmsh
         simplify_tol: during gds --> mesh conversion cleanup, shapely "simplify" tolerance (make it so all points are at least separated by this amount)
         atol: tolerance used to establish equivalency between vertices
+        layer_port_delimiter: Delimiter to use for new layers generated for ports: "layer{delimiter}port_name".
     """
     if port_names:
         mesh_component = gf.Component()
@@ -102,6 +104,7 @@ def xy_xsection_mesh(
             component=mesh_component,
             port_names=port_names,
             layer_stack=layer_stack,
+            **(dict(delimiter=layer_port_delimiter) if layer_port_delimiter else {}),
         )
 
     # Fuse and cleanup polygons of same layer in case user overlapped them
