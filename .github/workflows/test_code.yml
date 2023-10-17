@@ -162,7 +162,7 @@ jobs:
           - notebooks/mpb_001_mpb_waveguide
           - notebooks/meow_01
           - notebooks/tidy3d_00_tidy3d
-          - notebooks/fdtdz_01.py
+          - notebooks/fdtdz_01
           - notebooks/meep_01_sparameters
           - notebooks/meep_02_gratings
           - notebooks/meep_03_fields
@@ -177,7 +177,7 @@ jobs:
           - notebooks/klayout_drc
           - notebooks/11_get_netlist
           - notebooks/11_get_netlist_spice
-          - notebooks/path_length_analysis.py
+          - notebooks/path_length_analysis
           - notebooks/workflow_1_mzi
           - notebooks/workflow_2_ring
           - notebooks/workflow_3_cascaded_mzi
@@ -189,6 +189,12 @@ jobs:
             ~/.gdsfactory/
           key: 0.0.1
           restore-keys: 0.0.1
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
       - name: Install dependencies
         run: |
           make dev
@@ -208,6 +214,7 @@ jobs:
           retention-days: 1
   test_docs_combine:
     runs-on: ubuntu-latest
+    needs: [test_docs]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v3
