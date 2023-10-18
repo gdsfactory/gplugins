@@ -1,3 +1,20 @@
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     custom_cell_magics: kql
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.11.2
+#   kernelspec:
+#     display_name: base
+#     language: python
+#     name: python3
+# ---
+
+# %% [markdown]
 # # Ring filter
 #
 # ## Calculations
@@ -14,11 +31,12 @@
 # - VpiL
 # - Resistance
 
-# +
+# %%
 import gdsfactory as gf
 import numpy as np
 
 gf.config.rich_output()
+gf.CONF.display_type = "klayout"
 
 
 def ring(
@@ -92,8 +110,8 @@ if __name__ == "__main__":
     plt.grid()
     plt.legend()
     plt.show()
-# -
 
+# %% [markdown]
 # ## Layout
 #
 # gdsfactory easily enables you to layout Component with as many levels of hierarchy as you need.
@@ -102,29 +120,47 @@ if __name__ == "__main__":
 #
 # Lets add two references in a component.
 
-# +
-
+# %%
 import gdsfactory as gf
 import toolz
 from omegaconf import OmegaConf
 
 c = gf.components.ring_single_heater(gap=0.2, radius=10, length_x=4)
 c.plot()
-# -
 
+# %%
 scene = c.to_3d()
 scene.show()
 
+# %% [markdown]
 # Lets define a ring function that also accepts other component specs for the subcomponents (straight, coupler, bend)
 
+# %%
+xs = gf.cross_section.metal3(width=5)
+
 ring = gf.components.ring_single_heater(gap=0.2, radius=10, length_x=4)
-ring_with_grating_couplers = gf.routing.add_fiber_array(ring)
-ring_with_grating_couplers
+ring_with_pads = gf.routing.add_pads_top(
+    ring,
+    port_names=["r_e3", "l_e1"],
+    cross_section=xs,
+    optical_routing_type=None,
+    fanout_length=100,
+)
+ring_with_pads_grating_couplers = gf.routing.add_fiber_array(
+    ring_with_pads, with_loopback=True
+)
+ring_with_pads_grating_couplers.show()
+ring_with_pads_grating_couplers.plot()
 
-gf.routing.add_electrical_pads_top_dc(ring_with_grating_couplers)
+# %%
+ring = gf.components.ring_single_heater(gap=0.2, radius=10, length_x=4)
+ring_with_grating_couplers = gf.routing.add_fiber_array(ring, with_loopback=True)
+c = gf.routing.add_electrical_pads_top(
+    ring_with_grating_couplers, port_names=["l_e1", "r_e3"]
+)
+c.plot()
 
-gf.routing.add_electrical_pads_top(ring_with_grating_couplers)
-
+# %% [markdown]
 # ## Top reticle assembly
 #
 # Once you have your components and circuits defined, you can add them into a top reticle Component for fabrication.
@@ -136,7 +172,7 @@ gf.routing.add_electrical_pads_top(ring_with_grating_couplers)
 # - make sure you will be able to test te devices after fabrication. Obey DFT (design for testing) rules. For example, if your test setup works only for fiber array, what is the fiber array spacing (127 or 250um?)
 # - if you plan to package your device, make sure you follow your packaging guidelines from your packaging house (min pad size, min pad pitch, max number of rows for wire bonding ...)
 
-# +
+# %%
 nm = 1e-3
 ring_te = toolz.compose(gf.routing.add_fiber_array, gf.components.ring_single)
 
@@ -149,7 +185,7 @@ rings_heater_with_grating_couplers = [
     gf.routing.add_fiber_array(ring) for ring in rings_heater
 ]
 rings_with_pads = [
-    gf.routing.add_electrical_pads_top(ring)
+    gf.routing.add_electrical_pads_top(ring, port_names=["l_e1", "r_e3"])
     for ring in rings_heater_with_grating_couplers
 ]
 
@@ -166,9 +202,9 @@ def reticle(size=(1000, 1000)):
 
 
 m = reticle(cache=False)
-m
+m.plot()
 
-# +
+# %%
 nm = 1e-3
 ring_te = toolz.compose(gf.routing.add_fiber_array, gf.components.ring_single)
 rings = gf.grid([ring_te(radius=r) for r in [10, 20, 50]])
@@ -202,19 +238,23 @@ def reticle(size=(1000, 1000)):
 
 
 m = reticle(cache=False)
-m
-# -
+m.plot()
 
+# %%
 gdspath = m.write_gds(gdspath="mask.gds", with_metadata=True)
 
+# %% [markdown]
 # Make sure you save the GDS with metadata so when the chip comes back you remember what you have on it.
 #
 # You can also save the labels for automatic testing.
 
+# %%
 labels_path = gdspath.with_suffix(".csv")
 gf.labels.write_labels.write_labels_klayout(gdspath=gdspath, layer_label=(66, 0))
 
+# %%
 mask_metadata = OmegaConf.load(gdspath.with_suffix(".yml"))
 tm = gf.labels.merge_test_metadata(mask_metadata=mask_metadata, labels_path=labels_path)
 
+# %%
 tm.keys()

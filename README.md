@@ -1,4 +1,4 @@
-# gplugins 0.8.4
+# gplugins 0.8.5
 
 [![docs](https://github.com/gdsfactory/gplugins/actions/workflows/pages.yml/badge.svg)](https://gdsfactory.github.io/gplugins/)
 [![PyPI](https://img.shields.io/pypi/v/gplugins)](https://pypi.org/project/gplugins/)
@@ -8,7 +8,6 @@
 
 gdsfactory plugins:
 
-- `database` for simulation and measurement database and dagster for data pipelines.
 - `devsim` TCAD device simulator.
 - `meow` Eigen Mode Expansion (EME).
 - `femwell` Finite Element Method Solver (heaters, modes, TCAD, RF waveguides).
@@ -31,7 +30,7 @@ gdsfactory plugins:
 You can install most plugins with:
 
 ```
-pip install "gplugins[database,devsim,femwell,gmsh,schematic,meow,meshwell,ray,sax,tidy3d]" --upgrade
+pip install "gplugins[devsim,femwell,gmsh,schematic,meow,meshwell,ray,sax,tidy3d]" --upgrade
 ```
 
 Or install only the plugins you need with for example `pip install gplugins[schematic,femwell,meow,sax,tidy3d]` from the available plugins.

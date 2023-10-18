@@ -185,7 +185,7 @@ def export_netlist(pkg: Package, fmt: str = "spice", dest=None) -> str:
 if __name__ == "__main__":
     from gdsfactory.samples.demo.lvs import pads_correct
 
-    from gplugins.verification.get_netlist import get_netlist
+    from gplugins.klayout.get_netlist import get_netlist
 
     format_to_suffix = {
         "spice": ".sp",
@@ -201,7 +201,7 @@ if __name__ == "__main__":
     kdbnetlist = get_netlist(gdspath)
 
     # convert it to a VLSIR Package
-    pkg = kdb_vlsir(kdbnetlist, domain="gplugins.verification.example")
+    pkg = kdb_vlsir(kdbnetlist, domain="gplugins.klayout.example")
 
     # export the netlist to the specified format
     out = StringIO()

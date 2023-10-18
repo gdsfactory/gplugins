@@ -129,7 +129,6 @@ c.add_port("o2_2", lumped_port_2_2.center, layer=LAYER.PORT, width=1)
 
 substrate = gf.components.bbox(bbox=simulation_box, layer=LAYER.WAFER)
 c << substrate
-c.flatten()
 c.show()
 
 # %% [markdown]

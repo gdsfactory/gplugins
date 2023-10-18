@@ -23,17 +23,10 @@ license = {file = "LICENSE"}
 name = "gplugins"
 readme = "README.md"
 requires-python = ">=3.10"
-version = "0.8.4"
+version = "0.8.5"
 
 [project.optional-dependencies]
 dagster = ["dagster", "dagit"]
-database = [
-  "sqlalchemy",
-  "sqlalchemy-utils",
-  # "sqlmodel>=0.0.8,<0.1",
-  "boto3",
-  "pymysql"
-]
 dev = [
   "pre-commit",
   "pytest",
@@ -60,7 +53,7 @@ docs = [
   "pyvista[jupyter]<=0.40"
 ]
 femwell = [
-  "femwell>=0.1.6,<0.8.4",
+  "femwell>=0.1.6,<0.8.5",
   "meshwell>=1.0.0,<1.1.0"
 ]
 gmsh = [
@@ -75,7 +68,7 @@ gmsh = [
   "meshwell>=1.0.0,<1.1.0"
 ]
 klayout = [
-  "kfactory[git,ipy]>=0.8.4,<0.9"
+  "kfactory[git,ipy]>=0.9.3,<0.10"
 ]
 meow = [
   "jaxlib",
@@ -144,7 +137,6 @@ addopts = '--tb=short'
 norecursedirs = [
   "extra/*.py",
   'gplugins/dagster',
-  'gplugins/database',
   'gplugins/devsim',
   'gplugins/sax/integrations',
   'gplugins/tidy3d/tests/tests_sparameters',
@@ -216,7 +208,7 @@ message_template = "Bump to {new_version}"
 tag_template = "v{new_version}"
 
 [tool.tbump.version]
-current = "0.8.4"
+current = "0.8.5"
 regex = '''
   (?P<major>\d+)
   \.
