@@ -6,13 +6,16 @@ import matplotlib.pyplot as plt
 import networkx as nx
 
 
-def plot_nets(filepath: str | Path, fully_connected: bool = False) -> None:
+def plot_nets(
+    filepath: str | Path, fully_connected: bool = False, interactive: bool = False
+) -> None:
     """Plots the connectivity between the components in the GDS file.
 
     Args:
-        filepath: Path to the GDS file.
+        filepath: Path to the KLayout netlist file.
         fully_connected: Whether to plot the graph as elements fully connected to all other ones (True) or
             going through other elements (False).
+        interactive: Whether to plot an interactive graph with `pyvis` or not.
     """
     filepath = Path(filepath)
     code = filepath.read_text()
@@ -32,16 +35,32 @@ def plot_nets(filepath: str | Path, fully_connected: bool = False) -> None:
             )
 
     # Plotting the graph
-    plt.figure(figsize=(8, 6))
-    nx.draw(
-        G_connectivity,
-        with_labels=True,
-        node_size=2000,
-        node_color="lightpink",
-        font_size=12,
-    )
-    plt.title("Connectivity")
-    plt.show()
+    if interactive:
+        try:
+            from pyvis.network import Network
+        except ModuleNotFoundError as e:
+            raise UserWarning(
+                "You need to `pip install pyvis` or `gplugins[klayout]`"
+            ) from e
+
+        net = Network(
+            select_menu=True,
+            filter_menu=True,
+        )
+        net.show_buttons()
+        net.from_nx(G_connectivity)
+        net.show("connectivity.html")
+    else:
+        plt.figure(figsize=(8, 6))
+        nx.draw(
+            G_connectivity,
+            with_labels=True,
+            node_size=2000,
+            node_color="lightpink",
+            font_size=12,
+        )
+        plt.title("Connectivity")
+        plt.show()
 
 
 if __name__ == "__main__":
