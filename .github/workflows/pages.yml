@@ -24,7 +24,7 @@ jobs:
           init-shell: bash
       - name: Install dependencies
         run: |
-          micromamba shell init --shell=bash --prefix=~/micromamba
+          eval "$(micromamba shell hook --shell=bash)"
           micromamba activate
           micromamba install -c conda-forge pymeep=*=mpi_mpich_* nlopt -y
           make dev
