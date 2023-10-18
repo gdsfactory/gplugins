@@ -23,7 +23,7 @@ mgoals accuracy=2e-5
 
 DEFAULT_PROCESS_REMESHING = """
 pdbSet Grid Adaptive 1
-pdbSet Grid AdaptiveField Refine.Rel.Error 1.00
+pdbSet Grid AdaptiveField Refine.Rel.Error 1.25
 """
 
 DEFAULT_DEVICE_REMESHING = """refinebox clear
