@@ -148,23 +148,29 @@ testpaths = ["gplugins/", "tests"]
 [tool.ruff]
 fix = true
 ignore = [
-  "E501",  # line too long, handled by black
   "B008",  # do not perform function calls in argument defaults
-  "C901",  # too complex
+  "B018",  # found useless expression
+  "B028",  # no explicit stacklevel
   "B905",  # `zip()` without an explicit `strict=` parameter
   "C408",  # C408 Unnecessary `dict` call (rewrite as a literal)
+  "C901",  # too complex
+  "D100",  # public module docstrings
+  "D101",  # public class docstrings
+  "D102",  # public method docstrings
+  "D103",  # public function docstrings
+  "D104",  # public package docstrings
   "E402",  # module level import not at top of file
-  "B018",  # found useless expression
-  "B028"  # no explicit stacklevel
+  "E501"  # line too long, handled by black
 ]
 select = [
+  "B",  # flake8-bugbear
+  "C",  # flake8-comprehensions
+  "D",  # pydocstyle
   "E",  # pycodestyle errors
-  "W",  # pycodestyle warnings
   "F",  # pyflakes
   "I",  # isort
-  "C",  # flake8-comprehensions
-  "B",  # flake8-bugbear
-  "UP"
+  "UP",
+  "W"  # pycodestyle warnings
 ]
 
 [tool.ruff.per-file-ignores]
