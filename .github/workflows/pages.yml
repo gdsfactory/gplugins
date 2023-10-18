@@ -22,18 +22,15 @@ jobs:
         with:
           micromamba-version: '1.3.1-0'
           init-shell: bash
-      - name: Install dependencies
+      - name: Install dependencies and build docs
+        env:
+          SIMCLOUD_APIKEY: ${{ secrets.SIMCLOUD_APIKEY }}
+          GDSFACTORY_DISPLAY_TYPE: klayout
         run: |
           eval "$(micromamba shell hook --shell=bash)"
           micromamba activate
           micromamba install -c conda-forge pymeep=*=mpi_mpich_* nlopt -y
           make dev
-      - name: make docs
-        env:
-          SIMCLOUD_APIKEY: ${{ secrets.SIMCLOUD_APIKEY }}
-          GDSFACTORY_DISPLAY_TYPE: klayout
-          KFACTORY_DISPLAY_TYPE: image
-        run: |
           make docs
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
