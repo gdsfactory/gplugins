@@ -158,7 +158,8 @@ def write_sprocess(
     process,
     xsection_bounds: tuple[tuple[float, float], tuple[float, float]] = None,
     init_tdr: str = None,
-    directory: Path = None,
+    save_directory: Path = None,
+    execution_directory: Path = None,
     filename: str = "sprocess_fps.cmd",
     struct_prefix: str = "struct_",
     structout: str | None = None,
@@ -187,8 +188,9 @@ def write_sprocess(
         waferstack: gdsfactory layerstack representing the initial wafer
         layermap: gdsfactory LayerMap object contaning all layers
         process: list of gdsfactory.technology.processes process steps
-        xsection_bounds: two in-plane coordinates ((x1,y1), (x2,y2)) defining a line cut for a 2D process cross-section
-        directory: directory to save all output in
+        xsection_bounds: two in-plane coordinates ((x1,y1), (x2,y2)) defining a line cut for a 2D process cross-section. If None, simulate in 3D.
+        save_directory: directory where to save output and script. Default ./sprocess
+        execution_directory: directory where sprocess will be run from. Default local ./
         filename: name of the final sprocess command file
         struct_prefix: prefixes of the final sprocess command file
         structout: tdr file containing the final structure, ready for sdevice simulation. Defaults to component name.
@@ -203,13 +205,19 @@ def write_sprocess(
         num_threads (int): for parallelization
     """
 
-    directory = Path(directory) or Path("./sprocess/")
-
+    save_directory = (
+        Path("./sprocess/") if save_directory is None else Path(save_directory)
+    )
+    execution_directory = (
+        Path("./") if execution_directory is None else Path(execution_directory)
+    )
     structout = structout or component.name + ".tdr"
 
+    relative_save_directory = save_directory.relative_to(execution_directory)
+
     # Setup TCL file
-    out_file = pathlib.Path(directory / filename)
-    directory.mkdir(parents=True, exist_ok=True)
+    out_file = pathlib.Path(save_directory / filename)
+    save_directory.mkdir(parents=True, exist_ok=True)
     if out_file.exists():
         out_file.unlink()
 
@@ -250,7 +258,9 @@ def write_sprocess(
 
         # Process
         if split_steps:
-            f.write(f"struct tdr=./{str(directory)}/{struct_prefix}0_wafer.tdr\n")
+            f.write(
+                f"struct tdr={str(relative_save_directory)}/{struct_prefix}0_wafer.tdr\n"
+            )
 
         for i, step in enumerate(process):
             f.write("\n")
@@ -280,7 +290,7 @@ def write_sprocess(
                         )
                     if split_steps:
                         f.write(
-                            f"struct tdr=./{str(directory)}/{struct_prefix}{i+1}_{step.name}_litho.tdr\n"
+                            f"struct tdr={str(relative_save_directory)}/{struct_prefix}{i+1}_{step.name}_litho.tdr\n"
                         )
 
             if isinstance(step, Etch):
@@ -320,7 +330,7 @@ def write_sprocess(
 
             if split_steps:
                 f.write(
-                    f"struct tdr=./{str(directory)}/{struct_prefix}{i+1}_{step.name}.tdr"
+                    f"struct tdr={str(relative_save_directory)}/{struct_prefix}{i+1}_{step.name}.tdr"
                 )
 
             f.write("\n")
@@ -344,7 +354,7 @@ def write_sprocess(
 
         # Create structure
         f.write("\n")
-        f.write(f"struct tdr=./{str(directory)}/{structout}")
+        f.write(f"struct tdr={str(relative_save_directory)}/{structout}")
 
 
 if __name__ == "__main__":
@@ -404,7 +414,7 @@ if __name__ == "__main__":
         waferstack=WAFER_STACK,
         layermap=LAYER,
         process=get_process(),
-        directory="./sprocess_3D/",
+        save_directory="./sprocess_3D/",
         filename="sprocess_3D_fps.cmd",
         initial_z_resolutions={"core": 0.005, "box": 0.05, "substrate": 0.5},
         initial_xy_resolution=0.05,
@@ -425,7 +435,7 @@ contact name=substrate box silicon xlo=4.2 xhi=4.3 ylo=0.0 yhi={c.ysize:1.3f} zl
             ((test_component.xmin + test_component.xmax) / 2, test_component.ymin),
             ((test_component.xmin + test_component.xmax) / 2, test_component.ymax),
         ),
-        directory="./sprocess/",
+        save_directory="./sprocess/",
         filename="sprocess_2D_fps.cmd",
         initial_z_resolutions={"core": 0.005, "box": 0.05, "substrate": 0.5},
         initial_xy_resolution=0.05,

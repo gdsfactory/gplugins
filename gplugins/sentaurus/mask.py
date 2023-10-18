@@ -2,8 +2,7 @@ import operator
 from functools import reduce
 
 import shapely
-from gdsfactory.typings import Layer, LayerSpecs
-from pydantic.typing import List
+from gdsfactory.typings import Layer, LayerSpecs, List
 
 from gplugins.gmsh.uz_xsection_mesh import get_u_bounds_polygons
 

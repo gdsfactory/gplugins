@@ -1,7 +1,7 @@
 import pathlib
+from pathlib import Path
 
 from gdsfactory.typings import Floats, Tuple
-from pathlib import Path
 
 DEFAULT_OUTPUT_SETTINGS = """Plot{
   *--Density and Currents, etc
@@ -75,8 +75,9 @@ def write_sdevice_quasistationary_ramp_voltage_dd(
     ramp_max_step: float = 0.2,
     ramp_min_step: float = 1e-6,
     ramp_sample_voltages: Floats = (0.0, 0.3, 0.6, 0.8, 1.0),
-    filepath: str = "./sdevice/sdevice_fps.cmd",
-    directory: Path = None,
+    filename: str = "sdevice_fps.cmd",
+    save_directory: Path = None,
+    execution_directory: Path = None,
     output_settings: str = DEFAULT_OUTPUT_SETTINGS,
     physics_settings: str = DEFAULT_PHYSICS_SETTINGS,
     math_settings: str = DEFAULT_MATH_SETTINGS,
@@ -103,24 +104,39 @@ def write_sdevice_quasistationary_ramp_voltage_dd(
         initialization_commands: in the solver, what to execute before the ramp
     """
 
-    directory = directory or Path("./sdevice/")
+    save_directory = (
+        Path("./sdevice/") if save_directory is None else Path(save_directory)
+    )
+    execution_directory = (
+        Path("./") if execution_directory is None else Path(execution_directory)
+    )
+
+    relative_save_directory = save_directory.relative_to(execution_directory)
+    struct = struct.relative_to(execution_directory)
 
     # Setup TCL file
-    out_file = pathlib.Path(filepath)
+    out_file = pathlib.Path(save_directory / filename)
+    save_directory.mkdir(parents=True, exist_ok=True)
     if out_file.exists():
         out_file.unlink()
 
     # Initialize electrodes
-    with open(filepath, "a") as f:
+    with open(out_file, "a") as f:
         f.write("Electrode{\n")
         for boundary_name in contacts:
             f.write(f'{{ name="{boundary_name}"      voltage=0 }}\n')
         f.write("}\n")
 
-        # File settings
-        f.write("File{\n")
-        f.write(f'  Grid    = "{struct}"\n')
-        f.write("}\n")
+        f.write(
+            f"""
+File {{
+  Grid = "{struct}"
+  Current = "{str(relative_save_directory)}/plot_"
+  Plot = "{str(relative_save_directory)}/tdrdat_"
+  Output = "{str(relative_save_directory)}/log_"
+}}
+    """
+        )
 
         # Output settings
         f.write(output_settings)
@@ -136,7 +152,7 @@ def write_sdevice_quasistationary_ramp_voltage_dd(
 
         # Initialization
         initialization_commands = f"""
-            NewCurrentPrefix=\"{str(directory)}/init\"
+            NewCurrentPrefix=\"{str(relative_save_directory)}/init\"
             Coupled(Iterations=100){{ Poisson }}
             Coupled{{ Poisson Electron Hole }}
         """
@@ -157,7 +173,7 @@ def write_sdevice_quasistationary_ramp_voltage_dd(
         MaxStep ={ramp_max_step} MinStep = {ramp_min_step}
         Goal{{ Name=\"{ramp_contact_name}\" Voltage={ramp_final_voltage} }}
     ){{ Coupled {{Poisson Electron Hole }}
-        Save(FilePrefix=\"{str(directory)}/sweep\" Time= ({ramp_sample_voltages_str} ) NoOverWrite )
+        Save(FilePrefix=\"{str(relative_save_directory)}/sweep\" Time= ({ramp_sample_voltages_str} ) NoOverWrite )
     }}
     """
         )
@@ -165,11 +181,30 @@ def write_sdevice_quasistationary_ramp_voltage_dd(
 
 
 def write_sdevice_ssac_ramp_voltage_dd(
-    Vfinal: float = 3.0,
+    ramp_final_voltage: float = 3.0,
     device_name_extra_str="0",
-    filepath: str = "./sdevice_fps.cmd",
+    filename: str = "sdevice_fps.cmd",
+    save_directory: Path = None,
+    execution_directory: Path = None,
+    struct: str = "./sprocess/struct_out_fps.tdr",
 ):
-    Vstring = f"{Vfinal:1.3f}".replace(".", "p").replace("-", "m")
+    save_directory = (
+        Path("./sdevice/") if save_directory is None else Path(save_directory)
+    )
+    execution_directory = (
+        Path("./") if execution_directory is None else Path(execution_directory)
+    )
+
+    relative_save_directory = save_directory.relative_to(execution_directory)
+    struct = struct.relative_to(execution_directory)
+
+    # Setup TCL file
+    out_file = pathlib.Path(save_directory / filename)
+    save_directory.mkdir(parents=True, exist_ok=True)
+    if out_file.exists():
+        out_file.unlink()
+
+    Vstring = f"{ramp_final_voltage:1.3f}".replace(".", "p").replace("-", "m")
 
     text1 = f"""
 Device PN_{Vstring}_{device_name_extra_str} {{
@@ -182,9 +217,11 @@ Device PN_{Vstring}_{device_name_extra_str} {{
 """
     text2 = f"""
   File {{
-    Grid = "struct_out_fps.tdr"
-    Current = "plot_{Vstring}"
-    Plot = "tdrdat_{Vstring}"
+    Grid = "{struct}"
+    Current = "{str(relative_save_directory)}/plot_{Vstring}"
+    Plot = "{str(relative_save_directory)}/tdrdat_{Vstring}"
+    Output = "{str(relative_save_directory)}/log_{Vstring}"
+    ACExtract = "{str(relative_save_directory)}/acplot_{Vstring}"
   }}
 """
     text3 = f"""
@@ -210,11 +247,6 @@ Math {{
   NumberOfThreads=4
 }}
 
-File {{
-  Output = "log_{Vstring}"
-  ACExtract = "acplot_{Vstring}"
-}}
-
 System {{
   PN_{Vstring}_{device_name_extra_str} trans (cathode=d anode=g substrate=g)
   Vsource_pset vg (g 0) {{dc=0}}
@@ -230,7 +262,7 @@ Solve {{
     text4 = f"""#-b) ramp cathode
   Quasistationary (
   InitialStep=0.01 MaxStep=0.04 MinStep=1.e-5
-  Goal {{ Parameter=vd.dc Voltage={Vfinal} }}
+  Goal {{ Parameter=vd.dc Voltage={ramp_final_voltage} }}
   )
 """
 
@@ -245,7 +277,7 @@ Solve {{
   }
 }
 """
-    f = open(filepath, "a")
+    f = open(out_file, "a")
     f.write(text1)
     f.write(text2)
     f.write(text3)
