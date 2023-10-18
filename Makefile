@@ -1,15 +1,12 @@
 
 install:
-	pip install -e .[dev,docs,database,devsim,femwell,gmsh,meow,meshwell,ray,sax,schematic,tidy3d,web,vlsir]
+	pip install -e .[dev,docs,devsim,femwell,gmsh,meow,meshwell,ray,sax,schematic,tidy3d,web,vlsir]
 	pre-commit install
 
-dev: test-data meep gmsh elmer install
+dev: test-data gmsh elmer install
 
 gmsh:
 	sudo apt-get install -y python3-gmsh gmsh libglu1-mesa libxi-dev libxmu-dev libglu1-mesa-dev
-
-meep:
-	mamba install -c conda-forge pymeep=*=mpi_mpich_* nlopt -y
 
 elmer:
 	sudo apt-add-repository ppa:elmer-csc-ubuntu/elmer-csc-ppa
