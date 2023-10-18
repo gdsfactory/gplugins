@@ -42,7 +42,7 @@ DEFAULT_OUTPUT_SETTINGS = """Plot{
 DEFAULT_PHYSICS_SETTINGS = """Physics{
     Mobility ( DopingDependence HighFieldSaturation Enormal )
     EffectiveIntrinsicDensity(BandGapNarrowing (OldSlotboom))
-    Recombination( SRH Auger Avalanche )
+    Recombination( SRH Auger )
 }
 """
 
@@ -131,7 +131,6 @@ def write_sdevice_quasistationary_ramp_voltage_dd(
             f"""
 File {{
   Grid = "{struct}"
-  Current = "{str(relative_save_directory)}/plot_"
   Plot = "{str(relative_save_directory)}/tdrdat_"
   Output = "{str(relative_save_directory)}/log_"
 }}
