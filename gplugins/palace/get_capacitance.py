@@ -210,7 +210,6 @@ def run_capacitive_simulation_palace(
 
     .. _Palace: https://github.com/awslabs/palace
     """
-
     if layer_stack is None:
         layer_stack = LayerStack(
             layers={

@@ -126,7 +126,6 @@ def compute_component_slice_modes(
         extra_shapes_dict: Optional[OrderedDict] of {key: geo} with key a label and geo a shapely (Multi)Polygon or (Multi)LineString of extra shapes to override component.
         merge_by_material: boolean, if True will merge polygons from layers with the same layer.material. Physical keys will be material in this case.
     """
-
     # Mesh
     mesh = get_mesh(
         component=component,

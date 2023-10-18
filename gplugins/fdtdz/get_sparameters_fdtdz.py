@@ -91,7 +91,6 @@ def get_sparameters_fdtdz(
         sp = gz.get_sparameters(c, run=False)
 
     """
-
     # Checks from gmeep
     component_ref = component.ref()
     component_ref.x = 0

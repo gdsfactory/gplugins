@@ -43,7 +43,7 @@ def find_coupling(
         power_ratio: p2/p1, where 1 means 100% power transfer
         wavelength: in um
 
-    keyword Args:
+    Keyword Args:
         nmodes: number of modes
         parity: for symmetries
 

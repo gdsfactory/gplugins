@@ -513,7 +513,7 @@ def straight(wl=1.5, length=10.0, neff=2.4) -> sax.SDict:
 
 
 def mmi1x2():
-    """Assumes a perfect 1x2 splitter"""
+    """Assumes a perfect 1x2 splitter."""
     return sax.reciprocal(
         {
             ("o1", "o2"): 0.5**0.5,
@@ -523,7 +523,7 @@ def mmi1x2():
 
 
 def bend_euler(wl=1.5, length=20.0):
-    """ "Let's assume a reduced transmission for the euler bend compared to a straight"""
+    """ "Let's assume a reduced transmission for the euler bend compared to a straight."""
     return {k: 0.99 * v for k, v in straight(wl=wl, length=length).items()}
 
 
@@ -654,7 +654,7 @@ def straight(wl=1.55, length=10.0, width=0.5):
 
 
 def mmi1x2():
-    """Assumes a perfect 1x2 splitter"""
+    """Assumes a perfect 1x2 splitter."""
     return sax.reciprocal(
         {
             ("o1", "o2"): 0.5**0.5,
@@ -674,7 +674,7 @@ def mmi2x2():
 
 
 def bend_euler(wl=1.5, length=20.0, width=0.5):
-    """ "Let's assume a reduced transmission for the euler bend compared to a straight"""
+    """ "Let's assume a reduced transmission for the euler bend compared to a straight."""
     return {k: 0.99 * v for k, v in straight(wl=wl, length=length, width=width).items()}
 
 
@@ -1010,7 +1010,7 @@ def phase_shifter_heater(
     length: float = 10,
     loss: float = 0.0,
 ) -> sax.SDict:
-    """Returns simple phase shifter model"""
+    """Returns simple phase shifter model."""
     deltaphi = voltage * jnp.pi
     phase = 2 * jnp.pi * neff * length / wl + deltaphi
     amplitude = jnp.asarray(10 ** (-loss * length / 20), dtype=complex)
@@ -1111,7 +1111,7 @@ def straight(wl=1.5, length=10.0, neff=2.4) -> sax.SDict:
 
 
 def mmi1x2():
-    """Assumes a perfect 1x2 splitter"""
+    """Assumes a perfect 1x2 splitter."""
     return sax.reciprocal(
         {
             ("o1", "o2"): 0.5**0.5,
@@ -1121,7 +1121,7 @@ def mmi1x2():
 
 
 def bend_euler(wl=1.5, length=20.0):
-    """ "Let's assume a reduced transmission for the euler bend compared to a straight"""
+    """ "Let's assume a reduced transmission for the euler bend compared to a straight."""
     return {k: 0.99 * v for k, v in straight(wl=wl, length=length).items()}
 
 

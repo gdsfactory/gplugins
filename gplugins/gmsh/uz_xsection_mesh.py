@@ -106,7 +106,6 @@ def get_uz_bounds_layers(
 
     Returns: Dict containing layer: polygon pairs, with (u1,u2) in xsection line coordinates
     """
-
     if z_bounds is not None:
         z_min_sim = z_bounds[0]
         z_max_sim = z_bounds[1]

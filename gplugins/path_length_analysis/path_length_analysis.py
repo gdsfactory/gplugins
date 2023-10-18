@@ -104,7 +104,6 @@ def report_pathlengths(
         visualize: whether to visualize the pathlength graph.
         component_connectivity: a dictionary of component connectivity information.
     """
-
     print(f"Reporting pathlengths for {pic.name}...")
     pathlength_graph = get_edge_based_route_attr_graph(
         pic, recursive=True, component_connectivity=component_connectivity
@@ -124,8 +123,7 @@ def report_pathlengths(
 
 
 def get_paths(pathlength_graph: nx.Graph) -> list[dict[str, Any]]:
-    """
-    Gets a list of dictionaries from the pathlength graph describing each of the aggregate paths.
+    """Gets a list of dictionaries from the pathlength graph describing each of the aggregate paths.
 
     Args:
         pathlength_graph: a graph representing a circuit
@@ -201,8 +199,7 @@ def _get_subinst_node_name(node_name, inst_name):
 def idealized_mxn_connectivity(
     inst_name: str, ref: ComponentReference, g: nx.Graph
 ) -> None:
-    """
-    Connects all input ports to all output ports of m x n components, with idealized routes
+    """Connects all input ports to all output ports of m x n components, with idealized routes.
 
     Args:
         inst_name: The name of the instance we are providing internal routing for.
@@ -330,8 +327,7 @@ def _get_edge_based_route_attr_graph(
 def get_edge_based_route_attr_graph(
     pic: Component, recursive=False, component_connectivity=None
 ) -> nx.Graph:
-    """
-    Gets a connectivity graph for the circuit, with all path attributes on edges and ports as nodes.
+    """Gets a connectivity graph for the circuit, with all path attributes on edges and ports as nodes.
 
     Args:
         pic: the pic to generate a graph from.
@@ -367,8 +363,7 @@ def get_pathlength_widgets(
     cs_colors: dict[str, str] | None = None,
     default_color: str = "#CCCCCC",
 ) -> dict[str, Any]:
-    """
-    Gets a dictionary of bokeh widgets which can be used to visualize pathlength.
+    """Gets a dictionary of bokeh widgets which can be used to visualize pathlength.
 
     Args:
         pic: the component to analyze.
@@ -539,8 +534,7 @@ def visualize_graph(
     result_dir: str | Path,
     cs_colors: dict[str, str] | None = None,
 ) -> None:
-    """
-    Visualizes a pathlength graph with bokeh and shows the output html.
+    """Visualizes a pathlength graph with bokeh and shows the output html.
 
     Args:
         pic: the circuit component.

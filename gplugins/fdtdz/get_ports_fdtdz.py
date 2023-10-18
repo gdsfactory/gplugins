@@ -17,8 +17,7 @@ def get_epsilon_port(
     port_extent_xy: float = 1,
     port_offset: int = 0,
 ):
-    """
-    This function extracts a xz or yz slice of the epsilon distribution at the location of the port to mode solve.
+    """This function extracts a xz or yz slice of the epsilon distribution at the location of the port to mode solve.
 
     Parameters:
         port (Port): The port object from the component.
@@ -32,7 +31,6 @@ def get_epsilon_port(
     Returns:
         port_slice (array): The slice of the epsilon distribution at the location of the port.
     """
-
     xarray, yarray, zarray = create_physical_grid(
         xmin, ymin, zmin, epsilon, nm_per_pixel
     )
@@ -119,7 +117,6 @@ def plot_mode(
         nm_per_pixel: (int) resolution (default to 1000 for pixel index)
         figsize: figure size.
     """
-
     # Create physical grid
     xarray, yarray, zarray = create_physical_grid(
         xmin, ymin, zmin, epsilon_port, nm_per_pixel

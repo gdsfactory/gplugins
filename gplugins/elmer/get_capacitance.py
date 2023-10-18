@@ -193,7 +193,6 @@ def run_capacitive_simulation_elmer(
 
     .. _Elmer: https://github.com/ElmerCSC/elmerfem
     """
-
     if layer_stack is None:
         layer_stack = LayerStack(
             layers={

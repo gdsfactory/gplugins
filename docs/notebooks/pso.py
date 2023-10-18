@@ -55,7 +55,7 @@ wrk_dir.mkdir(exist_ok=True)
 
 # ## Define the loss function used in the PSO optimization
 def loss_S21_L1(x, target):
-    r"""Loss function. Returns :math:`$\sum_i L_1(x_i)$` and :math:`$x$` as a tuple"""
+    r"""Loss function. Returns :math:`$\sum_i L_1(x_i)$` and :math:`$x$` as a tuple."""
     return np.abs(target - x), x
 
 

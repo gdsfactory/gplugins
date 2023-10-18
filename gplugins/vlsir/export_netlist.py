@@ -1,11 +1,10 @@
-"""
-Uses VLSIRTools for converting between Klayout's DB Netlist format and other electrical schematic file formats:
+"""Uses VLSIRTools for converting between Klayout's DB Netlist format and other electrical schematic file formats:
 - SPICE
 - Spectre
 - Xyce
-- Verilog (Not supported yet)
+- Verilog (Not supported yet).
 
-TODO:
+Todo:
     - Add support for Verilog
     - Thoroughly test the parser with more complex netlists
 """
@@ -47,7 +46,8 @@ def _connections(**kwargs) -> list[Connection]:
 
 def _params(**kwargs) -> list[Param]:
     """Create a list of `Param`s from keyword args of the form
-    `r=ParamValue(double_value=1e3)`"""
+    `r=ParamValue(double_value=1e3)`.
+    """
     return [Param(name=key, value=value) for key, value in kwargs.items()]
 
 
@@ -57,7 +57,7 @@ def _temp_net(counter) -> str:
 
 
 def _net_name(net: Net, counter) -> str:
-    """Get the name of a `Net`"""
+    """Get the name of a `Net`."""
     if net.name is None:
         return _temp_net(counter)
     net_name = net.expanded_name()
@@ -65,7 +65,7 @@ def _net_name(net: Net, counter) -> str:
 
 
 def _instance_name(instance: SubCircuit, counter) -> str:
-    """Get the name of a `SubCircuit` instance"""
+    """Get the name of a `SubCircuit` instance."""
     if instance.name is None:
         return _temp_net(counter)
     instance_name = instance.expanded_name()
@@ -149,7 +149,7 @@ def _circuit_module(
 
 
 def kdb_vlsir(kdbnet: Netlist, domain: str, verbose: bool = False, **kwargs) -> Package:
-    """Create a VLSIR `Package` circuit netlist from a KLayout DB `Netlist`
+    """Create a VLSIR `Package` circuit netlist from a KLayout DB `Netlist`.
 
     Args:
         kdbnet: The KLayout DB `Netlist` to convert to a VLSIR `Package`.

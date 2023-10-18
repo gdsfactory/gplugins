@@ -12,8 +12,7 @@ Headers = list[tuple[bytes, bytes]]
 
 
 class ProxiedHeadersMiddleware:
-    """
-    A middleware that modifies the request to ensure that FastAPI uses the
+    """A middleware that modifies the request to ensure that FastAPI uses the
     X-Forwarded-* headers when creating URLs used to reference this application.
 
     We are very permissive in allowing all X-Forwarded-* headers to be used, as
@@ -32,10 +31,7 @@ class ProxiedHeadersMiddleware:
         return
 
     def remap_headers(self, source: Headers) -> Headers:
-        """
-        Map X-Forwarded-Host to host and X-Forwarded-Prefix to prefix.
-
-        """
+        """Map X-Forwarded-Host to host and X-Forwarded-Prefix to prefix."""
         upgrade = len(
             [q for p, q in source if "connection" in str(p) and "upgrade" in str(q)]
         )

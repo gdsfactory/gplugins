@@ -1,6 +1,6 @@
 """Temporary file to hold silicon material properties until better material database implemented.
 
-TODO:
+Todo:
     Material class
     Pint for units
 """

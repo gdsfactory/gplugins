@@ -51,7 +51,7 @@ tmp.mkdir(exist_ok=True)
 
 
 def loss_S21_L1(x, target):
-    r"""Loss function. Returns :math:`$\sum_i L_1(x_i)$` and :math:`$x$` as a tuple"""
+    r"""Loss function. Returns :math:`$\sum_i L_1(x_i)$` and :math:`$x$` as a tuple."""
     return np.abs(target - x), x
 
 
@@ -100,7 +100,6 @@ use_mpi = False  # change this to true if you have MPI support
 
 def trainable_simulations(config):
     """Training step, or `trainable`, function for Ray Tune to run simulations and return results."""
-
     # Component to optimise
     component = gf.components.mmi1x2(**config)
 

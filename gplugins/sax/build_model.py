@@ -51,7 +51,7 @@ class Model:
             - Assembly of simulation results into S-parameters
         is solver-dependent, and hence resides in child classes.
 
-        TODO:
+        Todo:
             - more consistent ordering of input/output data
             - more JAX, less pure Python
             - reuse Ray cluster across different model instances for simultaneous training

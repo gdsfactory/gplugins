@@ -45,7 +45,6 @@ def check_space(
         max_projection: upper limit of the projected length of one edge onto another.
 
     """
-
     if isinstance(gdspath, Component):
         gdspath.flatten()
         gdspath = gdspath.write_gds()

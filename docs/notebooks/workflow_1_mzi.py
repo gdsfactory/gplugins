@@ -209,7 +209,7 @@ def straight(wl=1.5, length=10.0, neff=2.4) -> sax.SDict:
 
 
 def bend_euler(wl=1.5, length=20.0):
-    """Assumes a reduced transmission for the euler bend compared to a straight"""
+    """Assumes a reduced transmission for the euler bend compared to a straight."""
     return {k: 0.99 * v for k, v in straight(wl=wl, length=length).items()}
 
 

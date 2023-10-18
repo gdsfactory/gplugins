@@ -7,8 +7,7 @@ from gplugins.vlsir import export_netlist, kdb_vlsir
 
 
 def test_kdb_vlsir() -> None:
-    """Test the conversion from KLayout DB Netlist to VLSIR Package"""
-
+    """Test the conversion from KLayout DB Netlist to VLSIR Package."""
     c = pads_correct()
     gdspath = c.write_gds()
     kdbnet = get_netlist(gdspath)
@@ -20,8 +19,7 @@ def test_kdb_vlsir() -> None:
 
 
 def test_export_netlist() -> None:
-    """Test the export of a VLSIR Package to a netlist in the supported formats"""
-
+    """Test the export of a VLSIR Package to a netlist in the supported formats."""
     c = pads_correct()
     gdspath = c.write_gds()
     kdbnet = get_netlist(gdspath)

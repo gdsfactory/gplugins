@@ -61,7 +61,7 @@ def write_connectivity_checks_per_section(
 ) -> str:
     """Return script for port connectivity check.
     Assumes the port pins are inside the Component and each cross_section has pins on a different layer.
-    This is not the recommended way as it only supports two widths per cross_section (cross_section.width and cross_section.width_wide)
+    This is not the recommended way as it only supports two widths per cross_section (cross_section.width and cross_section.width_wide).
 
     Args:
         connectivity_checks: list of connectivity objects to check for.

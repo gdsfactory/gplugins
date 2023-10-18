@@ -47,7 +47,7 @@ models = {
 
 
 def module(S) -> list[float]:
-    """rounds to 3 decimals and converts numpy to lists for serialization."""
+    """Rounds to 3 decimals and converts numpy to lists for serialization."""
     for k, v in S.items():
         S[k] = [float(i) for i in np.round(np.abs(v) ** 2, 3)]
     return S

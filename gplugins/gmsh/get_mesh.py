@@ -50,7 +50,6 @@ def get_mesh(
 
     TODO! make compatible with new unified plugins interface
     """
-
     # Add WAFER layer:
     padded_component = Component()
     _ = padded_component << component

@@ -123,7 +123,8 @@ def component_to_epsilon_pjz(
 
 def component_to_epsilon_femwell():
     """TODO: Uses gdsfactory meshing + femwell physical tagging + export to a cartesian\
-            grid to define the (3, xx, yy, zz) array of permittivity values"""
+    grid to define the (3, xx, yy, zz) array of permittivity values.
+    """
     return NotImplementedError
 
 
@@ -154,7 +155,6 @@ def plot_epsilon(
         nm_per_pixel: (int) resolution (default to 1000 for pixel index).
         figsize: figure size.
     """
-
     # Checks
     if (x and y) or (y and z) or (x and z):
         raise ValueError("Only one of x, y or z must be numeric!")

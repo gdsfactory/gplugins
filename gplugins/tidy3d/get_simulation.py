@@ -146,7 +146,7 @@ def get_simulation(
             ``sidewall_angle=None`` (default) pulls the sidewall angle from the PDK,
             while ``0<sidewall_angle_deg<90`` for the base to be larger than the top.
 
-    keyword Args:
+    Keyword Args:
         symmetry: Define Symmetries.
             Tuple of integers defining reflection symmetry across a plane
             bisecting the simulation domain normal to the x-, y-, and z-axis
