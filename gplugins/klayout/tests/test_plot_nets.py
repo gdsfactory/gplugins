@@ -7,8 +7,9 @@ from gplugins.klayout.get_netlist import get_l2n
 from gplugins.klayout.plot_nets import plot_nets
 
 
-@pytest.fixture
-def klayout_netlist(tmp_path):
+@pytest.fixture(scope="session")
+def klayout_netlist(tmp_path) -> str:
+    """Get KLayout netlist file for `pads_correct`. Cached for session scope."""
     c = pads_correct()
 
     gdspath = c.write_gds(gdsdir=tmp_path)
