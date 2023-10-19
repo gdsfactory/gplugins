@@ -69,7 +69,7 @@ gmsh = [
 ]
 klayout = [
   "kfactory[git,ipy]>=0.9.3,<0.10",
-  "pyvis<=0.3.1"
+  "pyvis<=0.3.2"
 ]
 meow = [
   "jaxlib",
