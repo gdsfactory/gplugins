@@ -214,15 +214,6 @@ Device PN_{Vstring}_{device_name_extra_str} {{
     {{ Name="substrate" Voltage=0.0 }}
   }}
 """
-    text2 = f"""
-  File {{
-    Grid = "{struct}"
-    Current = "{str(relative_save_directory)}/plot_{Vstring}"
-    Plot = "{str(relative_save_directory)}/tdrdat_{Vstring}"
-    Output = "{str(relative_save_directory)}/log_{Vstring}"
-    ACExtract = "{str(relative_save_directory)}/acplot_{Vstring}"
-  }}
-"""
     text3 = f"""
   Physics {{
     Mobility ( DopingDependence HighFieldSaturation Enormal )
@@ -252,6 +243,14 @@ System {{
   Vsource_pset vd (d 0) {{dc=0}}
 }}
 
+File {{
+  Grid = "{struct}"
+  Current = "{str(relative_save_directory)}/plot_{Vstring}"
+  Plot = "{str(relative_save_directory)}/tdrdat_{Vstring}"
+  Output = "{str(relative_save_directory)}/log_{Vstring}"
+  ACExtract = "{str(relative_save_directory)}/acplot_{Vstring}"
+}}
+
 Solve {{
   #-a) zero solution
   Poisson
@@ -278,7 +277,6 @@ Solve {{
 """
     f = open(out_file, "a")
     f.write(text1)
-    f.write(text2)
     f.write(text3)
     f.write(text4)
     f.write(text5)
