@@ -25,3 +25,11 @@ def test_plot_nets(klayout_netlist):
 def test_plot_nets_interactive(klayout_netlist):
     plot_nets(klayout_netlist, interactive=True)
     assert Path("connectivity.html").exists()
+
+
+def test_plot_nets_not_fully_connected(klayout_netlist):
+    plot_nets(klayout_netlist, fully_connected=False)
+
+
+def test_plot_nets_no_labels(klayout_netlist):
+    plot_nets(klayout_netlist, include_labels=False)
