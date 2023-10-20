@@ -1,56 +1,74 @@
 import pathlib
+from pathlib import Path
 
 
 def write_tdr_to_csv_2D(
-    script_name: str = "parse.tcl",
+    filename: str = "parse.tcl",
+    save_directory: Path = None,
+    execution_directory: Path = None,
     fields_str: str = "eDensity hDensity",
-    input_filename: str = "in.tdr",
-    output_filename: str = "out.csv",
+    input_tdr: Path = "in.tdr",
+    output_csv: str = "out.csv",
     temp_filename: str = "temp.csv",
     write_utilities: bool = True,
 ):
     """Writes a Sentaurus Visual TCL file that can return CSV data from 2D TDR data.
 
+    SVisual will cd into the filename folder, so other files are referenced to it.
+
     Arguments:
-        script_name (str): filename of the conversion script
+        filename (str): filename of the conversion script
+        save_directory: directory where tdr and csv files live
+        execution_directory: directory where the script (and hence svisual) is run from
         fields_str (str): whitespace-separated field names to parse
-        input_filename (str): name of the input tdr file
-        output_filename (str): name of the output csv file
+        input_tdr (str): name of the input tdr file
+        output_csv (str): name of the output csv file
         temp_filename (str): name of the temporary file
         write_utilities (bool): also write Python utility script
     """
 
-    filetxt = f"""# Load TDR file.
-    set mydata2D [load_file {input_filename}]
+    save_directory = (
+        Path("./sdevice/") if save_directory is None else Path(save_directory)
+    )
+    execution_directory = (
+        Path("./") if execution_directory is None else Path(execution_directory)
+    )
 
-    # Create new plot.
-    set myplot2D [create_plot -dataset $mydata2D]
+    save_directory.relative_to(execution_directory)
 
-    # Cutline at origin's x axis to get a list of y values to export
-    set center1D [create_cutline -plot $myplot2D -type x -at 0]
-    set Y_values [ get_variable_data Y -dataset $center1D ]
-
-    # Create 1D cutline normal to y-axis at y in Y_values
-    exec touch {output_filename}
-
-    foreach y_value $Y_values {{
-        set mydata1D [create_cutline -plot $myplot2D -type y -at $y_value]
-        export_variables {{ {fields_str} X }} \\ -dataset $mydata1D -filename \"{temp_filename}\" -overwrite
-        exec python add_column.py \"{temp_filename}\" Y $y_value
-        exec python merge_data.py \"{temp_filename}\" \"{output_filename}\" \"{output_filename}\"
-    }}
-    exec rm \"{temp_filename}\"
-    """
-
-    out_file = pathlib.Path(script_name)
+    # Setup TCL file
+    out_file = pathlib.Path(save_directory / filename)
+    save_directory.mkdir(parents=True, exist_ok=True)
     if out_file.exists():
         out_file.unlink()
+
+    filetxt = f"""# Load TDR file.
+set mydata2D [load_file {str(input_tdr)}]
+
+# Create new plot.
+set myplot2D [create_plot -dataset $mydata2D]
+
+# Cutline at origin's x axis to get a list of y values to export
+set center1D [create_cutline -plot $myplot2D -type x -at 0]
+set Y_values [ get_variable_data Y -dataset $center1D ]
+
+# Create 1D cutline normal to y-axis at y in Y_values
+exec touch {str(output_csv)}
+
+foreach y_value $Y_values {{
+    set mydata1D [create_cutline -plot $myplot2D -type y -at $y_value]
+    export_variables {{ {fields_str} X }} \\ -dataset $mydata1D -filename \"{str(temp_filename)}\" -overwrite
+    exec python add_column.py \"{str(temp_filename)}\" Y $y_value
+    exec python merge_data.py \"{str(temp_filename)}\" \"{str(output_csv)}\" \"{str(output_csv)}\"
+}}
+exec rm \"{str(temp_filename)}\"
+    """
 
     with open(out_file, "a") as f:
         f.write(filetxt)
 
     if write_utilities:
-        out_file = pathlib.Path("add_column.py")
+        out_file = pathlib.Path(save_directory / "add_column.py")
         if out_file.exists():
             out_file.unlink()
 
@@ -67,11 +85,11 @@ try:
             lines.append(line)
 
     with open(csv_filename, "w") as fo:
-        fo.write(lines[0].strip() + "," + extra_label + "\n")
+        fo.write(lines[0].strip() + "," + extra_label + "\\n")
         # Skip second line!
         for line in lines[2:]:
             if line.strip() != "":
-                fo.write(line.strip() + "," + extra_value + "\n")
+                fo.write(line.strip() + "," + extra_value + "\\n")
 
 except OSError:
     print("Can't open file for reading/writing.")
@@ -82,7 +100,7 @@ except OSError:
             f.write(filetxt)
 
         # merge_data.py
-        out_file = pathlib.Path("merge_data.py")
+        out_file = pathlib.Path(save_directory / "merge_data.py")
         if out_file.exists():
             out_file.unlink()
 
