@@ -7,13 +7,16 @@ from gplugins.common.config import PATH
 
 
 def get_l2n(
-    gdspath: PathType, klayout_tech_path: PathType | None = None
+    gdspath: PathType,
+    klayout_tech_path: PathType | None = None,
+    include_labels: bool = True,
 ) -> kdb.LayoutToNetlist:
     """Get the layout to netlist object from a given GDS and klayout technology file.
 
     Args:
         gdspath: Path to the GDS file.
         klayout_tech_path: Path to the klayout technology file.
+        include_labels: Whether to include labels in the netlist connected as individual nets.
 
     Returns:
         kdb.LayoutToNetlist: The layout to netlist object.
@@ -52,6 +55,8 @@ def get_l2n(
     layer_connection_iter = layer_connection_iter[0] if layer_connection_iter else []
     correct_layer_names = set(sum(layer_connection_iter, ()))
 
+    # label locations on the connected layers on a special layer
+    labels = kdb.Texts(c.begin_shapes_rec(0))
     # define the layers to be extracted
     for l_idx in c.kcl.layer_indexes():
         layer_info = c.kcl.get_info(l_idx)
@@ -61,6 +66,10 @@ def get_l2n(
         except StopIteration:
             same_name_as_in_connections = next(iter(names))
         l2n.connect(l2n.make_layer(l_idx, same_name_as_in_connections))
+        if include_labels:
+            l2n.connect(
+                l2n.make_layer(l_idx, f"{same_name_as_in_connections}_LABELS"), labels
+            )
 
     for layer_a, layer_via, layer_b in (
         (l2n.layer_by_name(layer) for layer in layers)
@@ -73,6 +82,7 @@ def get_l2n(
             l2n.connect(layer_via, layer_b)
 
     l2n.extract_netlist()
+
     return l2n
 
 

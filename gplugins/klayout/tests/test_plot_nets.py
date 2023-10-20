@@ -7,8 +7,9 @@ from gplugins.klayout.get_netlist import get_l2n
 from gplugins.klayout.plot_nets import plot_nets
 
 
-@pytest.fixture
-def klayout_netlist(tmp_path):
+@pytest.fixture(scope="session")
+def klayout_netlist(tmp_path) -> str:
+    """Get KLayout netlist file for `pads_correct`. Cached for session scope."""
     c = pads_correct()
 
     gdspath = c.write_gds(gdsdir=tmp_path)
@@ -25,3 +26,11 @@ def test_plot_nets(klayout_netlist):
 def test_plot_nets_interactive(klayout_netlist):
     plot_nets(klayout_netlist, interactive=True)
     assert Path("connectivity.html").exists()
+
+
+def test_plot_nets_not_fully_connected(klayout_netlist):
+    plot_nets(klayout_netlist, fully_connected=False)
+
+
+def test_plot_nets_no_labels(klayout_netlist):
+    plot_nets(klayout_netlist, include_labels=False)
