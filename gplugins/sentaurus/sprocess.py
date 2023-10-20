@@ -23,7 +23,7 @@ mgoals accuracy=2e-5
 
 DEFAULT_PROCESS_REMESHING = """
 pdbSet Grid Adaptive 1
-pdbSet Grid AdaptiveField Refine.Rel.Error 1.00
+pdbSet Grid AdaptiveField Refine.Rel.Error 1.25
 """
 
 DEFAULT_DEVICE_REMESHING = """refinebox clear
@@ -174,6 +174,7 @@ def write_sprocess(
     global_device_remeshing_str: str = DEFAULT_DEVICE_REMESHING,
     num_threads: int = 6,
     contact_str: str = DEFAULT_CONTACT_STR,
+    device_remesh: bool = True,
 ):
     """Writes a Sentaurus Process TLC file for the component + layermap + initial waferstack + process.
 
@@ -214,6 +215,8 @@ def write_sprocess(
     structout = structout or component.name + ".tdr"
 
     relative_save_directory = save_directory.relative_to(execution_directory)
+    if init_tdr is not None:
+        relative_tdr_file = init_tdr.relative_to(execution_directory)
 
     # Setup TCL file
     out_file = pathlib.Path(save_directory / filename)
@@ -229,39 +232,38 @@ def write_sprocess(
         f.write(f"math numThreads={num_threads}\n")
 
         # Initial simulation state
+        (
+            output_str,
+            get_mask,
+            layer_polygons_dict,
+            xmin,
+            xmax,
+            ymin,
+            ymax,
+        ) = initialize_sprocess(
+            component=component,
+            waferstack=waferstack,
+            layermap=layermap,
+            xsection_bounds=xsection_bounds,
+            round_tol=round_tol,
+            simplify_tol=simplify_tol,
+            initial_z_resolutions=initial_z_resolutions,
+            initial_xy_resolution=initial_xy_resolution,
+            extra_resolution_str=extra_resolution_str,
+        )
         if init_tdr:
-            f.write(f"struct tdr= {init_tdr}")
+            f.write(f"init tdr= {str(relative_tdr_file)}")
         else:
-            (
-                output_str,
-                get_mask,
-                layer_polygons_dict,
-                xmin,
-                xmax,
-                ymin,
-                ymax,
-            ) = initialize_sprocess(
-                component=component,
-                waferstack=waferstack,
-                layermap=layermap,
-                xsection_bounds=xsection_bounds,
-                round_tol=round_tol,
-                simplify_tol=simplify_tol,
-                initial_z_resolutions=initial_z_resolutions,
-                initial_xy_resolution=initial_xy_resolution,
-                extra_resolution_str=extra_resolution_str,
-            )
             f.write(str(output_str))
+            if split_steps:
+                f.write(
+                    f"struct tdr={str(relative_save_directory)}/{struct_prefix}0_wafer.tdr\n"
+                )
 
         # Global remeshing strat
         f.write(global_process_remeshing_str)
 
         # Process
-        if split_steps:
-            f.write(
-                f"struct tdr={str(relative_save_directory)}/{struct_prefix}0_wafer.tdr\n"
-            )
-
         for i, step in enumerate(process):
             f.write("\n")
 
@@ -337,18 +339,19 @@ def write_sprocess(
             f.write("\n")
 
         # Remeshing options
-        f.write("\n")
-        if split_steps:
-            f.write("#split remeshing\n")
-        f.write(global_device_remeshing_str)
+        if device_remesh:
+            f.write("\n")
+            if split_steps:
+                f.write("#split remeshing\n")
+            f.write(global_device_remeshing_str)
 
-        for _layername, layer in waferstack.layers.items():
-            if layer.info and layer.info["active"] is True:
-                f.write(
-                    f"""refinebox name= Global min= {{ {layer.zmin - layer.thickness:1.3f} {xmin} {ymin} }} max= {{ {layer.zmin:1.3f} {xmax} {ymax} }} refine.min.edge= {{ 0.0005 0.0005 0.0005 }} refine.max.edge= {{ 0.01 0.01 0.01 }}  refine.fields= {{ NetActive }} def.max.asinhdiff= 0.5 adaptive {layer.material}
-"""
-                )
-        f.write("grid remesh\n")
+            for _layername, layer in waferstack.layers.items():
+                if layer.info and layer.info["active"] is True:
+                    f.write(
+                        f"""refinebox name= Global min= {{ {layer.zmin - layer.thickness:1.3f} {xmin} {ymin} }} max= {{ {layer.zmin:1.3f} {xmax} {ymax} }} refine.min.edge= {{ 0.0005 0.0005 0.0005 }} refine.max.edge= {{ 0.01 0.01 0.01 }}  refine.fields= {{ NetActive }} def.max.asinhdiff= 0.5 adaptive {layer.material}
+    """
+                    )
+            f.write("grid remesh\n")
 
         # Manual for now
         f.write(contact_str)

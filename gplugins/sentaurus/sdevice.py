@@ -161,9 +161,9 @@ File {{
         ramp_sample_voltages_str = ""
         for i, voltage in enumerate(ramp_sample_voltages):
             if i == 0:
-                ramp_sample_voltages_str = f" {voltage}"
+                ramp_sample_voltages_str = f" {voltage:1.3f}"
             else:
-                ramp_sample_voltages_str += f"; {voltage}"
+                ramp_sample_voltages_str += f"; {voltage:1.3f}"
 
         f.write(
             f"""
@@ -172,7 +172,8 @@ File {{
         MaxStep ={ramp_max_step} MinStep = {ramp_min_step}
         Goal{{ Name=\"{ramp_contact_name}\" Voltage={ramp_final_voltage} }}
     ){{ Coupled {{Poisson Electron Hole }}
-        Save(FilePrefix=\"{str(relative_save_directory)}/sweep\" Time= ({ramp_sample_voltages_str} ) NoOverWrite )
+        Save(FilePrefix=\"{str(relative_save_directory)}/sweep_save\" Time= ({ramp_sample_voltages_str} ) NoOverWrite )
+        Plot(FilePrefix=\"{str(relative_save_directory)}/sweep_plot\" Time= ({ramp_sample_voltages_str} ) NoOverWrite )
     }}
     """
         )
