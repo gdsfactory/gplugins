@@ -18,26 +18,19 @@ jobs:
             ~/.gdsfactory/
           key: 0.0.1
           restore-keys: 0.0.1
-      - uses: conda-incubator/setup-miniconda@v2
+      - uses: mamba-org/setup-micromamba@v1
         with:
-          python-version: '3.10'
-          mamba-version: "*"
-          conda-version: '23.7.4'
-          channels: conda-forge,defaults
-          channel-priority: true
-          activate-environment: anaconda-client-env
-      - name: Add conda to system path
-        run: |
-          echo $CONDA/bin >> $GITHUB_PATH
-      - name: Install dependencies
-        run: |
-          make dev
-      - name: make docs
+          micromamba-version: '1.3.1-0'
+          init-shell: bash
+      - name: Install dependencies and build docs
         env:
           SIMCLOUD_APIKEY: ${{ secrets.SIMCLOUD_APIKEY }}
           GDSFACTORY_DISPLAY_TYPE: klayout
-          KFACTORY_DISPLAY_TYPE: image
         run: |
+          eval "$(micromamba shell hook --shell=bash)"
+          micromamba activate
+          micromamba install -c conda-forge pymeep=*=mpi_mpich_* nlopt -y
+          make dev
           make docs
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2

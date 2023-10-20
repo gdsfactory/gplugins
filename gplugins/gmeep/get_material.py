@@ -63,6 +63,9 @@ def get_material(
                 n=np.real(meep_name), k=np.imag(meep_name), wavelength=wavelength
             ),
         )
+    elif isinstance(meep_name, mp.geom.Medium):
+        # if meep medium is directly input, return meep medium
+        return meep_name
 
     material = getattr(mat, meep_name)
 
