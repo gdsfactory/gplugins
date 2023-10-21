@@ -8,10 +8,10 @@ from gplugins.klayout.plot_nets import plot_nets
 
 
 @pytest.fixture(scope="session")
-def klayout_netlist(tmp_path) -> str:
+def klayout_netlist(tmpdir_factory) -> str:
     """Get KLayout netlist file for `pads_correct`. Cached for session scope."""
+    tmp_path = tmpdir_factory.mktemp("data")
     c = pads_correct()
-
     gdspath = c.write_gds(gdsdir=tmp_path)
     l2n = get_l2n(gdspath)
     netlist_path = str(Path(tmp_path) / f"{c.name}.txt")
