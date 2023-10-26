@@ -126,7 +126,12 @@ def get_sentaurus_mask_3D(
     line = f"mask name={name} polygons= {{ {polygon_names}}} {tone}\n"
     return_str_lines.append(line)
 
-    return return_str_lines
+    if layer_polygons:
+        exists = True
+    else:
+        exists = False
+
+    return return_str_lines, exists
 
 
 def get_sentaurus_mask_2D(
@@ -174,7 +179,13 @@ def get_sentaurus_mask_2D(
 
     # Add mask step
     tone = "" if positive_tone else "negative"
-    return f"mask name={name} segments= {{ {layer_bounds}}} {tone}\n"
+
+    if layer_bounds:
+        exists = True
+    else:
+        exists = False
+
+    return f"mask name={name} segments= {{ {layer_bounds}}} {tone}\n", exists
 
 
 if __name__ == "__main__":

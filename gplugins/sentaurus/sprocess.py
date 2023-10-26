@@ -272,7 +272,7 @@ def write_sprocess(
 
             if isinstance(step, Lithography):
                 if step.layer:
-                    mask_lines = get_mask(
+                    mask_lines, exists = get_mask(
                         layer_polygons_dict=layer_polygons_dict,
                         name=step.name,
                         layer=step.layer,
@@ -282,6 +282,8 @@ def write_sprocess(
                         layers_xor=step.layers_xor,
                         positive_tone=step.positive_tone,
                     )
+                    if not exists:
+                        continue
                     f.writelines(mask_lines)
                     f.write(
                         f"photo mask={step.name} thickness={step.resist_thickness}<um>\n"
