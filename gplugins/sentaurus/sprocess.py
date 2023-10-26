@@ -361,6 +361,53 @@ def write_sprocess(
         f.write(f"struct tdr={str(relative_save_directory)}/{structout}")
 
 
+def write_add_contacts_to_tdr(
+    struct_in: str = "/struct_out_fps.tdr",
+    struct_out: str = "struct_out_fps.tdr",
+    contact_str: str = None,
+    filename: str = "sprocess_contacts.cmd",
+    save_directory: Path = None,
+    execution_directory: Path = None,
+):
+    """Add contacts to tdr file.
+
+    Arguments:
+    struct_in: filepath of the struct to modify
+    struct_out: filepath of the output struct
+    contacts_dict: dict containing information of contact to add
+        key: contact name
+        value:
+    """
+    # Fix paths
+    save_directory = Path("./") if save_directory is None else Path(save_directory)
+    execution_directory = (
+        Path("./") if execution_directory is None else Path(execution_directory)
+    )
+
+    save_directory.relative_to(execution_directory)
+
+    relative_input_tdr_file = struct_in.relative_to(execution_directory)
+    relative_output_tdr_file = struct_out.relative_to(execution_directory)
+
+    # Setup TCL file
+    out_file = pathlib.Path(save_directory / filename)
+    save_directory.mkdir(parents=True, exist_ok=True)
+    if out_file.exists():
+        out_file.unlink()
+
+    # Load TDR file
+    with open(out_file, "a") as f:
+        f.write(f"init tdr= {str(relative_input_tdr_file)}")
+        f.write("\n")
+
+        # Manual for now
+        f.write(contact_str)
+
+        # Create structure
+        f.write("\n")
+        f.write(f"struct tdr={str(relative_output_tdr_file)}")
+
+
 if __name__ == "__main__":
     from gdsfactory.components import straight_pn
     from gdsfactory.generic_tech import LAYER
