@@ -1,4 +1,5 @@
 import itertools
+from logging import warning
 from pathlib import Path
 
 import klayout.db as kdb
@@ -66,16 +67,29 @@ def plot_nets(
     """Plots the connectivity between the components in the KLayout LayoutToNetlist file from :func:`~get_l2n`.
 
     Args:
-        filepath: Path to the KLayout LayoutToNetlist file.
+        filepath: Path to the KLayout LayoutToNetlist file or a SPICE netlist.
+            File extensions should be `.l2n` and `.spice`, respectively.
         fully_connected: Whether to plot the graph as elements fully connected to all other ones (True) or
 
             going through other elements (False).
         interactive: Whether to plot an interactive graph with `pyvis` or not.
         include_labels: Whether to include labels in the graph connected to corresponding cells.
     """
-    l2n = kdb.LayoutToNetlist()
-    l2n.read(str(filepath))
-    netlist = l2n.netlist()
+    match Path(filepath).suffix:
+        case ".l2n" | ".txt":
+            l2n = kdb.LayoutToNetlist()
+            l2n.read(str(filepath))
+            netlist = l2n.netlist()
+        case ".spice":
+            reader = kdb.NetlistSpiceReader()
+            netlist = kdb.Netlist()
+            netlist.read(str(filepath), reader)
+        case _:
+            warning("Assuming file is KLayout native LayoutToNetlist file")
+            l2n = kdb.LayoutToNetlist()
+            l2n.read(str(filepath))
+            netlist = l2n.netlist()
+
     # Creating a graph for the connectivity
     G_connectivity = netlist_to_networkx(
         netlist, fully_connected=fully_connected, include_labels=include_labels
