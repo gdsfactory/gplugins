@@ -21,30 +21,39 @@ def netlist_to_networkx(
         include_labels: Whether to include labels in the graph connected to corresponding cells.
     """
     G = nx.Graph()
-    assert netlist.top_circuit_count() == 1, "Multiple top cells not yet supported"
 
-    circuit, *_ = netlist.each_circuit_top_down()
+    top_circuits = list(
+        itertools.islice(netlist.each_circuit_top_down(), netlist.top_circuit_count())
+    )
 
-    # first flatten components that won't be kept
-    for subcircuit in circuit.each_subcircuit():
-        if subcircuit.name in {"TODO"}:
-            circuit.flatten_subcircuit(subcircuit)
+    for circuit in top_circuits:
+        # first flatten components that won't be kept
+        for subcircuit in circuit.each_subcircuit():
+            if subcircuit.name in {"TODO"}:
+                circuit.flatten_subcircuit(subcircuit)
 
-    for net in circuit.each_net():
-        net_pins = [
-            _get_subcircuit_name(subcircuit_pin_ref.subcircuit())
-            for subcircuit_pin_ref in net.each_subcircuit_pin()
-        ]
+        for net in circuit.each_net():
+            # Get subcircuit pins if they exist (hierarchical export from KLayout)
+            net_pins = [
+                _get_subcircuit_name(subcircuit_pin_ref.subcircuit())
+                for subcircuit_pin_ref in net.each_subcircuit_pin()
+            ]
+            # or use all pins (flat like from Cadence SPICE)
+            if not net_pins:
+                net_pins.extend(pin_ref.pin().name() for pin_ref in net.each_pin())
 
-        # Assumed lone net with only label info
-        if include_labels and net.expanded_name() and "," not in net.expanded_name():
-            G.add_edges_from(zip(net_pins, [net.name] * len(net_pins)))
+            # Assumed lone net with only label info
+            if (
+                include_labels
+                and net.expanded_name()
+                and "," not in net.expanded_name()
+            ):
+                G.add_edges_from(zip(net_pins, [net.name] * len(net_pins)))
 
-        if fully_connected:
-            G.add_edges_from(itertools.combinations(net_pins, 2))
-        else:
-            G.add_edges_from(zip(net_pins[:-1], net_pins[1:]))
-
+            if fully_connected:
+                G.add_edges_from(itertools.combinations(net_pins, 2))
+            else:
+                G.add_edges_from(zip(net_pins[:-1], net_pins[1:]))
     return G
 
 
