@@ -8,10 +8,17 @@ from gplugins.gmsh.uz_xsection_mesh import get_u_bounds_polygons
 
 
 def get_mask_polygons(
-    layer_polygons_dict, layer, layers_or, layers_and, layers_diff, layers_xor
+    layer_polygons_dict,
+    layer,
+    layers_or,
+    layers_and,
+    layers_diff,
+    layers_xor,
+    buffer_tol=1e-3,
 ):
     """(3D simulations) Returns mask polygons for the combination of layers."""
     layer_polygons = layer_polygons_dict[layer]
+
     for or_layer in layers_or:
         layer_polygons = layer_polygons | layer_polygons_dict[or_layer]
     for and_layer in layers_and:
@@ -21,7 +28,9 @@ def get_mask_polygons(
     for xor_layer in layers_xor:
         layer_polygons = layer_polygons ^ layer_polygons_dict[xor_layer]
 
-    return layer_polygons
+    return layer_polygons.buffer(-buffer_tol, join_style=2).buffer(
+        buffer_tol, join_style=2
+    )
 
 
 def add_mask_polygons(layer_polygons, name):
