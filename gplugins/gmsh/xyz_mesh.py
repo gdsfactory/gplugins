@@ -76,6 +76,7 @@ def define_prisms(
     layer_polygons_dict: dict,
     layer_stack: LayerStack,
     layer_physical_map: dict,
+    layer_meshbool_map: dict,
     model: Any,
     resolutions: dict,
     scale_factor: float = 1,
@@ -85,7 +86,6 @@ def define_prisms(
     Args:
         layer_polygons_dict: dictionary of polygons for each layer
         layer_stack: gdsfactory LayerStack to parse
-        layer_physical_map: dict mapping layernames to physical_names
         model: meshwell Model object
         resolutions: Pairs {"layername": {"resolution": float, "distance": "float}} to roughly control mesh refinement.
         scale_factor: scaling factor to apply to the polygons (default: 1)
@@ -125,6 +125,9 @@ def define_prisms(
                 physical_name=layer_physical_map[layername]
                 if layername in layer_physical_map
                 else layername,
+                mesh_bool=layer_meshbool_map[layername]
+                if layername in layer_meshbool_map
+                else True,
             )
         )
 
@@ -135,6 +138,7 @@ def xyz_mesh(
     component: ComponentOrReference,
     layer_stack: LayerStack,
     layer_physical_map: dict,
+    layer_meshbool_map: dict,
     resolutions: dict | None = None,
     default_characteristic_length: float = 0.5,
     background_tag: str | None = None,
@@ -260,6 +264,7 @@ def xyz_mesh(
         scale_factor=global_scaling_premesh,
         resolutions=resolutions,
         layer_physical_map=layer_physical_map,
+        layer_meshbool_map=layer_meshbool_map,
     )
 
     # Add edgeports

@@ -195,6 +195,7 @@ def uz_xsection_mesh(
     xsection_bounds: tuple[tuple[float, float], tuple[float, float]],
     layer_stack: LayerStack,
     layer_physical_map: dict,
+    layer_meshbool_map: dict,
     resolutions: dict | None = None,
     default_characteristic_length: float = 0.5,
     background_tag: str | None = None,
@@ -219,6 +220,8 @@ def uz_xsection_mesh(
         component (Component): gdsfactory component to mesh
         xsection_bounds (Tuple): Tuple [[x1,y1] , [x2,y2]] parametrizing the line u
         layer_stack (LayerStack): gdsfactory LayerStack to parse
+        layer_physical_map: map layer names to physical names
+        layer_meshbool_map: map layer names to mesh_bool (True: mesh the prisms, False: don't mesh)
         resolutions (Dict): Pairs {"layername": {"resolution": float, "distance": "float}} to roughly control mesh refinement
         mesh_scaling_factor (float): factor multiply mesh geometry by
         default_resolution_min (float): gmsh minimal edge length
@@ -280,6 +283,7 @@ def uz_xsection_mesh(
         scale_factor=global_scaling_premesh,
         resolutions=resolutions,
         layer_physical_map=layer_physical_map,
+        layer_meshbool_map=layer_meshbool_map,
     )
 
     # Add background polygon
