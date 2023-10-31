@@ -161,6 +161,8 @@ def xyz_mesh(
     Args:
         component: gdsfactory component to mesh
         layer_stack: gdsfactory LayerStack to parse
+        layer_physical_map: map layer names to physical names
+        layer_meshbool_map: map layer names to mesh_bool (True: mesh the prisms, False: don't mesh)
         resolutions: Pairs {"layername": {"resolution": float, "distance": "float}} to roughly control mesh refinement
             default_characteristic_length: gmsh maximum edge length
         background_tag: name of the background layer to add (default: no background added). This will be used as the material as well.
