@@ -143,6 +143,7 @@ def xyz_mesh(
     default_characteristic_length: float = 0.5,
     background_tag: str | None = None,
     background_padding: tuple[float, float, float, float, float, float] = (2.0,) * 6,
+    background_mesh_order: int | float = 2**63 - 1,
     global_scaling: float = 1,
     global_scaling_premesh: float = 1,
     global_2D_algorithm: int = 6,
@@ -167,6 +168,7 @@ def xyz_mesh(
             default_characteristic_length: gmsh maximum edge length
         background_tag: name of the background layer to add (default: no background added). This will be used as the material as well.
         background_padding: [-x, -y, -z, +x, +y, +z] distances to add to the components and to fill with ``background_tag``
+        background_mesh_order (int, float): mesh order to assign to the background
         global_scaling: factor to scale all mesh coordinates by (e.g. 1E-6 to go from um to m)
         global_scaling_premesh: factor to scale all mesh coordinates by (e.g. 1E-6 to go from um to m).
             Instead of using a gmsh-option which is only applied to meshes, this parameter can scale cad-exported files, e.g. .step files
@@ -252,7 +254,7 @@ def xyz_mesh(
                     * global_scaling_premesh,
                     zmin=(zmin - background_padding[2]) * global_scaling_premesh,
                     material=background_tag,
-                    mesh_order=2**63 - 1,
+                    mesh_order=background_mesh_order,
                 )
             }
         )
