@@ -43,6 +43,7 @@ def initialize_sprocess(
     waferstack,
     layermap,
     xsection_bounds: tuple[tuple[float, float], tuple[float, float]] = None,
+    u_offset: float = 0.0,
     round_tol: int = 3,
     simplify_tol: float = 1e-3,
     initial_z_resolutions: Dict = None,
@@ -57,6 +58,7 @@ def initialize_sprocess(
         layermap: gdsfactory LayerMap object contaning all layers
         process: list of gdsfactory.technology.processes process steps
         xsection_bounds: two in-plane coordinates ((x1,y1), (x2,y2)) defining a line cut for a 2D process cross-section
+        u_offset: for the x-axis of the 2D coordinate system, useful to go back to component units if xsection_bounds parallel to x or y
         round_tol (int): for gds cleanup (grid snapping by rounding coordinates)
         simplify_tol (float): for gds cleanup (shape simplification)
         initial_z_resolutions {key: float}: initial layername: spacing mapping for mesh resolution in the wafer normal direction
@@ -76,7 +78,9 @@ def initialize_sprocess(
 
     # Parse 2D or 3D
     if xsection_bounds:
-        get_mask = gf.partial(get_sentaurus_mask_2D, xsection_bounds=xsection_bounds)
+        get_mask = gf.partial(
+            get_sentaurus_mask_2D, xsection_bounds=xsection_bounds, u_offset=u_offset
+        )
     else:
         get_mask = gf.partial(get_sentaurus_mask_3D)
 
@@ -157,6 +161,7 @@ def write_sprocess(
     layermap,
     process,
     xsection_bounds: tuple[tuple[float, float], tuple[float, float]] = None,
+    u_offset: float = 0.0,
     init_tdr: str = None,
     save_directory: Path = None,
     execution_directory: Path = None,
@@ -190,6 +195,7 @@ def write_sprocess(
         layermap: gdsfactory LayerMap object contaning all layers
         process: list of gdsfactory.technology.processes process steps
         xsection_bounds: two in-plane coordinates ((x1,y1), (x2,y2)) defining a line cut for a 2D process cross-section. If None, simulate in 3D.
+        u_offset: offset for lateral dimension of xsection mesh
         save_directory: directory where to save output and script. Default ./sprocess
         execution_directory: directory where sprocess will be run from. Default local ./
         filename: name of the final sprocess command file
@@ -250,6 +256,7 @@ def write_sprocess(
             initial_z_resolutions=initial_z_resolutions,
             initial_xy_resolution=initial_xy_resolution,
             extra_resolution_str=extra_resolution_str,
+            u_offset=u_offset,
         )
         if init_tdr:
             f.write(f"init tdr= {str(relative_tdr_file)}")

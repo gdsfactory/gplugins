@@ -26,12 +26,14 @@ from gplugins.gmsh.parse_gds import cleanup_component, to_polygons
 def get_u_bounds_polygons(
     polygons: MultiPolygon | list[Polygon],
     xsection_bounds: tuple[tuple[float, float], tuple[float, float]],
+    u_offset: float = 0.0,
 ):
     """Performs the bound extraction given a (Multi)Polygon or [Polygon] and cross-sectional line coordinates.
 
     Args:
         layer_polygons_dict: dict containing layernames: shapely polygons pairs
         xsection_bounds: ( (x1,y1), (x2,y2) ), with x1,y1 beginning point of cross-sectional line and x2,y2 the end.
+        u_offset: amount to offset the returned polygons in the lateral dimension
 
     Returns: list of bounding box coordinates (u1,u2)) in xsection line coordinates (distance from xsection_bounds[0]).
     """
@@ -51,7 +53,9 @@ def get_u_bounds_polygons(
                 bounds = entry.bounds
                 p1 = Point([bounds[0], bounds[1]])
                 p2 = Point([bounds[2], bounds[3]])
-                return_list.append([linestart.distance(p1), linestart.distance(p2)])
+                return_list.append(
+                    [linestart.distance(p1) + u_offset, linestart.distance(p2)]
+                )
     return return_list
 
 
