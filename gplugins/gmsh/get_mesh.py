@@ -110,6 +110,7 @@ def get_mesh(
             default_characteristic_length=default_characteristic_length,
             resolutions=new_resolutions,
             layer_physical_map=layer_physical_map,
+            layer_meshbool_map=layer_meshbool_map,
             **kwargs,
         )
     elif type == "uz":
@@ -126,6 +127,7 @@ def get_mesh(
             default_characteristic_length=default_characteristic_length,
             resolutions=new_resolutions,
             layer_physical_map=layer_physical_map,
+            layer_meshbool_map=layer_meshbool_map,
             **kwargs,
         )
     elif type == "3D":
@@ -135,6 +137,7 @@ def get_mesh(
             default_characteristic_length=default_characteristic_length,
             resolutions=new_resolutions,
             layer_physical_map=layer_physical_map,
+            layer_meshbool_map=layer_meshbool_map,
             **kwargs,
         )
     else:

@@ -93,7 +93,6 @@ cap = c << interdigital_capacitor_enclosed(
 c.add_ports(cap.ports)
 substrate = gf.components.bbox(bbox=simulation_box, layer=LAYER.WAFER)
 c << substrate
-c = c.flatten()
 c.plot()
 
 # %% [markdown]
@@ -135,7 +134,7 @@ results = run_capacitive_simulation_elmer(
                 "resolution": 40,
             },
             **{
-                f"bw{port}": {
+                f"bw__{port}": {  # `__` is used as the layer–port delimiter for Elmer
                     "resolution": 20,
                     "DistMax": 30,
                     "DistMin": 10,

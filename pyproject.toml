@@ -68,7 +68,8 @@ gmsh = [
   "meshwell>=1.0.0,<1.1.0"
 ]
 klayout = [
-  "kfactory[git,ipy]>=0.9.3,<0.10"
+  "kfactory[git,ipy]>=0.9.3,<0.10",
+  "pyvis<=0.3.1"
 ]
 meow = [
   "jaxlib",
@@ -164,6 +165,7 @@ select = [
   "I",  # isort
   "C",  # flake8-comprehensions
   "B",  # flake8-bugbear
+  "T10",  # flake8-debugger
   "UP"
 ]
 

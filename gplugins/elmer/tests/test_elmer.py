@@ -8,6 +8,7 @@ from gdsfactory.generic_tech import LAYER
 from gdsfactory.technology import LayerStack
 from gdsfactory.technology.layer_stack import LayerLevel
 
+from gplugins.common.base_models.simulation import ElectrostaticResults
 from gplugins.elmer import run_capacitive_simulation_elmer
 
 layer_stack = LayerStack(
@@ -35,7 +36,7 @@ material_spec = {
 }
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 @gf.cell
 def geometry():
     simulation_box = [[-200, -200], [200, 200]]
@@ -67,7 +68,7 @@ def get_reasonable_mesh_parameters(c: Component):
                 "resolution": 40,
             },
             **{
-                f"bw{port}": {
+                f"bw__{port}": {
                     "resolution": 20,
                     "DistMax": 30,
                     "DistMin": 10,
@@ -80,10 +81,11 @@ def get_reasonable_mesh_parameters(c: Component):
     )
 
 
-@pytest.mark.skip(reason="FIXME")
-def test_elmer_capacitance_simulation_runs(geometry) -> None:
+@pytest.fixture(scope="session")
+def elmer_capacitance_simulation_basic_results(geometry) -> ElectrostaticResults:
+    """Run a Elmer capacitance simulation and cache the results"""
     c = geometry
-    run_capacitive_simulation_elmer(
+    return run_capacitive_simulation_elmer(
         c,
         layer_stack=layer_stack,
         material_spec=material_spec,
@@ -91,8 +93,13 @@ def test_elmer_capacitance_simulation_runs(geometry) -> None:
     )
 
 
-@pytest.mark.skip(reason="FIXME")
-@pytest.mark.parametrize("n_processes", [(1), (2), (4)])
+def test_elmer_capacitance_simulation_runs(
+    elmer_capacitance_simulation_basic_results,
+) -> None:
+    assert elmer_capacitance_simulation_basic_results is not None
+
+
+@pytest.mark.parametrize("n_processes", [(1), (2)])
 def test_elmer_capacitance_simulation_n_processes(geometry, n_processes):
     c = geometry
     run_capacitive_simulation_elmer(
@@ -104,7 +111,6 @@ def test_elmer_capacitance_simulation_n_processes(geometry, n_processes):
     )
 
 
-@pytest.mark.skip(reason="FIXME")
 @pytest.mark.parametrize("element_order", [(1), (2), (3)])
 def test_elmer_capacitance_simulation_element_order(geometry, element_order) -> None:
     c = geometry
@@ -118,20 +124,21 @@ def test_elmer_capacitance_simulation_element_order(geometry, element_order) -> 
 
 
 @pytest.mark.skip(reason="TODO")
-def test_elmer_capacitance_simulation_mesh_size_field(geometry) -> None:
-    pass
-
-
-@pytest.mark.skip(reason="TODO")
 def test_elmer_capacitance_simulation_flip_chip(geometry) -> None:
     pass
 
 
 @pytest.mark.skip(reason="TODO")
-def test_elmer_capacitance_simulation_pyvist_plot(geometry) -> None:
+def test_elmer_capacitance_simulation_pyvista_plot(geometry) -> None:
     pass
 
 
-@pytest.mark.skip(reason="TODO")
-def test_elmer_capacitance_simulation_cdict_form(geometry) -> None:
-    pass
+def test_elmer_capacitance_simulation_raw_cap_matrix(
+    elmer_capacitance_simulation_basic_results,
+) -> None:
+    matrix = elmer_capacitance_simulation_basic_results.raw_capacitance_matrix
+    assert matrix is not None
+    assert (
+        len(elmer_capacitance_simulation_basic_results.capacitance_matrix)
+        == matrix.size
+    )

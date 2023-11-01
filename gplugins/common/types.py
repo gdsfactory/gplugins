@@ -6,6 +6,7 @@ from shapely import GeometryCollection, MultiPolygon, Polygon
 
 RFMaterialSpec = dict[str, dict[str, float | int]]
 CapacitanceDict = dict[tuple[str, str], float]
+ScatteringDict = dict[tuple[str, str], float]
 AnyShapelyPolygon = Annotated[
     GeometryCollection | MultiPolygon | Polygon,
     PlainSerializer(lambda x: x.wkb_hex, when_used="json"),

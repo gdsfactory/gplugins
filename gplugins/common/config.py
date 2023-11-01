@@ -22,6 +22,8 @@ class Path:
     results_tidy3d = home / ".tidy3d"
     test_data = repo / "test-data"
     sparameters_repo = test_data / "sp"
+    klayout = module_path / "klayout"
+    klayout_tech = klayout / "tech.lyt"
     extra = repo / "extra"
     cwd = pathlib.Path.cwd()
 

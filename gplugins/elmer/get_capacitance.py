@@ -216,6 +216,7 @@ def run_capacitive_simulation_elmer(
     simulation_folder = Path(simulation_folder or temp_dir.name)
     simulation_folder.mkdir(exist_ok=True, parents=True)
 
+    port_delimiter = "__"  # won't cause trouble unlike #
     filename = component.name + ".msh"
     if mesh_file:
         shutil.copyfile(str(mesh_file), str(simulation_folder / filename))
@@ -225,7 +226,7 @@ def run_capacitive_simulation_elmer(
             type="3D",
             filename=simulation_folder / filename,
             layer_stack=layer_stack,
-            **(mesh_parameters or {}),
+            **((mesh_parameters or {}) | {"layer_port_delimiter": port_delimiter}),
         )
 
     # `interruptible` works on gmsh versions >= 4.11.2
@@ -248,9 +249,6 @@ def run_capacitive_simulation_elmer(
         next(k for k, v in layer_stack.layers.items() if v.layer == port.layer)
         for port in component.get_ports()
     }  # ports allowed only on metal
-    # TODO infer port delimiter from somewhere
-    # TODO raise error for port delimiters not supported by Elmer MATC or find how to escape
-    port_delimiter = "__"
     metal_surfaces = [
         e for e in mesh_surface_entities if any(ground in e for ground in ground_layers)
     ]

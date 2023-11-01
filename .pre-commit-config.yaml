@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: "v4.4.0"
+    rev: "v4.5.0"
     hooks:
       - id: check-added-large-files
       - id: check-case-conflict
@@ -15,12 +15,12 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: "v0.0.282"
+    rev: "v0.1.3"
     hooks:
       - id: ruff
 
   - repo: https://github.com/psf/black
-    rev: "23.7.0"
+    rev: "23.10.1"
     hooks:
       - id: black
 
@@ -38,22 +38,15 @@ repos:
         exclude: ^tests/
 
   - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-    rev: d2425a62376c2197448cce2f825d5a0c3926b862
+    rev: v2.11.0
     hooks:
       - id: pretty-format-toml
         args: [--autofix]
 
   - repo: https://github.com/aristanetworks/j2lint.git
-    rev: 742a25ef5da996b9762f167ebae9bc8223e8382e
+    rev: v1.1.0
     hooks:
       - id: j2lint
         types: [file]
         files: \.(j2|yml|yaml)$
-        args: [--extensions, "j2,yml,yaml", --ignore, jinja-statements-delimiter, jinja-statements-indentation, --]
-        exclude: .github/.*
-
-  - repo: https://github.com/markdownlint/markdownlint.git
-    rev: v0.12.0
-    hooks:
-      - id: markdownlint
-        args: [--rules, '~MD007,~MD012,~MD013,~MD026,~MD029,~MD033,~MD034']
+        exclude: .github/.*|web|elmer
