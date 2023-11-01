@@ -92,6 +92,9 @@ def test_RegionCollection_init(region_collection) -> None:
     # Check if the RegionCollection was initialized properly
     assert region_collection[(1, 0)]
 
+def test_region_collection_contains(region_collection) -> None:
+    assert l.FLOORPLAN in region_collection
+
 
 if __name__ == "__main__":
     import pathlib

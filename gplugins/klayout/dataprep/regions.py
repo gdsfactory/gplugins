@@ -98,6 +98,12 @@ class RegionCollection:
             raise ValueError(f"Layer must be a tuple of two integers. Got {layer!r}")
         self.regions[layer] = region
 
+    
+    def __contains__(self, item):
+        # checks if the layout contains the given layer
+        layer, datatype = item
+        return self.lib.find_layer(layer, datatype) is not None
+
     def write_gds(self, gdspath: PathType = GDSDIR_TEMP / "out.gds", **kwargs) -> None:
         """Write gds.
 
@@ -134,10 +140,11 @@ class RegionCollection:
         c = kf.KCell(cellname, self.lib)
         if keep_original:
             c.copy_tree(self.layout)
-            c.flatten()
+            for layer in self.regions:
+                layer_id = self.lib.layer(layer[0], layer[1])
+                self.lib.layout.clear_layer(layer_id)
 
         for layer, region in self.regions.items():
-            c.shapes(self.lib.layer(layer[0], layer[1])).clear()
             c.shapes(self.lib.layer(layer[0], layer[1])).insert(region)
         return c
 
