@@ -62,6 +62,7 @@ def get_mask_segments_xsection(
     layers_and,
     layers_diff,
     layers_xor,
+    u_offset: float = 0.0,
 ):
     """(2D simulations) Returns mask polygons for the combination of layers, and cross-sectional line."""
     polygons = get_mask_polygons(
@@ -76,6 +77,7 @@ def get_mask_segments_xsection(
     bounds_list = get_u_bounds_polygons(
         polygons=polygons,
         xsection_bounds=xsection_bounds,
+        u_offset=u_offset,
     )
 
     segments_str = ""
@@ -148,6 +150,7 @@ def get_sentaurus_mask_2D(
     layer_polygons_dict,
     name: str,
     xsection_bounds: tuple[tuple[float, float], tuple[float, float]] = None,
+    u_offset: float = 0.0,
     layer: Layer = None,
     layers_or: LayerSpecs = None,
     layers_and: LayerSpecs = None,
