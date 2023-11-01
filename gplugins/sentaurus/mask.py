@@ -40,16 +40,17 @@ def add_mask_polygons(layer_polygons, name):
     for i, polygon in enumerate(
         layer_polygons.geoms if hasattr(layer_polygons, "geoms") else [layer_polygons]
     ):
-        coordinates_x = [x for x, y in polygon.exterior.coords][:-1]
-        coordinates_y = [y for x, y in polygon.exterior.coords][:-1]
-        coordinates = reduce(operator.add, zip(coordinates_x, coordinates_y))
-        segments = ""
-        for coordinate in coordinates:
-            segments += f"{coordinate:1.3f} "
-        polygon_name = f"{name}_{i}"
-        polygon_names += f"{polygon_name}" if i == 0 else f" {polygon_name}"
-        line = f"polygon name={polygon_name} segments= {{ {segments}}}\n"
-        return_str_lines.append(line)
+        if not polygon.is_empty:
+            coordinates_x = [x for x, y in polygon.exterior.coords][:-1]
+            coordinates_y = [y for x, y in polygon.exterior.coords][:-1]
+            coordinates = reduce(operator.add, zip(coordinates_x, coordinates_y))
+            segments = ""
+            for coordinate in coordinates:
+                segments += f"{coordinate:1.3f} "
+            polygon_name = f"{name}_{i}"
+            polygon_names += f"{polygon_name}" if i == 0 else f" {polygon_name}"
+            line = f"polygon name={polygon_name} segments= {{ {segments}}}\n"
+            return_str_lines.append(line)
     return return_str_lines, polygon_names
 
 
