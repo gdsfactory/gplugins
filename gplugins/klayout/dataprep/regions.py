@@ -32,7 +32,8 @@ def _is_layer(value: any) -> bool:
         return True
     else:
         return False
-    
+
+
 def _assert_is_layer(value: any) -> None:
     if not _is_layer(value):
         raise ValueError(f"Layer must be a tuple of two integers. Got {value!r}")
@@ -111,7 +112,6 @@ class RegionCollection:
         _assert_is_layer(layer)
         self.regions[layer] = region
 
-    
     def __contains__(self, item):
         # checks if the layout contains the given layer
         _assert_is_layer(item)
