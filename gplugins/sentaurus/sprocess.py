@@ -119,7 +119,7 @@ def initialize_sprocess(
         ydims = ""
     else:
         ydims = "zlo=front zhi=back"
-        output_str += f"line z location={ymin:1.3f}   spacing={initial_xy_resolution} tag=front\nline z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back"
+        output_str += f"line z location={ymin:1.3f}   spacing={initial_xy_resolution} tag=front\nline z location={ymax:1.3f}   spacing={initial_xy_resolution} tag=back\n"
 
     # Additional resolution settings
     output_str += extra_resolution_str
