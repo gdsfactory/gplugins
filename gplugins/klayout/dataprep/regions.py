@@ -23,6 +23,22 @@ def copy(region: kdb.Region) -> kdb.Region:
     return region.dup()
 
 
+def _is_layer(value: any) -> bool:
+    try:
+        layer, datatype = value
+    except Exception:
+        return False
+    if isinstance(layer, int) and isinstance(datatype, int):
+        return True
+    else:
+        return False
+
+
+def _assert_is_layer(value: any) -> None:
+    if not _is_layer(value):
+        raise ValueError(f"Layer must be a tuple of two integers. Got {value!r}")
+
+
 class Region(kdb.Region):
     def __iadd__(self, offset) -> kdb.Region:
         """Adds an offset to the layer."""
@@ -81,8 +97,7 @@ class RegionCollection:
         self.regions = {}
 
     def __getitem__(self, layer: tuple[int, int]) -> Region:
-        if len(layer) != 2:
-            raise ValueError(f"Layer must be a tuple of two integers. Got {layer!r}")
+        _assert_is_layer(layer)
 
         if layer in self.regions:
             return self.regions[layer]
@@ -94,9 +109,14 @@ class RegionCollection:
         return region
 
     def __setitem__(self, layer: tuple[int, int], region: Region) -> None:
-        if len(layer) != 2:
-            raise ValueError(f"Layer must be a tuple of two integers. Got {layer!r}")
+        _assert_is_layer(layer)
         self.regions[layer] = region
+
+    def __contains__(self, item):
+        # checks if the layout contains the given layer
+        _assert_is_layer(item)
+        layer, datatype = item
+        return self.lib.find_layer(layer, datatype) is not None
 
     def write_gds(self, gdspath: PathType = GDSDIR_TEMP / "out.gds", **kwargs) -> None:
         """Write gds.
@@ -134,10 +154,11 @@ class RegionCollection:
         c = kf.KCell(cellname, self.lib)
         if keep_original:
             c.copy_tree(self.layout)
-            c.flatten()
+            for layer in self.regions:
+                layer_id = self.lib.layer(layer[0], layer[1])
+                self.lib.layout.clear_layer(layer_id)
 
         for layer, region in self.regions.items():
-            c.shapes(self.lib.layer(layer[0], layer[1])).clear()
             c.shapes(self.lib.layer(layer[0], layer[1])).insert(region)
         return c
 
