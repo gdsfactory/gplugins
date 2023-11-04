@@ -1,10 +1,12 @@
 import itertools
-from logging import warning
 from pathlib import Path
 
 import klayout.db as kdb
 import matplotlib.pyplot as plt
 import networkx as nx
+from gdsfactory.config import logger
+
+from gplugins.klayout.netlist_spice_reader import NoCommentReader
 
 
 def _get_subcircuit_name(subcircuit: kdb.SubCircuit) -> str:
@@ -81,11 +83,11 @@ def plot_nets(
             l2n.read(str(filepath))
             netlist = l2n.netlist()
         case ".spice":
-            reader = kdb.NetlistSpiceReader()
+            reader = kdb.NetlistSpiceReader(NoCommentReader())
             netlist = kdb.Netlist()
             netlist.read(str(filepath), reader)
         case _:
-            warning("Assuming file is KLayout native LayoutToNetlist file")
+            logger.warning("Assuming file is KLayout native LayoutToNetlist file")
             l2n = kdb.LayoutToNetlist()
             l2n.read(str(filepath))
             netlist = l2n.netlist()
