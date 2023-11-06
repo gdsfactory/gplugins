@@ -118,7 +118,12 @@ class RegionCollection:
         layer, datatype = item
         return self.lib.find_layer(layer, datatype) is not None
 
-    def write_gds(self, gdspath: PathType = GDSDIR_TEMP / "out.gds", top_cell_name: str | None = None, keep_original: bool = True) -> None:
+    def write_gds(
+        self,
+        gdspath: PathType = GDSDIR_TEMP / "out.gds",
+        top_cell_name: str | None = None,
+        keep_original: bool = True,
+    ) -> None:
         """Write gds.
 
         Args:
