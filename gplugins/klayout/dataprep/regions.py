@@ -151,15 +151,16 @@ class RegionCollection:
         if cellname == "Unnamed":
             uid = str(uuid.uuid4())[:8]
             cellname += f"_{uid}"
-        c = kf.KCell(cellname, self.lib)
+        output_lib = kf.kcell.KCLayout("output")
+        c = kf.KCell(cellname, output_lib)
         if keep_original:
             c.copy_tree(self.layout)
             for layer in self.regions:
-                layer_id = self.lib.layer(layer[0], layer[1])
-                self.lib.layout.clear_layer(layer_id)
+                layer_id = output_lib.layer(layer[0], layer[1])
+                output_lib.layout.clear_layer(layer_id)
 
         for layer, region in self.regions.items():
-            c.shapes(self.lib.layer(layer[0], layer[1])).insert(region)
+            c.shapes(output_lib.layer(layer[0], layer[1])).insert(region)
         return c
 
     def show(self, gdspath: PathType = GDSDIR_TEMP / "out.gds", **kwargs) -> None:
