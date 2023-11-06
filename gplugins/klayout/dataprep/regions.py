@@ -118,17 +118,23 @@ class RegionCollection:
         layer, datatype = item
         return self.lib.find_layer(layer, datatype) is not None
 
-    def write_gds(self, gdspath: PathType = GDSDIR_TEMP / "out.gds", **kwargs) -> None:
+    def write_gds(
+        self,
+        gdspath: PathType = GDSDIR_TEMP / "out.gds",
+        top_cell_name: str | None = None,
+        keep_original: bool = True,
+    ) -> None:
         """Write gds.
 
         Args:
-            gdspath: gdspath.
-
-        Keyword Args:
-            keep_original: keep original cell.
-            cellname: for top cell.
+            gdspath: output gds path
+            top_cell_name: name to use for the top cell of the output library
+            keep_original: if True, keeps all original cells (and hierarchy, to the extent possible) in the output. If false, only explicitly defined layers are output.
         """
-        c = self.get_kcell(**kwargs)
+        # use the working top cell name if not provided
+        if top_cell_name is None:
+            top_cell_name = self.layout.name
+        c = self.get_kcell(cellname=top_cell_name, keep_original=keep_original)
         c.write(gdspath)
 
     def plot(self, **kwargs):
@@ -151,15 +157,17 @@ class RegionCollection:
         if cellname == "Unnamed":
             uid = str(uuid.uuid4())[:8]
             cellname += f"_{uid}"
-        c = kf.KCell(cellname, self.lib)
+
+        output_lib = kf.kcell.KCLayout("output")
+        c = kf.KCell(cellname, output_lib)
         if keep_original:
             c.copy_tree(self.layout)
             for layer in self.regions:
-                layer_id = self.lib.layer(layer[0], layer[1])
-                self.lib.layout.clear_layer(layer_id)
+                layer_id = output_lib.layer(layer[0], layer[1])
+                output_lib.layout.clear_layer(layer_id)
 
         for layer, region in self.regions.items():
-            c.shapes(self.lib.layer(layer[0], layer[1])).insert(region)
+            c.shapes(output_lib.layer(layer[0], layer[1])).insert(region)
         return c
 
     def show(self, gdspath: PathType = GDSDIR_TEMP / "out.gds", **kwargs) -> None:
