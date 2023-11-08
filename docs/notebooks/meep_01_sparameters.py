@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # ---
 # jupyter:
 #   jupytext:
@@ -272,21 +271,28 @@ gm.plot.plot_sparameters(sp, keys=("o3@0,o1@0",))
 
 # %%
 c = gf.components.straight(length=5, width=2)
-sp = gm.write_sparameters_meep(c, run=False, ymargin_top=3, ymargin_bot=3, is_3d=False,resolution=20,)
+sp = gm.write_sparameters_meep(
+    c,
+    run=False,
+    ymargin_top=3,
+    ymargin_bot=3,
+    is_3d=False,
+    resolution=20,
+)
 
 # %%
 sp = gm.write_sparameters_meep(
-    c, 
-    run=True, 
-    ymargin_top=3, 
-    ymargin_bot=3, 
+    c,
+    run=True,
+    ymargin_top=3,
+    ymargin_bot=3,
     is_3d=False,
-    port_source_names = ['o1'],
-    port_source_modes = {'o1': [0, 1]},
-    port_modes = [0, 1],
+    port_source_names=["o1"],
+    port_source_modes={"o1": [0, 1]},
+    port_modes=[0, 1],
     resolution=20,
     overwrite=False,
-    )
+)
 gm.plot.plot_sparameters(sp, with_simpler_labels=False)
 
 # %% [markdown]

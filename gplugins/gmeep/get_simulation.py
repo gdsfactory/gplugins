@@ -184,7 +184,9 @@ def get_simulation(
             "Did you passed the correct layer_stack?"
         )
 
-    t_core = sum(layers_thickness) # This isn't exactly what we want but I think it's better than max
+    t_core = sum(
+        layers_thickness
+    )  # This isn't exactly what we want but I think it's better than max
     cell_thickness = tpml + zmargin_bot + t_core + zmargin_top + tpml if is_3d else 0
 
     cell_size = mp.Vector3(
@@ -240,7 +242,7 @@ def get_simulation(
             src=mp.GaussianSource(fcen, fwidth=frequency_width),
             size=size,
             center=center,
-            eig_band = port_source_mode + 1,
+            eig_band=port_source_mode + 1,
             eig_parity=mp.NO_PARITY if is_3d else mp.EVEN_Y + mp.ODD_Z,
             eig_match_freq=True,
             eig_kpoint=-1 * mp.Vector3(x=1).rotate(mp.Vector3(z=1), angle_rad),

@@ -52,7 +52,9 @@ def remove_simulation_kwargs(d: dict[str, Any]) -> dict[str, Any]:
     return d
 
 
-def parse_port_eigenmode_coeff(port_name: str, ports: dict[str, Port], sim_dict: dict, port_mode: int = 0):
+def parse_port_eigenmode_coeff(
+    port_name: str, ports: dict[str, Port], sim_dict: dict, port_mode: int = 0
+):
     """Returns the coefficients relative to whether the wavevector is entering or \
             exiting simulation.
 
@@ -305,8 +307,8 @@ def write_sparameters_meep(
         port_monitor_offset=port_monitor_offset,
         port_source_offset=port_source_offset,
         dispersive=dispersive,
-        zmargin_top = zmargin_top,
-        zmargin_bot = zmargin_bot,
+        zmargin_top=zmargin_top,
+        zmargin_bot=zmargin_bot,
         ymargin_top=ymargin_top,
         ymargin_bot=ymargin_bot,
         xmargin_left=xmargin_left,
@@ -350,7 +352,7 @@ def write_sparameters_meep(
     ports = component_ref.ports
     port_names = [port.name for port in list(ports.values())]
     port_source_names = port_source_names or port_names
-    port_source_modes = port_source_modes or {key:[0] for key in port_source_names}
+    port_source_modes = port_source_modes or {key: [0] for key in port_source_names}
     port_modes = port_modes or [0]
 
     num_sims = len(port_source_names) - len(port_symmetries)
@@ -467,7 +469,10 @@ def write_sparameters_meep(
             if is_3d:
                 animate = mp.Animate2D(
                     sim,
-                    output_plane = mp.Volume(center=mp.Vector3(*animate_center), size=mp.Vector3(*animate_size)),
+                    output_plane=mp.Volume(
+                        center=mp.Vector3(*animate_center),
+                        size=mp.Vector3(*animate_size),
+                    ),
                     **plot_args,
                 )
             else:
@@ -476,20 +481,25 @@ def write_sparameters_meep(
                     **plot_args,
                 )
             sim.run(mp.at_every(1, animate), until_after_sources=termination)
-            animate.to_mp4(30, f"{component.name}_{port_source_name}_{port_source_mode}.mp4")
+            animate.to_mp4(
+                30, f"{component.name}_{port_source_name}_{port_source_mode}.mp4"
+            )
         else:
             sim.run(until_after_sources=termination)
 
         # Calculate mode overlaps
         # Get source monitor results
         source_entering, _ = parse_port_eigenmode_coeff(
-            port_source_name, component.ports, sim_dict, port_mode = port_source_mode
+            port_source_name, component.ports, sim_dict, port_mode=port_source_mode
         )
         # Get coefficients
         for port_name in port_names:
             for port_mode in port_modes:
                 _, monitor_exiting = parse_port_eigenmode_coeff(
-                    port_name, component.ports, sim_dict, port_mode = port_mode,
+                    port_name,
+                    component.ports,
+                    sim_dict,
+                    port_mode=port_mode,
                 )
                 key = f"{port_name}@{port_mode},{port_source_name}@{port_source_mode}"
                 sp[key] = monitor_exiting / source_entering
@@ -502,7 +512,7 @@ def write_sparameters_meep(
 
         return sp
 
-    if lazy_parallelism: #TODO: FIX Port modes
+    if lazy_parallelism:  # TODO: FIX Port modes
         from mpi4py import MPI
 
         cores = min([num_sims, multiprocessing.cpu_count()])
@@ -551,7 +561,7 @@ def write_sparameters_meep(
                 sp.update(
                     sparameter_calculation(
                         port_source_name,
-                        port_source_mode = port_source_mode,
+                        port_source_mode=port_source_mode,
                         component=component,
                         port_symmetries=port_symmetries,
                         wavelength_start=wavelength_start,
