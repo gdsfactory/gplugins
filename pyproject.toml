@@ -53,8 +53,8 @@ docs = [
   "pyvista[jupyter]<=0.40"
 ]
 femwell = [
-  "femwell>=0.1.6,<0.8.5",
-  "meshwell>=1.0.0,<1.1.0"
+  "femwell>=0.1.6,<0.2",
+  "meshwell>=1.0.0,<1.1"
 ]
 gmsh = [
   "gmsh",
