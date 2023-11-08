@@ -4,6 +4,11 @@
 
 <!-- towncrier release notes start -->
 
+## [0.8.6](https://github.com/gdsfactory/gplugins/releases/tag/v0.8.6) - 2023-11-08
+
+No significant changes.
+
+
 ## [0.8.5](https://github.com/gdsfactory/gplugins/releases/tag/v0.8.5) - 2023-10-09
 
 - Move verification into klayout [#173](https://github.com/$OWNER/$REPOSITORY/pull/#173)
