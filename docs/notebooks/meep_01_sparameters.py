@@ -285,8 +285,6 @@ sp = gm.write_sparameters_meep(
     port_source_modes = {'o1': [0, 1]},
     port_modes = [0, 1],
     resolution=20,
-    lazy_parallelism=False,
-    animate=True,
     overwrite=False,
     )
 gm.plot.plot_sparameters(sp, with_simpler_labels=False)
