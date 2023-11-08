@@ -1,12 +1,37 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.8.5...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.8.6...main)
 
 <!-- towncrier release notes start -->
 
 ## [0.8.6](https://github.com/gdsfactory/gplugins/releases/tag/v0.8.6) - 2023-11-08
 
-No significant changes.
+- [pre-commit.ci] pre-commit autoupdate [#220](https://github.com/gdsfactory/gplugins/pull/220)
+- Write output to a new library so we can reuse cell names [#219](https://github.com/gdsfactory/gplugins/pull/219)
+- Remove HSPICE netlist comments for plot_nets [#218](https://github.com/gdsfactory/gplugins/pull/218)
+- Improve dataprep [#216](https://github.com/gdsfactory/gplugins/pull/216)
+- Layer to keep dict [#215](https://github.com/gdsfactory/gplugins/pull/215)
+- Support multiple top cells and SPICE netlists in `plot_nets` [#214](https://github.com/gdsfactory/gplugins/pull/214)
+- Add flake8-debugger checks to ruff [#210](https://github.com/gdsfactory/gplugins/pull/210)
+- Export raw NumPy array capacitance matrix for ElectrostaticResults [#208](https://github.com/gdsfactory/gplugins/pull/208)
+- Use temporary directory factory in session scope tests [#207](https://github.com/gdsfactory/gplugins/pull/207)
+- Update get_material.py [#206](https://github.com/gdsfactory/gplugins/pull/206)
+- Match labels to corresponding cells in netlist [#204](https://github.com/gdsfactory/gplugins/pull/204)
+- Add interactive netlist plotting [#199](https://github.com/gdsfactory/gplugins/pull/199)
+- Parametrize VLSIR netlist export test and cache Package [#200](https://github.com/gdsfactory/gplugins/pull/200)
+- switch to mamba [#197](https://github.com/gdsfactory/gplugins/pull/197)
+- Consider the case in `get_l2n` when no layer connections are given in PDK [#191](https://github.com/gdsfactory/gplugins/pull/191)
+- Support non-fully-connected netlists in `plot_nets` [#194](https://github.com/gdsfactory/gplugins/pull/194)
+- Fix Elmer & Palace tests [#195](https://github.com/gdsfactory/gplugins/pull/195)
+- Generate technology and support layer connectivity in `get_l2n` [#185](https://github.com/gdsfactory/gplugins/pull/185)
+- Rename gds_ports -> ports, fix port centers and remove port size calculation from base [#183](https://github.com/gdsfactory/gplugins/pull/183)
+- improve ring docs [#182](https://github.com/gdsfactory/gplugins/pull/182)
+- remove database [#181](https://github.com/gdsfactory/gplugins/pull/181)
+- add derived layers [#180](https://github.com/gdsfactory/gplugins/pull/180)
+- fix docs with conda [#178](https://github.com/gdsfactory/gplugins/pull/178)
+- Polish some things in SPICE netlist extraction [#177](https://github.com/gdsfactory/gplugins/pull/177)
+- add derived layers [#175](https://github.com/gdsfactory/gplugins/pull/175)
+- layernames to physical labels dict [#174](https://github.com/gdsfactory/gplugins/pull/174)
 
 
 ## [0.8.5](https://github.com/gdsfactory/gplugins/releases/tag/v0.8.5) - 2023-10-09
