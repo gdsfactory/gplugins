@@ -6,12 +6,12 @@ from gplugins.klayout.netlist_spice_reader import NoCommentReader
 @pytest.mark.parametrize(
     "s,element,expected_name,expected_nets",
     [
-        ("1 2 POS", "X", "POS", {"1", "2"}),
-        ("2 3 NEG $ This is a comment", "X", "NEG", {"2", "3"}),
+        ("1 2 POS", "X", "POS_0", {"1", "2"}),
+        ("2 3 NEG $ This is a comment", "X", "NEG_0", {"2", "3"}),
         (
             "5 4 some_elem some_variable=1 $ This is a comment",
             "X",
-            "some_elem",
+            "some_elem_0",
             {"5", "4"},
         ),
     ],
