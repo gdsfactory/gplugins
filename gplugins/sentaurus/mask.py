@@ -188,6 +188,7 @@ def get_sentaurus_mask_2D(
             layers_and=layers_and,
             layers_diff=layers_diff,
             layers_xor=layers_xor,
+            u_offset=u_offset,
         )
 
     # Add mask step
