@@ -91,8 +91,8 @@ def initialize_sprocess(
 
     # Get simulation bounds
     if xsection_bounds:
-        xmin = 0
-        xmax = math.dist(xsection_bounds[0], xsection_bounds[1])
+        xmin = u_offset
+        xmax = math.dist(xsection_bounds[0], xsection_bounds[1]) + u_offset
         ymin = 0
         ymax = 0
     else:
