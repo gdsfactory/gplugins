@@ -266,6 +266,36 @@ gm.plot.plot_sparameters(sp, keys=("o3@0,o1@0",))
 # As you can see this crossing looks beautiful but is quite **lossy** (9 dB @ 1550 nm)
 
 # %% [markdown]
+# ## Multimode Simulations
+# You can also simulate structures that source and measure multiple modes. We define the `port_source_modes` as a dictionary with the keys as the source keys and the values as list of mode numbers to output (starting at 0 for TE00). Similarly on the output ports, `port_modes` is a list of modes to measure at every output port.
+
+# %%
+c = gf.components.straight(length=5, width=2)
+sp = gm.write_sparameters_meep(
+    c,
+    run=False,
+    ymargin_top=3,
+    ymargin_bot=3,
+    is_3d=False,
+    resolution=20,
+)
+
+# %%
+sp = gm.write_sparameters_meep(
+    c,
+    run=True,
+    ymargin_top=3,
+    ymargin_bot=3,
+    is_3d=False,
+    port_source_names=["o1"],
+    port_source_modes={"o1": [0, 1]},
+    port_modes=[0, 1],
+    resolution=20,
+    overwrite=False,
+)
+gm.plot.plot_sparameters(sp, with_simpler_labels=False)
+
+# %% [markdown]
 # ## Parallel Simulation (multicore/MPI)
 #
 # Meep supports [distributed-memory parallelization via MPI](https://meep.readthedocs.io/en/latest/Parallel_Meep/) which can be used to provide a significant speedup compared to serial calculations.
