@@ -54,7 +54,10 @@ def get_u_bounds_polygons(
                 p1 = Point([bounds[0], bounds[1]])
                 p2 = Point([bounds[2], bounds[3]])
                 return_list.append(
-                    [linestart.distance(p1) + u_offset, linestart.distance(p2)]
+                    [
+                        linestart.distance(p1) + u_offset,
+                        linestart.distance(p2) + u_offset,
+                    ]
                 )
     return return_list
 
