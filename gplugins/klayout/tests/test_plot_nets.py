@@ -32,21 +32,22 @@ def spice_netlist(tmpdir_factory) -> str:
     return netlist_path
 
 
-def test_plot_nets(klayout_netlist):
-    plot_nets(klayout_netlist)
-
-
-def test_plot_nets_interactive(klayout_netlist):
-    plot_nets(klayout_netlist, interactive=True)
-    assert Path("connectivity.html").exists()
-
-
-def test_plot_nets_not_fully_connected(klayout_netlist):
-    plot_nets(klayout_netlist, fully_connected=False)
-
-
-def test_plot_nets_no_labels(klayout_netlist):
-    plot_nets(klayout_netlist, include_labels=False)
+@pytest.mark.parametrize("fully_connected", [True, False])
+@pytest.mark.parametrize("interactive", [True, False])
+@pytest.mark.parametrize("include_labels", [True, False])
+@pytest.mark.parametrize("only_most_complex", [True, False])
+def test_plot_nets(
+    klayout_netlist, fully_connected, interactive, include_labels, only_most_complex
+):
+    plot_nets(
+        klayout_netlist,
+        fully_connected=fully_connected,
+        interactive=interactive,
+        include_labels=include_labels,
+        only_most_complex=only_most_complex,
+    )
+    if interactive:
+        assert Path("connectivity.html").exists()
 
 
 def test_plot_nets_spice(spice_netlist):
