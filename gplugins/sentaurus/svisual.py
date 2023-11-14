@@ -11,6 +11,7 @@ def write_tdr_to_csv_2D(
     output_csv: str = "out.csv",
     temp_filename: str = "temp.csv",
     write_utilities: bool = True,
+    x_coord: float = 0,
 ):
     """Writes a Sentaurus Visual TCL file that can return CSV data from 2D TDR data.
 
@@ -25,6 +26,7 @@ def write_tdr_to_csv_2D(
         output_csv (str): name of the output csv file
         temp_filename (str): name of the temporary file
         write_utilities (bool): also write Python utility script
+        x_coord: where to define the cutline to read y-values
     """
 
     save_directory = (
@@ -49,7 +51,7 @@ set mydata2D [load_file {str(input_tdr)}]
 set myplot2D [create_plot -dataset $mydata2D]
 
 # Cutline at origin's x axis to get a list of y values to export
-set center1D [create_cutline -plot $myplot2D -type x -at 0]
+set center1D [create_cutline -plot $myplot2D -type x -at {x_coord}]
 set Y_values [ get_variable_data Y -dataset $center1D ]
 
 # Create 1D cutline normal to y-axis at y in Y_values
