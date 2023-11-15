@@ -123,6 +123,7 @@ class RegionCollection:
         gdspath: PathType = GDSDIR_TEMP / "out.gds",
         top_cell_name: str | None = None,
         keep_original: bool = True,
+        save_options: kdb.SaveLayoutOptions | None = None,
     ) -> None:
         """Write gds.
 
@@ -130,12 +131,16 @@ class RegionCollection:
             gdspath: output gds path
             top_cell_name: name to use for the top cell of the output library
             keep_original: if True, keeps all original cells (and hierarchy, to the extent possible) in the output. If false, only explicitly defined layers are output.
+            save_options: if provided, specified KLayout SaveLayoutOptions are used when writing the GDS
         """
         # use the working top cell name if not provided
         if top_cell_name is None:
             top_cell_name = self.layout.name
         c = self.get_kcell(cellname=top_cell_name, keep_original=keep_original)
-        c.write(gdspath)
+        if save_options:
+            c.write(gdspath, save_options=save_options)
+        else:
+            c.write(gdspath)
 
     def plot(self, **kwargs):
         """Plot regions."""
