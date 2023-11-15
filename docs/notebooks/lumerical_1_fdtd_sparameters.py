@@ -6,12 +6,12 @@
 #
 # In the CSV format each Sparameter will have 2 columns, `o1@0,o2@0` where `m` stands for magnitude and `s12a` where `a` stands for angle in radians.
 #
-# For the simulation to wor well, your components need to have ports, that will be extended automatically to go over the PML.
+# For the simulation to work well, your components need to have ports, that will be extended automatically to go over the PML.
 #
 # ![lum GUI](https://i.imgur.com/dHAzZRw.png)
 #
 #
-# The script calls internally the lumerical python API `lumapi` so you will need to make sure that you can run this from python.
+# The script internally calls the lumerical python API `lumapi` so you will need to make sure that you can run this from python.
 #
 # ```python
 # import lumapi
