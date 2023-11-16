@@ -3,14 +3,13 @@ from functools import cached_property
 import matplotlib.pyplot as plt
 import numpy as np
 import tidy3d as td
-from pydantic import (
-    NonNegativeFloat,
-)
+from pydantic import NonNegativeFloat
+from tidy3d.plugins.smatrix import ComponentModeler, Port
 
 from gplugins.common.base_models.component import LayeredComponentBase
 
-from .types import Tidy3DMedium
-from .util import sort_layers
+from .types import Tidy3DElementMapping, Tidy3DMedium
+from .util import get_port_normal, sort_layers
 
 
 class Tidy3DComponent(LayeredComponentBase):
@@ -48,7 +47,7 @@ class Tidy3DComponent(LayeredComponentBase):
                 [
                     td.Structure(
                         geometry=poly,
-                        medium=self.aterial_mapping[
+                        medium=self.material_mapping[
                             self.geometry_layers[name].material
                         ],
                         name=name,
@@ -57,6 +56,122 @@ class Tidy3DComponent(LayeredComponentBase):
                 ]
             )
         return structures
+
+    def get_ports(
+        self,
+        mode_spec: td.ModeSpec,
+        size_mult: float | tuple[float, float] = (4.0, 2.0),
+        cz: float | None = None,
+    ) -> list[Port]:
+        ports = []
+        for port in self.ports:
+            if port.port_type != "optical":
+                continue
+            center = self.get_port_center(port)
+            center = center if cz is None else (*center[:2], cz)
+            axis, direction = get_port_normal(port)
+
+            match size_mult:
+                case float():
+                    size = np.full(3, size_mult * port.width)
+                case tuple():
+                    size = np.full(3, size_mult[0] * port.width)
+                    size[2] = size_mult[1] * port.width
+            size[axis] = 0
+
+            ports.append(
+                Port(
+                    center=center,
+                    size=tuple(size),
+                    direction=direction,
+                    mode_spec=mode_spec,
+                    name=port.name,
+                )
+            )
+        return ports
+
+    def get_simulation(
+        self,
+        grid_spec: td.GridSpec,
+        center_z: float,
+        sim_size_z: int,
+        boundary_spec: td.BoundarySpec,
+        run_time: float = 1e-12,
+        shutoff: float = 1e-5,
+    ) -> td.Simulation:
+        sim_center = (*self.center[:2], center_z)
+        sim_size = (*self.size[:2], sim_size_z)
+        sim = td.Simulation(
+            size=sim_size,
+            center=sim_center,
+            structures=self.structures,
+            grid_spec=grid_spec,
+            boundary_spec=boundary_spec,
+            run_time=run_time,
+            shutoff=shutoff,
+        )
+        return sim
+
+    def get_component_modeler(
+        self,
+        wavelength: float = 1.55,
+        bandwidth: float = 0.2,
+        num_freqs: int = 21,
+        min_steps_per_wvl: int = 30,
+        center_z: float | str | None = None,
+        sim_size_z: int = 4,
+        port_size_mult: float | tuple[float, float] = (4.0, 3.0),
+        run_only: tuple[tuple[str, int], ...] | None = None,
+        element_mappings: Tidy3DElementMapping = (),
+        mode_spec: td.ModeSpec = td.ModeSpec(num_modes=1, filter_pol="te"),
+        boundary_spec: td.BoundarySpec = td.BoundarySpec.all_sides(boundary=td.PML()),
+        run_time: float = 1e-12,
+        shutoff: float = 1e-5,
+        folder_name: str = "default",
+        path_dir: str = ".",
+        verbose: bool = True,
+    ) -> ComponentModeler:
+        match center_z:
+            case float():
+                cz = center_z
+            case str():
+                cz = self.get_layer_center(center_z)[2]
+            case None:
+                cz = self.center[2]
+            case _:
+                raise ValueError(f"Invalid center_z: {center_z}")
+
+        freqs = td.C_0 / np.linspace(
+            wavelength - bandwidth / 2, wavelength + bandwidth / 2, num_freqs
+        )
+
+        grid_spec = td.GridSpec.auto(
+            wavelength=wavelength, min_steps_per_wvl=min_steps_per_wvl
+        )
+
+        sim = self.get_simulation(
+            grid_spec=grid_spec,
+            center_z=cz,
+            sim_size_z=sim_size_z,
+            boundary_spec=boundary_spec,
+            run_time=run_time,
+            shutoff=shutoff,
+        )
+
+        ports = self.get_ports(mode_spec, port_size_mult, cz)
+
+        modeler = ComponentModeler(
+            simulation=sim,
+            ports=ports,
+            freqs=tuple(freqs),
+            element_mappings=element_mappings,
+            run_only=run_only,
+            folder_name=folder_name,
+            path_dir=path_dir,
+            verbose=verbose,
+        )
+
+        return modeler
 
     @td.components.viz.add_ax_if_none
     def plot_slice(

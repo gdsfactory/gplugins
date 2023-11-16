@@ -17,3 +17,10 @@ Tidy3DMedium = Annotated[
     AfterValidator(validate_medium),
     PlainSerializer(lambda x: dict(x), when_used="json"),
 ]
+
+Tidy3DElementMapping = tuple[
+    tuple[
+        tuple[tuple[str, int], tuple[str, int]], tuple[tuple[str, int, tuple[str, int]]]
+    ],
+    ...,
+]
