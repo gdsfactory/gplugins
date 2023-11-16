@@ -239,6 +239,9 @@ class Tidy3DComponent(LayeredComponentBase):
             wavelength=wavelength, min_steps_per_wvl=min_steps_per_wvl
         )
 
+        if sim_size_z == 0:
+            boundary_spec = boundary_spec.updated_copy(z=td.Boundary.periodic())
+
         sim = self.get_simulation(
             grid_spec=grid_spec,
             center_z=cz,
