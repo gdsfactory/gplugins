@@ -91,9 +91,9 @@ class Tidy3DComponent(LayeredComponentBase):
                         medium=self.material_mapping[
                             self.geometry_layers[name].material
                         ],
-                        name=name,
+                        name=f"{name}_{idx}",
                     )
-                    for poly in polys
+                    for idx, poly in enumerate(polys)
                 ]
             )
         return structures
