@@ -52,7 +52,9 @@ def remove_simulation_kwargs(d: dict[str, Any]) -> dict[str, Any]:
     return d
 
 
-def parse_port_eigenmode_coeff(port_name: str, ports: dict[str, Port], sim_dict: dict):
+def parse_port_eigenmode_coeff(
+    port_name: str, ports: dict[str, Port], sim_dict: dict, port_mode: int = 0
+):
     """Returns the coefficients relative to whether the wavevector is entering or \
             exiting simulation.
 
@@ -98,7 +100,7 @@ def parse_port_eigenmode_coeff(port_name: str, ports: dict[str, Port], sim_dict:
 
     # Get port coeffs
     monitor_coeff = sim.get_eigenmode_coefficients(
-        monitors[port_name], [1], kpoint_func=lambda f, n: kpoint
+        monitors[port_name], [port_mode + 1], kpoint_func=lambda f, n: kpoint
     )
 
     coeff_in = monitor_coeff.alpha[
@@ -115,6 +117,8 @@ def parse_port_eigenmode_coeff(port_name: str, ports: dict[str, Port], sim_dict:
 def write_sparameters_meep(
     component: ComponentSpec,
     port_source_names: list[str] | None = None,
+    port_source_modes: dict[str, list] = None,
+    port_modes: list[int] = None,
     port_symmetries: PortSymmetries | None = None,
     resolution: int = 30,
     wavelength_start: float = 1.5,
@@ -128,20 +132,26 @@ def write_sparameters_meep(
     filepath: Path | None = None,
     overwrite: bool = False,
     animate: bool = False,
+    animate_center: tuple = None,
+    animate_size: tuple = None,
     lazy_parallelism: bool = False,
     run: bool = True,
     dispersive: bool = False,
     xmargin: float = 0,
-    ymargin: float = 3,
+    ymargin: float = 0,
+    zmargin: float = 0,
     xmargin_left: float = 0,
     xmargin_right: float = 0,
     ymargin_top: float = 0,
     ymargin_bot: float = 0,
+    zmargin_top: float = 0,
+    zmargin_bot: float = 0,
     decay_by: float = 1e-3,
     is_3d: bool = False,
     z: float = 0,
     plot_args: dict | None = None,
     only_return_filepath_sim_settings=False,
+    verbosity: int = 0,
     **settings,
 ) -> dict[str, np.ndarray]:
     r"""Returns Sparameters and writes them to npz filepath.
@@ -235,6 +245,8 @@ def write_sparameters_meep(
         ymargin: top and bottom distance from component to PML.
         ymargin_top: north distance from component to PML.
         ymargin_bot: south distance from component to PML.
+        zmargin_top: +z distance from component to PML.
+        zmargin_bot: -z distance from component to PML.
         is_3d: if True runs in 3D (much slower).
         z: for 2D plot.
         plot_args: if animate or not run, customization keyword arguments passed to
@@ -282,6 +294,9 @@ def write_sparameters_meep(
     ymargin_top = ymargin_top or ymargin
     ymargin_bot = ymargin_bot or ymargin
 
+    zmargin_top = zmargin_top or zmargin
+    zmargin_bot = zmargin_bot or zmargin
+
     sim_settings = dict(
         resolution=resolution,
         port_symmetries=port_symmetries,
@@ -292,6 +307,8 @@ def write_sparameters_meep(
         port_monitor_offset=port_monitor_offset,
         port_source_offset=port_source_offset,
         dispersive=dispersive,
+        zmargin_top=zmargin_top,
+        zmargin_bot=zmargin_bot,
         ymargin_top=ymargin_top,
         ymargin_bot=ymargin_bot,
         xmargin_left=xmargin_left,
@@ -331,6 +348,18 @@ def write_sparameters_meep(
         right=xmargin_right,
     )
 
+    component_ref = component.ref()
+    ports = component_ref.ports
+    port_names = [port.name for port in list(ports.values())]
+    port_source_names = port_source_names or port_names
+    port_source_modes = port_source_modes or {key: [0] for key in port_source_names}
+    port_modes = port_modes or [0]
+
+    num_sims = len(port_source_names) - len(port_symmetries)
+
+    # set verbosity
+    mp.verbosity(verbosity)
+
     if not run:
         sim_dict = get_simulation(
             component=component,
@@ -338,11 +367,15 @@ def write_sparameters_meep(
             wavelength_stop=wavelength_stop,
             wavelength_points=wavelength_points,
             layer_stack=layer_stack,
+            port_source_name=port_source_names[0],
             port_margin=port_margin,
             port_monitor_offset=port_monitor_offset,
             port_source_offset=port_source_offset,
             dispersive=dispersive,
             is_3d=is_3d,
+            resolution=resolution,
+            zmargin_top=zmargin_top,
+            zmargin_bot=zmargin_bot,
             **settings,
         )
         sim = sim_dict["sim"]
@@ -365,12 +398,6 @@ def write_sparameters_meep(
         elif overwrite:
             filepath.unlink()
 
-    component_ref = component.ref()
-    ports = component_ref.ports
-    port_names = [port.name for port in list(ports.values())]
-    port_source_names = port_source_names or port_names
-    num_sims = len(port_source_names) - len(port_symmetries)
-
     sp = {}  # Sparameters dict
     start = time.time()
 
@@ -380,10 +407,13 @@ def write_sparameters_meep(
         component: Component,
         port_symmetries: PortSymmetries | None = port_symmetries,
         port_names: list[str] = port_names,
+        port_source_mode: int = 0,
         wavelength_start: float = wavelength_start,
         wavelength_stop: float = wavelength_stop,
         wavelength_points: int = wavelength_points,
         animate: bool = animate,
+        animate_center: tuple = animate_center,
+        animate_size: tuple = animate_size,
         plot_args: dict = plot_args,
         dispersive: bool = dispersive,
         decay_by: float = decay_by,
@@ -393,6 +423,7 @@ def write_sparameters_meep(
         sim_dict = get_simulation(
             component=component,
             port_source_name=port_source_name,
+            port_source_mode=port_source_mode,
             resolution=resolution,
             wavelength_start=wavelength_start,
             wavelength_stop=wavelength_stop,
@@ -425,34 +456,53 @@ def write_sparameters_meep(
             if "eps_parameters" not in plot_args:
                 plot_args["eps_parameters"] = {"contour": True}
             if "fields" not in plot_args:
-                plot_args["fields"] = mp.Ez
+                if is_3d:
+                    plot_args["fields"] = mp.Hz
+                else:
+                    plot_args["fields"] = mp.Ez
             if "realtime" not in plot_args:
                 plot_args["realtime"] = True
             if "normalize" not in plot_args:
                 plot_args["normalize"] = True
 
             sim.use_output_directory()
-            animate = mp.Animate2D(
-                sim,
-                **plot_args,
-            )
+            if is_3d:
+                animate = mp.Animate2D(
+                    sim,
+                    output_plane=mp.Volume(
+                        center=mp.Vector3(*animate_center),
+                        size=mp.Vector3(*animate_size),
+                    ),
+                    **plot_args,
+                )
+            else:
+                animate = mp.Animate2D(
+                    sim,
+                    **plot_args,
+                )
             sim.run(mp.at_every(1, animate), until_after_sources=termination)
-            animate.to_mp4(30, f"{component.name}_{port_source_name}.mp4")
+            animate.to_mp4(
+                30, f"{component.name}_{port_source_name}_{port_source_mode}.mp4"
+            )
         else:
             sim.run(until_after_sources=termination)
 
         # Calculate mode overlaps
         # Get source monitor results
         source_entering, _ = parse_port_eigenmode_coeff(
-            port_source_name, component.ports, sim_dict
+            port_source_name, component.ports, sim_dict, port_mode=port_source_mode
         )
         # Get coefficients
         for port_name in port_names:
-            _, monitor_exiting = parse_port_eigenmode_coeff(
-                port_name, component.ports, sim_dict
-            )
-            key = f"{port_name}@0,{port_source_name}@0"
-            sp[key] = monitor_exiting / source_entering
+            for port_mode in port_modes:
+                _, monitor_exiting = parse_port_eigenmode_coeff(
+                    port_name,
+                    component.ports,
+                    sim_dict,
+                    port_mode=port_mode,
+                )
+                key = f"{port_name}@{port_mode},{port_source_name}@{port_source_mode}"
+                sp[key] = monitor_exiting / source_entering
 
         if bool(port_symmetries):
             for key, symmetries in port_symmetries.items():
@@ -462,7 +512,7 @@ def write_sparameters_meep(
 
         return sp
 
-    if lazy_parallelism:
+    if lazy_parallelism:  # TODO: FIX Port modes
         from mpi4py import MPI
 
         cores = min([num_sims, multiprocessing.cpu_count()])
@@ -507,19 +557,21 @@ def write_sparameters_meep(
 
     else:
         for port_source_name in tqdm(port_source_names):
-            sp.update(
-                sparameter_calculation(
-                    port_source_name,
-                    component=component,
-                    port_symmetries=port_symmetries,
-                    wavelength_start=wavelength_start,
-                    wavelength_stop=wavelength_stop,
-                    wavelength_points=wavelength_points,
-                    animate=animate,
-                    port_names=port_names,
-                    **settings,
+            for port_source_mode in port_source_modes[port_source_name]:
+                sp.update(
+                    sparameter_calculation(
+                        port_source_name,
+                        port_source_mode=port_source_mode,
+                        component=component,
+                        port_symmetries=port_symmetries,
+                        wavelength_start=wavelength_start,
+                        wavelength_stop=wavelength_stop,
+                        wavelength_points=wavelength_points,
+                        animate=animate,
+                        port_names=port_names,
+                        **settings,
+                    )
                 )
-            )
         sp["wavelengths"] = np.linspace(
             wavelength_start, wavelength_stop, wavelength_points
         )

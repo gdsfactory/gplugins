@@ -201,7 +201,8 @@ def reticle(size=(1000, 1000)):
     return c
 
 
-m = reticle(cache=False)
+m = reticle()
+gf.remove_from_cache(m)
 m.plot()
 
 # %%
@@ -237,7 +238,8 @@ def reticle(size=(1000, 1000)):
     return c
 
 
-m = reticle(cache=False)
+m = reticle()
+gf.remove_from_cache(m)
 m.plot()
 
 # %%

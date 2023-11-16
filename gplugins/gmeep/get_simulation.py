@@ -39,6 +39,7 @@ def get_simulation(
     wavelength_points: int = 50,
     dfcen: float = 0.2,
     port_source_name: str = "o1",
+    port_source_mode: int = 0,
     port_margin: float = 3,
     distance_source_to_monitors: float = 0.2,
     port_source_offset: float = 0,
@@ -185,7 +186,9 @@ def get_simulation(
             "Did you passed the correct layer_stack?"
         )
 
-    t_core = max(layers_thickness)
+    t_core = sum(
+        layers_thickness
+    )  # This isn't exactly what we want but I think it's better than max
     cell_thickness = tpml + zmargin_bot + t_core + zmargin_top + tpml if is_3d else 0
 
     cell_size = mp.Vector3(
@@ -243,7 +246,7 @@ def get_simulation(
             else mp.GaussianSource(fcen, fwidth=frequency_width),
             size=size,
             center=center,
-            eig_band=1,
+            eig_band=port_source_mode + 1,
             eig_parity=mp.NO_PARITY if is_3d else mp.EVEN_Y + mp.ODD_Z,
             eig_match_freq=True,
             eig_kpoint=-1 * mp.Vector3(x=1).rotate(mp.Vector3(z=1), angle_rad),
@@ -298,6 +301,7 @@ def get_simulation(
         monitors=monitors,
         sources=sources,
         port_source_name=port_source_name,
+        port_source_mode=port_source_mode,
         initialized=False,
     )
 

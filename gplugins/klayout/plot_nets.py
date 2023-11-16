@@ -1,10 +1,12 @@
 import itertools
-from logging import warning
 from pathlib import Path
 
 import klayout.db as kdb
 import matplotlib.pyplot as plt
 import networkx as nx
+from gdsfactory.config import logger
+
+from gplugins.klayout.netlist_spice_reader import NoCommentReader
 
 
 def _get_subcircuit_name(subcircuit: kdb.SubCircuit) -> str:
@@ -13,19 +15,32 @@ def _get_subcircuit_name(subcircuit: kdb.SubCircuit) -> str:
 
 
 def netlist_to_networkx(
-    netlist: kdb.Netlist, fully_connected: bool = False, include_labels: bool = True
+    netlist: kdb.Netlist,
+    fully_connected: bool = False,
+    include_labels: bool = True,
+    only_most_complex: bool = False,
 ) -> nx.Graph:
     """Convert a KLayout DB `Netlist` to a networkx graph.
 
     Args:
-        kdbnet: The KLayout DB `Netlist` to convert to a networkx `Graph`.
+        netlist: The KLayout DB `Netlist` to convert to a networkx `Graph`.
+        fully_connected: Whether to plot the graph as elements fully connected to all other ones (True) or
+            going through other elements (False).
         include_labels: Whether to include labels in the graph connected to corresponding cells.
+        only_most_complex: Whether to plot only the circuit with most connections or not.
+            Helpful for not plotting subcircuits separately.
+
+    Returns:
+        A networkx `Graph` representing the connectivity of the `Netlist`.
     """
     G = nx.Graph()
 
     top_circuits = list(
         itertools.islice(netlist.each_circuit_top_down(), netlist.top_circuit_count())
     )
+
+    if only_most_complex:
+        top_circuits = (max(top_circuits, key=lambda x: x.pin_count()),)
 
     for circuit in top_circuits:
         # first flatten components that won't be kept
@@ -63,6 +78,7 @@ def plot_nets(
     fully_connected: bool = False,
     interactive: bool = False,
     include_labels: bool = True,
+    only_most_complex: bool = False,
 ) -> None:
     """Plots the connectivity between the components in the KLayout LayoutToNetlist file from :func:`~get_l2n`.
 
@@ -70,10 +86,11 @@ def plot_nets(
         filepath: Path to the KLayout LayoutToNetlist file or a SPICE netlist.
             File extensions should be `.l2n` and `.spice`, respectively.
         fully_connected: Whether to plot the graph as elements fully connected to all other ones (True) or
-
             going through other elements (False).
         interactive: Whether to plot an interactive graph with `pyvis` or not.
         include_labels: Whether to include labels in the graph connected to corresponding cells.
+        only_most_complex: Whether to plot only the circuit with most connections or not.
+            Helpful for not plotting subcircuits separately.
     """
     match Path(filepath).suffix:
         case ".l2n" | ".txt":
@@ -81,18 +98,21 @@ def plot_nets(
             l2n.read(str(filepath))
             netlist = l2n.netlist()
         case ".spice":
-            reader = kdb.NetlistSpiceReader()
+            reader = kdb.NetlistSpiceReader(NoCommentReader())
             netlist = kdb.Netlist()
             netlist.read(str(filepath), reader)
         case _:
-            warning("Assuming file is KLayout native LayoutToNetlist file")
+            logger.warning("Assuming file is KLayout native LayoutToNetlist file")
             l2n = kdb.LayoutToNetlist()
             l2n.read(str(filepath))
             netlist = l2n.netlist()
 
     # Creating a graph for the connectivity
     G_connectivity = netlist_to_networkx(
-        netlist, fully_connected=fully_connected, include_labels=include_labels
+        netlist,
+        fully_connected=fully_connected,
+        include_labels=include_labels,
+        only_most_complex=only_most_complex,
     )
 
     # Plotting the graph
