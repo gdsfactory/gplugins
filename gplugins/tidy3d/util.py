@@ -1,7 +1,10 @@
 from typing import Literal
 
+import tidy3d as td
 from gdsfactory.port import Port
 from gdsfactory.technology.layer_stack import LayerLevel
+from tidy3d.plugins.mode import ModeSolver
+from tidy3d.plugins.smatrix import ComponentModeler
 
 
 def sort_layers(
@@ -47,3 +50,35 @@ def get_port_normal(port: Port) -> tuple[int, Literal["+", "-"]]:
             return 1, "+"
         case _:
             raise ValueError(f"Invalid port orientation: {ort}")
+
+
+def get_mode_data(modeler: ComponentModeler, port_name: str) -> list[td.ModeSolverData]:
+    """
+    This function retrieves the mode data for a given port in a ComponentModeler.
+
+    Args:
+        modeler (ComponentModeler): The ComponentModeler object containing the port.
+        port_name (str): The name of the port for which to retrieve the mode data.
+
+    Returns:
+        list[td.ModeSolverData]: A list of ModeSolverData objects containing the mode data for the port.
+
+    Raises:
+        ValueError: If the specified port does not exist in the ComponentModeler.
+    """
+    port = [p for p in modeler.ports if p.name == port_name]
+    if not port:
+        raise ValueError(f"Port {port_name} does not exist!")
+    port = port[0]
+    mode_data = []
+    for sim in [s for name, s in modeler.sim_dict.items() if port_name in name]:
+        ms = ModeSolver(
+            simulation=sim,
+            plane=port.geometry,
+            mode_spec=port.mode_spec,
+            freqs=modeler.freqs,
+            direction=port.direction,
+            colocate=True,
+        )
+        mode_data.append(ms.solve())
+    return mode_data
