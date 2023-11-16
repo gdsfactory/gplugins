@@ -80,7 +80,7 @@ class LayeredComponentBase(BaseModel):
         return tuple(map(tuple, bbox))
 
     @cached_property
-    def ports(self) -> dict[str, gf.Port]:
+    def ports(self) -> tuple[gf.Port, ...]:
         return tuple(
             p.move_polar_copy(
                 self.extend_ports + self.pad_xy_inner - self.port_offset, p.orientation
