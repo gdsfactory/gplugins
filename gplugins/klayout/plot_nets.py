@@ -97,7 +97,7 @@ def plot_nets(
             l2n = kdb.LayoutToNetlist()
             l2n.read(str(filepath))
             netlist = l2n.netlist()
-        case ".spice":
+        case ".spi" | ".spice":
             reader = kdb.NetlistSpiceReader(NoCommentReader())
             netlist = kdb.Netlist()
             netlist.read(str(filepath), reader)
