@@ -1,6 +1,5 @@
 from typing import Literal
 
-import tidy3d as td
 from gdsfactory.port import Port
 from gdsfactory.technology.layer_stack import LayerLevel
 from tidy3d.plugins.mode import ModeSolver
@@ -52,16 +51,18 @@ def get_port_normal(port: Port) -> tuple[int, Literal["+", "-"]]:
             raise ValueError(f"Invalid port orientation: {ort}")
 
 
-def get_mode_data(modeler: ComponentModeler, port_name: str) -> list[td.ModeSolverData]:
+def get_mode_solvers(
+    modeler: ComponentModeler, port_name: str
+) -> dict[str, ModeSolver]:
     """
-    This function retrieves the mode data for a given port in a ComponentModeler.
+    Retrieves the mode solvers for all modes corresponding to a specified port in a ComponentModeler.
 
     Args:
-        modeler (ComponentModeler): The ComponentModeler object containing the port.
-        port_name (str): The name of the port for which to retrieve the mode data.
+        modeler (ComponentModeler): The ComponentModeler object that contains the port.
+        port_name (str): The name of the port for which the mode solvers are to be retrieved.
 
     Returns:
-        list[td.ModeSolverData]: A list of ModeSolverData objects containing the mode data for the port.
+        dict[str, ModeSolver]: A dictionary where the keys are the names of the modes and the values are the corresponding ModeSolver objects.
 
     Raises:
         ValueError: If the specified port does not exist in the ComponentModeler.
@@ -70,8 +71,10 @@ def get_mode_data(modeler: ComponentModeler, port_name: str) -> list[td.ModeSolv
     if not port:
         raise ValueError(f"Port {port_name} does not exist!")
     port = port[0]
-    mode_data = []
-    for sim in [s for name, s in modeler.sim_dict.items() if port_name in name]:
+    mode_solvers = {}
+    for name, sim in modeler.sim_dict.items():
+        if port_name not in name:
+            continue
         ms = ModeSolver(
             simulation=sim,
             plane=port.geometry,
@@ -80,5 +83,5 @@ def get_mode_data(modeler: ComponentModeler, port_name: str) -> list[td.ModeSolv
             direction=port.direction,
             colocate=True,
         )
-        mode_data.append(ms.solve())
-    return mode_data
+        mode_solvers[name] = ms
+    return mode_solvers

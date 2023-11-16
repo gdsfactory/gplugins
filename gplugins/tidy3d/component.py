@@ -15,6 +15,7 @@ Functions:
 """
 
 from functools import cached_property
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -148,6 +149,7 @@ class Tidy3DComponent(LayeredComponentBase):
         center_z: float,
         sim_size_z: int,
         boundary_spec: td.BoundarySpec,
+        monitors: tuple[Any, ...] | None = None,
         run_time: float = 1e-12,
         shutoff: float = 1e-5,
     ) -> td.Simulation:
@@ -159,6 +161,7 @@ class Tidy3DComponent(LayeredComponentBase):
             center_z (float): The z-coordinate for the center of the simulation.
             sim_size_z (int): The size of the simulation in the z-direction.
             boundary_spec (td.BoundarySpec): The boundary specification for the simulation.
+            monitors (tuple[Any, ...] | None, optional): The monitors for the simulation. If None, no monitors are used. Defaults to None.
             run_time (float, optional): The run time for the simulation. Defaults to 1e-12.
             shutoff (float, optional): The shutoff value for the simulation. Defaults to 1e-5.
 
@@ -172,6 +175,7 @@ class Tidy3DComponent(LayeredComponentBase):
             center=sim_center,
             structures=self.structures,
             grid_spec=grid_spec,
+            monitors=[] if monitors is None else monitors,
             boundary_spec=boundary_spec,
             run_time=run_time,
             shutoff=shutoff,
@@ -189,6 +193,7 @@ class Tidy3DComponent(LayeredComponentBase):
         port_size_mult: float | tuple[float, float] = (4.0, 3.0),
         run_only: tuple[tuple[str, int], ...] | None = None,
         element_mappings: Tidy3DElementMapping = (),
+        extra_monitors: tuple[Any, ...] | None = None,
         mode_spec: td.ModeSpec = td.ModeSpec(num_modes=1, filter_pol="te"),
         boundary_spec: td.BoundarySpec = td.BoundarySpec.all_sides(boundary=td.PML()),
         run_time: float = 1e-12,
@@ -201,22 +206,23 @@ class Tidy3DComponent(LayeredComponentBase):
         Returns a ComponentModeler instance for the component.
 
         Args:
-            wavelength (float, optional): The wavelength for the ComponentModeler. Defaults to 1.55.
-            bandwidth (float, optional): The bandwidth for the ComponentModeler. Defaults to 0.2.
-            num_freqs (int, optional): The number of frequencies for the ComponentModeler. Defaults to 21.
-            min_steps_per_wvl (int, optional): The minimum number of steps per wavelength for the ComponentModeler. Defaults to 30.
-            center_z (float | str | None, optional): The z-coordinate for the center of the ComponentModeler. If None, the z-coordinate of the component is used. Defaults to None.
-            sim_size_z (int, optional): The size of the simulation in the z-direction for the ComponentModeler. Defaults to 4.
-            port_size_mult (float | tuple[float, float], optional): The size multiplier for the ports in the ComponentModeler. Defaults to (4.0, 3.0).
-            run_only (tuple[tuple[str, int], ...] | None, optional): The run only specification for the ComponentModeler. Defaults to None.
-            element_mappings (Tidy3DElementMapping, optional): The element mappings for the ComponentModeler. Defaults to ().
-            mode_spec (td.ModeSpec, optional): The mode specification for the ComponentModeler. Defaults to td.ModeSpec(num_modes=1, filter_pol="te").
-            boundary_spec (td.BoundarySpec, optional): The boundary specification for the ComponentModeler. Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
-            run_time (float, optional): The run time for the ComponentModeler. Defaults to 1e-12.
-            shutoff (float, optional): The shutoff value for the ComponentModeler. Defaults to 1e-5.
-            folder_name (str, optional): The folder name for the ComponentModeler. Defaults to "default".
-            path_dir (str, optional): The directory path for the ComponentModeler. Defaults to ".".
-            verbose (bool, optional): Whether to print verbose output for the ComponentModeler. Defaults to True.
+            wavelength (float): The wavelength for the ComponentModeler. Defaults to 1.55.
+            bandwidth (float): The bandwidth for the ComponentModeler. Defaults to 0.2.
+            num_freqs (int): The number of frequencies for the ComponentModeler. Defaults to 21.
+            min_steps_per_wvl (int): The minimum number of steps per wavelength for the ComponentModeler. Defaults to 30.
+            center_z (float | str | None): The z-coordinate for the center of the ComponentModeler. If None, the z-coordinate of the component is used. Defaults to None.
+            sim_size_z (int): The size of the simulation in the z-direction for the ComponentModeler. Defaults to 4.
+            port_size_mult (float | tuple[float, float]): The size multiplier for the ports in the ComponentModeler. Defaults to (4.0, 3.0).
+            run_only (tuple[tuple[str, int], ...] | None): The run only specification for the ComponentModeler. Defaults to None.
+            element_mappings (Tidy3DElementMapping): The element mappings for the ComponentModeler. Defaults to ().
+            extra_monitors (tuple[Any, ...] | None): The extra monitors for the ComponentModeler. Defaults to None.
+            mode_spec (td.ModeSpec): The mode specification for the ComponentModeler. Defaults to td.ModeSpec(num_modes=1, filter_pol="te").
+            boundary_spec (td.BoundarySpec): The boundary specification for the ComponentModeler. Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
+            run_time (float): The run time for the ComponentModeler. Defaults to 1e-12.
+            shutoff (float): The shutoff value for the ComponentModeler. Defaults to 1e-5.
+            folder_name (str): The folder name for the ComponentModeler. Defaults to "default".
+            path_dir (str): The directory path for the ComponentModeler. Defaults to ".".
+            verbose (bool): Whether to print verbose output for the ComponentModeler. Defaults to True.
 
         Returns:
             ComponentModeler: A ComponentModeler instance.
@@ -247,6 +253,7 @@ class Tidy3DComponent(LayeredComponentBase):
             center_z=cz,
             sim_size_z=sim_size_z,
             boundary_spec=boundary_spec,
+            monitors=extra_monitors,
             run_time=run_time,
             shutoff=shutoff,
         )
