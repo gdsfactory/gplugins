@@ -5,7 +5,8 @@
 # This is a work-in-progress and can't handle hierarchical components yet.
 #
 #
-# This example also requires you to install the ubcpdk `pip install ubcpdk`
+# This example also requires you to install the UBC PDK, `pip install ubcpdk`.
+# In addition, access to the Lumerical Python api through `lumapi` is required. Follow instructions in {doc}`lumerical_1_fdtd_sparameters.py` to this end.
 
 # +
 from collections import OrderedDict
@@ -21,7 +22,6 @@ from gplugins.lumerical.interconnect import plot_wavelength_sweep, run_wavelengt
 
 gf.config.rich_output()
 
-# +
 import lumapi
 
 session = lumapi.INTERCONNECT()
