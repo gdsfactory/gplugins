@@ -101,26 +101,6 @@ web = [
   "uvicorn[standard]"
 ]
 
-[tool.black]
-exclude = '''  # Specify the files/dirs that should be ignored by the black formatter
-/(
-    \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | env
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
-include = '\.pyi?$'
-line-length = 88
-target-version = ['py310']
-
 [tool.codespell]
 ignore-words-list = "te, te/tm, te, ba, fpr, fpr_spacing, ro, nd, donot, schem"
 
@@ -149,7 +129,6 @@ testpaths = ["gplugins/", "tests"]
 [tool.ruff]
 fix = true
 ignore = [
-  "E501",  # line too long, handled by black
   "B008",  # do not perform function calls in argument defaults
   "C901",  # too complex
   "B905",  # `zip()` without an explicit `strict=` parameter
