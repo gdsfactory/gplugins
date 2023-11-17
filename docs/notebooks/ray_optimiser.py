@@ -118,7 +118,8 @@ def trainable_simulations(config):
 
     if use_mpi:  # change this to false if no MPI support
         s_params = gm.write_sparameters_meep_mpi(
-            cores=2, **meep_params  # set this to be same as in `tune.Tuner`
+            cores=2,
+            **meep_params,  # set this to be same as in `tune.Tuner`
         )
         s_params = np.load(s_params)  # parallel version returns filepath to npz instead
     else:

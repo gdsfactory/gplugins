@@ -312,8 +312,8 @@ r = LinearRegression()
 
 
 def fX(x, _order=8):
-    return x[:, None] ** (
-        jnp.arange(_order)[None, :]
+    return (
+        x[:, None] ** (jnp.arange(_order)[None, :])
     )  # artificially create more 'features' (wl**2, wl**3, wl**4, ...)
 
 
@@ -719,17 +719,19 @@ plt.show()
 # %%
 def create_wafermaps(placements, correlation_length=1.0, num_maps=1, mean=0.0, std=1.0):
     dx = dy = correlation_length / 200
-    xs, ys = [p["x"] for p in placements.values()], [
-        p["y"] for p in placements.values()
-    ]
+    xs, ys = (
+        [p["x"] for p in placements.values()],
+        [p["y"] for p in placements.values()],
+    )
     xmin, xmax, ymin, ymax = min(xs), max(xs), min(ys), max(ys)
     wx, wy = xmax - xmin, ymax - ymin
     xmin, xmax, ymin, ymax = xmin - wx, xmax + wx, ymin - wy, ymax + wy
     x, y = np.arange(xmin, xmax + dx, dx), np.arange(ymin, ymax + dy, dy)
     W0 = np.random.randn(num_maps, x.shape[0], y.shape[0])
 
-    fx, fy = fftshift(fftfreq(x.shape[0], d=x[1] - x[0])), fftshift(
-        fftfreq(y.shape[0], d=y[1] - y[0])
+    fx, fy = (
+        fftshift(fftfreq(x.shape[0], d=x[1] - x[0])),
+        fftshift(fftfreq(y.shape[0], d=y[1] - y[0])),
     )
     fY, fX = np.meshgrid(fy, fx)
     fW = fftshift(fft2(W0))

@@ -145,9 +145,7 @@ def _read_palace_results(
     """Fetch results from successful Palace simulations."""
     raw_capacitance_matrix = read_csv(
         simulation_folder / "postpro" / "terminal-Cm.csv", dtype=float
-    ).values[
-        :, 1:
-    ]  # remove index
+    ).values[:, 1:]  # remove index
     return ElectrostaticResults(
         capacitance_matrix={
             (iname, jname): raw_capacitance_matrix[i][j]
