@@ -274,9 +274,7 @@ gs.plot_model(coupler_fdtd)
 f = jnp.linspace(constants.c / 1.0e-6, constants.c / 2.0e-6, 500) * 1e-12  # THz
 wl = constants.c / (f * 1e12) * 1e6  # um
 
-coupler_fdtd = gs.read.model_from_csv(
-    filepath, xkey="wavelength_nm", prefix="S", xunits=1e-3
-)
+coupler_fdtd = gs.read.model_from_csv(filepath, xkey="wavelength_nm", prefix="S", xunits=1e-3)
 sd = coupler_fdtd(wl=wl)
 
 k = sd["o1", "o3"]
@@ -446,9 +444,7 @@ def coupler(wl=1.5):
 f = jnp.linspace(constants.c / 1.0e-6, constants.c / 2.0e-6, 500) * 1e-12  # THz
 wl = constants.c / (f * 1e12) * 1e6  # um
 
-coupler_fdtd = gs.read.model_from_csv(
-    filepath, xkey="wavelength_nm", prefix="S", xunits=1e-3
-)
+coupler_fdtd = gs.read.model_from_csv(filepath, xkey="wavelength_nm", prefix="S", xunits=1e-3)
 sd = coupler_fdtd(wl=wl)
 sd_ = coupler(wl=wl)
 
@@ -863,9 +859,7 @@ plt.plot([1550, 1550], [-1, 2], color="black", ls=":")
 plt.ylim(-0.05, 1.05)
 plt.grid(True)
 plt.figlegend([*ps[-1:], *nps], ["MC", "nominal"], bbox_to_anchor=(1.1, 0.9))
-rmse = jnp.mean(
-    jnp.abs(jnp.abs(S["o1", "o2"]) ** 2 - jnp.abs(S0["o1", "o2"][:, None]) ** 2) ** 2
-)
+rmse = jnp.mean(jnp.abs(jnp.abs(S["o1", "o2"]) ** 2 - jnp.abs(S0["o1", "o2"][:, None]) ** 2) ** 2)
 plt.title(f"{rmse=}")
 plt.show()
 
@@ -965,9 +959,7 @@ plt.plot([1550, 1550], [-1, 2], color="black", ls=":")
 plt.ylim(-0.05, 1.05)
 plt.grid(True)
 plt.figlegend([*ps[-1:], *nps], ["MC", "nominal"], bbox_to_anchor=(1.1, 0.9))
-rmse = jnp.mean(
-    jnp.abs(jnp.abs(S["o1", "o2"]) ** 2 - jnp.abs(S0["o1", "o2"][:, None]) ** 2) ** 2
-)
+rmse = jnp.mean(jnp.abs(jnp.abs(S["o1", "o2"]) ** 2 - jnp.abs(S0["o1", "o2"][:, None]) ** 2) ** 2)
 plt.title(f"{rmse=}")
 plt.show()
 
@@ -979,9 +971,7 @@ plt.show()
 
 # %%
 delta_length = 10
-mzi_component = gf.components.mzi_phase_shifter_top_heater_metal(
-    delta_length=delta_length
-)
+mzi_component = gf.components.mzi_phase_shifter_top_heater_metal(delta_length=delta_length)
 mzi_component.plot()
 
 
@@ -1036,9 +1026,7 @@ models = {
 }
 
 # %%
-mzi_component = gf.components.mzi_phase_shifter_top_heater_metal(
-    delta_length=delta_length
-)
+mzi_component = gf.components.mzi_phase_shifter_top_heater_metal(delta_length=delta_length)
 netlist = sax.netlist(mzi_component.get_netlist())
 
 # %%

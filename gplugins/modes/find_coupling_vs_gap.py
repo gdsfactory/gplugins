@@ -52,9 +52,7 @@ def find_coupling(
     ne = modes[1].neff
     no = modes[2].neff
 
-    return coupling_length(
-        neff1=ne, neff2=no, power_ratio=power_ratio, wavelength=wavelength
-    )
+    return coupling_length(neff1=ne, neff2=no, power_ratio=power_ratio, wavelength=wavelength)
 
 
 @pydantic.validate_arguments

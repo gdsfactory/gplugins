@@ -142,9 +142,7 @@ def get_meep_adjoint_optimizer(
         sim.geometry.append(
             Block(design_region.size, design_region.center, material=design_variable)
         )
-        block = c << gf.components.rectangle(
-            (design_region.size[0], design_region.size[1])
-        )
+        block = c << gf.components.rectangle((design_region.size[0], design_region.size[1]))
         block.center = (design_region.center[0], design_region.center[1])
 
     sim.cell_size = (
@@ -315,9 +313,7 @@ def _example_optim_geometry() -> Component:
     straight1 = c << gf.components.straight(Sx / 2 + 1)
     straight1.move(straight1.ports["o2"], (-design_region_width / 2.0, 0))
     straight2 = c << gf.components.straight(Sx / 2 + 1)
-    straight2.move(
-        straight2.ports["o1"], (design_region_width / 2.0, (arm_separation + 1.0) / 2.0)
-    )
+    straight2.move(straight2.ports["o1"], (design_region_width / 2.0, (arm_separation + 1.0) / 2.0))
     straight3 = c << gf.components.straight(Sx / 2 + 1)
     straight3.move(
         straight3.ports["o1"],

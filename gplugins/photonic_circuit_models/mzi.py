@@ -30,8 +30,7 @@ def mzi(
     neff2 = neff2 or neff
 
     E_out = 0.5 * (
-        np.exp(1j * k_0 * neff1 * (length1 + delta_length))
-        + np.exp(1j * k_0 * neff2 * length1)
+        np.exp(1j * k_0 * neff1 * (length1 + delta_length)) + np.exp(1j * k_0 * neff2 * length1)
     )
     return np.abs(E_out) ** 2
 

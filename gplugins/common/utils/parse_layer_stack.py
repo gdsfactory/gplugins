@@ -42,13 +42,9 @@ def map_unique_layer_stack_z(
         zmax = layer["zmin"] + layer["thickness"]
         z_start, z_end = sorted([zmin, zmax])
         if include_zmax:
-            unique_z_dict[layername] = {
-                z for z in z_levels if (z >= z_start and z <= z_end)
-            }
+            unique_z_dict[layername] = {z for z in z_levels if (z >= z_start and z <= z_end)}
         else:
-            unique_z_dict[layername] = {
-                z for z in z_levels if (z >= z_start and z < z_end)
-            }
+            unique_z_dict[layername] = {z for z in z_levels if (z >= z_start and z < z_end)}
 
     return unique_z_dict
 
@@ -119,9 +115,7 @@ if __name__ == "__main__":
     from gdsfactory.pdk import get_layer_stack
 
     filtered_layer_stack = LayerStack(
-        layers={
-            k: get_layer_stack().layers[k] for k in ("core", "via_contact", "slab90")
-        }
+        layers={k: get_layer_stack().layers[k] for k in ("core", "via_contact", "slab90")}
     )
 
     ret = order_layer_stack(

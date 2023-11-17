@@ -129,9 +129,7 @@ def find_modes_waveguide(
     """
     modes = {}
     mode_solver = (
-        get_mode_solver_rib(**kwargs)
-        if single_waveguide
-        else get_mode_solver_coupler(**kwargs)
+        get_mode_solver_rib(**kwargs) if single_waveguide else get_mode_solver_coupler(**kwargs)
     )
     nmodes = mode_solver.nmodes
     omega = 1 / wavelength
@@ -226,9 +224,7 @@ def find_modes_waveguide(
         if cache_path:
             filepath_json = cache_path / f"{h}_{index}.json"
             filepath_pickle = cache_path / f"{h}_{index}.pkl"
-            filepath_json.write_text(
-                modes[i].model_dump_json(exclude={"E", "H", "eps", "y", "z"})
-            )
+            filepath_json.write_text(modes[i].model_dump_json(exclude={"E", "H", "eps", "y", "z"}))
             filepath_pickle.write_bytes(pickle.dumps(modes[i]))
 
     return modes

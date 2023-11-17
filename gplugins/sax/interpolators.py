@@ -26,8 +26,7 @@ def nd_nd_interpolation(input_vectors, output_vectors):
     """Return JAX N-D interpolator given a N-D input and M-D output vector."""
     _grid = [jnp.sort(jnp.unique(input_vector)) for input_vector in input_vectors.T]
     return [
-        nd_interpolation(_grid, jnp.asarray(output_vector))
-        for output_vector in output_vectors.T
+        nd_interpolation(_grid, jnp.asarray(output_vector)) for output_vector in output_vectors.T
     ]
 
 

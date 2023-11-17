@@ -51,9 +51,7 @@ def create_2Duz_simulation(
     # Replace relevant physical entities by contacts
     simulation_layertack = physical_layer_stack
     for contact_name, contact_dict in contact_info.items():
-        contact_layer = full_layer_stack.layers[
-            contact_dict["physical_layerlevel_to_replace"]
-        ]
+        contact_layer = full_layer_stack.layers[contact_dict["physical_layerlevel_to_replace"]]
         layerlevel = LayerLevel(
             layer=contact_dict["gds_layer"],
             thickness=contact_layer.thickness,
@@ -130,9 +128,7 @@ def create_2Duz_simulation(
 
     # Interfaces (that are not contacts), labeled by material-material
     interfaces = {}
-    for (name1, values1), (name2, values2) in combinations(
-        simulation_layer_stack_dict.items(), 2
-    ):
+    for (name1, values1), (name2, values2) in combinations(simulation_layer_stack_dict.items(), 2):
         interface = f"{name1}___{name2}"
         if interface not in mesh.cell_sets_dict.keys():
             interface = f"{name2}___{name1}"
@@ -155,9 +151,7 @@ def create_2Duz_simulation(
 
     # Assign doping fields silicon
     for region_name in regions["si"]:
-        xpos = get_node_model_values(
-            device=devsim_device_name, region=region_name, name="x"
-        )
+        xpos = get_node_model_values(device=devsim_device_name, region=region_name, name="x")
         # ypos = get_node_model_values(device=devsim_device_name, region="si", name="y")
         acceptor = np.zeros_like(xpos)
         donor = np.zeros_like(xpos)
@@ -175,9 +169,7 @@ def create_2Duz_simulation(
                 elif doping_info[layername].type == "Donor":
                     donor[node_inds] += doping_info[layername].z_profile(0)
                 else:
-                    raise ValueError(
-                        f'Doping type "{doping_info[layername].type}" not supported.'
-                    )
+                    raise ValueError(f'Doping type "{doping_info[layername].type}" not supported.')
         net_doping = donor - acceptor
 
         node_solution(device=devsim_device_name, region=region_name, name="Acceptors")
@@ -188,9 +180,7 @@ def create_2Duz_simulation(
             values=acceptor,
         )
         node_solution(device=devsim_device_name, region=region_name, name="Donors")
-        set_node_values(
-            device=devsim_device_name, region=region_name, name="Donors", values=donor
-        )
+        set_node_values(device=devsim_device_name, region=region_name, name="Donors", values=donor)
         node_solution(device=devsim_device_name, region=region_name, name="NetDoping")
         set_node_values(
             device=devsim_device_name,
@@ -201,9 +191,7 @@ def create_2Duz_simulation(
 
     # Assign doping field contact
     for contact_name in contacts:
-        xpos = get_node_model_values(
-            device=devsim_device_name, region=contact_name, name="x"
-        )
+        xpos = get_node_model_values(device=devsim_device_name, region=contact_name, name="x")
         node_solution(device=devsim_device_name, region=contact_name, name="NetDoping")
         set_node_values(
             device=devsim_device_name,
@@ -274,9 +262,7 @@ if __name__ == "__main__":
     NPP_location = waveguide.extract(layermap.NPP)
     PPP_location = waveguide.extract(layermap.PPP)
     waveguide.add_ref(
-        gf.geometry.boolean(
-            via_contact_locations, NPP_location, operation="AND", layer=anode_layer
-        )
+        gf.geometry.boolean(via_contact_locations, NPP_location, operation="AND", layer=anode_layer)
     )
     waveguide.add_ref(
         gf.geometry.boolean(

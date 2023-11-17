@@ -78,7 +78,9 @@ def write_connectivity_checks_per_section(
 {xs_name}_pin2 = {xs_name}_pin.rectangles.without_area({xs.width} * {2 * cc.pin_length})"""
 
         if xs.width_wide:
-            script += f" - {xs_name}_pin.rectangles.with_area({xs.width_wide} * {2 * cc.pin_length})"
+            script += (
+                f" - {xs_name}_pin.rectangles.with_area({xs.width_wide} * {2 * cc.pin_length})"
+            )
 
         script += f"""\n{xs_name}_pin2.output(\"port alignment error\")\n
 {xs_name}_pin2 = {xs_name}_pin.sized(0.0).merged\n
@@ -99,17 +101,13 @@ if __name__ == "__main__":
 
     connectivity_checks = [
         # ConnectivyCheck(cross_section="xs_sc", pin_length=1 * nm, pin_layer=(1, 10))
-        ConnectivyCheck(
-            cross_section="xs_sc_auto_widen", pin_length=1 * nm, pin_layer=(1, 10)
-        )
+        ConnectivyCheck(cross_section="xs_sc_auto_widen", pin_length=1 * nm, pin_layer=(1, 10))
     ]
     rules = [
         write_connectivity_checks_per_section(connectivity_checks=connectivity_checks),
         "DEVREC",
     ]
 
-    rules = [
-        write_connectivity_checks(pin_widths=[0.5, 0.9, 0.45], pin_layer=LAYER.PORT)
-    ]
+    rules = [write_connectivity_checks(pin_widths=[0.5, 0.9, 0.45], pin_layer=LAYER.PORT)]
     script = write_drc_deck_macro(rules=rules, layers=None)
     print(script)

@@ -207,16 +207,12 @@ class Waveguide(BaseModel):
             n_clad = clad_medium.eps_model(freq0) ** 0.5
 
             sidewall_medium = (
-                td.Medium.from_nk(
-                    n=n_clad.real, k=n_clad.imag + self.sidewall_k, freq=freq0
-                )
+                td.Medium.from_nk(n=n_clad.real, k=n_clad.imag + self.sidewall_k, freq=freq0)
                 if self.sidewall_k != 0.0
                 else None
             )
             surface_medium = (
-                td.Medium.from_nk(
-                    n=n_clad.real, k=n_clad.imag + self.surface_k, freq=freq0
-                )
+                td.Medium.from_nk(n=n_clad.real, k=n_clad.imag + self.surface_k, freq=freq0)
                 if self.surface_k != 0.0
                 else None
             )
@@ -270,9 +266,7 @@ class Waveguide(BaseModel):
 
             fields = wg.mode_solver.data.field_components
             self._cached_data = {
-                f + c: fields[f + c].squeeze(drop=True).values
-                for f in "EH"
-                for c in "xyz"
+                f + c: fields[f + c].squeeze(drop=True).values for f in "EH" for c in "xyz"
             }
 
             self._cached_data["x"] = fields["Ex"].coords["x"].values
@@ -351,9 +345,7 @@ class Waveguide(BaseModel):
             if self.wavelength.size > 1
             else self.wavelength
         )
-        eps = self.waveguide.mode_solver.simulation.epsilon(
-            plane, freq=td.C_0 / wavelength
-        )
+        eps = self.waveguide.mode_solver.simulation.epsilon(plane, freq=td.C_0 / wavelength)
         return eps.squeeze(drop=True).T ** 0.5
 
     def overlap(self, waveguide: Waveguide, conjugate: bool = True):
@@ -429,12 +421,8 @@ class Waveguide(BaseModel):
         elif value == "phase":
             data = np.arctan2(data.imag, data.real)
         else:
-            raise ValueError(
-                "value must be one of 'real', 'imag', 'abs', 'phase', 'dB'"
-            )
-        data_array = xarray.DataArray(
-            data.T, coords={"y": self._data["y"], "x": self._data["x"]}
-        )
+            raise ValueError("value must be one of 'real', 'imag', 'abs', 'phase', 'dB'")
+        data_array = xarray.DataArray(data.T, coords={"y": self._data["y"], "x": self._data["x"]})
 
         if value == "dB":
             kwargs.update(vmin=-20)
@@ -453,8 +441,7 @@ class Waveguide(BaseModel):
         return (
             f"{self.__class__.__name__}("
             + ", ".join(
-                f"{k}={custom_serializer(getattr(self, k))!r}"
-                for k in self.__fields__.keys()
+                f"{k}={custom_serializer(getattr(self, k))!r}" for k in self.__fields__.keys()
             )
             + ")"
         )
@@ -539,16 +526,12 @@ class WaveguideCoupler(Waveguide):
             n_clad = clad_medium.eps_model(freq0) ** 0.5
 
             sidewall_medium = (
-                td.Medium.from_nk(
-                    n=n_clad.real, k=n_clad.imag + self.sidewall_k, freq=freq0
-                )
+                td.Medium.from_nk(n=n_clad.real, k=n_clad.imag + self.sidewall_k, freq=freq0)
                 if self.sidewall_k != 0.0
                 else None
             )
             surface_medium = (
-                td.Medium.from_nk(
-                    n=n_clad.real, k=n_clad.imag + self.surface_k, freq=freq0
-                )
+                td.Medium.from_nk(n=n_clad.real, k=n_clad.imag + self.surface_k, freq=freq0)
                 if self.surface_k != 0.0
                 else None
             )
@@ -598,9 +581,7 @@ class WaveguideCoupler(Waveguide):
         m = (self.n_eff.size // 2) * 2
         n_even = self.n_eff[:m:2].real
         n_odd = self.n_eff[1:m:2].real
-        return (
-            self.wavelength / (np.pi * (n_even - n_odd)) * np.arcsin(power_ratio**0.5)
-        )
+        return self.wavelength / (np.pi * (n_even - n_odd)) * np.arcsin(power_ratio**0.5)
 
 
 def _sweep(waveguide: Waveguide, attribute: str, **sweep_kwargs) -> xarray.DataArray:
@@ -618,9 +599,7 @@ def _sweep(waveguide: Waveguide, attribute: str, **sweep_kwargs) -> xarray.DataA
         if prohibited in sweep_kwargs:
             raise ValueError(f"Parameter '{prohibited}' cannot be swept.")
 
-    kwargs = {
-        k: getattr(waveguide, k) for k in waveguide.__fields__ if k not in sweep_kwargs
-    }
+    kwargs = {k: getattr(waveguide, k) for k in waveguide.__fields__ if k not in sweep_kwargs}
 
     keys = tuple(sweep_kwargs.keys())
     values = tuple(sweep_kwargs.values())
@@ -861,9 +840,7 @@ def sweep_mode_area(waveguide: Waveguide, **sweep_kwargs) -> np.ndarray:
     return _sweep(waveguide, "mode_area", **sweep_kwargs)
 
 
-def sweep_bend_mismatch(
-    waveguide: Waveguide, bend_radii: tuple[float, ...]
-) -> np.ndarray:
+def sweep_bend_mismatch(waveguide: Waveguide, bend_radii: tuple[float, ...]) -> np.ndarray:
     """Overlap integral squared for the bend mode mismatch loss.
 
     The loss is squared because you hit the bend loss twice
@@ -881,9 +858,7 @@ def sweep_bend_mismatch(
     for radius in tqdm(bend_radii):
         bend = Waveguide(bend_radius=radius, **kwargs)
         overlap = bend.overlap(straight)
-        results.append(
-            np.diagonal(overlap) ** 2 if straight.num_modes > 1 else overlap**2
-        )
+        results.append(np.diagonal(overlap) ** 2 if straight.num_modes > 1 else overlap**2)
 
     return np.abs(results) ** 2
 

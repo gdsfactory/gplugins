@@ -150,9 +150,7 @@ class RegionCollection:
         c = gf.import_gds(gdspath)
         return c.plot()
 
-    def get_kcell(
-        self, keep_original: bool = True, cellname: str = "Unnamed"
-    ) -> kf.KCell:
+    def get_kcell(self, keep_original: bool = True, cellname: str = "Unnamed") -> kf.KCell:
         """Returns kfactory cell.
 
         Args:

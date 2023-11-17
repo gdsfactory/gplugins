@@ -65,9 +65,9 @@ def test_materials_override_complex() -> None:
     assert sp2.geometry[0].material.epsilon_diag[
         0
     ] == optical_constants.permittivity_real_from_index(n=2.0, k=0.1)
-    assert sp2.geometry[0].material.D_conductivity_diag[
-        0
-    ] == optical_constants.D_conductivity_um(n=2.0, k=0.1, wavelength=1.55)
+    assert sp2.geometry[0].material.D_conductivity_diag[0] == optical_constants.D_conductivity_um(
+        n=2.0, k=0.1, wavelength=1.55
+    )
 
 
 if __name__ == "__main__":

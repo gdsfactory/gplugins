@@ -56,10 +56,7 @@ def dn_carriers(wavelength: float, dN: float, dP: float) -> float:
         return -2.98 * 1e-22 * np.power(dN, 1.016) - 1.25 * 1e-18 * np.power(dP, 0.835)
     else:
         wavelength *= 1e-6
-        return (
-            -3.64 * 1e-10 * wavelength**2 * dN
-            - 3.51 * 1e-6 * wavelength**2 * np.power(dP, 0.8)
-        )
+        return -3.64 * 1e-10 * wavelength**2 * dN - 3.51 * 1e-6 * wavelength**2 * np.power(dP, 0.8)
 
 
 def dalpha_carriers(wavelength: float, dN: float, dP: float) -> float:
@@ -195,32 +192,16 @@ class PINWaveguide(BaseModel):
 
         devsim.create_2d_mesh(mesh="dio")
         devsim.add_2d_mesh_line(mesh="dio", dir="x", pos=xmin, ps=self.pp_res_x / cm)
-        devsim.add_2d_mesh_line(
-            mesh="dio", dir="x", pos=self.xppp / cm, ps=self.pp_p_res_x / cm
-        )
-        devsim.add_2d_mesh_line(
-            mesh="dio", dir="x", pos=self.xppp / cm / 2, ps=self.p_res_x / cm
-        )
-        devsim.add_2d_mesh_line(
-            mesh="dio", dir="x", pos=-self.p_offset / cm, ps=self.pn_res_x / cm
-        )
-        devsim.add_2d_mesh_line(
-            mesh="dio", dir="x", pos=self.n_offset / cm, ps=self.pn_res_x / cm
-        )
-        devsim.add_2d_mesh_line(
-            mesh="dio", dir="x", pos=self.xnpp / cm / 2, ps=self.p_res_x / cm
-        )
-        devsim.add_2d_mesh_line(
-            mesh="dio", dir="x", pos=self.xnpp / cm, ps=self.pp_p_res_x / cm
-        )
+        devsim.add_2d_mesh_line(mesh="dio", dir="x", pos=self.xppp / cm, ps=self.pp_p_res_x / cm)
+        devsim.add_2d_mesh_line(mesh="dio", dir="x", pos=self.xppp / cm / 2, ps=self.p_res_x / cm)
+        devsim.add_2d_mesh_line(mesh="dio", dir="x", pos=-self.p_offset / cm, ps=self.pn_res_x / cm)
+        devsim.add_2d_mesh_line(mesh="dio", dir="x", pos=self.n_offset / cm, ps=self.pn_res_x / cm)
+        devsim.add_2d_mesh_line(mesh="dio", dir="x", pos=self.xnpp / cm / 2, ps=self.p_res_x / cm)
+        devsim.add_2d_mesh_line(mesh="dio", dir="x", pos=self.xnpp / cm, ps=self.pp_p_res_x / cm)
         devsim.add_2d_mesh_line(mesh="dio", dir="x", pos=xmax, ps=self.pp_res_x / cm)
-        devsim.add_2d_mesh_line(
-            mesh="dio", dir="y", pos=ymin, ps=self.coarse_res_y / cm
-        )
+        devsim.add_2d_mesh_line(mesh="dio", dir="y", pos=ymin, ps=self.coarse_res_y / cm)
         devsim.add_2d_mesh_line(mesh="dio", dir="y", pos=yslab, ps=self.slab_res_y / cm)
-        devsim.add_2d_mesh_line(
-            mesh="dio", dir="y", pos=ymax, ps=self.coarse_res_y / cm
-        )
+        devsim.add_2d_mesh_line(mesh="dio", dir="y", pos=ymax, ps=self.coarse_res_y / cm)
 
         devsim.add_2d_region(
             mesh="dio",
@@ -344,9 +325,7 @@ class PINWaveguide(BaseModel):
         # Set up the contacts applying a bias
         for i in devsim.get_contact_list(device=device):
             if circuit_contacts and i in circuit_contacts:
-                simple_physics.CreateSiliconPotentialOnlyContact(
-                    device, region, i, True
-                )
+                simple_physics.CreateSiliconPotentialOnlyContact(device, region, i, True)
             else:
                 # it is more correct for the bias to be 0, and it looks like there is side effects
                 devsim.set_parameter(
@@ -354,9 +333,7 @@ class PINWaveguide(BaseModel):
                 )
                 simple_physics.CreateSiliconPotentialOnlyContact(device, region, i)
 
-    def drift_diffusion_initial_solution(
-        self, device, region, circuit_contacts=None
-    ) -> None:
+    def drift_diffusion_initial_solution(self, device, region, circuit_contacts=None) -> None:
         # drift diffusion solution variables
         model_create.CreateSolution(device, region, "Electrons")
         model_create.CreateSolution(device, region, "Holes")
@@ -376,9 +353,7 @@ class PINWaveguide(BaseModel):
         simple_physics.CreateSiliconDriftDiffusion(device, region)
         for i in devsim.get_contact_list(device=device):
             if circuit_contacts and i in circuit_contacts:
-                simple_physics.CreateSiliconDriftDiffusionAtContact(
-                    device, region, i, True
-                )
+                simple_physics.CreateSiliconDriftDiffusionAtContact(device, region, i, True)
             else:
                 simple_physics.CreateSiliconDriftDiffusionAtContact(device, region, i)
 
@@ -406,9 +381,7 @@ class PINWaveguide(BaseModel):
         for region in devsim.get_region_list(device=device):
             self.drift_diffusion_initial_solution(device=device, region=region)
         for interface in devsim.get_interface_list(device=device):
-            simple_physics.CreateSiliconSiliconInterface(
-                device=device, interface=interface
-            )
+            simple_physics.CreateSiliconSiliconInterface(device=device, interface=interface)
 
         devsim.solve(
             type="dc",
@@ -435,9 +408,7 @@ class PINWaveguide(BaseModel):
 
     def get_field(self, region_name="core", field_name="Electrons"):
         device = "MyDevice"
-        return devsim.get_node_model_values(
-            device=device, region=region_name, name=field_name
-        )
+        return devsim.get_node_model_values(device=device, region=region_name, name=field_name)
 
     def save_device(self, filepath) -> None:
         """Save Device to a tecplot filepath that you can open with Paraview."""
@@ -526,9 +497,7 @@ class PINWaveguide(BaseModel):
                 slab_thickness=self.slab_thickness / um,
                 box_thickness=box_thickness,
                 clad_thickness=clad_thickness,
-                side_margin=max(
-                    self.ppp_offset + self.xmargin, self.npp_offset + self.xmargin
-                )
+                side_margin=max(self.ppp_offset + self.xmargin, self.npp_offset + self.xmargin)
                 / um,
                 grid_resolution=grid_resolution,
                 precision=precision,
@@ -544,10 +513,7 @@ class PINWaveguide(BaseModel):
             slab_thickness=self.slab_thickness / um,
             box_thickness=box_thickness,
             clad_thickness=clad_thickness,
-            side_margin=max(
-                self.ppp_offset + self.xmargin, self.npp_offset + self.xmargin
-            )
-            / um,
+            side_margin=max(self.ppp_offset + self.xmargin, self.npp_offset + self.xmargin) / um,
             grid_resolution=grid_resolution,
             precision=precision,
             core_material=core_material,
@@ -564,12 +530,8 @@ class PINWaveguide(BaseModel):
         mat_dtype = np.float64 if precision == "double" else np.float32
 
         for region_name in ["core", "slab"]:
-            x_fem.append(
-                np.array(self.get_field(region_name=region_name, field_name="x"))
-            )
-            y_fem.append(
-                np.array(self.get_field(region_name=region_name, field_name="y"))
-            )
+            x_fem.append(np.array(self.get_field(region_name=region_name, field_name="x")))
+            y_fem.append(np.array(self.get_field(region_name=region_name, field_name="y")))
             dN_fem.append(
                 np.array(
                     self.get_field(region_name=region_name, field_name="Electrons"),
@@ -680,10 +642,7 @@ class PINWaveguide(BaseModel):
             slab_thickness=self.slab_thickness / um,
             box_thickness=box_thickness,
             clad_thickness=clad_thickness,
-            side_margin=max(
-                self.ppp_offset + self.xmargin, self.npp_offset + self.xmargin
-            )
-            / um,
+            side_margin=max(self.ppp_offset + self.xmargin, self.npp_offset + self.xmargin) / um,
             grid_resolution=grid_resolution,
             precision=precision,
             core_material=core_material_pertub,

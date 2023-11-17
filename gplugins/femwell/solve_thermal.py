@@ -45,16 +45,14 @@ def get_thermal_conductivities(basis):
         # adding the layer to the thermal_conductivities dict. Check for that
         # case
         if domain in thermal_conductivities:
-            thermal_conductivity[
-                basis.get_dofs(elements=domain)
-            ] = thermal_conductivities[domain]
+            thermal_conductivity[basis.get_dofs(elements=domain)] = thermal_conductivities[domain]
         else:
             for material, labels in materials_dict.items():
                 if domain in labels:
                     # Assign the right values
-                    thermal_conductivity[
-                        basis.get_dofs(elements=domain)
-                    ] = thermal_conductivities[material]
+                    thermal_conductivity[basis.get_dofs(elements=domain)] = thermal_conductivities[
+                        material
+                    ]
                     break
 
     thermal_conductivity *= 1e-12  # 1e-12 -> conversion from 1/m^2 -> 1/um^2
@@ -78,9 +76,7 @@ if __name__ == "__main__":
     heater_width = 2
     heater_res = heater_len * sheet_resistance_TiN / heater_width
 
-    c = heater = gf.components.straight_heater_metal(
-        length=50, heater_width=heater_width
-    )
+    c = heater = gf.components.straight_heater_metal(length=50, heater_width=heater_width)
     heater.show()
 
     # ====== MESH =====

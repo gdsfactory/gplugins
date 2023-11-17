@@ -76,14 +76,10 @@ def derived_layer_sized(layer_new: str, layer_old: str, size: int | float) -> st
     return f"{layer_new} = {layer_old}.size({size})"
 
 
-def derived_layer_boolean(
-    layer_new: str, layer1: str, operation: str, layer2: str
-) -> str:
+def derived_layer_boolean(layer_new: str, layer1: str, operation: str, layer2: str) -> str:
     """Returns a derived layer operation of a layer by value."""
     if operation not in valid_operations:
-        raise ValueError(
-            f"operation {operation} not in {list(valid_operations.keys())}"
-        )
+        raise ValueError(f"operation {operation} not in {list(valid_operations.keys())}")
     operation = valid_operations[operation]
     return f"{layer_new} = {layer1} {operation} {layer2}"
 
@@ -109,9 +105,7 @@ def layer_and(layer_out: str, layer1: str, layer2: str) -> str:
     return f"{layer_out} = {layer1} & {layer2}"
 
 
-def check_not_inside(
-    layer: str, not_inside: str, size: int | float | None = None
-) -> str:
+def check_not_inside(layer: str, not_inside: str, size: int | float | None = None) -> str:
     """Checks for that a layer is not inside another layer.
 
     Args:
@@ -143,8 +137,7 @@ def check_width(value: float | int, layer: str, angle_limit: float = 90.0) -> st
     category = "width"
     error = f"{layer} {category} {value}um"
     return (
-        f"{layer}.{category}({value}, angle_limit({angle_limit}))"
-        f".output({error!r}, {error!r})"
+        f"{layer}.{category}({value}, angle_limit({angle_limit}))" f".output({error!r}, {error!r})"
     )
 
 
@@ -158,8 +151,7 @@ def check_space(value: float | int, layer: str, angle_limit: float = 90.0) -> st
     category = "space"
     error = f"{layer} {category} {value}um"
     return (
-        f"{layer}.{category}({value}, angle_limit({angle_limit}))"
-        f".output({error!r}, {error!r})"
+        f"{layer}.{category}({value}, angle_limit({angle_limit}))" f".output({error!r}, {error!r})"
     )
 
 
@@ -175,9 +167,7 @@ def check_separation(value: float | int, layer1: str, layer2: str) -> str:
     return f"{layer1}.separation({layer2}, {value}).output({error!r}, {error!r})"
 
 
-def check_enclosing(
-    value: float | int, layer1: str, layer2: str, angle_limit: float = 90.0
-) -> str:
+def check_enclosing(value: float | int, layer1: str, layer2: str, angle_limit: float = 90.0) -> str:
     """Checks if layer1 encloses (is bigger than) layer2 by value.
 
     Args:

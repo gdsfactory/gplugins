@@ -201,9 +201,7 @@ def write_sparameters_meep_mpi(
         from gplugins.common.utils.async_helpers import execute_and_stream_output
 
         asyncio.run(
-            execute_and_stream_output(
-                command, log_file_dir=temp_dir, log_file_str=temp_file_str
-            )
+            execute_and_stream_output(command, log_file_dir=temp_dir, log_file_str=temp_file_str)
         )
     else:
         with subprocess.Popen(

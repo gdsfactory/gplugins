@@ -21,9 +21,7 @@ def round_coordinates(geom, ndigits=4):
     return shapely.ops.transform(_round_coords, geom)
 
 
-def fuse_polygons(
-    component, layername, layer, round_tol=4, simplify_tol=1e-4, offset_tol=None
-):
+def fuse_polygons(component, layername, layer, round_tol=4, simplify_tol=1e-4, offset_tol=None):
     """Take all polygons from a layer, and returns a single (Multi)Polygon shapely object."""
 
     layer_component = component.extract([layer])
@@ -38,9 +36,7 @@ def fuse_polygons(
         for polygon in layer_component.get_polygons()
     ]
 
-    return shapely.ops.unary_union(shapely_polygons).simplify(
-        simplify_tol, preserve_topology=True
-    )
+    return shapely.ops.unary_union(shapely_polygons).simplify(simplify_tol, preserve_topology=True)
 
 
 def cleanup_component(component, layer_stack, round_tol=2, simplify_tol=1e-2):
@@ -80,21 +76,15 @@ def tile_shapes(shapes_dict):
     """Break up shapes in order so that plane is tiled with non-overlapping layers."""
     shapes_tiled_dict = {}
 
-    for lower_index, (lower_name, lower_shapes) in reversed(
-        list(enumerate(shapes_dict.items()))
-    ):
+    for lower_index, (lower_name, lower_shapes) in reversed(list(enumerate(shapes_dict.items()))):
         tiled_lower_shapes = []
-        for lower_shape in (
-            lower_shapes.geoms if hasattr(lower_shapes, "geoms") else [lower_shapes]
-        ):
+        for lower_shape in lower_shapes.geoms if hasattr(lower_shapes, "geoms") else [lower_shapes]:
             diff_shape = lower_shape
             for _higher_index, (_higher_name, higher_shapes) in reversed(
                 list(enumerate(shapes_dict.items()))[:lower_index]
             ):
                 for higher_shape in (
-                    higher_shapes.geoms
-                    if hasattr(higher_shapes, "geoms")
-                    else [higher_shapes]
+                    higher_shapes.geoms if hasattr(higher_shapes, "geoms") else [higher_shapes]
                 ):
                     diff_shape = diff_shape.difference(higher_shape)
             tiled_lower_shapes.append(diff_shape)
@@ -102,9 +92,7 @@ def tile_shapes(shapes_dict):
             "Polygon",
             "MultiPolygon",
         ]:
-            shapes_tiled_dict[lower_name] = MultiPolygon(
-                to_polygons(tiled_lower_shapes)
-            )
+            shapes_tiled_dict[lower_name] = MultiPolygon(to_polygons(tiled_lower_shapes))
         else:
             shapes_tiled_dict[lower_name] = MultiLineString(tiled_lower_shapes)
 

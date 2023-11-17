@@ -54,9 +54,7 @@ rules = [
     check_separation(layer1="HEATER", layer2="M1", value=1.0),
     check_enclosing(layer1="M1", layer2="VIAC", value=0.2),
     check_area(layer="WG", min_area_um2=0.05),
-    check_density(
-        layer="WG", layer_floorplan="FLOORPLAN", min_density=0.5, max_density=0.6
-    ),
+    check_density(layer="WG", layer_floorplan="FLOORPLAN", min_density=0.5, max_density=0.6),
 ]
 
 drc_check_deck = write_drc_deck_macro(
@@ -160,9 +158,7 @@ import gplugins.klayout.drc.write_connectivity as wc
 
 nm = 1e-3
 
-rules = [
-    wc.write_connectivity_checks(pin_widths=[0.5, 0.9, 0.45], pin_layer=LAYER.PORT)
-]
+rules = [wc.write_connectivity_checks(pin_widths=[0.5, 0.9, 0.45], pin_layer=LAYER.PORT)]
 script = wc.write_drc_deck_macro(rules=rules, layers=None)
 
 
@@ -172,9 +168,7 @@ script = wc.write_drc_deck_macro(rules=rules, layers=None)
 # %%
 connectivity_checks = [
     wc.ConnectivyCheck(cross_section="xs_sc", pin_length=1 * nm, pin_layer=(1, 10)),
-    wc.ConnectivyCheck(
-        cross_section="xs_sc_auto_widen", pin_length=1 * nm, pin_layer=(1, 10)
-    ),
+    wc.ConnectivyCheck(cross_section="xs_sc_auto_widen", pin_length=1 * nm, pin_layer=(1, 10)),
 ]
 rules = [
     wc.write_connectivity_checks_per_section(connectivity_checks=connectivity_checks),

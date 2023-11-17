@@ -242,9 +242,7 @@ def get_simulation(
     if material_name_to_tidy3d:
         clad_material_spec = material_name_to_tidy3d[clad_material]
     else:
-        clad_material_spec = (
-            clad_material(wavelength) if callable(clad_material) else clad_material
-        )
+        clad_material_spec = clad_material(wavelength) if callable(clad_material) else clad_material
 
     clad = td.Structure(
         geometry=td.Box(
@@ -259,9 +257,7 @@ def get_simulation(
         raise ValueError(f"{component.get_layers()} not in {layer_to_thickness.keys()}")
 
     t_core = max(layer_to_thickness.values())
-    cell_thickness = (
-        thickness_pml + t_core + thickness_pml + 2 * zmargin if is_3d else 0
-    )
+    cell_thickness = thickness_pml + t_core + thickness_pml + 2 * zmargin if is_3d else 0
 
     sim_size = [
         component_ref.xsize + 2 * thickness_pml,
@@ -288,16 +284,12 @@ def get_simulation(
                 )
             else:
                 material_index = (
-                    material_name(wavelength)
-                    if callable(material_name)
-                    else material_name
+                    material_name(wavelength) if callable(material_name) else material_name
                 )
                 medium = get_medium(material_index)
 
             sidewall_angle_deg = (
-                layer_to_sidewall_angle[layer]
-                if sidewall_angle_deg is None
-                else sidewall_angle_deg
+                layer_to_sidewall_angle[layer] if sidewall_angle_deg is None else sidewall_angle_deg
             )
 
             polygons = td.PolySlab.from_gds(
@@ -396,21 +388,15 @@ def get_simulation(
     if plot_modes:
         mode_spec = td.ModeSpec(num_modes=num_modes)
         src_plane = td.Box(center=source_center_offset, size=source_size)
-        ms = ModeSolver(
-            simulation=sim, plane=src_plane, freqs=[freq0], mode_spec=mode_spec
-        )
+        ms = ModeSolver(simulation=sim, plane=src_plane, freqs=[freq0], mode_spec=mode_spec)
         modes = ms.solve()
         print("Effective index of computed modes: ", np.array(modes.n_eff))
 
         if is_3d:
             fig, axs = plt.subplots(num_modes, 2, figsize=(12, 12), tight_layout=True)
             for mode_ind in range(num_modes):
-                ms.plot_field(
-                    "Ey", "abs", f=freq0, mode_index=mode_ind, ax=axs[mode_ind, 0]
-                )
-                ms.plot_field(
-                    "Ez", "abs", f=freq0, mode_index=mode_ind, ax=axs[mode_ind, 1]
-                )
+                ms.plot_field("Ey", "abs", f=freq0, mode_index=mode_ind, ax=axs[mode_ind, 0])
+                ms.plot_field("Ez", "abs", f=freq0, mode_index=mode_ind, ax=axs[mode_ind, 1])
                 axs[mode_ind, 0].set_title(f"|Ey|: mode_index={mode_ind}")
                 axs[mode_ind, 1].set_title(f"|Ez|: mode_index={mode_ind}")
         else:

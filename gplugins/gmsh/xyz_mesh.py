@@ -105,9 +105,7 @@ def define_prisms(
             coords * buffered_layer_stack.layers[layername].thickness * scale_factor
             + buffered_layer_stack.layers[layername].zmin * scale_factor
         )
-        buffers = (
-            np.array(buffered_layer_stack.layers[layername].z_to_bias[1]) * scale_factor
-        )
+        buffers = np.array(buffered_layer_stack.layers[layername].z_to_bias[1]) * scale_factor
 
         buffer_dict = dict(zip(zs, buffers))
 
@@ -208,9 +206,7 @@ def xyz_mesh(
 
     # Fuse and cleanup polygons of same layer in case user overlapped them
     # TODO: some duplication with union above, although this also does some useful offsetting
-    layer_polygons_dict = cleanup_component(
-        component, layer_stack, round_tol, simplify_tol
-    )
+    layer_polygons_dict = cleanup_component(component, layer_stack, round_tol, simplify_tol)
 
     # Add background polygon
     if background_tag is not None:
@@ -251,9 +247,7 @@ def xyz_mesh(
             | {
                 background_tag: LayerLevel(
                     layer=(9999, 0),  # TODO something like LAYERS.BACKGROUND?
-                    thickness=(
-                        (zmax + background_padding[5]) - (zmin - background_padding[2])
-                    )
+                    thickness=((zmax + background_padding[5]) - (zmin - background_padding[2]))
                     * global_scaling_premesh,
                     zmin=(zmin - background_padding[2]) * global_scaling_premesh,
                     material=background_tag,

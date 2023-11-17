@@ -83,12 +83,7 @@ def D(
     Dip = diffusion_in_silicon[dopant]["D0+"] * np.exp(
         -1 * diffusion_in_silicon[dopant]["Ea+"] / (kB * T_kelvin)
     )
-    return (
-        Di0
-        + Din * n / ni(T_kelvin)
-        + Dinn * (n / ni(T_kelvin)) ** 2
-        + Dip * p / ni(T_kelvin)
-    )
+    return Di0 + Din * n / ni(T_kelvin) + Dinn * (n / ni(T_kelvin)) ** 2 + Dip * p / ni(T_kelvin)
 
 
 def silicon_diffused_gaussian_profile(

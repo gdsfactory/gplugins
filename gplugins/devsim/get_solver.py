@@ -163,19 +163,13 @@ class DDComponent:
         # Set up the contacts applying a bias
         for i in get_contact_list(device=device):
             if circuit_contacts and i in circuit_contacts:
-                simple_physics.CreateSiliconPotentialOnlyContact(
-                    device, region, i, True
-                )
+                simple_physics.CreateSiliconPotentialOnlyContact(device, region, i, True)
             else:
                 # it is more correct for the bias to be 0, and it looks like there is side effects
-                set_parameter(
-                    device=device, name=simple_physics.GetContactBiasName(i), value=0.0
-                )
+                set_parameter(device=device, name=simple_physics.GetContactBiasName(i), value=0.0)
                 simple_physics.CreateSiliconPotentialOnlyContact(device, region, i)
 
-    def drift_diffusion_initial_solution(
-        self, device, region, circuit_contacts=None
-    ) -> None:
+    def drift_diffusion_initial_solution(self, device, region, circuit_contacts=None) -> None:
         # drift diffusion solution variables
         model_create.CreateSolution(device, region, "Electrons")
         model_create.CreateSolution(device, region, "Holes")
@@ -187,17 +181,13 @@ class DDComponent:
             name="Electrons",
             init_from="IntrinsicElectrons",
         )
-        set_node_values(
-            device=device, region=region, name="Holes", init_from="IntrinsicHoles"
-        )
+        set_node_values(device=device, region=region, name="Holes", init_from="IntrinsicHoles")
 
         # Set up equations
         simple_physics.CreateSiliconDriftDiffusion(device, region)
         for i in get_contact_list(device=device):
             if circuit_contacts and i in circuit_contacts:
-                simple_physics.CreateSiliconDriftDiffusionAtContact(
-                    device, region, i, True
-                )
+                simple_physics.CreateSiliconDriftDiffusionAtContact(device, region, i, True)
             else:
                 simple_physics.CreateSiliconDriftDiffusionAtContact(device, region, i)
 
@@ -227,9 +217,7 @@ class DDComponent:
             self.drift_diffusion_initial_solution(device=device, region=region)
 
         for interface in get_interface_list(device=device):
-            simple_physics.CreateSiliconSiliconInterface(
-                device=device, interface=interface
-            )
+            simple_physics.CreateSiliconSiliconInterface(device=device, interface=interface)
 
         self.save_device("debug.dat")
 
@@ -264,12 +252,8 @@ class DDComponent:
 
         From https://github.com/devsim/devsim_misc/blob/9a3c7056e0e3e7fc49e17031a706573350292d4d/refinement/refinement2.py#L45
         """
-        if "node_index@n0" not in get_edge_model_list(
-            device=self.device, region=region_name
-        ):
-            edge_from_node_model(
-                node_model="node_index", device=self.device, region=region_name
-            )
+        if "node_index@n0" not in get_edge_model_list(device=self.device, region=region_name):
+            edge_from_node_model(node_model="node_index", device=self.device, region=region_name)
         return list(
             zip(
                 [
@@ -292,9 +276,7 @@ class DDComponent:
         )
 
     def get_node_field(self, region_name, field_name="Electrons"):
-        return get_node_model_values(
-            device=self.device, region=region_name, name=field_name
-        )
+        return get_node_model_values(device=self.device, region=region_name, name=field_name)
 
     def get_mean_edge_from_node_field(self, region_name, node_field="x"):
         edge_average_model(
@@ -309,9 +291,7 @@ class DDComponent:
         )
 
     def get_edge_field(self, region_name, field_name="EdgeLength"):
-        return get_edge_model_values(
-            device=self.device, region=region_name, name=field_name
-        )
+        return get_edge_model_values(device=self.device, region=region_name, name=field_name)
 
     def get_regions(self):
         return get_region_list(device=self.device)
@@ -359,15 +339,9 @@ class DDComponent:
         for regiontype, region_names in c.regions.items():
             for regionname in region_names:
                 if regiontype in refine_regions:
-                    xs[regionname] = np.array(
-                        c.get_mean_edge_from_node_field(regionname, "x")
-                    )
-                    ys[regionname] = np.array(
-                        c.get_mean_edge_from_node_field(regionname, "y")
-                    )
-                    lcs[regionname] = c.get_edge_field(
-                        regionname, field_name="EdgeLength"
-                    )
+                    xs[regionname] = np.array(c.get_mean_edge_from_node_field(regionname, "x"))
+                    ys[regionname] = np.array(c.get_mean_edge_from_node_field(regionname, "y"))
+                    lcs[regionname] = c.get_edge_field(regionname, field_name="EdgeLength")
                     node_index = c.get_node_index(region_name=regionname)
 
                     refinements = []
@@ -392,10 +366,7 @@ class DDComponent:
         um_to_cm = 1e-4
         xs = np.hstack([np.array(x) for x in xs.values()], dtype=np.float64) / um_to_cm
         ys = np.hstack([np.array(y) for y in ys.values()], dtype=np.float64) / um_to_cm
-        lcs = (
-            np.hstack([np.array(lc) for lc in lcs.values()], dtype=np.float64)
-            / um_to_cm
-        )
+        lcs = np.hstack([np.array(lc) for lc in lcs.values()], dtype=np.float64) / um_to_cm
         refine = np.hstack([np.array(x) for x in refine.values()], dtype=bool)
 
         lcs_after = np.where(refine, lcs / factor, lcs)
@@ -447,9 +418,7 @@ if __name__ == "__main__":
     NPP_location = waveguide.extract(layermap.NPP)
     PPP_location = waveguide.extract(layermap.PPP)
     waveguide.add_ref(
-        gf.geometry.boolean(
-            via_contact_locations, NPP_location, operation="AND", layer=anode_layer
-        )
+        gf.geometry.boolean(via_contact_locations, NPP_location, operation="AND", layer=anode_layer)
     )
     waveguide.add_ref(
         gf.geometry.boolean(

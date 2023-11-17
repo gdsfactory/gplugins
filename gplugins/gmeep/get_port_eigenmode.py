@@ -128,24 +128,12 @@ def get_port_2Dx_eigenmode(
     H = np.zeros([ny, nz, 1, 3], dtype=np.cdouble)
     for i in range(ny):
         for j in range(nz):
-            E[i, j, 0, 0] = eigenmode.amplitude(
-                mp.Vector3(center.x, yy[i, j], zz[i, j]), mp.Ex
-            )
-            E[i, j, 0, 1] = eigenmode.amplitude(
-                mp.Vector3(center.x, yy[i, j], zz[i, j]), mp.Ey
-            )
-            E[i, j, 0, 2] = eigenmode.amplitude(
-                mp.Vector3(center.x, yy[i, j], zz[i, j]), mp.Ez
-            )
-            H[i, j, 0, 0] = eigenmode.amplitude(
-                mp.Vector3(center.x, yy[i, j], zz[i, j]), mp.Hx
-            )
-            H[i, j, 0, 1] = eigenmode.amplitude(
-                mp.Vector3(center.x, yy[i, j], zz[i, j]), mp.Hy
-            )
-            H[i, j, 0, 2] = eigenmode.amplitude(
-                mp.Vector3(center.x, yy[i, j], zz[i, j]), mp.Hz
-            )
+            E[i, j, 0, 0] = eigenmode.amplitude(mp.Vector3(center.x, yy[i, j], zz[i, j]), mp.Ex)
+            E[i, j, 0, 1] = eigenmode.amplitude(mp.Vector3(center.x, yy[i, j], zz[i, j]), mp.Ey)
+            E[i, j, 0, 2] = eigenmode.amplitude(mp.Vector3(center.x, yy[i, j], zz[i, j]), mp.Ez)
+            H[i, j, 0, 0] = eigenmode.amplitude(mp.Vector3(center.x, yy[i, j], zz[i, j]), mp.Hx)
+            H[i, j, 0, 1] = eigenmode.amplitude(mp.Vector3(center.x, yy[i, j], zz[i, j]), mp.Hy)
+            H[i, j, 0, 2] = eigenmode.amplitude(mp.Vector3(center.x, yy[i, j], zz[i, j]), mp.Hz)
 
     return Mode(
         mode_number=band_num,

@@ -21,9 +21,7 @@ def bufferize(layer_stack: LayerStack):
             if layer.sidewall_angle is None:
                 layer.z_to_bias = ([0, 1], [0, 0])
             else:
-                buffer_magnitude = layer.thickness * np.tan(
-                    np.radians(layer.sidewall_angle)
-                )
+                buffer_magnitude = layer.thickness * np.tan(np.radians(layer.sidewall_angle))
                 layer.z_to_bias = (
                     (
                         [0, layer.width_to_z, 1],
@@ -64,9 +62,7 @@ def process_buffers(layer_polygons_dict: dict, layer_stack: LayerStack):
             for poly_ind, polygon in enumerate(
                 polygons.geoms if hasattr(polygons, "geoms") else [polygons]
             ):
-                for z_ind, (z, width_buffer) in enumerate(
-                    zip(zs[:-1], width_buffers[:-1])
-                ):
+                for z_ind, (z, width_buffer) in enumerate(zip(zs[:-1], width_buffers[:-1])):
                     new_zmin = (
                         layer_stack.layers[layername].zmin
                         + layer_stack.layers[layername].thickness * z
@@ -75,9 +71,7 @@ def process_buffers(layer_polygons_dict: dict, layer_stack: LayerStack):
                         layer_stack.layers[layername].thickness * zs[z_ind + 1]
                         - layer_stack.layers[layername].thickness * z
                     )
-                    extended_layer_stack_layers[
-                        f"{layername}_{poly_ind}_{z}"
-                    ] = LayerLevel(
+                    extended_layer_stack_layers[f"{layername}_{poly_ind}_{z}"] = LayerLevel(
                         layer=layer_stack.layers[layername].layer,
                         thickness=new_thickness,
                         zmin=new_zmin,
@@ -91,9 +85,7 @@ def process_buffers(layer_polygons_dict: dict, layer_stack: LayerStack):
                         polygon.buffer(width_buffer),
                         polygon.buffer(width_buffers[z_ind + 1]),
                     )
-                extended_layer_stack_layers[
-                    f"{layername}_{poly_ind}_{zs[-1]}"
-                ] = LayerLevel(
+                extended_layer_stack_layers[f"{layername}_{poly_ind}_{zs[-1]}"] = LayerLevel(
                     layer=layer_stack.layers[layername].layer,
                     thickness=0,
                     zmin=layer_stack.layers[layername].zmin
@@ -129,10 +121,7 @@ def buffers_to_lists(layer_polygons_dict: dict, layer_stack: LayerStack):
             polygons_list = [
                 (
                     z
-                    * (
-                        layer_stack.layers[layername].zmin
-                        + layer_stack.layers[layername].thickness
-                    )
+                    * (layer_stack.layers[layername].zmin + layer_stack.layers[layername].thickness)
                     + layer_stack.layers[layername].zmin,
                     scale(polygon, xfact=xfactor, yfact=yfactor),
                 )
@@ -154,9 +143,7 @@ def merge_by_material_func(layer_polygons_dict: dict, layer_stack: LayerStack):
         material = layer_stack.layers[layername].material
         if material in merged_layer_polygons_dict:
             merged_layer_polygons_dict[material] = unary_union(
-                MultiPolygon(
-                    to_polygons([merged_layer_polygons_dict[material], polygons])
-                )
+                MultiPolygon(to_polygons([merged_layer_polygons_dict[material], polygons]))
             )
         else:
             merged_layer_polygons_dict[material] = polygons

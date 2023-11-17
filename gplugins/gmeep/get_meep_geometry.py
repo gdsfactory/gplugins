@@ -158,8 +158,6 @@ if __name__ == "__main__":
     import gplugins.gmeep as gm
 
     c = gf.components.taper_strip_to_ridge_trenches()
-    sp = gm.write_sparameters_meep(
-        c, run=False, ymargin_top=3, ymargin_bot=3, is_3d=True
-    )
+    sp = gm.write_sparameters_meep(c, run=False, ymargin_top=3, ymargin_bot=3, is_3d=True)
     plt.show()
     # c.show(show_ports=True)

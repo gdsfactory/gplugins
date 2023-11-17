@@ -44,9 +44,7 @@ from gplugins.common.config import PATH
 print(gt.materials.MaterialSpecTidy3d)
 
 # %%
-gt.materials.get_index(
-    3.4
-)  # get the index of a material with a given refractive index float
+gt.materials.get_index(3.4)  # get the index of a material with a given refractive index float
 
 # %%
 # get the index of a material with a name string, for the case that the refractive index has only one variant
@@ -239,9 +237,7 @@ fig = gt.plot_simulation(s)
 
 # %%
 # sp = gt.write_sparameters_1x1(c)
-sp = np.load(
-    PATH.sparameters_repo / "bend_circular_radius2_9d7742b34c224827aeae808dc986308e.npz"
-)
+sp = np.load(PATH.sparameters_repo / "bend_circular_radius2_9d7742b34c224827aeae808dc986308e.npz")
 plot.plot_sparameters(sp)
 
 # %%
@@ -314,9 +310,7 @@ plot.plot_imbalance2x2(sp)
 help(gt.get_simulation_grating_coupler)
 
 # %%
-c = (
-    gf.components.grating_coupler_elliptical_lumerical()
-)  # inverse design grating apodized
+c = gf.components.grating_coupler_elliptical_lumerical()  # inverse design grating apodized
 fiber_angle_deg = 5
 s = gt.get_simulation_grating_coupler(
     c, is_3d=False, fiber_angle_deg=fiber_angle_deg, fiber_xoffset=0
@@ -380,9 +374,7 @@ for offset in offsets:
         fiber_xoffset=offset,
         filepath=PATH.sparameters_repo / f"gc_offset{offset}",
     )
-    plt.plot(
-        sp["wavelengths"], 20 * np.log10(np.abs(sp["o2@0,o1@0"])), label=str(offset)
-    )
+    plt.plot(sp["wavelengths"], 20 * np.log10(np.abs(sp["o2@0,o1@0"])), label=str(offset))
 
 plt.xlabel("wavelength (um")
 plt.ylabel("Transmission (dB)")
@@ -424,9 +416,7 @@ plt.title("transmission vs fiber angle (degrees)")
 plt.legend()
 
 # %%
-c = gf.components.grating_coupler_elliptical_arbitrary(
-    widths=[0.343] * 25, gaps=[0.345] * 25
-)
+c = gf.components.grating_coupler_elliptical_arbitrary(widths=[0.343] * 25, gaps=[0.345] * 25)
 f = c.plot()
 
 # %%

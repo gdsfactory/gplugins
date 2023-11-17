@@ -23,9 +23,7 @@ class MeowEMEModel(Model):
         eme = MEOW(
             component=input_component,
             layer_stack=input_layer_stack,
-            wavelength=float(input_dict["wavelength"])
-            if "wavelength" in input_dict
-            else 1.55,
+            wavelength=float(input_dict["wavelength"]) if "wavelength" in input_dict else 1.55,
             num_modes=int(self.simulation_settings["num_eme_modes"])
             if "num_eme_modes" in input_dict
             else 4,
@@ -44,9 +42,7 @@ class MeowEMEModel(Model):
             spacing_y=float(self.simulation_settings["spacing_y"])
             if "spacing_y" in input_dict
             else 1,
-            overwrite=self.simulation_settings["overwrite"]
-            if "overwrite" in input_dict
-            else False,
+            overwrite=self.simulation_settings["overwrite"] if "overwrite" in input_dict else False,
         )
         return eme.compute_sparameters()
 
@@ -97,9 +93,7 @@ if __name__ == "__main__":
         },
         trainable_parameters={
             "length": NamedParameter(min_value=5, max_value=6, nominal_value=6, step=1),
-            "width2": NamedParameter(
-                min_value=1.0, max_value=1.0, nominal_value=1.0, step=1.0
-            ),
+            "width2": NamedParameter(min_value=1.0, max_value=1.0, nominal_value=1.0, step=1.0),
             "wavelength": NamedParameter(
                 min_value=1.545, max_value=1.555, nominal_value=1.55, step=0.005
             ),

@@ -255,9 +255,7 @@ def get_simulation_grating_coupler(
             fiber_port_name = port_name
 
     if fiber_port_name is None:
-        raise ValueError(
-            f"No port named {fiber_port_prefix!r} in {component.ports.keys()}"
-        )
+        raise ValueError(f"No port named {fiber_port_prefix!r} in {component.ports.keys()}")
     add_padding_custom = partial(
         add_padding,
         default=0,
@@ -294,9 +292,7 @@ def get_simulation_grating_coupler(
 
     core_thickness = max(layer_to_thickness.values())
     sim_xsize = component_ref.xsize + 2 * thickness_pml
-    sim_zsize = (
-        thickness_pml + box_thickness + core_thickness + thickness_pml + 2 * zmargin
-    )
+    sim_zsize = thickness_pml + box_thickness + core_thickness + thickness_pml + 2 * zmargin
     sim_ysize = component_ref.ysize + 2 * thickness_pml if is_3d else 0
     sim_size = [
         sim_xsize,
@@ -310,16 +306,10 @@ def get_simulation_grating_coupler(
         box_material_spec = material_name_to_tidy3d[box_material]
         substrate_material_spec = material_name_to_tidy3d[substrate_material]
     else:
-        clad_material_spec = (
-            clad_material(wavelength) if callable(clad_material) else clad_material
-        )
-        box_material_spec = (
-            box_material(wavelength) if callable(box_material) else box_material
-        )
+        clad_material_spec = clad_material(wavelength) if callable(clad_material) else clad_material
+        box_material_spec = box_material(wavelength) if callable(box_material) else box_material
         substrate_material_spec = (
-            substrate_material(wavelength)
-            if callable(substrate_material)
-            else substrate_material
+            substrate_material(wavelength) if callable(substrate_material) else substrate_material
         )
 
     clad = td.Structure(
@@ -367,9 +357,7 @@ def get_simulation_grating_coupler(
 
             else:
                 material_index = (
-                    material_name(wavelength)
-                    if callable(material_name)
-                    else material_name
+                    material_name(wavelength) if callable(material_name) else material_name
                 )
                 medium = get_medium(material_index)
 
@@ -465,9 +453,7 @@ def get_simulation_grating_coupler(
     )
 
     monitors = [waveguide_monitor]
-    monitors += (
-        [plane_monitor, rad_monitor, near_field_monitor] if with_all_monitors else []
-    )
+    monitors += [plane_monitor, rad_monitor, near_field_monitor] if with_all_monitors else []
 
     sim = td.Simulation(
         size=sim_size,

@@ -37,9 +37,7 @@ nm = 1e-3
 print(gt.materials.MaterialSpecTidy3d)
 
 # %%
-gt.materials.get_index(
-    3.4
-)  # get the index of a material with a given refractive index float
+gt.materials.get_index(3.4)  # get the index of a material with a given refractive index float
 
 # %%
 # get the index of a material with a name string, for the case that the refractive index has only one variant
@@ -157,9 +155,7 @@ fraction_te = gt.modes.sweep_fraction_te(strip, core_width=w)
 
 for i in range(4):
     plt.plot(w, n_eff.sel(mode_index=i).real, c="k")
-    plt.scatter(
-        w, n_eff.sel(mode_index=i).real, c=fraction_te.sel(mode_index=i), vmin=0, vmax=1
-    )
+    plt.scatter(w, n_eff.sel(mode_index=i).real, c=fraction_te.sel(mode_index=i), vmin=0, vmax=1)
 plt.axhline(y=1.44, color="k", ls="--")
 plt.colorbar().set_label("TE fraction")
 plt.xlabel("Width of waveguide (µm)")

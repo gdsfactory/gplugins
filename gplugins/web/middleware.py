@@ -36,9 +36,7 @@ class ProxiedHeadersMiddleware:
         Map X-Forwarded-Host to host and X-Forwarded-Prefix to prefix.
 
         """
-        upgrade = len(
-            [q for p, q in source if "connection" in str(p) and "upgrade" in str(q)]
-        )
+        upgrade = len([q for p, q in source if "connection" in str(p) and "upgrade" in str(q)])
 
         source = dict(source)
         if upgrade:  # resolve conflict with priority of upgrade

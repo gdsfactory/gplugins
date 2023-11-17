@@ -25,9 +25,7 @@ def get_ports(line: str) -> tuple[str, str]:
     return port1, port2
 
 
-def read_sparameters_file(
-    filepath, numports: int
-) -> tuple[tuple[str, ...], np.array, np.ndarray]:
+def read_sparameters_file(filepath, numports: int) -> tuple[tuple[str, ...], np.array, np.ndarray]:
     r"""Returns Sparameters from Lumerical interconnect export file.
 
     Args:

@@ -35,9 +35,7 @@ class SiO2:
 
         # Default semiconductor data
         self.semiconductor = SemiconductorMaterial(self.ureg)
-        self.semiconductor.epsStatic = (
-            3.8  # https://www.iue.tuwien.ac.at/phd/filipovic/node26.html
-        )
+        self.semiconductor.epsStatic = 3.8  # https://www.iue.tuwien.ac.at/phd/filipovic/node26.html
 
 
 if __name__ == "__main__":

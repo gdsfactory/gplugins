@@ -16,9 +16,7 @@ from gplugins.klayout.netlist_spice_reader import NoCommentReader
         ),
     ],
 )
-def test_NoCommentReader(
-    s: str, element: str, expected_name: str, expected_nets: set[str]
-) -> None:
+def test_NoCommentReader(s: str, element: str, expected_name: str, expected_nets: set[str]) -> None:
     reader = NoCommentReader()
     parsed = reader.parse_element(s, element)
     assert set(parsed.net_names) == expected_nets

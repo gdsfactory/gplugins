@@ -332,9 +332,7 @@ def write_sparameters_grating_batch(
 
     if verbosity:
         print(f"Running parallel simulations over {num_tasks} instances")
-        print(
-            f"Using a total of {total_cores} cores with {cores_per_instance} cores per instance"
-        )
+        print(f"Using a total of {total_cores} cores with {cores_per_instance} cores per instance")
         print(
             f"Tasks split amongst {num_pools} pools with up to {instances_per_pool} instances each."
         )

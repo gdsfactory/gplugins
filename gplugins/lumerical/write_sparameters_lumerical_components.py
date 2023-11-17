@@ -36,9 +36,7 @@ def write_sparameters_lumerical_components(
         component = gf.get_component(component)
         write_sparameters_lumerical(component, run=run, session=session, **kwargs)
         if not run:
-            response = input(
-                f"does the simulation for {component.name} look good? (y/n)"
-            )
+            response = input(f"does the simulation for {component.name} look good? (y/n)")
             if response.upper()[0] == "N":
                 need_review.append(component.name)
 

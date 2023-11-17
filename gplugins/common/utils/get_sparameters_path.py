@@ -46,11 +46,7 @@ def _get_sparameters_path(
     component = gf.get_component(component)
 
     dirpath = pathlib.Path(dirpath)
-    dirpath = (
-        dirpath / component.function_name
-        if hasattr(component, "function_name")
-        else dirpath
-    )
+    dirpath = dirpath / component.function_name if hasattr(component, "function_name") else dirpath
 
     component_hash = get_component_hash(component)
     kwargs_hash = get_kwargs_hash(**kwargs)

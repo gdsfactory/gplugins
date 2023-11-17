@@ -45,9 +45,7 @@ def test_different_pin_lengths() -> None:
 # Tests that the function raises an error with an invalid pin layer
 def test_invalid_pin_layer() -> None:
     with pytest.raises(ValueError):
-        write_connectivity_checks(
-            pin_widths=[0.5, 0.9, 0.45], pin_layer="wrong_layer_name"
-        )
+        write_connectivity_checks(pin_widths=[0.5, 0.9, 0.45], pin_layer="wrong_layer_name")
 
 
 # Tests that the function raises an error with an invalid device layer

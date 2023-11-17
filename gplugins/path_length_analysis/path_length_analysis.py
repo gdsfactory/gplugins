@@ -62,9 +62,7 @@ def _node_to_inst_port(node: str) -> tuple[str, str]:
         port = ip[0]
         inst = ""
     else:
-        raise ValueError(
-            f"did not expect a connection name with more than one comma: {node}"
-        )
+        raise ValueError(f"did not expect a connection name with more than one comma: {node}")
     return inst, port
 
 
@@ -193,14 +191,10 @@ def get_paths(pathlength_graph: nx.Graph) -> list[dict[str, Any]]:
 
 
 def _get_subinst_node_name(node_name, inst_name):
-    return (
-        f"{inst_name}.{node_name}" if "," in node_name else f"{inst_name},{node_name}"
-    )
+    return f"{inst_name}.{node_name}" if "," in node_name else f"{inst_name},{node_name}"
 
 
-def idealized_mxn_connectivity(
-    inst_name: str, ref: ComponentReference, g: nx.Graph
-) -> None:
+def idealized_mxn_connectivity(inst_name: str, ref: ComponentReference, g: nx.Graph) -> None:
     """
     Connects all input ports to all output ports of m x n components, with idealized routes
 
@@ -260,9 +254,7 @@ def _get_edge_based_route_attr_graph(
     for inst_name, inst_dict in netlist["instances"].items():
         route_info = inst_route_attrs.get(inst_name)
         inst_component = component.named_references[inst_name]
-        route_attrs = get_internal_netlist_attributes(
-            inst_dict, route_info, inst_component
-        )
+        route_attrs = get_internal_netlist_attributes(inst_dict, route_info, inst_component)
         if route_attrs:
             for link, attrs in route_attrs.items():
                 in_port, out_port = link.split(":")
@@ -310,9 +302,7 @@ def _get_edge_based_route_attr_graph(
             elif component_connectivity:
                 component_connectivity(inst_name, sub_inst, g)
             else:
-                warnings.warn(
-                    f"ignoring any links in {inst_name} ({sub_inst.parent.name})"
-                )
+                warnings.warn(f"ignoring any links in {inst_name} ({sub_inst.parent.name})")
 
     # connect all top level ports
     if top_level_ports:
@@ -475,9 +465,7 @@ def get_pathlength_widgets(
     plot.add_glyph(inst_source, inst_glyph)
 
     paths_ds = ColumnDataSource(path_data)
-    paths_glyph = MultiLine(
-        xs="xs", ys="ys", line_color="black", line_width=0, line_alpha=0.0
-    )
+    paths_glyph = MultiLine(xs="xs", ys="ys", line_color="black", line_width=0, line_alpha=0.0)
     paths_glyph_selected = MultiLine(xs="xs", ys="ys", line_color="color", line_width=8)
 
     paths_renderer = plot.add_glyph(paths_ds, glyph=paths_glyph)
@@ -500,9 +488,7 @@ def get_pathlength_widgets(
         TableColumn(field="dst_port", title="Port"),
         TableColumn(field="length", title="Length"),
     ]
-    columns.extend(
-        TableColumn(field=f"{cs_name}_length", title=cs_name) for cs_name in cs_colors
-    )
+    columns.extend(TableColumn(field=f"{cs_name}_length", title=cs_name) for cs_name in cs_colors)
     columns.append(TableColumn(field="n_bend_90", title="# bend90"))
     table = DataTable(
         source=paths_ds,
@@ -523,9 +509,7 @@ def get_pathlength_widgets(
         renderers=[graph_renderer.edge_renderer],
         anchor="center",
     )
-    plot.add_tools(
-        TapTool(), BoxSelectTool(), wheel_zoom, hover_tool_ports, edge_hover_tool
-    )
+    plot.add_tools(TapTool(), BoxSelectTool(), wheel_zoom, hover_tool_ports, edge_hover_tool)
     return {
         "pathlength_table": table,
         "pathlength_plot": plot,

@@ -56,9 +56,7 @@ def parse_port_eigenmode_coeff(
         direction_inp = "+"
         direction_out = "-"
     else:
-        raise ValueError(
-            "Port orientation = {orientation} is not 0, 90, 180, or 270 degrees"
-        )
+        raise ValueError("Port orientation = {orientation} is not 0, 90, 180, or 270 degrees")
 
     coeff_inp = sim_data.monitor_data[port_name].amps.sel(direction=direction_inp)
     coeff_out = sim_data.monitor_data[port_name].amps.sel(direction=direction_out)
@@ -253,9 +251,7 @@ def write_sparameters(
     return sp
 
 
-def write_sparameters_batch(
-    jobs: List[Dict[str, Any]], **kwargs
-) -> List[Awaitable[Sparameters]]:
+def write_sparameters_batch(jobs: List[Dict[str, Any]], **kwargs) -> List[Awaitable[Sparameters]]:
     """Returns Sparameters for a list of write_sparameters.
 
     Each job runs in separate thread and is non blocking.

@@ -127,8 +127,12 @@ python_files = ["gplugins/*.py", "notebooks/*.ipynb", "tests/*.py"]
 testpaths = ["gplugins/", "tests"]
 
 [tool.ruff]
+exclude = [
+  "docs"
+]
 fix = true
 ignore = [
+  "E501",  # line length
   "B008",  # do not perform function calls in argument defaults
   "C901",  # too complex
   "B905",  # `zip()` without an explicit `strict=` parameter
@@ -137,6 +141,7 @@ ignore = [
   "B018",  # found useless expression
   "B028"  # no explicit stacklevel
 ]
+line-length = 100
 select = [
   "E",  # pycodestyle errors
   "W",  # pycodestyle warnings
@@ -149,8 +154,9 @@ select = [
 ]
 
 [tool.ruff.per-file-ignores]
+"docs/notebooks/*.py" = ["F821", 'E402', 'F405', 'F403']
 "docs/notebooks/meep_01_sparameters.py" = ["F821", 'E402']
-"docs/notebooks/tcad_02_analytical_process.py" = ["F821", 'E402', 'F405', 'F403']
+"docs/notebooks/tcad_02_analytical_process.py" = ['E501']
 
 [tool.ruff.pydocstyle]
 convention = "google"

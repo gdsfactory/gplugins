@@ -88,10 +88,7 @@ def mlp_regression(
     def get_init_network_params(sizes, ran_key):
         """Initialize all layers for a fully-connected neural network."""
         keys = jran.split(ran_key, len(sizes))
-        return [
-            get_random_layer_params(m, n, k)
-            for m, n, k in zip(sizes[:-1], sizes[1:], keys)
-        ]
+        return [get_random_layer_params(m, n, k) for m, n, k in zip(sizes[:-1], sizes[1:], keys)]
 
     def get_network_layer_sizes(n_features, n_targets, n_layers, n_neurons_per_layer):
         dense_layer_sizes = [n_neurons_per_layer] * n_layers
@@ -131,15 +128,9 @@ def mlp_regression(
     losses = []
     for epoch in range(num_epochs):  # noqa: B007
         # Sample batch size test and training
-        training_indices = np.random.choice(
-            range(len(training_inputs)), batch_size, replace=False
-        )
-        testing_indices = np.random.choice(
-            range(len(test_inputs)), batch_size, replace=False
-        )
-        current_loss = mse_loss(
-            params, test_inputs[testing_indices], test_outputs[testing_indices]
-        )
+        training_indices = np.random.choice(range(len(training_inputs)), batch_size, replace=False)
+        testing_indices = np.random.choice(range(len(test_inputs)), batch_size, replace=False)
+        current_loss = mse_loss(params, test_inputs[testing_indices], test_outputs[testing_indices])
         losses.append(current_loss)
         params = update(
             params,

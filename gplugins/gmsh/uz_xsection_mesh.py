@@ -45,9 +45,7 @@ def get_u_bounds_polygons(
         intersection = polygon.intersection(line)
         np.seterr(**initial_settings)
         if intersection:
-            for entry in (
-                intersection.geoms if hasattr(intersection, "geoms") else [intersection]
-            ):
+            for entry in intersection.geoms if hasattr(intersection, "geoms") else [intersection]:
                 bounds = entry.bounds
                 p1 = Point([bounds[0], bounds[1]])
                 p2 = Point([bounds[2], bounds[3]])
@@ -122,9 +120,7 @@ def get_uz_bounds_layers(
     layer_dict = layer_stack.to_dict()
 
     # Remove empty entries
-    inplane_bounds_dict = {
-        key: value for (key, value) in inplane_bounds_dict.items() if value
-    }
+    inplane_bounds_dict = {key: value for (key, value) in inplane_bounds_dict.items() if value}
 
     for layername, (
         gds_layername,
@@ -241,9 +237,7 @@ def uz_xsection_mesh(
         left_right_periodic_bcs: if True, makes the left and right simulation edge meshes periodic
     """
     # Fuse and cleanup polygons of same layer in case user overlapped them
-    layer_polygons_dict = cleanup_component(
-        component, layer_stack, round_tol, simplify_tol
-    )
+    layer_polygons_dict = cleanup_component(component, layer_stack, round_tol, simplify_tol)
 
     # GDS polygons to simulation polygons
     buffered_layer_polygons_dict, buffered_layer_stack = process_buffers(

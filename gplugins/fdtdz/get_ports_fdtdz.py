@@ -33,9 +33,7 @@ def get_epsilon_port(
         port_slice (array): The slice of the epsilon distribution at the location of the port.
     """
 
-    xarray, yarray, zarray = create_physical_grid(
-        xmin, ymin, zmin, epsilon, nm_per_pixel
-    )
+    xarray, yarray, zarray = create_physical_grid(xmin, ymin, zmin, epsilon, nm_per_pixel)
 
     x, y = port.center
     # z_range_indices = np.where((zcoords >= (z - port_size_z)) & (zcoords <= (z + port_size_z)))
@@ -49,9 +47,7 @@ def get_epsilon_port(
         if sgn == 1
         else epsilon[:, x_index - 1 : x_index, :, :]
     )
-    y_range_indices = np.where(
-        (yarray <= (y - port_extent_xy)) & (yarray >= (y + port_extent_xy))
-    )
+    y_range_indices = np.where((yarray <= (y - port_extent_xy)) & (yarray >= (y + port_extent_xy)))
     port_slice = port_slice.at[:, 0, y_range_indices, :].set(np.min(port_slice))
     return port_slice
 
@@ -67,9 +63,7 @@ def get_mode_port(
     port_extent_xy=1,
 ):
     # Physical grid
-    xarray, yarray, _zarray = create_physical_grid(
-        xmin, ymin, zmin, epsilon, nm_per_pixel
-    )
+    xarray, yarray, _zarray = create_physical_grid(xmin, ymin, zmin, epsilon, nm_per_pixel)
 
     # Epsilon of the cross section
     epsilon_port = get_epsilon_port(
@@ -121,9 +115,7 @@ def plot_mode(
     """
 
     # Create physical grid
-    xarray, yarray, zarray = create_physical_grid(
-        xmin, ymin, zmin, epsilon_port, nm_per_pixel
-    )
+    xarray, yarray, zarray = create_physical_grid(xmin, ymin, zmin, epsilon_port, nm_per_pixel)
 
     # Plot
     fig = plt.figure(figsize=figsize)
@@ -203,9 +195,7 @@ if __name__ == "__main__":
     waveguide = c << gf.components.straight(length=length, layer=LAYER.WG).extract(
         layers=(LAYER.WG,)
     )
-    padding = c << gf.components.bbox(
-        waveguide.bbox, top=2, bottom=2, layer=LAYER.WAFER
-    )
+    padding = c << gf.components.bbox(waveguide.bbox, top=2, bottom=2, layer=LAYER.WAFER)
     c.add_ports(gf.components.straight(length=length).get_ports_list())
 
     filtered_layer_stack = LayerStack(

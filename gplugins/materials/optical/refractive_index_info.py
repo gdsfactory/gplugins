@@ -80,10 +80,7 @@ class RefractiveIndex:
                 def n(x):
                     x2 = x**2
                     return (
-                        c[0]
-                        + sum(
-                            c[i] / (1 - c[i + 1] / x2) for i in range(1, c.size - 1, 2)
-                        )
+                        c[0] + sum(c[i] / (1 - c[i + 1] / x2) for i in range(1, c.size - 1, 2))
                     ) ** 0.5
 
                 def dn(x):
@@ -93,10 +90,7 @@ class RefractiveIndex:
                         y = 1 / (x2 - c[i + 1])
                         num += c[i] * x * y * (1 - x2 * y)
                     den = (
-                        c[0]
-                        + sum(
-                            c[i] / (1 - c[i + 1] / x2) for i in range(1, c.size - 1, 2)
-                        )
+                        c[0] + sum(c[i] / (1 - c[i + 1] / x2) for i in range(1, c.size - 1, 2))
                     ) ** 0.5
                     return num / den
 
@@ -111,9 +105,7 @@ class RefractiveIndex:
                         y2 = y**2
                         num1 += c[i] * (y + x2_5 * y2 + x4_4 * y**3)
                         num2 += c[i] * (y + x2 * y2)
-                    den = c[0] + sum(
-                        c[i] / (1 - c[i + 1] / x2) for i in range(1, c.size - 1, 2)
-                    )
+                    den = c[0] + sum(c[i] / (1 - c[i + 1] / x2) for i in range(1, c.size - 1, 2))
                     return -(num1 + (x * num2) ** 2 / den) / den**0.5
 
             elif formula == 3:
@@ -121,8 +113,7 @@ class RefractiveIndex:
 
                 def n(x):
                     return (
-                        c[0]
-                        + sum(c[i] * x ** c[i + 1] for i in range(1, c.size - 1, 2))
+                        c[0] + sum(c[i] * x ** c[i + 1] for i in range(1, c.size - 1, 2))
                     ) ** 0.5
 
                 def dn(x):
@@ -180,9 +171,7 @@ class RefractiveIndex:
                     n1 = c[1] * d3 * x ** c[2]
                     n4 = c[4] * d6 * x ** x[5]
                     nsq = c[0] + n1 + n4
-                    num1 = (
-                        c[2] * (c[2] - 1) * z - d3 * (2 * c[2] - 4 * y * d3 + 1)
-                    ) * n1 + (
+                    num1 = (c[2] * (c[2] - 1) * z - d3 * (2 * c[2] - 4 * y * d3 + 1)) * n1 + (
                         c[5] * (c[5] - 1) * z - d6 * (2 * c[5] - 4 * y * d6 + 1)
                     ) * n4
                     num2 = (n1 * c[2] + n4 * c[5]) / x - 2 * x * (n1 * d3 + n4 * d6)
@@ -198,14 +187,11 @@ class RefractiveIndex:
                 # n = c[0] + Σ c[i] λ^c[i+1]
 
                 def n(x):
-                    return c[0] + sum(
-                        c[i] * x ** c[i + 1] for i in range(1, c.size - 1, 2)
-                    )
+                    return c[0] + sum(c[i] * x ** c[i + 1] for i in range(1, c.size - 1, 2))
 
                 def dn(x):
                     return sum(
-                        c[i] * c[i + 1] * x ** (c[i + 1] - 1)
-                        for i in range(1, c.size - 1, 2)
+                        c[i] * c[i + 1] * x ** (c[i + 1] - 1) for i in range(1, c.size - 1, 2)
                     )
 
                 def d2n(x):
@@ -219,9 +205,7 @@ class RefractiveIndex:
 
                 def n(x):
                     z = x ** (-2)
-                    return c[0] + sum(
-                        c[i] / (c[i + 1] - z) for i in range(1, c.size - 1, 2)
-                    )
+                    return c[0] + sum(c[i] / (c[i + 1] - z) for i in range(1, c.size - 1, 2))
 
                 def dn(x):
                     z = x ** (-2)
@@ -229,9 +213,7 @@ class RefractiveIndex:
                         -2
                         * z
                         / x
-                        * sum(
-                            c[i] / (c[i + 1] - z) ** 2 for i in range(1, c.size - 1, 2)
-                        )
+                        * sum(c[i] / (c[i + 1] - z) ** 2 for i in range(1, c.size - 1, 2))
                     )
 
                 def d2n(x):
@@ -271,9 +253,7 @@ class RefractiveIndex:
                     val = c[-1] * (2 * c.size - 7) * (2 * c.size - 6)
                     for i in range(c.size - 2, 2, -1):
                         val = y * val + c[i] * (2 * i - 5) * (2 * i - 4)
-                    return val + 2 * z**2 * (
-                        ((c[1] + 3 * c[2] * z) * 4 * y - 2 * c[2]) * z - c[1]
-                    )
+                    return val + 2 * z**2 * (((c[1] + 3 * c[2] * z) * 4 * y - 2 * c[2]) * z - c[1])
 
             elif formula == 8:
                 # g = c[0] + c[1] λ² / (λ² - c[2]) + c[3] λ²
@@ -311,9 +291,7 @@ class RefractiveIndex:
 
                 def n(x):
                     x4 = x - c[4]
-                    return (
-                        c[0] + c[1] / (x**2 - c[2]) + c[3] * x4 / (c[5] + x4**2)
-                    ) ** 0.5
+                    return (c[0] + c[1] / (x**2 - c[2]) + c[3] * x4 / (c[5] + x4**2)) ** 0.5
 
                 def dn(x):
                     y = x**2
@@ -337,9 +315,7 @@ class RefractiveIndex:
                     g = c[0] + c[1] * z + c[3] * x4 * z4
                     dg = -2 * x * c[1] * w + c[3] * w4 * (c[5] - y4)
                     df = 1 / (2 * g**0.5)
-                    d2g = 2 * (
-                        (4 * y * z - 1) * c[1] * w + (4 * y4 * z4 - 3) * c[3] * x4 * w4
-                    )
+                    d2g = 2 * ((4 * y * z - 1) * c[1] * w + (4 * y4 * z4 - 3) * c[3] * x4 * w4)
                     d2f = -1 / (4 * (g**0.5) ** 3)
                     return df * d2g + d2f * dg**2
 
@@ -352,9 +328,7 @@ class RefractiveIndex:
             if "lda" in kwargs:
                 self.lda = self.lda_k = kwargs["lda"]
                 if self.lda[0] >= self.lda[-1]:
-                    raise RuntimeError(
-                        "Argument lda must be sorted in ascending order."
-                    )
+                    raise RuntimeError("Argument lda must be sorted in ascending order.")
                 if not lda_min_set:
                     self.lda_min = self.lda[0]
                     lda_min_set = True
@@ -370,16 +344,12 @@ class RefractiveIndex:
                     if "tand" in kwargs:
                         eps = eps * (1 - 1j * kwargs["tand"])
                     elif "sigma" in kwargs:
-                        eps = eps * (
-                            1 - 1j * kwargs["sigma"] * eta0 / (2 * π) * self.lda
-                        )
+                        eps = eps * (1 - 1j * kwargs["sigma"] * eta0 / (2 * π) * self.lda)
                     self._set_eps_list(self.lda, eps)
             if "lda_k" in kwargs:
                 self.lda_k = kwargs["lda_k"]
                 if self.lda_k[0] >= self.lda_k[-1]:
-                    raise RuntimeError(
-                        "Argument lda_k must be sorted in ascending order."
-                    )
+                    raise RuntimeError("Argument lda_k must be sorted in ascending order.")
                 if not lda_min_set:
                     self.lda_min = self.lda_k[0]
                     lda_min_set = True
@@ -409,12 +379,8 @@ class RefractiveIndex:
 
     def _set_eps_list(self, lda, eps):
         nk = eps**0.5
-        self.n = lambda x: numpy.interp(
-            x, lda, nk.real, left=numpy.nan, right=numpy.nan
-        )
-        self.k = lambda x: numpy.interp(
-            x, lda, nk.imag, left=numpy.nan, right=numpy.nan
-        )
+        self.n = lambda x: numpy.interp(x, lda, nk.real, left=numpy.nan, right=numpy.nan)
+        self.k = lambda x: numpy.interp(x, lda, nk.imag, left=numpy.nan, right=numpy.nan)
         g = numpy.gradient(nk.real, lda)
         self.dn = lambda x: numpy.interp(x, lda, g, left=numpy.nan, right=numpy.nan)
         g2 = numpy.gradient(g, lda)
@@ -492,9 +458,7 @@ def loadRefractiveIndexInfo(
         return RefractiveIndex(name, **cache)
 
     baseaddress = "https://raw.githubusercontent.com/polyanskiy/refractiveindex.info-database/master/database/"
-    lib = yaml.safe_load(
-        urllib.request.urlopen(f"{baseaddress}library.yml").read().decode()
-    )
+    lib = yaml.safe_load(urllib.request.urlopen(f"{baseaddress}library.yml").read().decode())
 
     save = {}
     for s in lib:
@@ -503,33 +467,25 @@ def loadRefractiveIndexInfo(
                 if "BOOK" in b and book == b["BOOK"]:
                     for p in b["content"]:
                         if "PAGE" in p and page == p["PAGE"]:
-                            dataaddress = (baseaddress + "data/" + p["data"]).replace(
-                                " ", "%20"
-                            )
+                            dataaddress = (baseaddress + "data/" + p["data"]).replace(" ", "%20")
                             data = yaml.safe_load(
                                 urllib.request.urlopen(dataaddress).read().decode()
                             )
                             save = {}
                             for d in data["DATA"]:
                                 if d["type"] == "tabulated nk":
-                                    val = numpy.array(
-                                        [float(x) for x in d["data"].split()]
-                                    )
+                                    val = numpy.array([float(x) for x in d["data"].split()])
                                     val = val.reshape((val.size // 3, 3))
                                     save["lda"] = val[:, 0] * 1e-6
                                     save["n"] = val[:, 1]
                                     save["k"] = val[:, 2]
                                 elif d["type"] == "tabulated n":
-                                    val = numpy.array(
-                                        [float(x) for x in d["data"].split()]
-                                    )
+                                    val = numpy.array([float(x) for x in d["data"].split()])
                                     val = val.reshape((val.size // 2, 2))
                                     save["lda"] = val[:, 0] * 1e-6
                                     save["n"] = val[:, 1]
                                 elif d["type"] == "tabulated k":
-                                    val = numpy.array(
-                                        [float(x) for x in d["data"].split()]
-                                    )
+                                    val = numpy.array([float(x) for x in d["data"].split()])
                                     val = val.reshape((val.size // 2, 2))
                                     save["lda_k"] = val[:, 0] * 1e-6
                                     save["k"] = val[:, 1]
@@ -539,9 +495,7 @@ def loadRefractiveIndexInfo(
                                     save["formula"] = formula
                                     save["lda_min"] = float(a) * 1e-6
                                     save["lda_max"] = float(b) * 1e-6
-                                    c = numpy.array(
-                                        [float(x) for x in d["coefficients"].split()]
-                                    )
+                                    c = numpy.array([float(x) for x in d["coefficients"].split()])
                                     if formula == 1:
                                         c[0] += 1
                                         c[2::2] = (c[2::2] * 1e-6) ** 2
@@ -584,7 +538,7 @@ def loadRefractiveIndexInfo(
 
 if __name__ == "__main__":
     print(
-        loadRefractiveIndexInfo(
-            "https://refractiveindex.info/?shelf=main&book=Si&page=Li-293K"
-        ).n(1.55e-6)
+        loadRefractiveIndexInfo("https://refractiveindex.info/?shelf=main&book=Si&page=Li-293K").n(
+            1.55e-6
+        )
     )

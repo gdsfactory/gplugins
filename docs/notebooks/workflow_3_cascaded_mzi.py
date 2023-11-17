@@ -109,9 +109,7 @@ def coupler_splitter(
     Δx = (separation / 2 - Δy) * bend_factor
     assert Δy < separation / 2
 
-    sc = gf.components.bend_s(
-        (Δx, separation / 2 - Δy), 199, cross_section=cross_section
-    )
+    sc = gf.components.bend_s((Δx, separation / 2 - Δy), 199, cross_section=cross_section)
 
     c = gf.Component()
     arm0 = c.add_ref(sc).movey(Δy)
@@ -278,8 +276,7 @@ def coupler_length(λ: float = 1.55, power_ratio: float = 0.5):
     i1 = min(i0 + 1, len(wavelengths) - 1) if λ > wavelengths[i] else max(i0 - 1, 0)
     if i1 != i0:
         pr = (
-            sim_ratios[:, i0] * (wavelengths[i1] - λ)
-            + sim_ratios[:, i1] * (λ - wavelengths[i0])
+            sim_ratios[:, i0] * (wavelengths[i1] - λ) + sim_ratios[:, i1] * (λ - wavelengths[i0])
         ) / (wavelengths[i1] - wavelengths[i0])
     else:
         pr = sim_ratios[:, i0]
@@ -289,8 +286,7 @@ def coupler_length(λ: float = 1.55, power_ratio: float = 0.5):
         return sim_lengths[np.argmin(np.abs(y))]
     j = root_indices[0]
     return (
-        sim_lengths[j] * (pr[j + 1] - power_ratio)
-        + sim_lengths[j + 1] * (power_ratio - pr[j])
+        sim_lengths[j] * (pr[j + 1] - power_ratio) + sim_lengths[j + 1] * (power_ratio - pr[j])
     ) / (pr[j + 1] - pr[j])
 
 
@@ -388,9 +384,7 @@ mode_solver_specs = dict(
     precision="double",
 )
 
-waveguide_solver = gt.modes.Waveguide(
-    wavelength=lda_c, **mode_solver_specs, group_index_step=True
-)
+waveguide_solver = gt.modes.Waveguide(wavelength=lda_c, **mode_solver_specs, group_index_step=True)
 
 waveguide_solver.plot_field(field_name="Ex", mode_index=0)
 ng = waveguide_solver.n_group[0]
@@ -439,29 +433,21 @@ def mzi_arms(
             gf.ComponentReference(bend),
         ]
         arm1 = [
-            gf.ComponentReference(
-                gf.components.straight(separation, cross_section=cross_section)
-            ),
+            gf.ComponentReference(gf.components.straight(separation, cross_section=cross_section)),
             gf.ComponentReference(bend),
             gf.ComponentReference(bend).mirror(),
             gf.ComponentReference(bend).mirror(),
             gf.ComponentReference(bend),
-            gf.ComponentReference(
-                gf.components.straight(separation, cross_section=cross_section)
-            ),
+            gf.ComponentReference(gf.components.straight(separation, cross_section=cross_section)),
         ]
     else:
         arm0 = [
-            gf.ComponentReference(
-                gf.components.straight(separation, cross_section=cross_section)
-            ),
+            gf.ComponentReference(gf.components.straight(separation, cross_section=cross_section)),
             gf.ComponentReference(bend).mirror(),
             gf.ComponentReference(bend),
             gf.ComponentReference(bend),
             gf.ComponentReference(bend).mirror(),
-            gf.ComponentReference(
-                gf.components.straight(separation, cross_section=cross_section)
-            ),
+            gf.ComponentReference(gf.components.straight(separation, cross_section=cross_section)),
         ]
         arm1 = [
             gf.ComponentReference(bend).mirror((0, 0), (1, 0)),
@@ -482,9 +468,7 @@ def mzi_arms(
     return (arm0, arm1)
 
 
-arm_references = mzi_arms(
-    mzi_deltas[0], separation=separation, cross_section=cross_section
-)
+arm_references = mzi_arms(mzi_deltas[0], separation=separation, cross_section=cross_section)
 
 # %% [markdown]
 # Now we can put all pieces together to layout the complete cascaded MZI filter:
@@ -570,9 +554,7 @@ netlist = layout.get_netlist()
 straight_wavelengths = jnp.linspace(wavelengths[0], wavelengths[-1], 11)
 straight_neffs = np.empty(straight_wavelengths.size, dtype=complex)
 
-waveguide_solver = gt.modes.Waveguide(
-    wavelength=list(straight_wavelengths), **mode_solver_specs
-)
+waveguide_solver = gt.modes.Waveguide(wavelength=list(straight_wavelengths), **mode_solver_specs)
 straight_neffs = waveguide_solver.n_eff[:, 0]
 
 plt.plot(straight_wavelengths, straight_neffs.real, ".-")
@@ -583,9 +565,7 @@ plt.ylabel("n_eff")
 # %%
 @jax.jit
 def straight_model(wl=1.55, length: float = 1.0):
-    s21 = jnp.exp(
-        2j * jnp.pi * jnp.interp(wl, straight_wavelengths, straight_neffs) * length / wl
-    )
+    s21 = jnp.exp(2j * jnp.pi * jnp.interp(wl, straight_wavelengths, straight_neffs) * length / wl)
     zero = jnp.zeros_like(wl)
     return {
         ("o1", "o1"): zero,
@@ -636,9 +616,7 @@ bend_model(cross_section=cross_section)()
 c = gf.Component(name="bend")
 ref = c.add_ref(gf.components.bend_euler(cross_section=cross_section))
 c.add_ports(ref.ports)
-x, _ = sax.circuit(
-    c.get_netlist(), {"bend_euler": bend_model(cross_section=cross_section)}
-)
+x, _ = sax.circuit(c.get_netlist(), {"bend_euler": bend_model(cross_section=cross_section)})
 
 s = x(wl=wavelengths)
 plt.plot(wavelengths, jnp.abs(s[("o1", "o2")]) ** 2)
@@ -725,9 +703,7 @@ def patch_netlist(netlist, models, models_to_patch):
             while new_component in models:
                 i += 1
                 new_component = f"{component}_v{i}"
-            models[new_component] = models_to_patch[model["component"]](
-                **model["settings"]
-            )
+            models[new_component] = models_to_patch[model["component"]](**model["settings"])
             del model["settings"]
             model["component"] = new_component
     return netlist, models
@@ -748,9 +724,7 @@ for i, (pr, length) in enumerate(pl_set):
         )
     )
     c.add_ports(ref.ports)
-    netlist, models = patch_netlist(
-        c.get_netlist(), {}, {"coupler_symmetric": coupler_model}
-    )
+    netlist, models = patch_netlist(c.get_netlist(), {}, {"coupler_symmetric": coupler_model})
     x, _ = sax.circuit(netlist, models)
 
     s = x(wl=wavelengths)

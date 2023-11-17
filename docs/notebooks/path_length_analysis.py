@@ -47,9 +47,7 @@ bot_ports = [
 ]
 
 c = gf.Component(name="connect_bundle_separation")
-routes = gf.routing.get_bundle(
-    top_ports, bot_ports, separation=5.0, end_straight_length=100
-)
+routes = gf.routing.get_bundle(top_ports, bot_ports, separation=5.0, end_straight_length=100)
 for route in routes:
     c.add(route.references)
 

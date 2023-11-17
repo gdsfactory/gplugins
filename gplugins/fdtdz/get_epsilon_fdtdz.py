@@ -83,9 +83,7 @@ def component_to_epsilon_pjz(
             layers={k: layer_stack.layers[k] for k in z_to_layername[z_value]}
         )
         current_layernames = order_layer_stack(level_layer_stack)[::-1]
-        current_layers = [
-            layer_stack.layers[layername].layer for layername in current_layernames
-        ]
+        current_layers = [layer_stack.layers[layername].layer for layername in current_layernames]
         current_indices = [
             material_name_to_index[layer_stack.layers[layername].material] ** 2
             for layername in current_layernames
@@ -160,9 +158,7 @@ def plot_epsilon(
         raise ValueError("Only one of x, y or z must be numeric!")
 
     # Create physical grid
-    xarray, yarray, zarray = create_physical_grid(
-        xmin, ymin, zmin, epsilon, nm_per_pixel
-    )
+    xarray, yarray, zarray = create_physical_grid(xmin, ymin, zmin, epsilon, nm_per_pixel)
 
     # Plot
     fig = plt.figure(figsize=figsize)
@@ -223,18 +219,14 @@ if __name__ == "__main__":
     waveguide = c << gf.components.straight(length=length, layer=LAYER.WG).extract(
         layers=(LAYER.WG,)
     )
-    padding = c << gf.components.bbox(
-        waveguide.bbox, top=2, bottom=2, layer=LAYER.WAFER
-    )
+    padding = c << gf.components.bbox(waveguide.bbox, top=2, bottom=2, layer=LAYER.WAFER)
     c.add_ports(gf.components.straight(length=length).get_ports_list())
 
     filtered_layer_stack = LayerStack(
         layers={k: LAYER_STACK.layers[k] for k in ["clad", "box", "core"]}
     )
 
-    epsilon = component_to_epsilon_pjz(
-        component=c, layer_stack=filtered_layer_stack, zmin=-0.75
-    )
+    epsilon = component_to_epsilon_pjz(component=c, layer_stack=filtered_layer_stack, zmin=-0.75)
 
     fig = plot_epsilon(
         epsilon=epsilon,

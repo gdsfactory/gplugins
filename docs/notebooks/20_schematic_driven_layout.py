@@ -104,9 +104,7 @@ se.net_widget
 # However, trying to connect to a port which is already otherwise connected will throw an error.
 
 # %%
-se.add_net(
-    inst1="mmi1", port1="o2", inst2="s1", port2="o1"
-)  # can be re-run without consequence
+se.add_net(inst1="mmi1", port1="o2", inst2="s1", port2="o1")  # can be re-run without consequence
 se.add_net(inst1="s1", port1="o1", inst2="mmi1", port2="o2")  # also ok
 # se.add_net(inst1="s1", port1="o2", inst2="mmi1", port2="o2")  # throws error -- already connected to a different port
 

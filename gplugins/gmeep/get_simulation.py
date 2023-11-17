@@ -175,9 +175,7 @@ def get_simulation(
     # print(geometry_center)
 
     layers_thickness = [
-        layer_to_thickness[layer]
-        for layer in component.layers
-        if layer in layer_to_thickness
+        layer_to_thickness[layer] for layer in component.layers if layer in layer_to_thickness
     ]
 
     if layers_thickness is None:
@@ -287,9 +285,7 @@ def get_simulation(
             if port_name == port_source_name
             else port_monitor_offset
         )
-        xy_shifted = move_polar_rad_copy(
-            np.array(port.center), angle=angle_rad, length=length
-        )
+        xy_shifted = move_polar_rad_copy(np.array(port.center), angle=angle_rad, length=length)
         center = xy_shifted.tolist() + [0]  # (x, y, z=0)
         m = sim.add_mode_monitor(freqs, mp.ModeRegion(center=center, size=size))
         m.z = 0

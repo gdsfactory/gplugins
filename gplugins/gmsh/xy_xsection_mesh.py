@@ -34,10 +34,7 @@ def apply_effective_buffers(layer_polygons_dict, layer_stack, z):
         if layername in layers:
             # Calculate the buffer
             if layer_stack.layers[layername].thickness < 0:
-                zmin = (
-                    layer_stack.layers[layername].zmin
-                    + layer_stack.layers[layername].thickness
-                )
+                zmin = layer_stack.layers[layername].zmin + layer_stack.layers[layername].thickness
                 thickness = abs(layer_stack.layers[layername].thickness)
             else:
                 zmin = layer_stack.layers[layername].zmin
@@ -113,9 +110,7 @@ def xy_xsection_mesh(
         )
 
     # Fuse and cleanup polygons of same layer in case user overlapped them
-    layer_polygons_dict = cleanup_component(
-        component, layer_stack, round_tol, simplify_tol
-    )
+    layer_polygons_dict = cleanup_component(component, layer_stack, round_tol, simplify_tol)
 
     # Determine effective buffer (or even presence of layer) at this z-level
     shapes_dict = apply_effective_buffers(layer_polygons_dict, layer_stack, z)
@@ -140,9 +135,7 @@ def xy_xsection_mesh(
             | {
                 background_tag: LayerLevel(
                     layer=(9999, 0),  # TODO something like LAYERS.BACKGROUND?
-                    thickness=(
-                        (zmax + background_padding[5]) - (zmin - background_padding[2])
-                    )
+                    thickness=((zmax + background_padding[5]) - (zmin - background_padding[2]))
                     * global_scaling_premesh,
                     zmin=(zmin - background_padding[2]) * global_scaling_premesh,
                     material=background_tag,

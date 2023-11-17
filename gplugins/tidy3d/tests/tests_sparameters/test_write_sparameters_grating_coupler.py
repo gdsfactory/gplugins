@@ -11,9 +11,7 @@ fiber_port_name = "o2"
 
 def test_sparameters_grating_coupler(overwrite=False) -> None:
     """Checks Sparameters for a grating_coupler_elliptical_arbitrary in 2D."""
-    c = gf.components.grating_coupler_elliptical_arbitrary(
-        widths=[0.343] * 25, gaps=[0.345] * 25
-    )
+    c = gf.components.grating_coupler_elliptical_arbitrary(widths=[0.343] * 25, gaps=[0.345] * 25)
 
     fiber_angle_deg = 20
     offsets = [0]

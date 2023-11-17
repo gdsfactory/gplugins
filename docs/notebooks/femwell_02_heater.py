@@ -49,8 +49,7 @@ print(LAYER_STACK.layers.keys())
 # %%
 filtered_layer_stack = LayerStack(
     layers={
-        k: gf.pdk.get_layer_stack().layers[k]
-        for k in ("slab90", "core", "via_contact", "heater")
+        k: gf.pdk.get_layer_stack().layers[k] for k in ("slab90", "core", "via_contact", "heater")
     }
 )
 
@@ -158,9 +157,7 @@ resolutions = dict(
     heater={"resolution": 0.1, "distance": 1},
 )
 
-mesh = from_meshio(
-    mesh_from_OrderedDict(polygons, resolutions, default_resolution_max=0.6)
-)
+mesh = from_meshio(mesh_from_OrderedDict(polygons, resolutions, default_resolution_max=0.6))
 mesh.draw().show()
 
 # %% [markdown]

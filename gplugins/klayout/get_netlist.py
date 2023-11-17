@@ -67,13 +67,10 @@ def get_l2n(
             same_name_as_in_connections = next(iter(names))
         l2n.connect(l2n.make_layer(l_idx, same_name_as_in_connections))
         if include_labels:
-            l2n.connect(
-                l2n.make_layer(l_idx, f"{same_name_as_in_connections}_LABELS"), labels
-            )
+            l2n.connect(l2n.make_layer(l_idx, f"{same_name_as_in_connections}_LABELS"), labels)
 
     for layer_a, layer_via, layer_b in (
-        (l2n.layer_by_name(layer) for layer in layers)
-        for layers in layer_connection_iter
+        (l2n.layer_by_name(layer) for layer in layers) for layers in layer_connection_iter
     ):
         # Don't try to connect Nones
         if all((layer_a, layer_via)):

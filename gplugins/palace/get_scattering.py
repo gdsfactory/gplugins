@@ -92,9 +92,7 @@ def _generate_json(
 
     palace_json_data["Model"]["Mesh"] = f"{name}.msh"
     if mesh_refinement_levels:
-        palace_json_data["Model"]["Refinement"] = {
-            "UniformLevels": mesh_refinement_levels
-        }
+        palace_json_data["Model"]["Refinement"] = {"UniformLevels": mesh_refinement_levels}
     palace_json_data["Domains"]["Materials"] = [
         {
             "Attributes": material_to_attributes_map.get(material, None),
@@ -115,9 +113,7 @@ def _generate_json(
             for layer in set(metal_surfaces)
             - set(itertools.chain.from_iterable(edge_signals or []))
             - set(
-                itertools.chain.from_iterable(
-                    itertools.chain.from_iterable(internal_signals or [])
-                )
+                itertools.chain.from_iterable(itertools.chain.from_iterable(internal_signals or []))
             )
             - set(absorbing_surfaces or [])
         ]
@@ -151,8 +147,7 @@ def _generate_json(
                 {
                     "Index": (port_i := port_i + 1),
                     "Attributes": [
-                        physical_name_to_dimtag_map[signal][1]
-                        for signal in signal_group
+                        physical_name_to_dimtag_map[signal][1] for signal in signal_group
                     ],
                     "Excitation": port == signal_group,
                     "Mode": 1,
@@ -168,8 +163,7 @@ def _generate_json(
                     "Elements": [
                         {
                             "Attributes": [
-                                physical_name_to_dimtag_map[signal][1]
-                                for signal in signal_group_1
+                                physical_name_to_dimtag_map[signal][1] for signal in signal_group_1
                             ],
                             "Direction": internal_signal_directions[
                                 re.search(r"__(.*?)___", signal_group_1[0]).group(1)
@@ -177,8 +171,7 @@ def _generate_json(
                         },
                         {
                             "Attributes": [
-                                physical_name_to_dimtag_map[signal][1]
-                                for signal in signal_group_2
+                                physical_name_to_dimtag_map[signal][1] for signal in signal_group_2
                             ],
                             "Direction": internal_signal_directions[
                                 re.search(r"__(.*?)___", signal_group_2[0]).group(1)
@@ -216,15 +209,11 @@ async def _palace(
     quotient, remainder = divmod(n_processes, len(json_files))
     n_processes_per_json = [quotient] * len(json_files)
     for i in range(remainder):
-        n_processes_per_json[i] = max(
-            n_processes_per_json[i] + 1, 1
-        )  # need at least one
+        n_processes_per_json[i] = max(n_processes_per_json[i] + 1, 1)  # need at least one
 
     palace = shutil.which("palace")
     if palace is None:
-        raise RuntimeError(
-            "`palace` not found. Make sure it is available in your PATH."
-        )
+        raise RuntimeError("`palace` not found. Make sure it is available in your PATH.")
 
     tasks = [
         execute_and_stream_output(
@@ -255,15 +244,11 @@ def _read_palace_results(
         scattering_matrix = pd.concat(
             [
                 scattering_matrix,
-                pd.read_csv(
-                    simulation_folder / f"postpro_{port}" / "port-S.csv", dtype=float
-                ),
+                pd.read_csv(simulation_folder / f"postpro_{port}" / "port-S.csv", dtype=float),
             ],
             axis="columns",
         )
-    scattering_matrix = (
-        scattering_matrix.T.drop_duplicates().T
-    )  # Remove duplicate freqs.
+    scattering_matrix = scattering_matrix.T.drop_duplicates().T  # Remove duplicate freqs.
     scattering_matrix.columns = scattering_matrix.columns.str.strip()
     DrivenFullWaveResults.update_forward_refs()
     return DrivenFullWaveResults(
@@ -274,11 +259,7 @@ def _read_palace_results(
             else dict(
                 mesh_location=simulation_folder / mesh_filename,
                 field_file_locations=[
-                    simulation_folder
-                    / f"postpro_{port}"
-                    / "paraview"
-                    / "driven"
-                    / "driven.pvd"
+                    simulation_folder / f"postpro_{port}" / "paraview" / "driven" / "driven.pvd"
                     for port in ports
                 ],
             )
@@ -380,8 +361,7 @@ def run_scattering_simulation_palace(
     gmsh.option.setNumber("Mesh.MshFileVersion", 2.2)
     gmsh.merge(str(simulation_folder / filename))
     mesh_surface_entities = {
-        gmsh.model.getPhysicalName(*dimtag)
-        for dimtag in gmsh.model.getPhysicalGroups(dim=2)
+        gmsh.model.getPhysicalName(*dimtag) for dimtag in gmsh.model.getPhysicalGroups(dim=2)
     }
     background_tag = (mesh_parameters or {}).get("background_tag", "vacuum")
 
@@ -400,24 +380,17 @@ def run_scattering_simulation_palace(
     # Group signal BCs by ports and lumped port pairs
     # TODO tuple pairs by o1_1 o1_2
 
-    lumped_two_ports = [
-        e for e in [port.split("_") for port in component.ports] if len(e) > 1
-    ]
+    lumped_two_ports = [e for e in [port.split("_") for port in component.ports] if len(e) > 1]
     lumped_two_port_pairs = [
         ("_".join(p1), "_".join(p2))
         for p1, p2 in itertools.combinations(lumped_two_ports, 2)
         if p1[0] == p2[0]
     ]
     metal_signal_surfaces_grouped = [
-        [e for e in metal_surfaces if port in e and background_tag in e]
-        for port in component.ports
+        [e for e in metal_surfaces if port in e and background_tag in e] for port in component.ports
     ]
     metal_signal_surfaces_paired = [
-        tuple(
-            e
-            for e in metal_signal_surfaces_grouped
-            if all(p1 in s or p2 in s for s in e)
-        )
+        tuple(e for e in metal_signal_surfaces_grouped if all(p1 in s or p2 in s for s in e))
         for p1, p2 in lumped_two_port_pairs
     ]
 
@@ -461,15 +434,12 @@ def run_scattering_simulation_palace(
 
     # TODO refactor to not require this map, the same information could be transferred with the variables above
     physical_name_to_dimtag_map = {
-        gmsh.model.getPhysicalName(*dimtag): dimtag
-        for dimtag in gmsh.model.getPhysicalGroups()
+        gmsh.model.getPhysicalName(*dimtag): dimtag for dimtag in gmsh.model.getPhysicalGroups()
     }
     absorbing_surfaces = {
         k
         for k in physical_name_to_dimtag_map
-        if "___None" in k
-        and background_tag in k
-        and all(p not in k for p in component.ports)
+        if "___None" in k and background_tag in k and all(p not in k for p in component.ports)
     } - set(ground_layers)
 
     gmsh.finalize()

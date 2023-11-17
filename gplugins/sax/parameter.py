@@ -143,9 +143,7 @@ class LithoParameter(Parameter):
         for layer, layer_polygons in component.get_polygons(by_spec=True).items():
             if layer == self.layer:
                 # Make sure all layer polygons are fused properly
-                shapely_polygons = [
-                    shapely.geometry.Polygon(polygon) for polygon in layer_polygons
-                ]
+                shapely_polygons = [shapely.geometry.Polygon(polygon) for polygon in layer_polygons]
                 shapely_polygons = unary_union(shapely_polygons)
                 # Apply transformation
                 for shapely_polygon in (
@@ -153,17 +151,13 @@ class LithoParameter(Parameter):
                     if hasattr(shapely_polygons, "geoms")
                     else [shapely_polygons]
                 ):
-                    buffered_polygons = shapely_polygon.buffer(
-                        dilation_value, join_style=2
-                    )
+                    buffered_polygons = shapely_polygon.buffer(dilation_value, join_style=2)
                     for buffered_polygon in (
                         buffered_polygons.geoms
                         if hasattr(buffered_polygons, "geoms")
                         else [buffered_polygons]
                     ):
-                        temp_component.add_polygon(
-                            buffered_polygon.exterior.coords, layer=layer
-                        )
+                        temp_component.add_polygon(buffered_polygon.exterior.coords, layer=layer)
             else:
                 for layer_polygon in layer_polygons:
                     temp_component.add_polygon(layer_polygon, layer=layer)
@@ -173,12 +167,8 @@ class LithoParameter(Parameter):
             if port.layer == self.layer:
                 port.width += 2 * dilation_value
                 old_center_x, old_center_y = port.center
-                new_center_x = (
-                    old_center_x - np.cos(np.radians(port.orientation)) * dilation_value
-                )
-                new_center_y = (
-                    old_center_y - np.sin(np.radians(port.orientation)) * dilation_value
-                )
+                new_center_x = old_center_x - np.cos(np.radians(port.orientation)) * dilation_value
+                new_center_y = old_center_y - np.sin(np.radians(port.orientation)) * dilation_value
                 port.center = [new_center_x, new_center_y]
             ports.append(port)
         temp_component.add_ports(ports=ports)
@@ -190,12 +180,8 @@ class LithoParameter(Parameter):
             for layer_polygon in layer_polygons:
                 if layer == self.layer:
                     shapely_polygon = shapely.geometry.Polygon(layer_polygon)
-                    translated_polygon = translate(
-                        shapely_polygon, xoff=offset_value, yoff=0.0
-                    )
-                    temp_component.add_polygon(
-                        translated_polygon.exterior.coords, layer=layer
-                    )
+                    translated_polygon = translate(shapely_polygon, xoff=offset_value, yoff=0.0)
+                    temp_component.add_polygon(translated_polygon.exterior.coords, layer=layer)
                 else:
                     temp_component.add_polygon(layer_polygon, layer=layer)
         # Transform ports
@@ -215,12 +201,8 @@ class LithoParameter(Parameter):
             for layer_polygon in layer_polygons:
                 if layer == self.layer:
                     shapely_polygon = shapely.geometry.Polygon(layer_polygon)
-                    translated_polygon = translate(
-                        shapely_polygon, xoff=0.0, yoff=offset_value
-                    )
-                    temp_component.add_polygon(
-                        translated_polygon.exterior.coords, layer=layer
-                    )
+                    translated_polygon = translate(shapely_polygon, xoff=0.0, yoff=offset_value)
+                    temp_component.add_polygon(translated_polygon.exterior.coords, layer=layer)
                 else:
                     temp_component.add_polygon(layer_polygon, layer=layer)
         # Transform ports
@@ -239,9 +221,7 @@ class LithoParameter(Parameter):
         for layer, layer_polygons in component.get_polygons(by_spec=True).items():
             if layer == self.layer:
                 # Make sure all layer polygons are fused properly
-                shapely_polygons = [
-                    shapely.geometry.Polygon(polygon) for polygon in layer_polygons
-                ]
+                shapely_polygons = [shapely.geometry.Polygon(polygon) for polygon in layer_polygons]
                 shapely_polygons = unary_union(shapely_polygons)
                 # Apply transformation
                 for shapely_polygon in (
@@ -254,9 +234,7 @@ class LithoParameter(Parameter):
                         .buffer(-2 * round_value, join_style=1)
                         .buffer(round_value, join_style=1)
                     )
-                    temp_component.add_polygon(
-                        buffered_polygon.exterior.coords, layer=layer
-                    )
+                    temp_component.add_polygon(buffered_polygon.exterior.coords, layer=layer)
             else:
                 for layer_polygon in layer_polygons:
                     temp_component.add_polygon(layer_polygon, layer=layer)
@@ -267,12 +245,10 @@ class LithoParameter(Parameter):
                 # Patch port
                 patch_polygon_x1, patch_polygon_y1 = port.center
                 patch_polygon_x2 = (
-                    patch_polygon_x1
-                    + np.cos(np.radians(port.orientation)) * round_value
+                    patch_polygon_x1 + np.cos(np.radians(port.orientation)) * round_value
                 )
                 patch_polygon_y2 = (
-                    patch_polygon_y1
-                    + np.sin(np.radians(port.orientation)) * round_value
+                    patch_polygon_y1 + np.sin(np.radians(port.orientation)) * round_value
                 )
                 P = gf.Path(
                     [

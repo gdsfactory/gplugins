@@ -136,12 +136,7 @@ def get_simulation_grating_farfield(
     if length_grating < 3 * fiber_core_diameter:
         sxy = 3 * fiber_core_diameter + 2 * dbufferx + 2 * pml_thickness
     else:  # Fiber probably to the left
-        sxy = (
-            3 / 2 * fiber_core_diameter
-            + length_grating / 2
-            + 2 * dbufferx
-            + 2 * pml_thickness
-        )
+        sxy = 3 / 2 * fiber_core_diameter + length_grating / 2 + 2 * dbufferx + 2 * pml_thickness
 
     # Useful reference points
     cell_edge_left = -sxy / 2 + dbufferx + pml_thickness
@@ -188,9 +183,7 @@ def get_simulation_grating_farfield(
     geometry = [
         mp.Block(
             material=fiber_clad_material,
-            center=mp.Vector3(
-                x=grating_start + fiber_xposition - fiber_offset_from_angle
-            ),
+            center=mp.Vector3(x=grating_start + fiber_xposition - fiber_offset_from_angle),
             size=mp.Vector3(fiber_clad, hfiber_geom),
             e1=mp.Vector3(x=1).rotate(mp.Vector3(z=1), -1 * fiber_angle),
             e2=mp.Vector3(y=1).rotate(mp.Vector3(z=1), -1 * fiber_angle),
@@ -200,9 +193,7 @@ def get_simulation_grating_farfield(
     geometry.append(
         mp.Block(
             material=fiber_core_material,
-            center=mp.Vector3(
-                x=grating_start + fiber_xposition - fiber_offset_from_angle
-            ),
+            center=mp.Vector3(x=grating_start + fiber_xposition - fiber_offset_from_angle),
             size=mp.Vector3(fiber_core_diameter, hfiber_geom),
             e1=mp.Vector3(x=1).rotate(mp.Vector3(z=1), -1 * fiber_angle),
             e2=mp.Vector3(y=1).rotate(mp.Vector3(z=1), -1 * fiber_angle),
@@ -309,9 +300,7 @@ def get_simulation_grating_farfield(
         ),
     )
 
-    waveguide_monitor = sim.add_mode_monitor(
-        freqs, waveguide_monitor_port, yee_grid=True
-    )
+    waveguide_monitor = sim.add_mode_monitor(freqs, waveguide_monitor_port, yee_grid=True)
     fiber_monitor = sim.add_mode_monitor(freqs, fiber_monitor_port)
     field_monitor_point = (0, 0, 0)
 

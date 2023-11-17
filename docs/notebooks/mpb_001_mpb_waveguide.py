@@ -188,9 +188,7 @@ m1.plot_eps()
 # Rib waveguides have a slab (not fully etched)
 
 # %%
-modes = gm.find_modes_waveguide(
-    mode_number=1, nmodes=2, slab_thickness=90e-3, resolution=40
-)
+modes = gm.find_modes_waveguide(mode_number=1, nmodes=2, slab_thickness=90e-3, resolution=40)
 m1 = modes[1]
 m2 = modes[2]
 
@@ -297,9 +295,7 @@ m2.plot_e()
 m2.neff
 
 # %%
-df = gm.find_neff_vs_width(
-    slab_thickness=90e-3, filepath="data/mpb_neff_vs_width_rib.csv"
-)
+df = gm.find_neff_vs_width(slab_thickness=90e-3, filepath="data/mpb_neff_vs_width_rib.csv")
 gm.plot_neff_vs_width(df)
 
 # %% [markdown]
@@ -516,9 +512,7 @@ plt.title("strip 500x200 coupling")
 gm.plot_coupling_vs_gap(df)
 
 # %%
-df = gm.coupler.find_coupling_vs_gap_nitride(
-    filepath="data/mpb_find_coupling_vs_gap_nitride.csv"
-)
+df = gm.coupler.find_coupling_vs_gap_nitride(filepath="data/mpb_find_coupling_vs_gap_nitride.csv")
 
 plt.title("nitride 1000x400 nitride")
 gm.plot_coupling_vs_gap(df)
@@ -565,9 +559,7 @@ def coupling_length(
 
 
 # %%
-lc = [
-    coupling_length(neff1=neff1, neff2=neff2) for gap, neff1, neff2 in zip(gaps, ne, no)
-]
+lc = [coupling_length(neff1=neff1, neff2=neff2) for gap, neff1, neff2 in zip(gaps, ne, no)]
 
 # %%
 plt.plot(gaps, lc, ".-")

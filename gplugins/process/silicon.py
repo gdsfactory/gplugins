@@ -75,11 +75,7 @@ def ni(T: float):
     Returns:
         ni: intrinsic carrier concentration (cm-3)
     """
-    return (
-        np.sqrt(N(T=T, m=mn(T)) * N(T=T, m=mp(T)))
-        * np.exp(-1 * Eg(T) / (2 * kB_eV * T))
-        * 1e-6
-    )
+    return np.sqrt(N(T=T, m=mn(T)) * N(T=T, m=mp(T))) * np.exp(-1 * Eg(T) / (2 * kB_eV * T)) * 1e-6
 
 
 if __name__ == "__main__":

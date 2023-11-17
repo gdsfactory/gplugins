@@ -94,21 +94,15 @@ def parse_port_eigenmode_coeff(
         idx_in = 0
         idx_out = 1
     else:
-        raise ValueError(
-            f"Port orientation {orientation!r} not in 0, 90, 180, or 270 degrees!"
-        )
+        raise ValueError(f"Port orientation {orientation!r} not in 0, 90, 180, or 270 degrees!")
 
     # Get port coeffs
     monitor_coeff = sim.get_eigenmode_coefficients(
         monitors[port_name], [port_mode + 1], kpoint_func=lambda f, n: kpoint
     )
 
-    coeff_in = monitor_coeff.alpha[
-        0, :, idx_in
-    ]  # ingoing (w.r.t. simulation cell) wave
-    coeff_out = monitor_coeff.alpha[
-        0, :, idx_out
-    ]  # outgoing (w.r.t. simulation cell) wave
+    coeff_in = monitor_coeff.alpha[0, :, idx_in]  # ingoing (w.r.t. simulation cell) wave
+    coeff_out = monitor_coeff.alpha[0, :, idx_out]  # outgoing (w.r.t. simulation cell) wave
 
     return coeff_in, coeff_out
 
@@ -275,9 +269,7 @@ def write_sparameters_meep(
             where `a` is the angle in radians and `m` the module.
 
     """
-    component = (
-        component if isinstance(component, Component) else gf.get_component(component)
-    )
+    component = component if isinstance(component, Component) else gf.get_component(component)
     layer_stack = layer_stack or get_layer_stack()
 
     plot_args = plot_args or {}
@@ -481,9 +473,7 @@ def write_sparameters_meep(
                     **plot_args,
                 )
             sim.run(mp.at_every(1, animate), until_after_sources=termination)
-            animate.to_mp4(
-                30, f"{component.name}_{port_source_name}_{port_source_mode}.mp4"
-            )
+            animate.to_mp4(30, f"{component.name}_{port_source_name}_{port_source_mode}.mp4")
         else:
             sim.run(until_after_sources=termination)
 
@@ -544,9 +534,7 @@ def write_sparameters_meep(
                 data = comm.recv(source=i, tag=11)
                 sp.update(data)
 
-            sp["wavelengths"] = np.linspace(
-                wavelength_start, wavelength_stop, wavelength_points
-            )
+            sp["wavelengths"] = np.linspace(wavelength_start, wavelength_stop, wavelength_points)
             np.savez_compressed(filepath, **sp)
             logger.info(f"Write simulation results to {filepath!r}")
             filepath_sim_settings.write_text(yaml.dump(clean_value_json(sim_settings)))
@@ -572,9 +560,7 @@ def write_sparameters_meep(
                         **settings,
                     )
                 )
-        sp["wavelengths"] = np.linspace(
-            wavelength_start, wavelength_stop, wavelength_points
-        )
+        sp["wavelengths"] = np.linspace(wavelength_start, wavelength_stop, wavelength_points)
         np.savez_compressed(filepath, **sp)
 
         end = time.time()
@@ -599,16 +585,12 @@ write_sparameters_meep_1x1_bend90 = partial(
 )
 
 sig = inspect.signature(write_sparameters_meep)
-settings_write_sparameters_meep = set(sig.parameters.keys()).union(
-    settings_get_simulation
-)
+settings_write_sparameters_meep = set(sig.parameters.keys()).union(settings_get_simulation)
 
 if __name__ == "__main__":
     wavelength_start = 1.26
     wavelength_stop = 1.36
-    sim_settings = dict(
-        wavelength_start=wavelength_start, wavelength_stop=wavelength_stop
-    )
+    sim_settings = dict(wavelength_start=wavelength_start, wavelength_stop=wavelength_stop)
     # c = gf.components.mmi1x2(cross_section=gf.cross_section.strip)
     c = gf.components.straight(length=2)
     import matplotlib.pyplot as plt

@@ -145,9 +145,7 @@ class LayoutViewServerEndpoint(WebSocketEndpoint):
             delta = -dy
             horizontal = False
         if delta != 0:
-            function(
-                delta, horizontal, db.Point(js["x"], js["y"]), self.buttons_from_js(js)
-            )
+            function(delta, horizontal, db.Point(js["x"], js["y"]), self.buttons_from_js(js))
 
     def mouse_event(self, function, js) -> None:
         function(db.Point(js["x"], js["y"]), self.buttons_from_js(js))

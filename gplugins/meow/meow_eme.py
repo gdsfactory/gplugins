@@ -171,16 +171,12 @@ class MEOW:
         self.num_cells = max(int(self.span_z / cell_length) + 2, 4)
 
         # Setup simulation
-        self.component, self.layer_stack = self.add_global_layers(
-            component, layer_stack
-        )
+        self.component, self.layer_stack = self.add_global_layers(component, layer_stack)
         self.extrusion_rules = self.layer_stack_to_extrusion()
         self.structs = mw.extrude_gds(self.component, self.extrusion_rules)
         self.cells = self.create_cells()
         self.env = mw.Environment(wl=self.wavelength, T=self.temperature)
-        self.css = [
-            mw.CrossSection.from_cell(cell=cell, env=self.env) for cell in self.cells
-        ]
+        self.css = [mw.CrossSection.from_cell(cell=cell, env=self.env) for cell in self.cells]
         self.modes_per_cell = [None] * self.num_cells
         self.S = None
         self.port_map = None
@@ -214,9 +210,7 @@ class MEOW:
         self.filepath_sim_settings = filepath.with_suffix(".yml")
         self.overwrite = overwrite
 
-    def gf_material_to_meow_material(
-        self, material_name: str = "si", wavelengths=None, color=None
-    ):
+    def gf_material_to_meow_material(self, material_name: str = "si", wavelengths=None, color=None):
         """Converts a gdsfactory material into a MEOW material."""
         wavelengths = wavelengths or np.linspace(1.5, 1.6, 101)
         color = color or (0.9, 0.9, 0.9, 0.9)
@@ -347,9 +341,7 @@ class MEOW:
             self.compute_sparameters()
         return self.port_map
 
-    def plot_s_params(
-        self, fmt: Literal["abs", "phase", "real-imag", "real", "imag"] = "abs"
-    ):
+    def plot_s_params(self, fmt: Literal["abs", "phase", "real-imag", "real", "imag"] = "abs"):
         fmt_str = str(fmt).lower()
         supported_fmts = ["abs", "phase", "real-imag", "real", "imag"]
         if fmt_str not in supported_fmts:
@@ -376,14 +368,10 @@ class MEOW:
 
     def validate_component(self, component):
         optical_ports = [
-            port
-            for portname, port in component.ports.items()
-            if port.port_type == "optical"
+            port for portname, port in component.ports.items() if port.port_type == "optical"
         ]
         if len(optical_ports) != 2:
-            raise ValueError(
-                "Component provided to MEOW does not have exactly 2 optical ports."
-            )
+            raise ValueError("Component provided to MEOW does not have exactly 2 optical ports.")
         elif component.ports["o1"].orientation != 180:
             raise ValueError("Component port o1 does not face westward (180 deg).")
         elif component.ports["o2"].orientation != 0:
@@ -409,8 +397,7 @@ class MEOW:
                     return p.replace("o1", "left").replace("o2", "right")
 
                 sdict = {
-                    tuple(rename(p) for p in k.split(",")): np.asarray(v)
-                    for k, v in sp.items()
+                    tuple(rename(p) for p in k.split(",")): np.asarray(v) for k, v in sp.items()
                 }
                 S, self.port_map = sax.sdense(sdict)
                 self.S = np.asarray(S).view(mw_array)
@@ -429,9 +416,7 @@ class MEOW:
         def rename(p):
             return p.replace("left", "o1").replace("right", "o2")
 
-        sp = {
-            f"{rename(p1)},{rename(p2)}": np.asarray(v) for (p1, p2), v in sdict.items()
-        }
+        sp = {f"{rename(p1)},{rename(p2)}": np.asarray(v) for (p1, p2), v in sdict.items()}
 
         np.savez_compressed(self.filepath, **sp)
 
@@ -461,9 +446,7 @@ if __name__ == "__main__":
             )
         }
     )
-    m = MEOW(
-        component=c, layer_stack=filtered_layer_stack, wavelength=1.55, overwrite=False
-    )
+    m = MEOW(component=c, layer_stack=filtered_layer_stack, wavelength=1.55, overwrite=False)
     print(len(m.cells))
 
     pprint.pprint(m.compute_sparameters())

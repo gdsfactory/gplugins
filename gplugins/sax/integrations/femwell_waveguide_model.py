@@ -78,9 +78,7 @@ class FemwellWaveguideModel(Model):
         # Prepare this specific input vector
         input_dict = dict(zip(labels, [float(value) for value in values]))
         # Parse input vector according to parameter type
-        param_dict, layer_stack_param_dict, litho_param_dict = self.parse_input_dict(
-            input_dict
-        )
+        param_dict, layer_stack_param_dict, litho_param_dict = self.parse_input_dict(input_dict)
         # Apply required transformations depending on parameter type
         input_crosssection = self.trainable_component(param_dict).info["cross_section"]
         input_layer_stack = self.perturb_layer_stack(layer_stack_param_dict)
@@ -113,18 +111,13 @@ class FemwellWaveguideModel(Model):
         #         for mode in range(self.num_modes, 2 * self.num_modes)
         #     ]
         # )  # currently not used
-        phase = (
-            2 * jnp.pi * real_neffs * input_dict["length"] / input_dict["wavelength"]
-        )
+        phase = 2 * jnp.pi * real_neffs * input_dict["length"] / input_dict["wavelength"]
         amplitude = jnp.asarray(
             10 ** (-input_dict["loss"] * input_dict["length"] / 20), dtype=complex
         )
         transmission = amplitude * jnp.exp(1j * phase)
 
-        sp = {
-            (f"o1@{mode}", f"o2@{mode}"): transmission[mode]
-            for mode in range(self.num_modes)
-        }
+        sp = {(f"o1@{mode}", f"o2@{mode}"): transmission[mode] for mode in range(self.num_modes)}
         return reciprocal(sp)
 
 
@@ -173,9 +166,7 @@ if __name__ == "__main__":
             "radius": jnp.inf,
         },
         trainable_parameters={
-            "width": NamedParameter(
-                min_value=0.3, max_value=1.0, nominal_value=0.5, step=0.1
-            ),
+            "width": NamedParameter(min_value=0.3, max_value=1.0, nominal_value=0.5, step=0.1),
             "wavelength": NamedParameter(
                 min_value=1.545, max_value=1.555, nominal_value=1.55, step=0.005
             ),

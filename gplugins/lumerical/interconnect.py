@@ -25,9 +25,7 @@ def install_design_kit(
     session.installdesignkit(str(cml_path), str(install_dir), overwrite)
 
 
-def set_named_settings(
-    session: object, simulation_settings: dict, element: str
-) -> None:
+def set_named_settings(session: object, simulation_settings: dict, element: str) -> None:
     for param, val in zip(simulation_settings.keys(), simulation_settings.values()):
         session.setnamed(element, param, val)
 
@@ -138,9 +136,7 @@ def send_to_interconnect(
     if setup_mc:
         MC_param_element = f"::Root Element::{component.name}"
         # Add Monte-Carlo params
-        session.addproperty(
-            MC_param_element, "MC_uniformity_thickness", "wafer", "Matrix"
-        )
+        session.addproperty(MC_param_element, "MC_uniformity_thickness", "wafer", "Matrix")
         session.addproperty(MC_param_element, "MC_uniformity_width", "wafer", "Matrix")
         session.addproperty(MC_param_element, "MC_non_uniform", "wafer", "Number")
         session.addproperty(MC_param_element, "MC_grid", "wafer", "Number")

@@ -138,7 +138,4 @@ def test_elmer_capacitance_simulation_raw_cap_matrix(
 ) -> None:
     matrix = elmer_capacitance_simulation_basic_results.raw_capacitance_matrix
     assert matrix is not None
-    assert (
-        len(elmer_capacitance_simulation_basic_results.capacitance_matrix)
-        == matrix.size
-    )
+    assert len(elmer_capacitance_simulation_basic_results.capacitance_matrix) == matrix.size

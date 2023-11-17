@@ -201,9 +201,7 @@ coupler_model = MeepFDTDModel(
         ),
     },
     non_trainable_parameters={
-        "wavelength": NamedParameter(
-            min_value=1.54, max_value=1.56, nominal_value=1.55, step=0.01
-        ),
+        "wavelength": NamedParameter(min_value=1.54, max_value=1.56, nominal_value=1.55, step=0.01),
     },
     num_modes=1,
 )

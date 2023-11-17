@@ -156,9 +156,7 @@ if __name__ == "__main__":
     waveguide = c << gf.components.straight(length=length, layer=LAYER.WG).extract(
         layers=(LAYER.WG,)
     )
-    padding = c << gf.components.bbox(
-        waveguide.bbox, top=2, bottom=2, layer=LAYER.WAFER
-    )
+    padding = c << gf.components.bbox(waveguide.bbox, top=2, bottom=2, layer=LAYER.WAFER)
     c.add_ports(gf.components.straight(length=length).get_ports_list())
 
     filtered_layer_stack = LayerStack(

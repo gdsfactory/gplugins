@@ -96,9 +96,7 @@ def _generate_json(
     palace_json_data["Boundaries"]["Terminal"] = [
         {
             "Index": i,
-            "Attributes": [
-                physical_name_to_dimtag_map[signal][1] for signal in signal_group
-            ],
+            "Attributes": [physical_name_to_dimtag_map[signal][1] for signal in signal_group],
         }
         for i, signal_group in enumerate(signals, 1)
     ]
@@ -149,9 +147,7 @@ def _read_palace_results(
     return ElectrostaticResults(
         capacitance_matrix={
             (iname, jname): raw_capacitance_matrix[i][j]
-            for (i, iname), (j, jname) in itertools.product(
-                enumerate(ports), enumerate(ports)
-            )
+            for (i, iname), (j, jname) in itertools.product(enumerate(ports), enumerate(ports))
         },
         **(
             {}
@@ -257,8 +253,7 @@ def run_capacitive_simulation_palace(
     )
     gmsh.merge(str(simulation_folder / filename))
     mesh_surface_entities = {
-        gmsh.model.getPhysicalName(*dimtag)
-        for dimtag in gmsh.model.getPhysicalGroups(dim=2)
+        gmsh.model.getPhysicalName(*dimtag) for dimtag in gmsh.model.getPhysicalGroups(dim=2)
     }
 
     # Signals are converted to Boundaries
@@ -292,8 +287,7 @@ def run_capacitive_simulation_palace(
 
     # TODO refactor to not require this map, the same information could be transferred with the variables above
     physical_name_to_dimtag_map = {
-        gmsh.model.getPhysicalName(*dimtag): dimtag
-        for dimtag in gmsh.model.getPhysicalGroups()
+        gmsh.model.getPhysicalName(*dimtag): dimtag for dimtag in gmsh.model.getPhysicalGroups()
     }
     gmsh.finalize()
 

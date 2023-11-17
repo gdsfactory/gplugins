@@ -126,11 +126,7 @@ def mesh3D(
     # blocks = []
     # for layer, polygons in component.get_polygons(by_spec=True).items():
     for layer in component.layers:
-        if (
-            layer not in exclude_layers
-            and layer in layer_to_thickness
-            and layer in layer_to_zmin
-        ):
+        if layer not in exclude_layers and layer in layer_to_thickness and layer in layer_to_zmin:
             height = layer_to_thickness[layer]
             zmin_layer = layer_to_zmin[layer]
             zmax_layer = zmin_layer + height

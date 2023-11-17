@@ -21,10 +21,8 @@ class Model:
         self,
         trainable_component: callable,
         layer_stack: LayerStack,
-        trainable_parameters: None
-        | (dict[str, LayerStackThickness | NamedParameter]) = None,
-        non_trainable_parameters: None
-        | (dict[str, LayerStackThickness | NamedParameter]) = None,
+        trainable_parameters: None | (dict[str, LayerStackThickness | NamedParameter]) = None,
+        non_trainable_parameters: None | (dict[str, LayerStackThickness | NamedParameter]) = None,
         simulation_settings: dict[str, float | str | int | Path] | None = None,
         num_modes: int = 2,
         port_symmetries: PortSymmetries | None = None,
@@ -84,9 +82,7 @@ class Model:
         # Extract inputs and outputs vector size data
         self.size_inputs = len(self.trainable_parameters)
         self.num_ports = len(
-            trainable_component(self.get_nominal_dict()).get_ports_list(
-                port_type="optical"
-            )
+            trainable_component(self.get_nominal_dict()).get_ports_list(port_type="optical")
         )
 
         # Extract input and output vector label data
@@ -112,16 +108,12 @@ class Model:
     def get_nominal_dict(self):
         """Return input_dict of nominal parameter values."""
         return {
-            name: parameter.nominal_value
-            for name, parameter in self.trainable_parameters.items()
+            name: parameter.nominal_value for name, parameter in self.trainable_parameters.items()
         }
 
     def get_random_dict(self):
         """Return input_dict of randomly sampled parameter values."""
-        return {
-            name: parameter.sample()
-            for name, parameter in self.trainable_parameters.items()
-        }
+        return {name: parameter.sample() for name, parameter in self.trainable_parameters.items()}
 
     def parse_input_dict(self, input_dict):
         """Separates between LayerStackThickness, NamedParameter, and LithoParameter inputs.
@@ -152,9 +144,7 @@ class Model:
         perturbed_layer_stack = copy.deepcopy(self.layer_stack)
         for key, thickness in layer_stack_param_dict.items():
             LayerStackThickness_obj = self.trainable_parameters[key]
-            perturbed_layer_stack.layers[
-                LayerStackThickness_obj.layername
-            ].thickness = thickness
+            perturbed_layer_stack.layers[LayerStackThickness_obj.layername].thickness = thickness
         return perturbed_layer_stack
 
     def perturb_geometry(self, current_component, litho_param_dict):
@@ -167,9 +157,7 @@ class Model:
         """
         for key, value in litho_param_dict.items():
             lithoParameter_obj = self.trainable_parameters[key]
-            current_component = lithoParameter_obj.get_transformation(
-                current_component, value
-            )
+            current_component = lithoParameter_obj.get_transformation(current_component, value)
         return current_component
 
     """
@@ -210,13 +198,11 @@ class Model:
         """
         if type == "arange":
             ranges_dict = {
-                name: parameter.arange()
-                for name, parameter in self.trainable_parameters.items()
+                name: parameter.arange() for name, parameter in self.trainable_parameters.items()
             }
         elif type == "corners":
             ranges_dict = {
-                name: parameter.corners()
-                for name, parameter in self.trainable_parameters.items()
+                name: parameter.corners() for name, parameter in self.trainable_parameters.items()
             }
         else:
             raise ValueError("Type should be arange or corners.")
@@ -251,9 +237,7 @@ class Model:
         # For all combinations of parameter values
         input_ids = list(product(*ranges_dict.values()))
         output_ids = [
-            self.get_output_from_inputs(
-                ranges_dict.keys(), values, self.remote_function
-            )
+            self.get_output_from_inputs(ranges_dict.keys(), values, self.remote_function)
             for values in product(*ranges_dict.values())
         ]
         # Execute the jobs
@@ -262,9 +246,7 @@ class Model:
         # Parse the outputs into input and output vectors
         input_vectors = []
         output_vectors = []
-        for input_example, output_example in zip(
-            input_ids, results
-        ):  # TODO no for loops!
+        for input_example, output_example in zip(input_ids, results):  # TODO no for loops!
             input_vector = list(input_example)
             input_vector.extend(output_example[0])
             input_vectors.append(input_vector)
@@ -305,9 +287,7 @@ class Model:
         Find faster way!
         """
         return_array = [
-            value
-            for key, value in input_dict.items()
-            if key in self.trainable_parameters.keys()
+            value for key, value in input_dict.items() if key in self.trainable_parameters.keys()
         ]
         return jnp.array(return_array)
 
@@ -337,7 +317,6 @@ class Model:
 
         # Parse the outputs into input and output vectors
         calculated_outputs = [
-            calculated_output_vector[1]
-            for calculated_output_vector in calculated_outputs_results
+            calculated_output_vector[1] for calculated_output_vector in calculated_outputs_results
         ]
         return validation_inputs, calculated_outputs, inferred_outputs

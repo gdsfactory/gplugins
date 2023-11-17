@@ -48,9 +48,7 @@ class SchematicEditor:
 
         first_inst_box = self._get_instance_selector()
         first_inst_box.children[0].observe(self._add_row_when_full, names=["value"])
-        first_inst_box.children[1].observe(
-            self._on_instance_component_modified, names=["value"]
-        )
+        first_inst_box.children[1].observe(self._on_instance_component_modified, names=["value"])
         self._instance_grid.children += (first_inst_box,)
 
         first_net_box = self._get_net_selector()
@@ -105,9 +103,7 @@ class SchematicEditor:
         return row
 
     def _get_port_selector(self, port_name: str | None = None, port: str | None = None):
-        instance_port_selector = widgets.Text(
-            placeholder="InstanceName:PortName", disabled=False
-        )
+        instance_port_selector = widgets.Text(placeholder="InstanceName:PortName", disabled=False)
 
         port_name_box = widgets.Text(placeholder="Port name", disabled=False)
         instance_port_selector._instance_selector = port_name_box
@@ -167,9 +163,7 @@ class SchematicEditor:
             port1_selector.value = port1
         if port2:
             port2_selector.value = port2
-        return widgets.Box(
-            [inst1_selector, port1_selector, inst2_selector, port2_selector]
-        )
+        return widgets.Box([inst1_selector, port1_selector, inst2_selector, port2_selector])
 
     def _add_row_when_full(self, change) -> None:
         if change["old"] == "" and change["new"] != "":
@@ -179,9 +173,7 @@ class SchematicEditor:
                 new_row = self._get_instance_selector()
                 self._instance_grid.children += (new_row,)
                 new_row.children[0].observe(self._add_row_when_full, names=["value"])
-                new_row.children[1].observe(
-                    self._on_instance_component_modified, names=["value"]
-                )
+                new_row.children[1].observe(self._on_instance_component_modified, names=["value"])
                 new_row._associated_component = None
 
     def _add_net_row_when_full(self, change) -> None:
@@ -191,9 +183,7 @@ class SchematicEditor:
             if this_box is last_box:
                 new_row = self._get_net_selector()
                 self._net_grid.children += (new_row,)
-                new_row.children[0].observe(
-                    self._add_net_row_when_full, names=["value"]
-                )
+                new_row.children[0].observe(self._add_net_row_when_full, names=["value"])
                 for child in new_row.children:
                     child.observe(self._on_net_modified, names=["value"])
                 new_row._associated_component = None
@@ -228,9 +218,7 @@ class SchematicEditor:
         return {"instance_name": inst_name, "component_name": component_name}
 
     def _get_instance_data(self):
-        inst_data = [
-            self._get_data_from_row(row) for row in self._instance_grid.children
-        ]
+        inst_data = [self._get_data_from_row(row) for row in self._instance_grid.children]
         inst_data = [d for d in inst_data if d["instance_name"] != ""]
         return inst_data
 
@@ -314,18 +302,14 @@ class SchematicEditor:
         self._schematic.instances[instance].component = component
         self.update_settings(instance=instance, clear_existing=True)
 
-    def update_settings(
-        self, instance, clear_existing: bool = False, **settings
-    ) -> None:
+    def update_settings(self, instance, clear_existing: bool = False, **settings) -> None:
         old_settings = self._schematic.instances[instance].settings.copy()
         if clear_existing:
             self._schematic.instances[instance].settings.clear()
         if settings:
             self._schematic.instances[instance].settings.update(settings)
         for callback in self.on_settings_updated:
-            callback(
-                instance_name=instance, settings=settings, old_settings=old_settings
-            )
+            callback(instance_name=instance, settings=settings, old_settings=old_settings)
 
     def add_net(self, inst1, port1, inst2, port2):
         p1 = f"{inst1},{port1}"
@@ -334,16 +318,12 @@ class SchematicEditor:
             if self._connected_ports[p1] == p2:
                 return
             current_port = self._connected_ports[p1]
-            raise ValueError(
-                f"{p1} is already connected to {current_port}. Can't connect to {p2}"
-            )
+            raise ValueError(f"{p1} is already connected to {current_port}. Can't connect to {p2}")
         self._connected_ports[p1] = p2
         self._connected_ports[p2] = p1
         old_nets = self._schematic.nets.copy()
         self._schematic.nets.append([p1, p2])
-        new_row = self._get_net_selector(
-            inst1=inst1, inst2=inst2, port1=port1, port2=port2
-        )
+        new_row = self._get_net_selector(inst1=inst1, inst2=inst2, port1=port1, port2=port2)
         existing_rows = self._net_grid.children
         new_rows = existing_rows[:-1] + (new_row, existing_rows[-1])
         self._net_grid.children = new_rows
@@ -379,9 +359,7 @@ class SchematicEditor:
                 inst_name=inst_name, component_name=component_name
             )
             new_row.children[0].observe(self._add_row_when_full, names=["value"])
-            new_row.children[1].observe(
-                self._on_instance_component_modified, names=["value"]
-            )
+            new_row.children[1].observe(self._on_instance_component_modified, names=["value"])
             new_rows.append(new_row)
         self._instance_grid = widgets.VBox(new_rows)
 
@@ -407,9 +385,7 @@ class SchematicEditor:
         for port_name, port in ports.items():
             new_row = self._get_port_selector(port_name=port_name, port=port)
             new_row.children[0].observe(self._add_row_when_full, names=["value"])
-            new_row.children[1].observe(
-                self._on_instance_component_modified, names=["value"]
-            )
+            new_row.children[1].observe(self._on_instance_component_modified, names=["value"])
             new_rows.append(new_row)
         self._port_grid = widgets.VBox(new_rows)
 
@@ -437,9 +413,7 @@ class SchematicEditor:
         pic_conf.to_yaml(output_filename)
         return pic_conf
 
-    def save_schematic_html(
-        self, filename: str | Path, title: str | None = None
-    ) -> None:
+    def save_schematic_html(self, filename: str | Path, title: str | None = None) -> None:
         """Saves the schematic visualization to a standalone html file (read-only).
 
         Args:

@@ -265,9 +265,7 @@ def viz_bk(
         update_schematic_plot(schematic=netlist, instances=instances)
 
     data["dss"]["Rect"].on_change("data", cb_rect_on_change_data)
-    data["dss"]["Rect"].selected.on_change(
-        "indices", cb_rect_selected_on_change_indices
-    )
+    data["dss"]["Rect"].selected.on_change("indices", cb_rect_selected_on_change_indices)
     fig.on_event(be.DoubleTap, cp_double_tap)
 
     inst_glyph = fig.add_glyph(
@@ -285,9 +283,7 @@ def viz_bk(
     if "Polygons" in data["dss"]:
         fig.add_glyph(
             data["dss"]["Polygons"],
-            bm.MultiPolygons(
-                xs="xs", ys="ys", fill_color="fill_color", fill_alpha="fill_alpha"
-            ),
+            bm.MultiPolygons(xs="xs", ys="ys", fill_color="fill_color", fill_alpha="fill_alpha"),
         )
     net_glyph = None
     if "MultiLine" in data["dss"]:
@@ -296,9 +292,7 @@ def viz_bk(
             bm.MultiLine(xs="x", ys="y"),
             name="nets",
         )  # , line_color="line_color"))
-    fig.add_glyph(
-        data["dss"]["Port"], glyph=bm.Circle(x="x", y="y", fill_color="fill_color")
-    )
+    fig.add_glyph(data["dss"]["Port"], glyph=bm.Circle(x="x", y="y", fill_color="fill_color"))
     del fig.tools[:]
     draw_tool = bm.PointDrawTool(
         renderers=[r for r in fig.renderers if isinstance(r.glyph, bm.Rect)],
@@ -461,9 +455,7 @@ def viz_netlist(netlist, instances, instance_size=20):
     return els
 
 
-def show_netlist(
-    schematic: SchematicConfiguration, instances: dict, netlist_filename
-) -> None:
+def show_netlist(schematic: SchematicConfiguration, instances: dict, netlist_filename) -> None:
     global data
     data["netlist"] = schematic
     fig = bp.figure(width=800, height=500)
@@ -512,9 +504,7 @@ def add_instance(name: str, component) -> None:
 
 
 def get_deltas(netlist):
-    return {
-        k: {"dx": p.dx or 0, "dy": p.dy or 0} for k, p in netlist.placements.items()
-    }
+    return {k: {"dx": p.dx or 0, "dy": p.dy or 0} for k, p in netlist.placements.items()}
 
 
 def apply_deltas(netlist, deltas) -> None:

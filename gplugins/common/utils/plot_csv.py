@@ -31,9 +31,7 @@ def plot_sparameters(
 
     """
     w = df["wavelengths"] * 1e3
-    keys = keys or [
-        key for key in df.keys() if key.lower().startswith("s") and key.endswith("m")
-    ]
+    keys = keys or [key for key in df.keys() if key.lower().startswith("s") and key.endswith("m")]
 
     for key in keys:
         if key not in df:

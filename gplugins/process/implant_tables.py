@@ -10,44 +10,28 @@ from scipy import interpolate, optimize
 depth_in_silicon = {
     "boron": np.poly1d([-3.308e-6, 3.338e-3, 0], variable="E"),
     "phosphorus": np.poly1d([1.290e-9, -2.743e-7, 1.259e-3, 0], variable="E"),
-    "antimony": np.poly1d(
-        [4.028e-13, -3.056e-10, 8.372e-8, -1.013e-5, 8.887e-4, 0], variable="E"
-    ),
-    "arsenic": np.poly1d(
-        [4.608e-13, -3.442e-10, 9.067e-8, -1.022e-5, 9.818e-4, 0], variable="E"
-    ),
+    "antimony": np.poly1d([4.028e-13, -3.056e-10, 8.372e-8, -1.013e-5, 8.887e-4, 0], variable="E"),
+    "arsenic": np.poly1d([4.608e-13, -3.442e-10, 9.067e-8, -1.022e-5, 9.818e-4, 0], variable="E"),
 }
 
 straggle_in_silicon = {
-    "boron": np.poly1d(
-        [5.525e-13, -4.545e-10, 1.403e-7, -2.086e-5, 1.781e-3, 0], variable="E"
-    ),
-    "phosphorus": np.poly1d(
-        [-2.252e-11, 1.371e-8, -3.161e-6, 6.542e-4, 0], variable="E"
-    ),
-    "antimony": np.poly1d(
-        [1.084e-13, -8.310e-11, 2.311e-8, -2.885e-6, 2.674e-4, 0], variable="E"
-    ),
-    "arsenic": np.poly1d(
-        [1.601e-13, -1.202e-10, 3.235e-8, -3.820e-6, 3.652e-4, 0], variable="E"
-    ),
+    "boron": np.poly1d([5.525e-13, -4.545e-10, 1.403e-7, -2.086e-5, 1.781e-3, 0], variable="E"),
+    "phosphorus": np.poly1d([-2.252e-11, 1.371e-8, -3.161e-6, 6.542e-4, 0], variable="E"),
+    "antimony": np.poly1d([1.084e-13, -8.310e-11, 2.311e-8, -2.885e-6, 2.674e-4, 0], variable="E"),
+    "arsenic": np.poly1d([1.601e-13, -1.202e-10, 3.235e-8, -3.820e-6, 3.652e-4, 0], variable="E"),
 }
 
 
 module_path = Path(__file__).parent
 skew_data = {
-    "boron": np.genfromtxt(
-        module_path / "skew/boron_si_skew.csv", delimiter=" ", dtype=float
-    ),
+    "boron": np.genfromtxt(module_path / "skew/boron_si_skew.csv", delimiter=" ", dtype=float),
     "phosphorus": np.genfromtxt(
         module_path / "skew/phosphorus_si_skew.csv", delimiter=" ", dtype=float
     ),
     "antimony": np.genfromtxt(
         module_path / "skew/antimony_si_skew.csv", delimiter=" ", dtype=float
     ),
-    "arsenic": np.genfromtxt(
-        module_path / "skew/arsenic_si_skew.csv", delimiter=" ", dtype=float
-    ),
+    "arsenic": np.genfromtxt(module_path / "skew/arsenic_si_skew.csv", delimiter=" ", dtype=float),
 }
 
 skew_in_silicon = {
@@ -122,18 +106,14 @@ def silicon_skewed_gaussian_profile(
 
     def sigmap_eq(Rm, sigma1, sigma2):
         return np.sqrt(
-            (sigma1**2 - sigma1 * sigma2 + sigma2**2)
-            - 2 / np.pi * (sigma2 - sigma1) ** 2
+            (sigma1**2 - sigma1 * sigma2 + sigma2**2) - 2 / np.pi * (sigma2 - sigma1) ** 2
         )
 
     def gamma1_eq(Rm, sigma1, sigma2):
         return (
             np.sqrt(2 / np.pi)
             * (sigma2 - sigma1)
-            * (
-                (4 / np.pi - 1) * (sigma1**2 + sigma2**2)
-                + (3 - 8 / np.pi) * sigma1 * sigma2
-            )
+            * ((4 / np.pi - 1) * (sigma1**2 + sigma2**2) + (3 - 8 / np.pi) * sigma1 * sigma2)
             / sigmap_eq(Rm, sigma1, sigma2) ** 3
         )
 

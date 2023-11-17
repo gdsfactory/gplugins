@@ -23,9 +23,7 @@ from gplugins.web.server import LayoutViewServerEndpoint, get_layout_view
 
 module_path = Path(__file__).parent.absolute()
 
-app = FastAPI(
-    routes=[WebSocketRoute("/view/{cell_name}/ws", endpoint=LayoutViewServerEndpoint)]
-)
+app = FastAPI(routes=[WebSocketRoute("/view/{cell_name}/ws", endpoint=LayoutViewServerEndpoint)])
 app.add_middleware(ProxiedHeadersMiddleware)
 # app = FastAPI()
 app.mount("/static", StaticFiles(directory=PATH.web / "static"), name="static")
@@ -57,13 +55,7 @@ def get_url(request: Request) -> str:
     if "github" in hostname:
         port_mod = ""
 
-    url = str(
-        request.url.scheme
-        + "://"
-        + (hostname or "localhost")
-        + port_mod
-        + request.url.path
-    )
+    url = str(request.url.scheme + "://" + (hostname or "localhost") + port_mod + request.url.path)
     return url
 
 
@@ -102,9 +94,7 @@ async def gds_list(request: Request):
     files_root = GDSDIR_TEMP
     paths_list = glob(str(files_root / "*.gds"))
     files_list = sorted(Path(gdsfile).stem for gdsfile in paths_list)
-    files_metadata = [
-        {"name": file_name, "url": f"view/{file_name}"} for file_name in files_list
-    ]
+    files_metadata = [{"name": file_name, "url": f"view/{file_name}"} for file_name in files_list]
     return templates.TemplateResponse(
         "file_browser.html.j2",
         {
@@ -164,9 +154,7 @@ async def view_cell(request: Request, cell_name: str, variant: str | None = None
             component = gf.get_component(cell_name)
         except Exception as e:
             if cell_name not in gds_names:
-                raise HTTPException(
-                    status_code=400, detail=f"Component not found. {e}"
-                ) from e
+                raise HTTPException(status_code=400, detail=f"Component not found. {e}") from e
 
             gdspath = GDSDIR_TEMP / cell_name
             component = gf.import_gds(gdspath=gdspath.with_suffix(".gds"))

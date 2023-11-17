@@ -80,9 +80,7 @@ rib_waveguide_model = FemwellWaveguideModel(
         "radius": jnp.inf,
     },
     trainable_parameters={
-        "width": NamedParameter(
-            min_value=0.4, max_value=0.6, nominal_value=0.5, step=0.05
-        ),
+        "width": NamedParameter(min_value=0.4, max_value=0.6, nominal_value=0.5, step=0.05),
         "wavelength": NamedParameter(
             min_value=1.545, max_value=1.555, nominal_value=1.55, step=0.005
         ),

@@ -168,9 +168,7 @@ def compare_mpb_lumerical(plot=False) -> None:
 
     # Load Lumerical result
     with h5py.File(filepath / "stripWG_lumerical" / "mode1.mat", "r") as f:
-        E, H, y, z = lumerical_parser(
-            f["E"]["E"], f["H"]["H"], f["E"]["y"], f["E"]["z"], res=50
-        )
+        E, H, y, z = lumerical_parser(f["E"]["E"], f["H"]["H"], f["E"]["y"], f["E"]["z"], res=50)
         # Package into modes object
         m1_lumerical = Mode(
             mode_number=1,
@@ -184,9 +182,7 @@ def compare_mpb_lumerical(plot=False) -> None:
             z=z,
         )
     with h5py.File(filepath / "stripWG_lumerical" / "mode2.mat", "r") as f:
-        E, H, y, z = lumerical_parser(
-            f["E"]["E"], f["H"]["H"], f["E"]["y"], f["E"]["z"], res=50
-        )
+        E, H, y, z = lumerical_parser(f["E"]["E"], f["H"]["H"], f["E"]["y"], f["E"]["z"], res=50)
         # Package into modes object
         m2_lumerical = Mode(
             mode_number=1,

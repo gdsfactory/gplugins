@@ -70,23 +70,19 @@ def get_effective_indices(
         return k_0 * np.sqrt(epsilon_core - e_eff) / (epsilon_core if tm else 1)
 
     def k_s(e_eff):
-        return (
-            k_0 * np.sqrt(e_eff - epsilon_substrate) / (epsilon_substrate if tm else 1)
-        )
+        return k_0 * np.sqrt(e_eff - epsilon_substrate) / (epsilon_substrate if tm else 1)
 
     def k_c(e_eff):
         return k_0 * np.sqrt(e_eff - epsilon_cladding) / (epsilon_cladding if tm else 1)
 
     def objective(e_eff):
-        return 1 / np.tan(k_f(e_eff) * thickness) - (
-            k_f(e_eff) ** 2 - k_s(e_eff) * k_c(e_eff)
-        ) / (k_f(e_eff) * (k_s(e_eff) + k_c(e_eff)))
+        return 1 / np.tan(k_f(e_eff) * thickness) - (k_f(e_eff) ** 2 - k_s(e_eff) * k_c(e_eff)) / (
+            k_f(e_eff) * (k_s(e_eff) + k_c(e_eff))
+        )
 
     # scan roughly for indices
     # use a by 1e-10 smaller search area to avoid division by zero
-    x = np.linspace(
-        min(epsilon_substrate, epsilon_cladding) + 1e-10, epsilon_core - 1e-10, 1000
-    )
+    x = np.linspace(min(epsilon_substrate, epsilon_cladding) + 1e-10, epsilon_core - 1e-10, 1000)
     indices_temp = x[np.abs(objective(x)) < 0.1]
     if not len(indices_temp):
         return []

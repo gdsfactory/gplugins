@@ -206,14 +206,10 @@ def write_sparameters_lumerical(
 
     if hasattr(component.info, "simulation_settings"):
         sim_settings |= component.info.simulation_settings
-        logger.info(
-            f"Updating {component.name!r} sim settings {component.simulation_settings}"
-        )
+        logger.info(f"Updating {component.name!r} sim settings {component.simulation_settings}")
     for setting in settings:
         if setting not in sim_settings:
-            raise ValueError(
-                f"Invalid setting {setting!r} not in ({list(sim_settings.keys())})"
-            )
+            raise ValueError(f"Invalid setting {setting!r} not in ({list(sim_settings.keys())})")
 
     sim_settings.update(**settings)
     ss = SimulationSettingsLumericalFdtd(**sim_settings)
@@ -273,8 +269,7 @@ def write_sparameters_lumerical(
     ]
     if not layers_thickness:
         raise ValueError(
-            f"no layers for component {component.get_layers()}"
-            f"in layer stack {layer_stack}"
+            f"no layers for component {component.get_layers()}" f"in layer stack {layer_stack}"
         )
     layers_zmin = [
         layer_to_zmin[layer]
@@ -298,9 +293,7 @@ def write_sparameters_lumerical(
         version=__version__,
     )
 
-    logger.info(
-        f"Simulation size = {x_span*1e6:.3f}, {y_span*1e6:.3f}, {z_span*1e6:.3f} um"
-    )
+    logger.info(f"Simulation size = {x_span*1e6:.3f}, {y_span*1e6:.3f}, {z_span*1e6:.3f} um")
 
     # from pprint import pprint
     # filepath_sim_settings.write_text(yaml.dump(sim_settings))
@@ -366,9 +359,7 @@ def write_sparameters_lumerical(
 
         material_name = layer_to_material[layer]
         if material_name not in material_name_to_lumerical:
-            raise ValueError(
-                f"{material_name!r} not in {list(material_name_to_lumerical.keys())}"
-            )
+            raise ValueError(f"{material_name!r} not in {list(material_name_to_lumerical.keys())}")
         material = material_name_to_lumerical[material_name]
 
         if layer not in layer_to_zmin:
@@ -426,9 +417,7 @@ def write_sparameters_lumerical(
             dyp = 0
 
         else:
-            raise ValueError(
-                f"port {port.name!r} orientation {port.orientation} is not valid"
-            )
+            raise ValueError(f"port {port.name!r} orientation {port.orientation} is not valid")
 
         s.setnamed(p, "direction", direction)
         s.setnamed(p, "injection axis", injection_axis)
@@ -439,8 +428,7 @@ def write_sparameters_lumerical(
         # s.setnamed(p, "name", f"o{i+1}")
 
         logger.info(
-            f"port {p} {port.name!r}: at ({port.x}, {port.y}, 0)"
-            f"size = ({dxp}, {dyp}, {zspan})"
+            f"port {p} {port.name!r}: at ({port.x}, {port.y}, 0)" f"size = ({dxp}, {dyp}, {zspan})"
         )
 
     s.setglobalsource("wavelength start", ss.wavelength_start * 1e-6)
@@ -495,9 +483,7 @@ def _sample_write_coupler_ring():
     """Write Sparameters when changing a component setting."""
     return [
         write_sparameters_lumerical(
-            gf.components.coupler_ring(
-                width=width, length_x=length_x, radius=radius, gap=gap
-            )
+            gf.components.coupler_ring(width=width, length_x=length_x, radius=radius, gap=gap)
         )
         for width in [0.5]
         for length_x in [0.1, 1, 2, 3, 4]

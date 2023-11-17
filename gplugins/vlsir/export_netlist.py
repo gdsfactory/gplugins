@@ -79,9 +79,7 @@ def _subcircuit_instance(instance: SubCircuit, counter, **kwargs) -> Instance:
     num_pins = ref.pin_count()
     pin_nets = [instance.net_for_pin(pin_id) for pin_id in range(num_pins)]
     net_names = [_net_name(net, counter) for net in pin_nets]
-    pin_names = [
-        _net_name(ref.net_for_pin(pin_id), counter) for pin_id in range(num_pins)
-    ]
+    pin_names = [_net_name(ref.net_for_pin(pin_id), counter) for pin_id in range(num_pins)]
     # pin_names = [_pin_name(ref.net_by_id(pin_id), counter) for pin_id in range(num_pins)]
     # get all parent
     # add the instance to the package's module
@@ -89,10 +87,7 @@ def _subcircuit_instance(instance: SubCircuit, counter, **kwargs) -> Instance:
         name=subckt_name,
         module=_lref(ref.name),
         parameters=_params(
-            **{
-                prop_name: instance.property(prop_name)
-                for prop_name in instance.property_keys()
-            }
+            **{prop_name: instance.property(prop_name) for prop_name in instance.property_keys()}
         ),
         connections=_connections(
             **{
@@ -103,9 +98,7 @@ def _subcircuit_instance(instance: SubCircuit, counter, **kwargs) -> Instance:
     )
 
 
-def _circuit_module(
-    circuit: Circuit, counter, verbose: bool = False, **kwargs
-) -> Module:
+def _circuit_module(circuit: Circuit, counter, verbose: bool = False, **kwargs) -> Module:
     """Convert a Klayout DB `Circuit` to a VLSIR 'Module' and return it to include it in the package.
 
     Args:
@@ -120,26 +113,18 @@ def _circuit_module(
     pin_nets = [circuit.net_for_pin(pin_id) for pin_id in range(num_pins)]
     pin_names = [_net_name(pin_net, counter) for pin_net in pin_nets]
     # get all subcircuits of the circuit to form its instances
-    instances = [
-        _subcircuit_instance(instance, counter)
-        for instance in circuit.each_subcircuit()
-    ]
+    instances = [_subcircuit_instance(instance, counter) for instance in circuit.each_subcircuit()]
     # FIXME: ports should have a direction, but that info is not accounted for here, rendering verilog parsing impossible
     ports = [Port(direction="NONE", signal=pin_name) for pin_name in pin_names]
     # add the circutit module's nets as signals to the Module
-    signals = [
-        Signal(name=_net_name(net, counter), width=1) for net in circuit.each_net()
-    ]
+    signals = [Signal(name=_net_name(net, counter), width=1) for net in circuit.each_net()]
     mod = Module(
         name=name,
         instances=instances,
         signals=signals,
         ports=ports,
         parameters=_params(
-            **{
-                prop_name: circuit.property(prop_name)
-                for prop_name in circuit.property_keys()
-            }
+            **{prop_name: circuit.property(prop_name) for prop_name in circuit.property_keys()}
         ),
     )
 

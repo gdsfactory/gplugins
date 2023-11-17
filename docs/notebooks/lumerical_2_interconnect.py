@@ -53,9 +53,7 @@ circuit
 # +
 route_in = get_route(gc1.ports["opt1"], s.ports["opt1"])
 route_out_top = get_route(s.ports["opt2"], gc2.ports["opt1"])
-route_out_bot = get_route(
-    s.ports["opt3"], gc3.ports["opt1"], start_straight_length=1000
-)
+route_out_bot = get_route(s.ports["opt3"], gc3.ports["opt1"], start_straight_length=1000)
 
 circuit.add(route_in.references)
 circuit.add(route_out_top.references)
@@ -136,9 +134,7 @@ results = run_wavelength_sweep(
 )
 # -
 
-plot_wavelength_sweep(
-    ports_out=ports_out, results=results, result_name="'TE' transmission"
-)
+plot_wavelength_sweep(ports_out=ports_out, results=results, result_name="'TE' transmission")
 
 # +
 um = 1e-6

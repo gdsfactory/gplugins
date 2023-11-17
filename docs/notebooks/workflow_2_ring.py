@@ -146,18 +146,14 @@ ring_with_pads = gf.routing.add_pads_top(
     optical_routing_type=None,
     fanout_length=100,
 )
-ring_with_pads_grating_couplers = gf.routing.add_fiber_array(
-    ring_with_pads, with_loopback=True
-)
+ring_with_pads_grating_couplers = gf.routing.add_fiber_array(ring_with_pads, with_loopback=True)
 ring_with_pads_grating_couplers.show()
 ring_with_pads_grating_couplers.plot()
 
 # %%
 ring = gf.components.ring_single_heater(gap=0.2, radius=10, length_x=4)
 ring_with_grating_couplers = gf.routing.add_fiber_array(ring, with_loopback=True)
-c = gf.routing.add_electrical_pads_top(
-    ring_with_grating_couplers, port_names=["l_e1", "r_e3"]
-)
+c = gf.routing.add_electrical_pads_top(ring_with_grating_couplers, port_names=["l_e1", "r_e3"])
 c.plot()
 
 # %% [markdown]
@@ -178,12 +174,8 @@ ring_te = toolz.compose(gf.routing.add_fiber_array, gf.components.ring_single)
 
 gaps = [210 * nm, 220 * nm, 230 * nm]
 rings = gf.grid([ring_te(gap=gap) for gap in gaps])
-rings_heater = [
-    gf.components.ring_single_heater(gap=0.2, radius=10, length_x=4) for gap in gaps
-]
-rings_heater_with_grating_couplers = [
-    gf.routing.add_fiber_array(ring) for ring in rings_heater
-]
+rings_heater = [gf.components.ring_single_heater(gap=0.2, radius=10, length_x=4) for gap in gaps]
+rings_heater_with_grating_couplers = [gf.routing.add_fiber_array(ring) for ring in rings_heater]
 rings_with_pads = [
     gf.routing.add_electrical_pads_top(ring, port_names=["l_e1", "r_e3"])
     for ring in rings_heater_with_grating_couplers
@@ -211,15 +203,10 @@ ring_te = toolz.compose(gf.routing.add_fiber_array, gf.components.ring_single)
 rings = gf.grid([ring_te(radius=r) for r in [10, 20, 50]])
 
 gaps = [210 * nm, 220 * nm, 230 * nm]
-rings_heater = [
-    gf.components.ring_single_heater(gap=0.2, radius=10, length_x=4) for gap in gaps
-]
-rings_heater_with_grating_couplers = [
-    gf.routing.add_fiber_array(ring) for ring in rings_heater
-]
+rings_heater = [gf.components.ring_single_heater(gap=0.2, radius=10, length_x=4) for gap in gaps]
+rings_heater_with_grating_couplers = [gf.routing.add_fiber_array(ring) for ring in rings_heater]
 rings_with_pads = [
-    gf.routing.add_electrical_pads_top(ring)
-    for ring in rings_heater_with_grating_couplers
+    gf.routing.add_electrical_pads_top(ring) for ring in rings_heater_with_grating_couplers
 ]
 
 

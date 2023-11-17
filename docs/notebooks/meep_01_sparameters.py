@@ -527,9 +527,7 @@ def f(v, gradient, cur_beta):
     plt.show()
 
     if gradient.size > 0:
-        gradient[:] = tensor_jacobian_product(mapping, 0)(
-            v, eta_i, cur_beta, np.sum(dJ_du, axis=1)
-        )
+        gradient[:] = tensor_jacobian_product(mapping, 0)(v, eta_i, cur_beta, np.sum(dJ_du, axis=1))
 
     evaluation_history.append(np.max(np.real(f0)))
 

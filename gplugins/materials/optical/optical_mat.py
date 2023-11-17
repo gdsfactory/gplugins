@@ -7,9 +7,7 @@ from gplugins.materials.optical.refractive_index_info import (
 
 
 class OpticalMaterial:
-    def __init__(
-        self, ureg=None, load_source=None, lda_min=0, lda_max=np.inf, formula=1
-    ):
+    def __init__(self, ureg=None, load_source=None, lda_min=0, lda_max=np.inf, formula=1):
         """Create optical material."""
         self.ureg = ureg
         if load_source is not None:

@@ -83,9 +83,7 @@ def trainable_simulations(x, loss=lambda x: x):
                 cores=2,
                 **meep_params,  # set this to be the same as in `tune.Tuner`
             )
-            s_params = np.load(
-                s_params
-            )  # parallel version returns the filepath to npz instead
+            s_params = np.load(s_params)  # parallel version returns the filepath to npz instead
         else:
             s_params = gm.write_sparameters_meep(**meep_params)
 
@@ -113,9 +111,7 @@ bounds = (min_bound, max_bound)
 options = {"c1": 0.5, "c2": 0.3, "w": 0.9}
 
 # Create an instance of the PSO optimizer
-optimizer = ps.single.GlobalBestPSO(
-    n_particles=10, dimensions=2, options=options, bounds=bounds
-)
+optimizer = ps.single.GlobalBestPSO(n_particles=10, dimensions=2, options=options, bounds=bounds)
 
 
 # %%

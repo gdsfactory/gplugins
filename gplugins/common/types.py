@@ -11,6 +11,4 @@ AnyShapelyPolygon = Annotated[
     GeometryCollection | MultiPolygon | Polygon,
     PlainSerializer(lambda x: x.wkb_hex, when_used="json"),
 ]
-GFComponent = Annotated[
-    Component, PlainSerializer(lambda x: x.to_dict(), when_used="json")
-]
+GFComponent = Annotated[Component, PlainSerializer(lambda x: x.to_dict(), when_used="json")]

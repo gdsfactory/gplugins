@@ -131,15 +131,11 @@ def write_sparameters_grating_coupler(
 
     direction_inp = "+"
     monitor_entering = (
-        sim_data.monitor_data["waveguide"]
-        .amps.sel(direction=direction_inp)
-        .values.flatten()
+        sim_data.monitor_data["waveguide"].amps.sel(direction=direction_inp).values.flatten()
     )
     direction_out = "-"
     monitor_exiting = (
-        sim_data.monitor_data["waveguide"]
-        .amps.sel(direction=direction_out)
-        .values.flatten()
+        sim_data.monitor_data["waveguide"].amps.sel(direction=direction_out).values.flatten()
     )
     r = monitor_entering / monitor_exiting
     t = monitor_exiting
@@ -150,9 +146,7 @@ def write_sparameters_grating_coupler(
             fiber_port_name = port_name
 
     if fiber_port_name is None:
-        raise ValueError(
-            f"No port named {fiber_port_prefix!r} in {component.ports.keys()}"
-        )
+        raise ValueError(f"No port named {fiber_port_prefix!r} in {component.ports.keys()}")
 
     freqs = sim_data.monitor_data["waveguide"].amps.sel(direction="+").f
     port_name_input = port_waveguide_name
@@ -193,10 +187,7 @@ def write_sparameters_grating_coupler_batch(
         kwargs: simulation settings.
     """
     kwargs.update(verbose=False)
-    return [
-        _executor.submit(write_sparameters_grating_coupler, **job, **kwargs)
-        for job in jobs
-    ]
+    return [_executor.submit(write_sparameters_grating_coupler, **job, **kwargs) for job in jobs]
 
 
 if __name__ == "__main__":

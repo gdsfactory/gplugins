@@ -11,9 +11,7 @@ from gplugins.common.config import PATH
 def test_sparameters_straight_3d(overwrite=True) -> None:
     """Checks Sparameters for a straight waveguide in 3D."""
     c = gf.components.straight(length=2)
-    sp = gt.write_sparameters_1x1(
-        c, overwrite=overwrite, is_3d=True, dirpath=PATH.sparameters_repo
-    )
+    sp = gt.write_sparameters_1x1(c, overwrite=overwrite, is_3d=True, dirpath=PATH.sparameters_repo)
 
     assert 1 > np.abs(sp["o1@0,o2@0"]).min() > 0.8, np.abs(sp["o1@0,o2@0"]).min()
     assert 0 < np.abs(sp["o1@0,o1@0"]).max() < 0.1, np.abs(sp["o1@0,o1@0"]).max()

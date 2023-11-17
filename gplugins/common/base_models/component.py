@@ -55,9 +55,7 @@ class LayeredComponentBase(BaseModel):
     @cached_property
     def gds_component(self) -> GFComponent:
         c = Component(name=f"sim_component_{self.component.name}")
-        c << gf.components.extend_ports(
-            self.component, length=self.extend_ports + self.pad_xy
-        )
+        c << gf.components.extend_ports(self.component, length=self.extend_ports + self.pad_xy)
         c << gf.components.bbox(
             self._gds_bbox,
             layer=self.wafer_layer,
@@ -97,11 +95,7 @@ class LayeredComponentBase(BaseModel):
 
     @cached_property
     def geometry_layers(self) -> dict[str, LayerLevel]:
-        layers = {
-            k: v
-            for k, v in self.layer_stack.layers.items()
-            if not self.polygons[k].is_empty
-        }
+        layers = {k: v for k, v in self.layer_stack.layers.items() if not self.polygons[k].is_empty}
         return dict(tuple(layers.items())[slice(*self.slice_stack)])
 
     @property
@@ -169,9 +163,7 @@ class LayeredComponentBase(BaseModel):
     @cached_property
     def device_layers(self) -> tuple[str, ...]:
         return tuple(
-            k
-            for k, v in self.layer_stack.layers.items()
-            if v.layer in self.component.layers
+            k for k, v in self.layer_stack.layers.items() if v.layer in self.component.layers
         )
 
     @cached_property

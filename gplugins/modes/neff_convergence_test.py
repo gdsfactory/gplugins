@@ -77,13 +77,9 @@ def neff_domain_convergence_test(
         cur_sy = iter * rel_conv_step * sy + sy
         cur_sz = iter * rel_conv_step * sz + sz
         # Compute new modes
-        incr_mode = find_modes_waveguide(parity=mp.NO_PARITY, sy=cur_sy, sz=cur_sz)[
-            mode_number
-        ]
+        incr_mode = find_modes_waveguide(parity=mp.NO_PARITY, sy=cur_sy, sz=cur_sz)[mode_number]
         # Compute tolerance
-        cur_tol = abs(init_mode.neff - incr_mode.neff) / min(
-            init_mode.neff, incr_mode.neff
-        )
+        cur_tol = abs(init_mode.neff - incr_mode.neff) / min(init_mode.neff, incr_mode.neff)
         if stdout:
             print(f"{iter} | {incr_mode.neff} | {cur_sy} | {cur_sz} | {cur_tol}")
         iter += 1
@@ -109,9 +105,7 @@ def neff_domain_convergence_test(
             resolution=cur_res,
         )[mode_number]
         # Compute tolerance
-        cur_tol = abs(init_mode.neff - incr_mode.neff) / min(
-            init_mode.neff, incr_mode.neff
-        )
+        cur_tol = abs(init_mode.neff - incr_mode.neff) / min(init_mode.neff, incr_mode.neff)
         if stdout:
             print(f"{iter} | {incr_mode.neff} | {cur_res} | {cur_tol}")
         iter += 1
@@ -181,13 +175,9 @@ def neff_resolution_convergence_test(
         cur_sy = iter * rel_conv_step * sy + sy
         cur_sz = iter * rel_conv_step * sz + sz
         # Compute new modes
-        incr_mode = find_modes_waveguide(parity=mp.NO_PARITY, sy=cur_sy, sz=cur_sz)[
-            mode_number
-        ]
+        incr_mode = find_modes_waveguide(parity=mp.NO_PARITY, sy=cur_sy, sz=cur_sz)[mode_number]
         # Compute tolerance
-        cur_tol = abs(init_mode.neff - incr_mode.neff) / min(
-            init_mode.neff, incr_mode.neff
-        )
+        cur_tol = abs(init_mode.neff - incr_mode.neff) / min(init_mode.neff, incr_mode.neff)
         if stdout:
             print(f"{iter} | {incr_mode.neff} | {cur_sy} | {cur_sz} | {cur_tol}")
         iter += 1
@@ -213,9 +203,7 @@ def neff_resolution_convergence_test(
             resolution=cur_res,
         )[mode_number]
         # Compute tolerance
-        cur_tol = abs(init_mode.neff - incr_mode.neff) / min(
-            init_mode.neff, incr_mode.neff
-        )
+        cur_tol = abs(init_mode.neff - incr_mode.neff) / min(init_mode.neff, incr_mode.neff)
         if stdout:
             print(f"{iter} | {incr_mode.neff} | {cur_res} | {cur_tol}")
         iter += 1
@@ -224,6 +212,4 @@ def neff_resolution_convergence_test(
 
 
 if __name__ == "__main__":
-    result = neff_domain_convergence_test(
-        stdout=True, resolution=16, sy=2, sz=2, nmodes=4
-    )
+    result = neff_domain_convergence_test(stdout=True, resolution=16, sy=2, sz=2, nmodes=4)

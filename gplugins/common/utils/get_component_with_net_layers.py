@@ -23,9 +23,7 @@ def get_component_layer_stack(
     layers_present = component.layers
     layernames_dict = new_layer_stack.get_layer_to_layername()
     layernames_present = [
-        name
-        for sublist in [layernames_dict[layer] for layer in layers_present]
-        for name in sublist
+        name for sublist in [layernames_dict[layer] for layer in layers_present] for name in sublist
     ]
     for key in list(new_layer_stack.layers.keys()):
         if key not in layernames_present:
@@ -88,9 +86,7 @@ def get_component_with_net_layers(
                             new_layers_init[0] + i,
                             new_layers_init[1] + j,
                         )
-                        layer_stack.layers[
-                            f"{old_layername}{delimiter}{portname}"
-                        ] = new_layer
+                        layer_stack.layers[f"{old_layername}{delimiter}{portname}"] = new_layer
                     net_component.add_polygon(polygon, layer=new_layer_number)
             # Otherwise put the polygon back on the same layer
             else:

@@ -44,13 +44,9 @@ filtered_layer_stack = LayerStack(
     }
 )
 
-filtered_layer_stack.layers[
-    "core"
-].thickness = 0.22  # Perturb the layer_stack before simulating
+filtered_layer_stack.layers["core"].thickness = 0.22  # Perturb the layer_stack before simulating
 
-filtered_layer_stack.layers[
-    "slab90"
-].thickness = 0.09  # Perturb the layer_stack before simulating
+filtered_layer_stack.layers["slab90"].thickness = 0.09  # Perturb the layer_stack before simulating
 
 resolutions = {
     "core": {"resolution": 0.02, "distance": 2},

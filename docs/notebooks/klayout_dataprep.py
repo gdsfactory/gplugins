@@ -50,9 +50,7 @@ c.plot()
 # You can access each layer as a dict.
 
 # %%
-d[LAYER.N] = d[
-    LAYER.WG
-].copy()  # make sure you add the copy to create a copy of the layer
+d[LAYER.N] = d[LAYER.WG].copy()  # make sure you add the copy to create a copy of the layer
 d.plot()
 
 # %% [markdown]
@@ -114,13 +112,9 @@ import kfactory as kf
 from kfactory.utils.fill import fill_tiled
 
 c = kf.KCell("ToFill")
-c.shapes(kf.kcl.layer(1, 0)).insert(
-    kf.kdb.DPolygon.ellipse(kf.kdb.DBox(5000, 3000), 512)
-)
+c.shapes(kf.kcl.layer(1, 0)).insert(kf.kdb.DPolygon.ellipse(kf.kdb.DBox(5000, 3000), 512))
 c.shapes(kf.kcl.layer(10, 0)).insert(
-    kf.kdb.DPolygon(
-        [kf.kdb.DPoint(0, 0), kf.kdb.DPoint(5000, 0), kf.kdb.DPoint(5000, 3000)]
-    )
+    kf.kdb.DPolygon([kf.kdb.DPoint(0, 0), kf.kdb.DPoint(5000, 0), kf.kdb.DPoint(5000, 3000)])
 )
 
 fc = kf.KCell("fill")

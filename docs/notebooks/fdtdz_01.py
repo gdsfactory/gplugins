@@ -50,9 +50,7 @@ c = gf.Component()
 waveguide_rib = c << gf.components.straight(length=length, cross_section=rib)
 nitride_feature = c << gf.components.circle(radius=2, layer=LAYER.WGN)
 nitride_feature.x = 5
-padding = c << gf.components.bbox(
-    waveguide_rib.bbox, top=2, bottom=2, layer=LAYER.WAFER
-)
+padding = c << gf.components.bbox(waveguide_rib.bbox, top=2, bottom=2, layer=LAYER.WAFER)
 c.add_ports(gf.components.straight(length=length).get_ports_list())
 
 c.plot()
@@ -63,9 +61,7 @@ c.plot()
 # Here we load the generic LayerStack, but only keep the `core`, `clad`, and `box` layers:
 
 filtered_layer_stack = LayerStack(
-    layers={
-        k: LAYER_STACK.layers[k] for k in ["clad", "box", "core", "slab90", "nitride"]
-    }
+    layers={k: LAYER_STACK.layers[k] for k in ["clad", "box", "core", "slab90", "nitride"]}
 )
 filtered_layer_stack
 
@@ -129,9 +125,7 @@ from gplugins.fdtdz.get_epsilon_fdtdz import component_to_epsilon_pjz, plot_epsi
 zmin = -0.5
 nm_per_pixel = 20
 
-epsilon = component_to_epsilon_pjz(
-    component=c, layer_stack=filtered_layer_stack, zmin=zmin
-)
+epsilon = component_to_epsilon_pjz(component=c, layer_stack=filtered_layer_stack, zmin=zmin)
 
 fig = plot_epsilon(
     epsilon=epsilon,

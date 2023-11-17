@@ -104,9 +104,7 @@ def plot_imbalance(
     plt.legend()
 
 
-def plot_loss(
-    sp: dict[str, np.ndarray], ports: Sequence[str], ax: plt.Axes | None = None
-) -> None:
+def plot_loss(sp: dict[str, np.ndarray], ports: Sequence[str], ax: plt.Axes | None = None) -> None:
     """Plots loss dB for coupler.
 
     Args:

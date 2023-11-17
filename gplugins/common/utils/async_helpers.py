@@ -45,14 +45,15 @@ async def execute_and_stream_output(
     **kwargs,
 ) -> asyncio.subprocess.Process:
     """Run a command asynchronously and stream *stdout* and *stderr* to main and a log file
-    in ``log_file_dir / log_file_str``. Uses ``shell=True`` as default unlike ``subprocess.Popen``. Returns an asyncio process.
+    in ``log_file_dir / log_file_str``. Uses ``shell=True`` as default unlike ``subprocess.Popen``.
+    Returns an asyncio process.
 
     Args:
         command: Command(s) to run. Sequences will be unpacked.
         shell: Whether to use shell or exec.
         append: Whether to use append to log file instead of writing.
         log_file_dir: Directory for log files.
-        log_file_str: Log file name. Will be expanded to ``f'{log_file_str}_out.log'`` and ``f'{log_file_str}_err.log'``.
+        log_file_str: Log file name. Expands to ``f'{log_file_str}_out.log'`` and ``f'{log_file_str}_err.log'``.
 
     ``*args`` and ``**kwargs`` are passed to :func:`~create_subprocess_shell` or :func:`create_subprocess_exec`,
     which in turn passes them to :class:`subprocess.Popen`.
@@ -97,14 +98,17 @@ async def execute_and_stream_output(
 
 def run_async_with_event_loop(coroutine: Coroutine[Any, Any, T] | Awaitable[T]) -> T:
     """Run a coroutine within an asyncio event loop, either by adding it to the
-    existing running event loop or by creating a new event loop. Returns the result.
+    existing running event loop or by creating a new event loop.
+    Returns the result.
 
     Args:
         coroutine: The coroutine (async function) to be executed.
 
     Note:
-        If an asyncio event loop is already running, `nest_asyncio <https://github.com/erdewit/nest_asyncio>`_
-        is used to create a new loop. the given coroutine will be added to the running event loop.
+        If an asyncio event loop is already running,
+        `nest_asyncio <https://github.com/erdewit/nest_asyncio>`_
+        is used to create a new loop.
+        the given coroutine will be added to the running event loop.
         If no event loop is running, a new event loop will be created.
 
     Example:

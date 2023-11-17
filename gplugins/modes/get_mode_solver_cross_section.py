@@ -102,9 +102,7 @@ def get_mode_solver_cross_section(
     mode_solver.nmodes = nmodes
     mode_solver.info = dict(
         dispersive=dispersive,
-        material_indices=[
-            b.material.epsilon(1 / wavelength)[0, 0] ** 0.5 for b in geometry
-        ],
+        material_indices=[b.material.epsilon(1 / wavelength)[0, 0] ** 0.5 for b in geometry],
         sy=sy,
         sz=sz,
         resolution=resolution,

@@ -70,9 +70,7 @@ class MeepFDTDModel(Model):
         # Prepare this specific input vector
         input_dict = dict(zip(labels, [float(value) for value in values]))
         # Parse input vector according to parameter type
-        param_dict, layer_stack_param_dict, litho_param_dict = self.parse_input_dict(
-            input_dict
-        )
+        param_dict, layer_stack_param_dict, litho_param_dict = self.parse_input_dict(input_dict)
         input_component = self.perturb_geometry(
             self.trainable_component(param_dict), litho_param_dict
         )
@@ -157,12 +155,8 @@ if __name__ == "__main__":
             "sim_settings": sim_settings,
         },
         trainable_parameters={
-            "coupling_length": NamedParameter(
-                min_value=5, max_value=5, nominal_value=5, step=10
-            ),
-            "gap": NamedParameter(
-                min_value=0.2, max_value=0.2, nominal_value=0.2, step=0.3
-            ),
+            "coupling_length": NamedParameter(min_value=5, max_value=5, nominal_value=5, step=10),
+            "gap": NamedParameter(min_value=0.2, max_value=0.2, nominal_value=0.2, step=0.3),
             "erosion_dilation": LithoParameter(
                 min_value=-0.2,
                 max_value=0.2,

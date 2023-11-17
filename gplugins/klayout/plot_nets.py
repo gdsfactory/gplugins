@@ -59,11 +59,7 @@ def netlist_to_networkx(
                 net_pins.extend(pin_ref.pin().name() for pin_ref in net.each_pin())
 
             # Assumed lone net with only label info
-            if (
-                include_labels
-                and net.expanded_name()
-                and "," not in net.expanded_name()
-            ):
+            if include_labels and net.expanded_name() and "," not in net.expanded_name():
                 G.add_edges_from(zip(net_pins, [net.name] * len(net_pins)))
 
             if fully_connected:
@@ -120,9 +116,7 @@ def plot_nets(
         try:
             from pyvis.network import Network
         except ModuleNotFoundError as e:
-            raise UserWarning(
-                "You need to `pip install pyvis` or `gplugins[klayout]`"
-            ) from e
+            raise UserWarning("You need to `pip install pyvis` or `gplugins[klayout]`") from e
 
         net = Network(
             select_menu=True,

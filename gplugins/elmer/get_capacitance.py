@@ -53,9 +53,9 @@ def _generate_sif(
         if isfinite(material_spec[k].get("relative_permittivity", inf))
     }
 
-    sif_template = Environment(
-        loader=FileSystemLoader(ELECTROSTATIC_TEMPLATE.parent)
-    ).get_template(ELECTROSTATIC_TEMPLATE.name)
+    sif_template = Environment(loader=FileSystemLoader(ELECTROSTATIC_TEMPLATE.parent)).get_template(
+        ELECTROSTATIC_TEMPLATE.name
+    )
     output = sif_template.render(**locals())
     with open(simulation_folder / f"{name}.sif", "w", encoding="utf-8") as fp:
         fp.write(output)
@@ -65,9 +65,7 @@ def _elmergrid(simulation_folder: Path, name: str, n_processes: int = 1):
     """Run ElmerGrid for converting gmsh mesh to Elmer format."""
     elmergrid = shutil.which("ElmerGrid")
     if elmergrid is None:
-        raise RuntimeError(
-            "`ElmerGrid` not found. Make sure it is available in your PATH."
-        )
+        raise RuntimeError("`ElmerGrid` not found. Make sure it is available in your PATH.")
     run_async_with_event_loop(
         execute_and_stream_output(
             [elmergrid, "14", "2", name, "-autoclean"],
@@ -101,9 +99,7 @@ def _elmergrid(simulation_folder: Path, name: str, n_processes: int = 1):
 
 def _elmersolver(simulation_folder: Path, name: str, n_processes: int = 1):
     """Run simulations with ElmerFEM."""
-    elmersolver_name = (
-        "ElmerSolver" if (no_mpi := n_processes == 1) else "ElmerSolver_mpi"
-    )
+    elmersolver_name = "ElmerSolver" if (no_mpi := n_processes == 1) else "ElmerSolver_mpi"
     elmersolver = shutil.which(elmersolver_name)
     if elmersolver is None:
         raise RuntimeError(
@@ -141,9 +137,7 @@ def _read_elmer_results(
     return ElectrostaticResults(
         capacitance_matrix={
             (iname, jname): raw_capacitance_matrix[i][j]
-            for (i, iname), (j, jname) in itertools.product(
-                enumerate(ports), enumerate(ports)
-            )
+            for (i, iname), (j, jname) in itertools.product(enumerate(ports), enumerate(ports))
         },
         **(
             {}
@@ -239,8 +233,7 @@ def run_capacitive_simulation_elmer(
     )
     gmsh.merge(str(simulation_folder / filename))
     mesh_surface_entities = [
-        gmsh.model.getPhysicalName(*dimtag)
-        for dimtag in gmsh.model.getPhysicalGroups(dim=2)
+        gmsh.model.getPhysicalName(*dimtag) for dimtag in gmsh.model.getPhysicalGroups(dim=2)
     ]
     gmsh.finalize()
 

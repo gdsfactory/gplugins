@@ -198,12 +198,7 @@ def get_simulation_grating_fiber(
     )
     fiber_port_x_offset_from_angle = np.abs(fiber_port_y * np.tan(fiber_angle))
     length_grating = np.sum(widths) + np.sum(gaps)
-    sxy = (
-        2 * xmargin
-        + 2 * pml_thickness
-        + 2 * fiber_port_x_offset_from_angle
-        + length_grating
-    )
+    sxy = 2 * xmargin + 2 * pml_thickness + 2 * fiber_port_x_offset_from_angle + length_grating
 
     # Materials from indices
     slab_material = mp.Medium(index=nslab)
@@ -215,7 +210,9 @@ def get_simulation_grating_fiber(
     fiber_core_material = mp.Medium(index=fiber_core_material)
 
     # Useful reference point
-    grating_start = -fiber_xposition  # Since fiber dominates, keep it centered and offset the grating
+    grating_start = (
+        -fiber_xposition  # Since fiber dominates, keep it centered and offset the grating
+    )
 
     # Initialize domain x-z plane simulation
     cell_size = mp.Vector3(sxy, sz)
@@ -246,9 +243,7 @@ def get_simulation_grating_fiber(
     waveguide_port_center = mp.Vector3(
         waveguide_port_x, waveguide_port_y
     )  # grating_start - dtaper, 0)
-    waveguide_port_size = mp.Vector3(
-        0, box_thickness + core_thickness / 2 + top_clad_thickness
-    )
+    waveguide_port_size = mp.Vector3(0, box_thickness + core_thickness / 2 + top_clad_thickness)
     waveguide_port_direction = mp.X
 
     # Geometry
@@ -331,12 +326,7 @@ def get_simulation_grating_fiber(
             center=mp.Vector3(
                 0,
                 -sz / 2
-                + (
-                    +pml_thickness
-                    + substrate_thickness
-                    + box_thickness
-                    + slab_thickness / 2
-                ),
+                + (+pml_thickness + substrate_thickness + box_thickness + slab_thickness / 2),
             ),
             size=mp.Vector3(mp.inf, slab_thickness),
         )
@@ -432,9 +422,7 @@ def get_simulation_grating_fiber(
         dimensions=2,
         eps_averaging=eps_averaging,
     )
-    waveguide_monitor = sim.add_mode_monitor(
-        freqs, waveguide_monitor_port, yee_grid=True
-    )
+    waveguide_monitor = sim.add_mode_monitor(freqs, waveguide_monitor_port, yee_grid=True)
     fiber_monitor = sim.add_mode_monitor(freqs, fiber_monitor_port)
     field_monitor_point = (0, 0, 0)
 

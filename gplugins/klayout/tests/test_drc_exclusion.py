@@ -23,9 +23,7 @@ def exclusion(
     return c
 
 
-@pytest.mark.parametrize(
-    "space,min_space,area_expected", [(0.16, 0.1, 0), (0.1, 0.11, 50000)]
-)
+@pytest.mark.parametrize("space,min_space,area_expected", [(0.16, 0.1, 0), (0.1, 0.11, 50000)])
 def test_exclusion(space: float, min_space: float, area_expected: int) -> None:
     c = exclusion(space=space)
     area = check_exclusion(c, min_space=min_space)

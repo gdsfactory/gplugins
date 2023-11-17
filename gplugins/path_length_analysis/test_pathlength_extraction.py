@@ -33,9 +33,7 @@ def test_pathlength_extraction(cross_section) -> None:
     expected_total_length = sum(lengths)
     insts = []
     for i, length in enumerate(lengths):
-        inst = c << gf.get_component(
-            "straight", cross_section=cross_section, length=length
-        )
+        inst = c << gf.get_component("straight", cross_section=cross_section, length=length)
         inst.name = f"s{i}"
         if insts:
             inst.connect("o1", insts[-1].ports["o2"])
@@ -89,9 +87,7 @@ def pathlength_test_subckt(lengths, cross_section: str = "xs_sc"):
 
     insts = []
     for i, length in enumerate(lengths):
-        inst = c1 << gf.get_component(
-            "straight", cross_section=cross_section, length=length
-        )
+        inst = c1 << gf.get_component("straight", cross_section=cross_section, length=length)
         inst.name = f"s{i}"
         if insts:
             inst.connect("o1", insts[-1].ports["o2"])
@@ -110,9 +106,7 @@ def test_hierarchical_pathlength_extraction() -> None:
     c1 = pathlength_test_subckt(lengths, cross_section)
     istart = c.add_ref(c1, "istart")
     imid = c.add_ref(c1, "imid")
-    iend = c.add_ref(
-        gf.get_component("straight", cross_section=cross_section, length=100), "iend"
-    )
+    iend = c.add_ref(gf.get_component("straight", cross_section=cross_section, length=100), "iend")
     imid.connect("o1", istart.ports["o2"])
     iend.connect("o1", imid.ports["o2"])
 
@@ -140,9 +134,7 @@ def test_transformed_hierarchical_pathlength_extraction() -> None:
     c1 = pathlength_test_subckt(lengths, cross_section)
     istart = c.add_ref(c1, "istart")
     imid = c.add_ref(c1, "imid")
-    iend = c.add_ref(
-        gf.get_component("straight", cross_section=cross_section, length=100), "iend"
-    )
+    iend = c.add_ref(gf.get_component("straight", cross_section=cross_section, length=100), "iend")
     istart = istart.rotate(37)
     imid.connect("o1", istart.ports["o2"])
     iend.connect("o1", imid.ports["o2"])
