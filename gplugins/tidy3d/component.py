@@ -28,6 +28,12 @@ from gplugins.common.base_models.component import LayeredComponentBase
 from .types import Tidy3DElementMapping, Tidy3DMedium
 from .util import get_port_normal, sort_layers
 
+material_name_to_tidy3d = {
+    "si": td.Medium(name="Si", permittivity=3.47**2),
+    "sio2": td.Medium(name="SiO2", permittivity=1.47**2),
+    "sin": td.Medium(name="SiN", permittivity=2.0**2),
+}
+
 
 class Tidy3DComponent(LayeredComponentBase):
     """
@@ -43,7 +49,7 @@ class Tidy3DComponent(LayeredComponentBase):
         pad_z_outer (NonNegativeFloat): The outer padding in the z-direction.
     """
 
-    material_mapping: dict[str, Tidy3DMedium]
+    material_mapping: dict[str, Tidy3DMedium] = material_name_to_tidy3d
     extend_ports: NonNegativeFloat = 1.0
     port_offset: float = 0.2
     pad_xy_inner: NonNegativeFloat = 1.0
