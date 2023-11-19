@@ -19,13 +19,13 @@
 #
 # [tidy3D](https://docs.flexcompute.com/projects/tidy3d/en/latest/) is a fast GPU based FDTD tool developed by flexcompute.
 #
-# To run, you need to [create an account](https://simulation.cloud/) and add credits. The number of credits that each simulation takes depends on the simulation computation time.
-#
-# We have commented the `write_sparameters` functions to save on credits when running these simulations.
+# To run, you need to [create an account](https://simulation.cloud/) and add credits. The number of credits that each simulation takes depends on the simulation size and computation time.
 #
 # ![cloud_model](https://i.imgur.com/5VTCPLR.png)
 #
 # ## Materials
+#
+# To use gdsfactory LayerStack for different PDKs into tidy3d you have to create a mapping between each material name into a tidy3d Medim
 #
 # Tidy3d provides you with a material database of dispersive materials.
 
@@ -34,29 +34,13 @@ import gdsfactory as gf
 import matplotlib.pyplot as plt
 import numpy as np
 import tidy3d as td
-from gdsfactory.components.taper import taper_sc_nc
 
 import gplugins.tidy3d as gt
 from gplugins import plot
 from gplugins.common.config import PATH
 
 # %%
-print(gt.materials.MaterialSpecTidy3d)
-
-# %%
-gt.materials.get_index(
-    3.4
-)  # get the index of a material with a given refractive index float
-
-# %%
-# get the index of a material with a name string, for the case that the refractive index has only one variant
-gt.materials.get_index(("SiO2", "Horiba"))
-
-# %%
-gt.materials.get_index(
-    ("cSi", "Li1993_293K")
-)  # get the index of a material with a name string, for the case that the refractive index has more than one variant
-
+gt.material_name_to_medium
 
 # %%
 nm = 1e-3
@@ -86,73 +70,164 @@ plt.xlabel("wavelength")
 plt.ylabel("n")
 
 # %% [markdown]
-# ## get_simulation
+# ## Component Modeler
 #
-# You can run `get_simulation` to convert a gdsfactory planar Component into a tidy3d simulation and make sure the simulation looks correct before running it
-#
-# `get_simulation` also has a `plot_modes` option so you can make sure you are monitoring the desired mode.
+# You can easily convert a gdsfactory planar Component into a tidy3d simulation and make sure the simulation looks correct before running it
+
+# %%
+from gdsfactory.generic_tech import LAYER_STACK, get_generic_pdk
+
+pdk = get_generic_pdk()
+pdk.activate()
+
+component = gf.components.coupler_ring()
+component.plot()
+
+# %%
+# define a mapping of pdk material names to tidy3d medium objects
+mapping = {
+    "si": td.Medium(name="Si", permittivity=3.47**2),
+    "sio2": td.Medium(name="SiO2", permittivity=1.47**2),
+}
+
+# setup the tidy3d component
+c = gt.Tidy3DComponent(
+    component=component,
+    layer_stack=LAYER_STACK,
+    material_mapping=mapping,
+    pad_xy_inner=2.0,
+    pad_xy_outer=2.0,
+    pad_z_inner=0,
+    pad_z_outer=0,
+    extend_ports=2.0,
+)
+
+# plot the component and the layerstack
+fig = plt.figure(constrained_layout=True)
+gs = fig.add_gridspec(ncols=2, nrows=3, width_ratios=(3, 1))
+ax0 = fig.add_subplot(gs[0, 0])
+ax1 = fig.add_subplot(gs[1, 0])
+ax2 = fig.add_subplot(gs[2, 0])
+axl = fig.add_subplot(gs[1, 1])
+c.plot_slice(x="core", ax=ax0)
+c.plot_slice(y="core", ax=ax1)
+c.plot_slice(z="core", ax=ax2)
+axl.legend(*ax0.get_legend_handles_labels(), loc="center")
+axl.axis("off")
+plt.show()
+
+
+# %%
+LAYER_STACK.layers.pop("substrate")
+
+# setup the tidy3d component
+c = gt.Tidy3DComponent(
+    component=component,
+    layer_stack=LAYER_STACK,
+    material_mapping=mapping,
+    pad_xy_inner=2.0,
+    pad_xy_outer=2.0,
+    pad_z_inner=0,
+    pad_z_outer=0,
+    extend_ports=2.0,
+)
+
+# plot the component and the layerstack
+fig = plt.figure(constrained_layout=True)
+gs = fig.add_gridspec(ncols=2, nrows=3, width_ratios=(3, 1))
+ax0 = fig.add_subplot(gs[0, 0])
+ax1 = fig.add_subplot(gs[1, 0])
+ax2 = fig.add_subplot(gs[2, 0])
+axl = fig.add_subplot(gs[1, 1])
+c.plot_slice(x="core", ax=ax0)
+c.plot_slice(y="core", ax=ax1)
+c.plot_slice(z="core", ax=ax2)
+axl.legend(*ax0.get_legend_handles_labels(), loc="center")
+axl.axis("off")
+plt.show()
+
+# %%
+c.plot_slice(x="core")
+
+# %%
+# initialize the tidy3d ComponentModeler
+modeler = c.get_component_modeler(
+    center_z="core", port_size_mult=(6, 4), sim_size_z=3.0
+)
+
+# we can plot the tidy3d simulation setup
+fig, ax = plt.subplots(2, 1)
+modeler.plot_sim(z=c.get_layer_center("core")[2], ax=ax[0])
+modeler.plot_sim(x=c.ports[0].center[0], ax=ax[1])
+fig.tight_layout()
+plt.show()
+
+# %% [markdown]
+# ### Mode solver
+
+# %%
+# we can solve for the modes of the different ports
+mode_solver = list(gt.get_mode_solvers(modeler, "o1").values())[0]
+mode_data = mode_solver.solve()
+
+# %%
+# and visualize them, this is taken directly from https://docs.flexcompute.com/projects/tidy3d/en/latest/notebooks/ModeSolver.html#Visualizing-Mode-Data
+fig, ax = plt.subplots(1, 3, tight_layout=True, figsize=(10, 3))
+abs(mode_data.Ex.isel(mode_index=0, f=0)).plot(x="y", y="z", ax=ax[0], cmap="magma")
+abs(mode_data.Ey.isel(mode_index=0, f=0)).plot(x="y", y="z", ax=ax[1], cmap="magma")
+abs(mode_data.Ez.isel(mode_index=0, f=0)).plot(x="y", y="z", ax=ax[2], cmap="magma")
+ax[0].set_title("|Ex(x, y)|")
+ax[1].set_title("|Ey(x, y)|")
+ax[2].set_title("|Ez(x, y)|")
+plt.setp(ax, aspect="equal")
+plt.show()
+
+# %%
+# from here you can follow https://docs.flexcompute.com/projects/tidy3d/en/latest/notebooks/SMatrix.html?highlight=smatrix#Solving-for-the-S-matrix
+# smatrix = modeler.run()
+
 
 # %% [markdown]
 # ### 2D
 #
-# 2D planar simulations run faster than 3D. When running in 2D we don't consider the component thickness in the z dimension
+# 2D planar simulations run faster than 3D. When running in 2D we don't consider the component thickness in the z dimension. 2D simulations take less credits but are also less accurate.
 
 # %%
-c = gf.components.mmi1x2()
-s = gt.get_simulation(c, is_3d=False)
-fig = gt.plot_simulation(s)
+modeler = c.get_component_modeler(center_z="core", port_size_mult=(6, 4), sim_size_z=0)
+
+
+# %%
+fig, ax = plt.subplots(2, 1)
+modeler.plot_sim(z=c.get_layer_center("core")[2], ax=ax[0])
+modeler.plot_sim(x=c.ports[0].center[0], ax=ax[1])
+
 
 # %% [markdown]
 # ### 3D
 #
-# By default all simulations run in 3D unless indicated otherwise with the `is_3d` argument.
+# By default all simulations run in 3D unless indicated otherwise.
 # 3D simulations run quite fast thanks to the GPU solver on the server side hosted by tidy3d cloud.
 
 # %%
-help(gt.get_simulation)
-
-# %%
-c = gf.components.mmi1x2()
-s = gt.get_simulation(c)
-fig = gt.plot_simulation(s)
-
-# %%
-c = gf.components.coupler_ring()
-s = gt.get_simulation(c)
-fig = gt.plot_simulation(s)
-
-# %%
-c = gf.components.bend_circular(radius=2)
-s = gt.get_simulation(c)
-fig = gt.plot_simulation(s)
-
-# %%
 c = gf.components.straight()
 s = gt.get_simulation(c)
-fig = gt.plot_simulation(s)
-
-# %% [markdown]
-# ## Sidewall angle
-#
-# You can define the sidewall angle in degrees with respect to normal. Lets exaggerate the sidewall angle so we can clearly see it.
-
-# %%
-c = gf.components.straight()
-s = gt.get_simulation(c, sidewall_angle_deg=45, plot_modes=True)
 fig = gt.plot_simulation(s)
 
 # %% [markdown]
 # ## Erosion / dilation
 
 # %%
-c = gf.components.straight()
-s = gt.get_simulation(c, is_3d=False, dilation=0)
-fig = gt.plot_simulation(s)
+component = gf.components.straight(length=0.1)
+c = gt.Tidy3DComponent(component=component, layer_stack=LAYER_STACK, dilation=0)
+modeler = c.get_component_modeler(center_z="core", port_size_mult=(6, 4), sim_size_z=4)
+modeler.plot_sim(z=c.get_layer_center("core")[2])
+
 
 # %%
-c = gf.components.straight()
-s = gt.get_simulation(c, is_3d=False, dilation=0.5)
-fig = gt.plot_simulation(s)
+component = gf.components.straight(length=0.1)
+c = gt.Tidy3DComponent(component=component, layer_stack=LAYER_STACK, dilation=0.5)
+modeler = c.get_component_modeler(center_z="core", port_size_mult=(6, 4), sim_size_z=4)
+modeler.plot_sim(z=c.get_layer_center("core")[2])
 
 # %%
 0.5 * 1.5
@@ -170,35 +245,25 @@ fig = gt.plot_simulation(s)
 0.2 * 0.5
 
 # %%
-c = gf.components.straight()
-s = gt.get_simulation(c, is_3d=False, dilation=-0.2)
-fig = gt.plot_simulation(s)
+component = gf.components.straight(length=0.1)
+c = gt.Tidy3DComponent(component=component, layer_stack=LAYER_STACK, dilation=-0.2)
+modeler = c.get_component_modeler(center_z="core", port_size_mult=(6, 4), sim_size_z=4)
+modeler.plot_sim(z=c.get_layer_center("core")[2])
 
 # %% [markdown]
-# ## Plot source and monitor modes
+# ## Plot monitors
 
 # %%
-c = gf.components.straight(length=3)
-s = gt.get_simulation(c, plot_modes=True, port_margin=1, ymargin=1)
-fig = gt.plot_simulation_xz(s)
+component = gf.components.taper_sc_nc(length=10)
+component.plot()
 
 # %%
-c = gf.components.straight_rib(length=3)
-s = gt.get_simulation(c, plot_modes=True)
-fig = gt.plot_simulation_xz(s)
+c = gt.Tidy3DComponent(component=component, layer_stack=LAYER_STACK, dilation=0)
+modeler = c.get_component_modeler(center_z="core", port_size_mult=(6, 4), sim_size_z=4)
+modeler.plot_sim(z=c.get_layer_center("core")[2])
 
 # %%
-c = taper_sc_nc(length=10)
-s = gt.get_simulation(c, plot_modes=True)
-fig = gt.plot_simulation_xz(s)
-
-# %% [markdown]
-# Lets make sure the mode also looks correct on the Nitride side
-
-# %%
-c = taper_sc_nc(length=10)
-s = gt.get_simulation(c, port_source_name="o2", plot_modes=True)
-fig = gt.plot_simulation_xz(s)
+modeler.plot_sim(z=c.get_layer_center("nitride")[2])
 
 # %%
 components = [
@@ -216,9 +281,12 @@ components = [
 for component_name in components:
     print(component_name)
     plt.figure()
-    c = gf.components.cells[component_name]()
-    s = gt.get_simulation(c)
-    fig = gt.plot_simulation(s)
+    component = gf.get_component(component_name)
+    c = gt.Tidy3DComponent(component=component, layer_stack=LAYER_STACK, dilation=0)
+    modeler = c.get_component_modeler(
+        center_z="core", port_size_mult=(6, 4), sim_size_z=4
+    )
+    modeler.plot_sim(z=c.get_layer_center("core")[2])
 
 # %% [markdown]
 # ## write_sparameters

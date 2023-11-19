@@ -1,6 +1,6 @@
 from gplugins.tidy3d.component import (
     Tidy3DComponent,
-    material_name_to_tidy3d,
+    material_name_to_medium,
 )
 from gplugins.tidy3d.types import (
     Tidy3DElementMapping,
@@ -19,7 +19,7 @@ __all__ = [
     "Tidy3DMedium",
     "get_mode_solvers",
     "get_port_normal",
-    "material_name_to_tidy3d",
+    "material_name_to_medium",
     "sort_layers",
     "validate_medium",
 ]

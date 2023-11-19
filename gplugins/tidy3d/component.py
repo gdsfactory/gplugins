@@ -28,7 +28,7 @@ from gplugins.common.base_models.component import LayeredComponentBase
 from .types import Tidy3DElementMapping, Tidy3DMedium
 from .util import get_port_normal, sort_layers
 
-material_name_to_tidy3d = {
+material_name_to_medium = {
     "si": td.Medium(name="Si", permittivity=3.47**2),
     "sio2": td.Medium(name="SiO2", permittivity=1.47**2),
     "sin": td.Medium(name="SiN", permittivity=2.0**2),
@@ -47,15 +47,19 @@ class Tidy3DComponent(LayeredComponentBase):
         pad_xy_outer (NonNegativeFloat): The outer padding in the xy-plane.
         pad_z_inner (float): The inner padding in the z-direction.
         pad_z_outer (NonNegativeFloat): The outer padding in the z-direction.
+        dilation (float): Dilation of the polygon in the base by shifting each edge along its
+            normal outwards direction by a distance;
+            a negative value corresponds to erosion. Defaults to zero.
     """
 
-    material_mapping: dict[str, Tidy3DMedium] = material_name_to_tidy3d
+    material_mapping: dict[str, Tidy3DMedium] = material_name_to_medium
     extend_ports: NonNegativeFloat = 2.0
     port_offset: float = 0.2
     pad_xy_inner: NonNegativeFloat = 2.0
     pad_xy_outer: NonNegativeFloat = 2.0
     pad_z_inner: float = 0.0
     pad_z_outer: NonNegativeFloat = 0.0
+    dilation: float = 0.0
 
     @cached_property
     def polyslabs(self) -> dict[str, tuple[td.PolySlab, ...]]:
@@ -77,6 +81,7 @@ class Tidy3DComponent(LayeredComponentBase):
                     slab_bounds=(bbox[0][2], bbox[1][2]),
                     sidewall_angle=np.deg2rad(layer.sidewall_angle),
                     reference_plane="middle",
+                    dilation=self.dilation,
                 )
                 for v in self.get_vertices(name)
             )
@@ -197,7 +202,7 @@ class Tidy3DComponent(LayeredComponentBase):
         num_freqs: int = 21,
         min_steps_per_wvl: int = 30,
         center_z: float | str | None = None,
-        sim_size_z: int = 4,
+        sim_size_z: float = 4.0,
         port_size_mult: float | tuple[float, float] = (4.0, 3.0),
         run_only: tuple[tuple[str, int], ...] | None = None,
         element_mappings: Tidy3DElementMapping = (),
@@ -219,7 +224,7 @@ class Tidy3DComponent(LayeredComponentBase):
             num_freqs (int): The number of frequencies for the ComponentModeler. Defaults to 21.
             min_steps_per_wvl (int): The minimum number of steps per wavelength for the ComponentModeler. Defaults to 30.
             center_z (float | str | None): The z-coordinate for the center of the ComponentModeler. If None, the z-coordinate of the component is used. Defaults to None.
-            sim_size_z (int): The size of the simulation in the z-direction for the ComponentModeler. Defaults to 4.
+            sim_size_z (float): simulation size um in the z-direction for the ComponentModeler. Defaults to 4.
             port_size_mult (float | tuple[float, float]): The size multiplier for the ports in the ComponentModeler. Defaults to (4.0, 3.0).
             run_only (tuple[tuple[str, int], ...] | None): The run only specification for the ComponentModeler. Defaults to None.
             element_mappings (Tidy3DElementMapping): The element mappings for the ComponentModeler. Defaults to ().
