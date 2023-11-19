@@ -307,11 +307,9 @@ fig = gt.plot_simulation(s)
 
 # %%
 # sp = gt.write_sparameters_1x1(c)
-from gdsfactory.config import PATH as GPATH
 
 sp = np.load(
-    GPATH.sparameters_repo
-    / "bend_circular_radius2_9d7742b34c224827aeae808dc986308e.npz"
+    PATH.sparameters_repo / "bend_circular_radius2_9d7742b34c224827aeae808dc986308e.npz"
 )
 plot.plot_sparameters(sp)
 
@@ -330,7 +328,7 @@ fig = gt.plot_simulation(s, y=0.63)  # see output
 # sp = gt.write_sparameters(c)
 
 # %%
-sp = np.load(GPATH.sparameters_repo / "mmi1x2_507de731d50770de9096ac9f23321daa.npz")
+sp = np.load(PATH.sparameters_repo / "mmi1x2_507de731d50770de9096ac9f23321daa.npz")
 
 # %%
 plot.plot_sparameters(sp)
@@ -353,7 +351,7 @@ sp = gt.write_sparameters(c, run=False)
 
 # %%
 # sp = gt.write_sparameters(c, filepath=PATH.sparameters_repo / 'mmi2x2_without_sbend.npz')
-sp = np.load(GPATH.sparameters_repo / "mmi2x2_without_sbend.npz")
+sp = np.load(PATH.sparameters_repo / "mmi2x2_without_sbend.npz")
 plot.plot_loss2x2(sp)
 
 # %%
@@ -431,7 +429,7 @@ dfs = [
         is_3d=False,
         fiber_angle_deg=fiber_angle_deg,
         fiber_xoffset=fiber_xoffset,
-        filepath=GPATH.sparameters_repo / f"gc_offset{fiber_xoffset}",
+        filepath=PATH.sparameters_repo / f"gc_offset{fiber_xoffset}",
     )
     for fiber_xoffset in offsets
 ]
@@ -449,7 +447,7 @@ for offset in offsets:
         is_3d=False,
         fiber_angle_deg=fiber_angle_deg,
         fiber_xoffset=offset,
-        filepath=GPATH.sparameters_repo / f"gc_offset{offset}",
+        filepath=PATH.sparameters_repo / f"gc_offset{offset}",
     )
     plt.plot(
         sp["wavelengths"], 20 * np.log10(np.abs(sp["o2@0,o1@0"])), label=str(offset)
@@ -470,7 +468,7 @@ dfs = [
         component=c,
         is_3d=False,
         fiber_angle_deg=fiber_angle_deg,
-        filepath=GPATH.sparameters_repo / f"gc_angle{fiber_angle_deg}",
+        filepath=PATH.sparameters_repo / f"gc_angle{fiber_angle_deg}",
     )
     for fiber_angle_deg in fiber_angles
 ]
@@ -481,7 +479,7 @@ for fiber_angle_deg in fiber_angles:
         c,
         is_3d=False,
         fiber_angle_deg=fiber_angle_deg,
-        filepath=GPATH.sparameters_repo / f"gc_angle{fiber_angle_deg}",
+        filepath=PATH.sparameters_repo / f"gc_angle{fiber_angle_deg}",
     )
     plt.plot(
         sp["wavelengths"],
@@ -518,7 +516,7 @@ dfs = [
         is_3d=False,
         fiber_angle_deg=fiber_angle_deg,
         fiber_xoffset=fiber_xoffset,
-        filepath=GPATH.sparameters_repo / f"gc_offset{offset}",
+        filepath=PATH.sparameters_repo / f"gc_offset{offset}",
     )
     for fiber_xoffset in offsets
 ]
@@ -560,7 +558,7 @@ jobs = [
         component=c,
         is_3d=False,
         fiber_angle_deg=fiber_angle_deg,
-        filepath=GPATH.sparameters_repo / f"gc_angle{fiber_angle_deg}",
+        filepath=PATH.sparameters_repo / f"gc_angle{fiber_angle_deg}",
     )
     for fiber_angle_deg in fiber_angles
 ]
@@ -585,7 +583,7 @@ bend_radius = [1, 2]
 jobs = [
     dict(
         component=gf.components.bend_circular(radius=radius),
-        filepath=GPATH.sparameters_repo / f"bend_r{radius}",
+        filepath=PATH.sparameters_repo / f"bend_r{radius}",
     )
     for radius in bend_radius
 ]
