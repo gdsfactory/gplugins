@@ -1,0 +1,431 @@
+boundary_spec:
+    type: BoundarySpec
+    x:
+        minus:
+            name: null
+            num_layers: 12
+            parameters:
+                alpha_max: 0.0
+                alpha_min: 0.0
+                alpha_order: 1
+                kappa_max: 3.0
+                kappa_min: 1.0
+                kappa_order: 3
+                sigma_max: 1.5
+                sigma_min: 0.0
+                sigma_order: 3
+                type: PMLParams
+            type: PML
+        plus:
+            name: null
+            num_layers: 12
+            parameters:
+                alpha_max: 0.0
+                alpha_min: 0.0
+                alpha_order: 1
+                kappa_max: 3.0
+                kappa_min: 1.0
+                kappa_order: 3
+                sigma_max: 1.5
+                sigma_min: 0.0
+                sigma_order: 3
+                type: PMLParams
+            type: PML
+        type: Boundary
+    y:
+        minus:
+            name: null
+            num_layers: 12
+            parameters:
+                alpha_max: 0.0
+                alpha_min: 0.0
+                alpha_order: 1
+                kappa_max: 3.0
+                kappa_min: 1.0
+                kappa_order: 3
+                sigma_max: 1.5
+                sigma_min: 0.0
+                sigma_order: 3
+                type: PMLParams
+            type: PML
+        plus:
+            name: null
+            num_layers: 12
+            parameters:
+                alpha_max: 0.0
+                alpha_min: 0.0
+                alpha_order: 1
+                kappa_max: 3.0
+                kappa_min: 1.0
+                kappa_order: 3
+                sigma_max: 1.5
+                sigma_min: 0.0
+                sigma_order: 3
+                type: PMLParams
+            type: PML
+        type: Boundary
+    z:
+        minus:
+            name: null
+            num_layers: 12
+            parameters:
+                alpha_max: 0.0
+                alpha_min: 0.0
+                alpha_order: 1
+                kappa_max: 3.0
+                kappa_min: 1.0
+                kappa_order: 3
+                sigma_max: 1.5
+                sigma_min: 0.0
+                sigma_order: 3
+                type: PMLParams
+            type: PML
+        plus:
+            name: null
+            num_layers: 12
+            parameters:
+                alpha_max: 0.0
+                alpha_min: 0.0
+                alpha_order: 1
+                kappa_max: 3.0
+                kappa_min: 1.0
+                kappa_order: 3
+                sigma_max: 1.5
+                sigma_min: 0.0
+                sigma_order: 3
+                type: PMLParams
+            type: PML
+        type: Boundary
+center:
+- 0.0
+- 0.0
+- 0.0
+courant: 0.99
+grid_spec:
+    grid_x:
+        dl_min: 0.0
+        max_scale: 1.4
+        mesher:
+            type: GradedMesher
+        min_steps_per_wvl: 10.0
+        type: AutoGrid
+    grid_y:
+        dl_min: 0.0
+        max_scale: 1.4
+        mesher:
+            type: GradedMesher
+        min_steps_per_wvl: 10.0
+        type: AutoGrid
+    grid_z:
+        dl_min: 0.0
+        max_scale: 1.4
+        mesher:
+            type: GradedMesher
+        min_steps_per_wvl: 10.0
+        type: AutoGrid
+    override_structures: []
+    type: GridSpec
+    wavelength: 1.55
+medium:
+    allow_gain: false
+    conductivity: 0.0
+    frequency_range: null
+    name: null
+    nonlinear_spec: null
+    permittivity: 1.0
+    type: Medium
+monitors:
+-   apodization:
+        end: null
+        start: null
+        type: ApodizationSpec
+        width: null
+    center:
+    - -1.3
+    - -2.4492935982947065e-17
+    - 0.0
+    colocate: false
+    freqs:
+    - 199861638666666.66
+    - 199590087527173.9
+    - 199319273297150.6
+    - 199049192981029.8
+    - 198779843599458.72
+    - 198511222189189.2
+    - 198243325802968.97
+    - 197976151509433.97
+    - 197709696393001.34
+    - 197443957553763.44
+    - 197178932107382.56
+    - 196914617184986.6
+    - 196651009933065.6
+    - 196388107513368.97
+    - 196125907102803.72
+    - 195864405893333.34
+    - 195603601091877.5
+    - 195343489920212.78
+    - 195084069614873.84
+    - 194825337427055.7
+    - 194567290622516.56
+    - 194309926481481.47
+    - 194053242298546.88
+    - 193797235382585.75
+    - 193541903056653.47
+    - 193287242657894.75
+    - 193033251537450.72
+    - 192779927060367.47
+    - 192527266605504.6
+    - 192275267565445.03
+    - 192023927346405.22
+    - 191773243368146.2
+    - 191523213063885.25
+    - 191273833880208.3
+    - 191025103276983.06
+    - 190777018727272.72
+    - 190529577717250.3
+    - 190282777746114.0
+    - 190036616326002.6
+    - 189791090981912.12
+    - 189546199251612.9
+    - 189301938685567.0
+    - 189058306846846.84
+    - 188815301311053.97
+    - 188572919666238.75
+    - 188331159512820.5
+    - 188090018463508.3
+    - 187849494143222.5
+    - 187609584189016.6
+    - 187370286250000.0
+    interval_space:
+    - 1
+    - 1
+    - 1
+    mode_spec:
+        angle_phi: 0.0
+        angle_theta: 0.0
+        bend_axis: null
+        bend_radius: null
+        filter_pol: null
+        group_index_step: false
+        num_modes: 1
+        num_pml:
+        - 0
+        - 0
+        precision: single
+        target_neff: null
+        track_freq: central
+        type: ModeSpec
+    name: o1
+    size:
+    - 0.0
+    - 1.5
+    - 5.0
+    type: ModeMonitor
+-   apodization:
+        end: null
+        start: null
+        type: ApodizationSpec
+        width: null
+    center:
+    - 1.5
+    - 0.0
+    - 0.0
+    colocate: false
+    freqs:
+    - 199861638666666.66
+    - 199590087527173.9
+    - 199319273297150.6
+    - 199049192981029.8
+    - 198779843599458.72
+    - 198511222189189.2
+    - 198243325802968.97
+    - 197976151509433.97
+    - 197709696393001.34
+    - 197443957553763.44
+    - 197178932107382.56
+    - 196914617184986.6
+    - 196651009933065.6
+    - 196388107513368.97
+    - 196125907102803.72
+    - 195864405893333.34
+    - 195603601091877.5
+    - 195343489920212.78
+    - 195084069614873.84
+    - 194825337427055.7
+    - 194567290622516.56
+    - 194309926481481.47
+    - 194053242298546.88
+    - 193797235382585.75
+    - 193541903056653.47
+    - 193287242657894.75
+    - 193033251537450.72
+    - 192779927060367.47
+    - 192527266605504.6
+    - 192275267565445.03
+    - 192023927346405.22
+    - 191773243368146.2
+    - 191523213063885.25
+    - 191273833880208.3
+    - 191025103276983.06
+    - 190777018727272.72
+    - 190529577717250.3
+    - 190282777746114.0
+    - 190036616326002.6
+    - 189791090981912.12
+    - 189546199251612.9
+    - 189301938685567.0
+    - 189058306846846.84
+    - 188815301311053.97
+    - 188572919666238.75
+    - 188331159512820.5
+    - 188090018463508.3
+    - 187849494143222.5
+    - 187609584189016.6
+    - 187370286250000.0
+    interval_space:
+    - 1
+    - 1
+    - 1
+    mode_spec:
+        angle_phi: 0.0
+        angle_theta: 0.0
+        bend_axis: null
+        bend_radius: null
+        filter_pol: null
+        group_index_step: false
+        num_modes: 1
+        num_pml:
+        - 0
+        - 0
+        precision: single
+        target_neff: null
+        track_freq: central
+        type: ModeSpec
+    name: o2
+    size:
+    - 0.0
+    - 1.5
+    - 5.0
+    type: ModeMonitor
+normalize_index: 0
+run_time: 1.0e-11
+shutoff: 1.0e-05
+size:
+- 5.0
+- 2.5
+- 7.0
+sources:
+-   center:
+    - -1.5
+    - 0.0
+    - 0.0
+    direction: +
+    mode_index: 0
+    mode_spec:
+        angle_phi: 0.0
+        angle_theta: 0.0
+        bend_axis: null
+        bend_radius: null
+        filter_pol: null
+        group_index_step: false
+        num_modes: 1
+        num_pml:
+        - 0
+        - 0
+        precision: single
+        target_neff: null
+        track_freq: central
+        type: ModeSpec
+    name: null
+    num_freqs: 1
+    size:
+    - 0.0
+    - 1.5
+    - 5.0
+    source_time:
+        amplitude: 1.0
+        freq0: 193414489032258.1
+        fwidth: 19341448903225.81
+        offset: 5.0
+        phase: 0.0
+        remove_dc_component: true
+        type: GaussianPulse
+    type: ModeSource
+structures:
+-   geometry:
+        center:
+        - 0.0
+        - 0.0
+        - 0.0
+        size:
+        - Infinity
+        - Infinity
+        - Infinity
+        type: Box
+    medium:
+        allow_gain: false
+        eps_inf: 1.0
+        frequency_range:
+        - 169259246959034.88
+        - 1208994621135963.5
+        name: null
+        nonlinear_spec: null
+        poles:
+        -   -   imag: -1.823105111824081e+16
+                real: -75963372399806.36
+            -   imag: 1.0209565875622414e+16
+                real: 0.0
+        type: PoleResidue
+    name: null
+    type: Structure
+-   geometry:
+        axis: 2
+        dilation: 0.0
+        reference_plane: middle
+        sidewall_angle: 0.17453292519943295
+        slab_bounds:
+        - 0.0
+        - 0.22
+        type: PolySlab
+        vertices:
+        -   - -1.5
+            - -0.25
+        -   - -5.5
+            - -0.25
+        -   - -5.5
+            - 0.25
+        -   - -1.5
+            - 0.25
+        -   - 1.5
+            - 0.25
+        -   - 5.5
+            - 0.25
+        -   - 5.5
+            - -0.25
+        -   - 1.5
+            - -0.25
+        -   - -1.5
+            - -0.25
+    medium:
+        allow_gain: false
+        eps_inf: 1.0
+        frequency_range:
+        - 21413747041496.2
+        - 249827048817455.7
+        name: null
+        nonlinear_spec: null
+        poles:
+        -   -   imag: 6241549589084091.0
+                real: 0.0
+            -   imag: -3.3254308736142404e+16
+                real: 0.0
+        type: PoleResidue
+    name: null
+    type: Structure
+subpixel: true
+symmetry:
+- 0
+- 0
+- 0
+type: Simulation
+version: 2.4.3
