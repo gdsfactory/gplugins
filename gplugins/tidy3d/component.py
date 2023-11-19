@@ -50,12 +50,12 @@ class Tidy3DComponent(LayeredComponentBase):
     """
 
     material_mapping: dict[str, Tidy3DMedium] = material_name_to_tidy3d
-    extend_ports: NonNegativeFloat = 1.0
+    extend_ports: NonNegativeFloat = 2.0
     port_offset: float = 0.2
-    pad_xy_inner: NonNegativeFloat = 1.0
-    pad_xy_outer: NonNegativeFloat = 3.0
-    pad_z_inner: float = 1.0
-    pad_z_outer: NonNegativeFloat = 3.0
+    pad_xy_inner: NonNegativeFloat = 2.0
+    pad_xy_outer: NonNegativeFloat = 2.0
+    pad_z_inner: float = 0.0
+    pad_z_outer: NonNegativeFloat = 0.0
 
     @cached_property
     def polyslabs(self) -> dict[str, tuple[td.PolySlab, ...]]:
@@ -67,6 +67,7 @@ class Tidy3DComponent(LayeredComponentBase):
         """
         slabs = {}
         layers = sort_layers(self.geometry_layers, sort_by="mesh_order", reverse=True)
+
         for name, layer in layers.items():
             bbox = self.get_layer_bbox(name)
             slabs[name] = tuple(
@@ -79,6 +80,7 @@ class Tidy3DComponent(LayeredComponentBase):
                 )
                 for v in self.get_vertices(name)
             )
+
         return slabs
 
     @cached_property
