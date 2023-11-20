@@ -1,6 +1,5 @@
 # SiEPIC - can be loaded from PyPI or in KLayout Application, or loaded from a local folder such as GitHub
 import os
-import sys
 from pathlib import Path
 
 import gdsfactory
