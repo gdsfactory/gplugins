@@ -1,46 +1,42 @@
 # ---
 # jupyter:
 #   jupytext:
-#     custom_cell_magics: kql
 #     text_representation:
 #       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.11.2
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.15.1
 #   kernelspec:
 #     display_name: fdtdz_debug
 #     language: python
 #     name: python3
 # ---
 
-# %% [markdown]
-# # FDTDz
+# # GPU-accelerated FDTD with fdtdz
 #
 # fdtdz (alongside its associated utilities such as pjz) is an open-source library executing differentiable finite-difference time domain s-parameter extraction on GPU. See whitepaper.
 #
 # `gplugins.fdtdz` allows you to execute forward S-parameter simulations with `fdtdz`, by providing a `gdsfactory` `Component` and `LayerStack`.
 
-# %% [markdown]
 # ## Installation
 #
 # Before proceeding, you will need to make sure `fdtdz` is properly installed. Make sure your CUDA installation is properly linked to `jax` and findable by `fdtdz` when building the wheel.
 
-# %% [markdown]
+# ## Quickstart
+#
 # The function `get_sparameters_fdtdz` will quickly return the S-parameters of the provided Component + LayerStack combination at the specified wavelength (in um).
 #
 # Since fdtdz has a fixed domain size in the z-direction, you can also manually specify `zmin`, which will clip the LayerStack from below.
 
-# %% [markdown]
 # ### Define your component
 #
 # Like in the gmsh plugin, we add a `LAYER.WAFER` bbox around the component to parametrize the simulation domain:
 
-# %%
 # %load_ext autoreload
 # %autoreload 2
 
 
-# %%
+# +
 import gdsfactory as gf
 from gdsfactory.cross_section import rib
 from gdsfactory.generic_tech import LAYER, LAYER_STACK
@@ -60,13 +56,12 @@ padding = c << gf.components.bbox(
 c.add_ports(gf.components.straight(length=length).get_ports_list())
 
 c.plot()
+# -
 
-# %% [markdown]
 # ### Define your LayerStack
 #
 # Here we load the generic LayerStack, but only keep the `core`, `clad`, and `box` layers:
 
-# %%
 filtered_layer_stack = LayerStack(
     layers={
         k: LAYER_STACK.layers[k] for k in ["clad", "box", "core", "slab90", "nitride"]
@@ -74,10 +69,8 @@ filtered_layer_stack = LayerStack(
 )
 filtered_layer_stack
 
-# %% [markdown]
 # We show how to inspect the resulting permittivity below to troubleshoot.
 
-# %% [markdown]
 # ### Run the simulation
 #
 # The we just need to call the get_s_parameters function with some settings
@@ -92,7 +85,7 @@ filtered_layer_stack
 # * `material_name_to_fdtdz`: mapping between LayerStack material name and refractive index
 # * default_index: in case the LayerStack does not cover the whole domain, what default nonzero index to assign to pixels
 
-# %%
+# +
 material_name_to_fdtdz = {
     "si": 3.45,
     "sio2": 1.44,
@@ -114,14 +107,12 @@ out = get_sparameters_fdtdz(
 )
 
 out
+# -
 
-# %%
 import numpy as np
 
-# %%
 np.abs(out)
 
-# %% [markdown]
 # ## Inspecting the simulation
 #
 # The internal functions can be directly run to make sure the simulation is setup properly.
@@ -132,7 +123,7 @@ np.abs(out)
 #
 # For xy-plane visualization, set `x = y = None` and choose a z-value:
 
-# %%
+# +
 from gplugins.fdtdz.get_epsilon_fdtdz import component_to_epsilon_pjz, plot_epsilon
 
 zmin = -0.5
@@ -201,11 +192,11 @@ fig = plot_epsilon(
     nm_per_pixel=nm_per_pixel,
     figsize=(11, 4),
 )
+# -
 
-# %% [markdown]
 # Proceed similarly for `xz` and `yz` planes:
 
-# %%
+# +
 fig = plot_epsilon(
     epsilon=epsilon,
     x=1.0,
@@ -277,13 +268,13 @@ fig = plot_epsilon(
     nm_per_pixel=nm_per_pixel,
     figsize=(11, 4),
 )
+# -
 
-# %% [markdown]
 # ### Mode profiles
 #
 # When used through gdsfactory, the optical ports of the Component are used to set the S-parameter monitors of the simulation. They can be inspected:
 
-# %%
+# +
 from gplugins.fdtdz.get_ports_fdtdz import get_mode_port, plot_mode
 
 omega = 1 / 1.55
