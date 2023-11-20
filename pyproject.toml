@@ -100,6 +100,9 @@ web = [
   "fastapi>=0.102.0,<1",
   "uvicorn[standard]"
 ]
+SiEPIC = [
+  "SiEPIC"
+]
 
 [tool.black]
 exclude = '''  # Specify the files/dirs that should be ignored by the black formatter

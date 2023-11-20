@@ -18,6 +18,7 @@ gdsfactory plugins:
 - `ray` for distributed computing and optimization.
 - `sax` S-parameter circuit solver.
 - `schematic`: for bokeh schematic editor and `path_length_analysis`.
+- `SiEPIC`: for Functional Verification: connectivity, components, and Design for Test (DFT)
 - `meep` for FDTD.
 - `mpb` for MPB mode solver.
 - `elmer` for electrostatic (capacitive) simulations.
@@ -30,7 +31,7 @@ gdsfactory plugins:
 You can install most plugins with:
 
 ```
-pip install "gplugins[devsim,femwell,gmsh,schematic,meow,meshwell,ray,sax,tidy3d]" --upgrade
+pip install "gplugins[devsim,femwell,gmsh,schematic,meow,meshwell,ray,sax,tidy3d,SiEPIC]" --upgrade
 ```
 
 Or install only the plugins you need with for example `pip install gplugins[schematic,femwell,meow,sax,tidy3d]` from the available plugins.
