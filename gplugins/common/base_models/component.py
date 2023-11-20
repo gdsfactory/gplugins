@@ -102,6 +102,7 @@ class LayeredComponentBase(BaseModel):
             for k, v in self.layer_stack.layers.items()
             if not self.polygons[k].is_empty
         }
+        layers = dict(sorted(layers.items(), key=lambda x: x[1].zmin + x[1].thickness))
         return dict(tuple(layers.items())[slice(*self.slice_stack)])
 
     @property
