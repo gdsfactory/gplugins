@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pathlib
 import time
+import warnings
 from collections.abc import Awaitable
 from functools import partial
 
@@ -30,6 +31,11 @@ from gplugins.common.utils.get_sparameters_path import (
 )
 from gplugins.tidy3d.get_results import _executor, get_results_batch
 from gplugins.tidy3d.get_simulation import get_simulation, plot_simulation
+
+warnings.warn(
+    'Write parameters is deprecated. Use "gplugins.tidy3d.write_sparameters" instead',
+    DeprecationWarning,
+)
 
 
 def parse_port_eigenmode_coeff(

@@ -3,6 +3,7 @@ from gplugins.tidy3d import materials, modes
 from gplugins.tidy3d.component import (
     Tidy3DComponent,
     material_name_to_medium,
+    write_sparameters,
 )
 from gplugins.tidy3d.get_simulation import (
     get_simulation,
@@ -22,12 +23,6 @@ from gplugins.tidy3d.util import (
     get_mode_solvers,
     get_port_normal,
     sort_layers,
-)
-from gplugins.tidy3d.write_sparameters import (
-    write_sparameters,
-    write_sparameters_1x1,
-    write_sparameters_batch,
-    write_sparameters_batch_1x1,
 )
 from gplugins.tidy3d.write_sparameters_grating_coupler import (
     write_sparameters_grating_coupler,
@@ -51,9 +46,6 @@ __all__ = [
     "plot_simulation_yz",
     "get_simulation_grating_coupler",
     "write_sparameters",
-    "write_sparameters_1x1",
-    "write_sparameters_batch",
-    "write_sparameters_batch_1x1",
     "write_sparameters_grating_coupler",
     "write_sparameters_grating_coupler_batch",
 ]

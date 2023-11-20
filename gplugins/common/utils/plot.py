@@ -24,6 +24,7 @@ def plot_sparameters(
     keys: tuple[str, ...] | None = None,
     with_simpler_input_keys: bool = False,
     with_simpler_labels: bool = True,
+    units: float = 1e3,
 ) -> None:
     """Plots Sparameters from a dict of np.ndarrays.
 
@@ -34,9 +35,10 @@ def plot_sparameters(
         keys: list of keys to plot, plots all by default.
         with_simpler_input_keys: You can use S12 keys instead of o1@0,o2@0.
         with_simpler_labels: uses S11, S12 in plot labels instead of o1@0,o2@0.
+        units: wavelength units. Default is 1e3 to convert um to nm.
 
     """
-    w = sp["wavelengths"] * 1e3
+    w = sp["wavelengths"] * units
     keys = keys or [key for key in sp if not key.lower().startswith("wav")]
 
     for key in keys:

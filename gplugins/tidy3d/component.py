@@ -14,6 +14,8 @@ Functions:
     plot_slice: Plots a cross section of the component at a specified position.
 """
 
+import hashlib
+import io
 import pathlib
 from functools import cached_property
 from typing import Any
@@ -42,6 +44,15 @@ material_name_to_medium = {
     "sio2": td.Medium(name="SiO2", permittivity=1.47**2),
     "sin": td.Medium(name="SiN", permittivity=2.0**2),
 }
+
+home = pathlib.Path.home()
+dirpath_default = home / ".gdsfactory" / "sparameters"
+
+
+def hash_simulation(simulation) -> str:
+    bf = io.BytesIO()
+    simulation.to_hdf5(bf)
+    return hashlib.sha256(bf.getvalue()).hexdigest()
 
 
 class Tidy3DComponent(LayeredComponentBase):
@@ -228,23 +239,23 @@ class Tidy3DComponent(LayeredComponentBase):
         Returns a ComponentModeler instance for the component.
 
         Args:
-            wavelength (float): The wavelength for the ComponentModeler. Defaults to 1.55.
-            bandwidth (float): The bandwidth for the ComponentModeler. Defaults to 0.2.
-            num_freqs (int): The number of frequencies for the ComponentModeler. Defaults to 21.
-            min_steps_per_wvl (int): The minimum number of steps per wavelength for the ComponentModeler. Defaults to 30.
-            center_z (float | str | None): The z-coordinate for the center of the ComponentModeler. If None, the z-coordinate of the component is used. Defaults to None.
-            sim_size_z (float): simulation size um in the z-direction for the ComponentModeler. Defaults to 4.
-            port_size_mult (float | tuple[float, float]): The size multiplier for the ports in the ComponentModeler. Defaults to (4.0, 3.0).
-            run_only (tuple[tuple[str, int], ...] | None): The run only specification for the ComponentModeler. Defaults to None.
-            element_mappings (Tidy3DElementMapping): The element mappings for the ComponentModeler. Defaults to ().
-            extra_monitors (tuple[Any, ...] | None): The extra monitors for the ComponentModeler. Defaults to None.
-            mode_spec (td.ModeSpec): The mode specification for the ComponentModeler. Defaults to td.ModeSpec(num_modes=1, filter_pol="te").
-            boundary_spec (td.BoundarySpec): The boundary specification for the ComponentModeler. Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
-            run_time (float): The run time for the ComponentModeler. Defaults to 1e-12.
-            shutoff (float): The shutoff value for the ComponentModeler. Defaults to 1e-5.
-            folder_name (str): The folder name for the ComponentModeler. Defaults to "default".
-            path_dir (str): The directory path for the ComponentModeler. Defaults to ".".
-            verbose (bool): Whether to print verbose output for the ComponentModeler. Defaults to True.
+            wavelength: The wavelength for the ComponentModeler. Defaults to 1.55.
+            bandwidth: The bandwidth for the ComponentModeler. Defaults to 0.2.
+            num_freqs: The number of frequencies for the ComponentModeler. Defaults to 21.
+            min_steps_per_wvl: The minimum number of steps per wavelength for the ComponentModeler. Defaults to 30.
+            center_z: The z-coordinate for the center of the ComponentModeler. If None, the z-coordinate of the component is used. Defaults to None.
+            sim_size_z: simulation size um in the z-direction for the ComponentModeler. Defaults to 4.
+            port_size_mult: The size multiplier for the ports in the ComponentModeler. Defaults to (4.0, 3.0).
+            run_only: The run only specification for the ComponentModeler. Defaults to None.
+            element_mappings: The element mappings for the ComponentModeler. Defaults to ().
+            extra_monitors: The extra monitors for the ComponentModeler. Defaults to None.
+            mode_spec: The mode specification for the ComponentModeler. Defaults to td.ModeSpec(num_modes=1, filter_pol="te").
+            boundary_spec: The boundary specification for the ComponentModeler. Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
+            run_time: The run time for the ComponentModeler. Defaults to 1e-12.
+            shutoff: The shutoff value for the ComponentModeler. Defaults to 1e-5.
+            folder_name: The folder name for the ComponentModeler. Defaults to "default".
+            path_dir: The directory path for the ComponentModeler. Defaults to ".".
+            verbose: Whether to print verbose output for the ComponentModeler. Defaults to True.
 
         Returns:
             ComponentModeler: A ComponentModeler instance.
@@ -417,45 +428,46 @@ def write_sparameters(
     run_time: float = 1e-12,
     shutoff: float = 1e-5,
     folder_name: str = "default",
-    path_dir: str = ".",
+    path_dir: PathType = dirpath_default,
     verbose: bool = True,
     run: bool = True,
     filepath: PathType | None = None,
-) -> Sparameters | ComponentModeler:
+) -> Sparameters | Tidy3DComponent:
     """Writes the S-parameters for a component.
 
 
     Args:
-        component (GFComponent): The component to write the S-parameters for.
-        layer_stack (LayerStack | None, optional): The layer stack for the component. If None, the layer stack of the component is used. Defaults to None.
-        material_mapping (dict[str, Tidy3DMedium], optional): A mapping of material names to Tidy3DMedium instances. Defaults to material_name_to_medium.
-        extend_ports (NonNegativeFloat, optional): The extension length for ports. Defaults to 2.0.
-        port_offset (float, optional): The offset for ports. Defaults to 0.2.
-        pad_xy_inner (NonNegativeFloat, optional): The inner padding in the xy-plane. Defaults to 2.0.
-        pad_xy_outer (NonNegativeFloat, optional): The outer padding in the xy-plane. Defaults to 2.0.
-        pad_z_inner (float, optional): The inner padding in the z-direction. Defaults to 0.0.
-        pad_z_outer (NonNegativeFloat, optional): The outer padding in the z-direction. Defaults to 0.0.
-        dilation (float, optional): Dilation of the polygon in the base by shifting each edge along its normal outwards direction by a distance;
-        wavelength (float, optional): The wavelength for the ComponentModeler. Defaults to 1.55.
-        bandwidth (float, optional): The bandwidth for the ComponentModeler. Defaults to 0.2.
-        num_freqs (int, optional): The number of frequencies for the ComponentModeler. Defaults to 21.
-        min_steps_per_wvl (int, optional): The minimum number of steps per wavelength for the ComponentModeler. Defaults to 30.
-        center_z (float | str | None, optional): The z-coordinate for the center of the ComponentModeler. If None, the z-coordinate of the component is used. Defaults to None.
-        sim_size_z (float, optional): simulation size um in the z-direction for the ComponentModeler. Defaults to 4.
-        port_size_mult (float | tuple[float, float], optional): The size multiplier for the ports in the ComponentModeler. Defaults to (4.0, 3.0).
-        run_only (tuple[tuple[str, int], ...] | None, optional): The run only specification for the ComponentModeler. Defaults to None.
-        element_mappings (Tidy3DElementMapping, optional): The element mappings for the ComponentModeler. Defaults to ().
-        extra_monitors (tuple[Any, ...] | None, optional): The extra monitors for the ComponentModeler. Defaults to None.
-        mode_spec (td.ModeSpec, optional): The mode specification for the ComponentModeler. Defaults to td.ModeSpec(num_modes=1, filter_pol="te").
-        boundary_spec (td.BoundarySpec, optional): The boundary specification for the ComponentModeler. Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
-        run_time (float, optional): The run time for the ComponentModeler. Defaults to 1e-12.
-        shutoff (float, optional): The shutoff value for the ComponentModeler. Defaults to 1e-5.
-        folder_name (str, optional): The folder name for the ComponentModeler. Defaults to "default".
-        path_dir (str, optional): The directory path for the ComponentModeler. Defaults to ".".
-        verbose (bool, optional): Whether to print verbose output for the ComponentModeler. Defaults to True.
-        run (bool, optional): Whether to run the simulation. Defaults to True.
-        filepath (Optional[PathType], optional): The file path for the S-parameters. If None, the default file path is used. Defaults to None.
-
+        component: gdsfactory component to write the S-parameters for.
+        layer_stack: The layer stack for the component. If None, uses active pdk layer_stack.
+        material_mapping: A mapping of material names to Tidy3DMedium instances. Defaults to material_name_to_medium.
+        extend_ports: The extension length for ports. Defaults to 2.0.
+        port_offset: The offset for ports. Defaults to 0.2.
+        pad_xy_inner: The inner padding in the xy-plane. Defaults to 2.0.
+        pad_xy_outer: The outer padding in the xy-plane. Defaults to 2.0.
+        pad_z_inner: The inner padding in the z-direction. Defaults to 0.0.
+        pad_z_outer: The outer padding in the z-direction. Defaults to 0.0.
+        dilation: Dilation of the polygon in the base by shifting each edge along its normal outwards direction by a distance;
+        wavelength: The wavelength for the ComponentModeler. Defaults to 1.55.
+        bandwidth: The bandwidth for the ComponentModeler. Defaults to 0.2.
+        num_freqs: The number of frequencies for the ComponentModeler. Defaults to 21.
+        min_steps_per_wvl: The minimum number of steps per wavelength for the ComponentModeler. Defaults to 30.
+        center_z: The z-coordinate for the center of the ComponentModeler.
+            If None, the z-coordinate of the component is used. Defaults to None.
+        sim_size_z: simulation size um in the z-direction for the ComponentModeler. Defaults to 4.
+        port_size_mult: The size multiplier for the ports in the ComponentModeler. Defaults to (4.0, 3.0).
+        run_only: The run only specification for the ComponentModeler. Defaults to None.
+        element_mappings: The element mappings for the ComponentModeler. Defaults to ().
+        extra_monitors: The extra monitors for the ComponentModeler. Defaults to None.
+        mode_spec: The mode specification for the ComponentModeler. Defaults to td.ModeSpec(num_modes=1, filter_pol="te").
+        boundary_spec: The boundary specification for the ComponentModeler.
+            Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
+        run_time: The run time for the ComponentModeler. Defaults to 1e-12.
+        shutoff: The shutoff value for the ComponentModeler. Defaults to 1e-5.
+        folder_name: The folder name for the ComponentModeler. Defaults to "default".
+        path_dir: Optional directory path for writing the Sparameters. Defaults to "~/.gdsfactory/sparameters".
+        verbose: Whether to print verbose output for the ComponentModeler. Defaults to True.
+        run: Whether to run the simulation. Defaults to True.
+        filepath: Optional file path for the S-parameters. If None, uses hash of simulation.
 
     """
     layer_stack = layer_stack or get_layer_stack()
@@ -489,14 +501,17 @@ def write_sparameters(
         run_time=run_time,
         shutoff=shutoff,
         folder_name=folder_name,
-        path_dir=path_dir,
+        path_dir=str(path_dir),
         verbose=verbose,
     )
 
     if not run:
-        return modeler
+        return c
 
-    filepath = pathlib.Path(f"{hash(modeler)}.npz")
+    dirpath = pathlib.Path(path_dir)
+    dirpath.mkdir(parents=True, exist_ok=True)
+    filepath = filepath or dirpath / f"{hash_simulation(modeler)}.npz"
+    filepath = pathlib.Path(filepath)
 
     if filepath.exists():
         print(f"Simulation loaded from {filepath!r}")
@@ -516,8 +531,11 @@ def write_sparameters(
                             mode_index_in=mode_index_in,
                             mode_index_out=mode_index_out,
                         ).values
-        print(f"Simulation saved to {filepath!r}")
+
+        frequency = s.f.values
+        sp["wavelengths"] = td.constants.C_0 / frequency * 1e6
         np.savez_compressed(filepath, **sp)
+        print(f"Simulation saved to {filepath!r}")
 
     return sp
 
@@ -525,5 +543,8 @@ def write_sparameters(
 if __name__ == "__main__":
     import gdsfactory as gf
 
+    import gplugins as gp
+
     c = gf.components.straight()
     sp = write_sparameters(c, sim_size_z=0, run=True)
+    gp.plot.plot_sparameters(sp, units=1e3)

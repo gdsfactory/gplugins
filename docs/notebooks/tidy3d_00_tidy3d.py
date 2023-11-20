@@ -35,6 +35,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tidy3d as td
 
+import gplugins as gp
 import gplugins.tidy3d as gt
 from gplugins import plot
 from gplugins.common.config import PATH
@@ -118,7 +119,7 @@ plt.show()
 
 
 # %%
-LAYER_STACK.layers.pop("substrate")
+LAYER_STACK.layers.pop("substrate", None)
 
 # setup the tidy3d component
 c = gt.Tidy3DComponent(
@@ -183,9 +184,24 @@ plt.setp(ax, aspect="equal")
 plt.show()
 
 # %%
-# from here you can follow https://docs.flexcompute.com/projects/tidy3d/en/latest/notebooks/SMatrix.html?highlight=smatrix#Solving-for-the-S-matrix
-# smatrix = modeler.run()
+c = gt.write_sparameters(component, run=False)
+modeler = c.get_component_modeler()
+modeler.plot_sim(z=c.get_layer_center("core")[2])
 
+
+# %%
+PATH.sparameters_repo
+
+# %%
+sp = gt.write_sparameters(
+    component,
+    filepath=PATH.sparameters_repo / "coupler_ring_2d.npz",
+    run=True,
+    sim_size_z=0,
+)
+
+# %%
+gp.plot.plot_sparameters(sp)
 
 # %% [markdown]
 # ### 2D
@@ -203,7 +219,21 @@ modeler.plot_sim(x=c.ports[0].center[0], ax=ax[1])
 
 
 # %%
-# smatrix = modeler.run()
+sp = gt.write_sparameters(
+    component,
+    filepath=PATH.sparameters_repo / "coupler_ring_2d.npz",
+    run=True,
+    sim_size_z=0,
+)
+
+# %%
+component = gf.components.straight()
+sp = gt.write_sparameters(
+    component,
+    filepath=PATH.sparameters_repo / "straight_2d.npz",
+    run=True,
+    sim_size_z=0,
+)
 
 # %% [markdown]
 # ### 3D
@@ -212,9 +242,11 @@ modeler.plot_sim(x=c.ports[0].center[0], ax=ax[1])
 # 3D simulations run quite fast thanks to the GPU solver on the server side hosted by tidy3d cloud.
 
 # %%
-c = gf.components.straight()
-s = gt.get_simulation(c)
-fig = gt.plot_simulation(s)
+c = gf.components.straight(length=2)
+sp = gt.write_sparameters(
+    c, filepath=PATH.sparameters_repo / "straight_3d.npz", run=True, sim_size_z=4
+)
+gp.plot.plot_sparameters(sp)
 
 # %% [markdown]
 # ## Erosion / dilation
@@ -359,21 +391,6 @@ plot.plot_loss2x2(sp)
 
 # %%
 plot.plot_imbalance2x2(sp)
-
-# %% [markdown]
-# ## write_sparameters_batch
-#
-# You can also send a batch of component simulations in parallel to the tidy3d server.
-#
-#
-# ```python
-# jobs = [dict(component=gf.c.straight(length=1.11 + i)) for i in [1, 2]]
-# sps = gt.write_sparameters_batch_1x1(jobs)
-#
-# sp0 = sps[0]
-# sp = sp0.result()
-# plot.plot_sparameters(sp)
-# ```
 
 # %% [markdown]
 # ## get_simulation_grating_coupler
