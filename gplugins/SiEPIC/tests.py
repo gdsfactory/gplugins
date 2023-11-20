@@ -4,15 +4,6 @@ import os
 import gdsfactory as gf
 from verification import layout_check
 
-"""
-path_GitHub = '/Users/lukasc/Documents/GitHub/'
-if os.path.exists(path_GitHub):
-    path_ubcpdk = os.path.join(path_GitHub, 'gdsfactory_ubcpdk')
-    if not path_ubcpdk in sys.path:
-        sys.path.insert(0,path_ubcpdk)  # put SiEPIC at the beginning so that it is overrides the system-installed module
-import ubcpdk
-"""
-
 if __name__ == "__main__":
     # c = gf.components.mmi2x2()
 
