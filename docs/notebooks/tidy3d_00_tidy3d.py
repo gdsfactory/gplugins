@@ -202,6 +202,9 @@ modeler.plot_sim(z=c.get_layer_center("core")[2], ax=ax[0])
 modeler.plot_sim(x=c.ports[0].center[0], ax=ax[1])
 
 
+# %%
+smatrix = modeler.run()
+
 # %% [markdown]
 # ### 3D
 #

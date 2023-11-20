@@ -14,19 +14,28 @@ Functions:
     plot_slice: Plots a cross section of the component at a specified position.
 """
 
+import pathlib
 from functools import cached_property
 from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
 import tidy3d as td
+from gdsfactory.component import Component
+from gdsfactory.pdk import get_layer_stack
+from gdsfactory.technology import LayerStack
 from pydantic import NonNegativeFloat
 from tidy3d.plugins.smatrix import ComponentModeler, Port
 
 from gplugins.common.base_models.component import LayeredComponentBase
+from gplugins.tidy3d.types import (
+    Sparameters,
+    Tidy3DElementMapping,
+    Tidy3DMedium,
+)
+from gplugins.tidy3d.util import get_port_normal, sort_layers
 
-from .types import Tidy3DElementMapping, Tidy3DMedium
-from .util import get_port_normal, sort_layers
+PathType = pathlib.Path | str
 
 material_name_to_medium = {
     "si": td.Medium(name="Si", permittivity=3.47**2),
@@ -380,3 +389,141 @@ class Tidy3DComponent(LayeredComponentBase):
             ax.legend(fancybox=True, framealpha=1.0)
 
         return ax
+
+
+def write_sparameters(
+    component: Component,
+    layer_stack: LayerStack | None = None,
+    material_mapping: dict[str, Tidy3DMedium] = material_name_to_medium,
+    extend_ports: NonNegativeFloat = 2.0,
+    port_offset: float = 0.2,
+    pad_xy_inner: NonNegativeFloat = 2.0,
+    pad_xy_outer: NonNegativeFloat = 2.0,
+    pad_z_inner: float = 0.0,
+    pad_z_outer: NonNegativeFloat = 0.0,
+    dilation: float = 0.0,
+    wavelength: float = 1.55,
+    bandwidth: float = 0.2,
+    num_freqs: int = 21,
+    min_steps_per_wvl: int = 30,
+    center_z: float | str | None = None,
+    sim_size_z: float = 4.0,
+    port_size_mult: float | tuple[float, float] = (4.0, 3.0),
+    run_only: tuple[tuple[str, int], ...] | None = None,
+    element_mappings: Tidy3DElementMapping = (),
+    extra_monitors: tuple[Any, ...] | None = None,
+    mode_spec: td.ModeSpec = td.ModeSpec(num_modes=1, filter_pol="te"),
+    boundary_spec: td.BoundarySpec = td.BoundarySpec.all_sides(boundary=td.PML()),
+    run_time: float = 1e-12,
+    shutoff: float = 1e-5,
+    folder_name: str = "default",
+    path_dir: str = ".",
+    verbose: bool = True,
+    run: bool = True,
+    filepath: PathType | None = None,
+) -> Sparameters | ComponentModeler:
+    """Writes the S-parameters for a component.
+
+
+    Args:
+        component (GFComponent): The component to write the S-parameters for.
+        layer_stack (LayerStack | None, optional): The layer stack for the component. If None, the layer stack of the component is used. Defaults to None.
+        material_mapping (dict[str, Tidy3DMedium], optional): A mapping of material names to Tidy3DMedium instances. Defaults to material_name_to_medium.
+        extend_ports (NonNegativeFloat, optional): The extension length for ports. Defaults to 2.0.
+        port_offset (float, optional): The offset for ports. Defaults to 0.2.
+        pad_xy_inner (NonNegativeFloat, optional): The inner padding in the xy-plane. Defaults to 2.0.
+        pad_xy_outer (NonNegativeFloat, optional): The outer padding in the xy-plane. Defaults to 2.0.
+        pad_z_inner (float, optional): The inner padding in the z-direction. Defaults to 0.0.
+        pad_z_outer (NonNegativeFloat, optional): The outer padding in the z-direction. Defaults to 0.0.
+        dilation (float, optional): Dilation of the polygon in the base by shifting each edge along its normal outwards direction by a distance;
+        wavelength (float, optional): The wavelength for the ComponentModeler. Defaults to 1.55.
+        bandwidth (float, optional): The bandwidth for the ComponentModeler. Defaults to 0.2.
+        num_freqs (int, optional): The number of frequencies for the ComponentModeler. Defaults to 21.
+        min_steps_per_wvl (int, optional): The minimum number of steps per wavelength for the ComponentModeler. Defaults to 30.
+        center_z (float | str | None, optional): The z-coordinate for the center of the ComponentModeler. If None, the z-coordinate of the component is used. Defaults to None.
+        sim_size_z (float, optional): simulation size um in the z-direction for the ComponentModeler. Defaults to 4.
+        port_size_mult (float | tuple[float, float], optional): The size multiplier for the ports in the ComponentModeler. Defaults to (4.0, 3.0).
+        run_only (tuple[tuple[str, int], ...] | None, optional): The run only specification for the ComponentModeler. Defaults to None.
+        element_mappings (Tidy3DElementMapping, optional): The element mappings for the ComponentModeler. Defaults to ().
+        extra_monitors (tuple[Any, ...] | None, optional): The extra monitors for the ComponentModeler. Defaults to None.
+        mode_spec (td.ModeSpec, optional): The mode specification for the ComponentModeler. Defaults to td.ModeSpec(num_modes=1, filter_pol="te").
+        boundary_spec (td.BoundarySpec, optional): The boundary specification for the ComponentModeler. Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
+        run_time (float, optional): The run time for the ComponentModeler. Defaults to 1e-12.
+        shutoff (float, optional): The shutoff value for the ComponentModeler. Defaults to 1e-5.
+        folder_name (str, optional): The folder name for the ComponentModeler. Defaults to "default".
+        path_dir (str, optional): The directory path for the ComponentModeler. Defaults to ".".
+        verbose (bool, optional): Whether to print verbose output for the ComponentModeler. Defaults to True.
+        run (bool, optional): Whether to run the simulation. Defaults to True.
+        filepath (Optional[PathType], optional): The file path for the S-parameters. If None, the default file path is used. Defaults to None.
+
+
+    """
+    layer_stack = layer_stack or get_layer_stack()
+
+    c = Tidy3DComponent(
+        component=component,
+        layer_stack=layer_stack,
+        material_mapping=material_mapping,
+        extend_ports=extend_ports,
+        port_offset=port_offset,
+        pad_xy_inner=pad_xy_inner,
+        pad_xy_outer=pad_xy_outer,
+        pad_z_inner=pad_z_inner,
+        pad_z_outer=pad_z_outer,
+        dilation=dilation,
+    )
+
+    modeler = c.get_component_modeler(
+        wavelength=wavelength,
+        bandwidth=bandwidth,
+        num_freqs=num_freqs,
+        min_steps_per_wvl=min_steps_per_wvl,
+        center_z=center_z,
+        sim_size_z=sim_size_z,
+        port_size_mult=port_size_mult,
+        run_only=run_only,
+        element_mappings=element_mappings,
+        extra_monitors=extra_monitors,
+        mode_spec=mode_spec,
+        boundary_spec=boundary_spec,
+        run_time=run_time,
+        shutoff=shutoff,
+        folder_name=folder_name,
+        path_dir=path_dir,
+        verbose=verbose,
+    )
+
+    if not run:
+        return modeler
+
+    filepath = pathlib.Path(f"{hash(modeler)}.npz")
+
+    if filepath.exists():
+        print(f"Simulation loaded from {filepath!r}")
+        return dict(np.load(filepath))
+    else:
+        sp = {}
+        s = modeler.run()
+        for port_in in s.port_in.values:
+            for port_out in s.port_out.values:
+                for mode_index_in in s.mode_index_in.values:
+                    for mode_index_out in s.mode_index_out.values:
+                        sp[
+                            f"{port_in}@{mode_index_in},{port_out}@{mode_index_out}"
+                        ] = s.sel(
+                            port_in=port_in,
+                            port_out=port_out,
+                            mode_index_in=mode_index_in,
+                            mode_index_out=mode_index_out,
+                        ).values
+        print(f"Simulation saved to {filepath!r}")
+        np.savez_compressed(filepath, **sp)
+
+    return sp
+
+
+if __name__ == "__main__":
+    import gdsfactory as gf
+
+    c = gf.components.straight()
+    sp = write_sparameters(c, sim_size_z=0, run=True)

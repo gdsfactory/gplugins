@@ -1,5 +1,6 @@
 from typing import Annotated, Any
 
+import numpy as np
 import tidy3d as td
 from pydantic.functional_serializers import PlainSerializer
 from pydantic.functional_validators import AfterValidator
@@ -13,6 +14,8 @@ def validate_medium(v):
     ), f"Input should be an instance of {td.Medium}, but got {type(v)} instead"
     return v
 
+
+Sparameters = dict[str, np.ndarray]
 
 # Annotated type for Tidy3D medium with validation and serialization
 Tidy3DMedium = Annotated[
