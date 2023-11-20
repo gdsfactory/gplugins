@@ -39,8 +39,7 @@ def layout_check(
 
     # Load KLayout technology
     from SiEPIC.utils import load_klayout_technology
-
-    tech = load_klayout_technology("EBeam", path_module)
+    load_klayout_technology(techname, path_module)
 
     # load in KLayout database
     ly = pya.Layout()
