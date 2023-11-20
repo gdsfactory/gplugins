@@ -39,6 +39,7 @@ def layout_check(
 
     # Load KLayout technology
     from SiEPIC.utils import load_klayout_technology
+
     load_klayout_technology(techname, path_module)
 
     # load in KLayout database
