@@ -203,7 +203,7 @@ modeler.plot_sim(x=c.ports[0].center[0], ax=ax[1])
 
 
 # %%
-smatrix = modeler.run()
+# smatrix = modeler.run()
 
 # %% [markdown]
 # ### 3D
