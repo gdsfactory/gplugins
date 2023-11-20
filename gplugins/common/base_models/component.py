@@ -36,7 +36,7 @@ class LayeredComponentBase(BaseModel):
     pad_z_inner: float = 0.0
     pad_z_outer: NonNegativeFloat = 0.0
     wafer_layer: tuple[int, int] = (99999, 0)
-    slice_stack: tuple[int, int] = (0, -1)
+    slice_stack: tuple[int, int | None] = (0, None)
 
     def __hash__(self):
         if not hasattr(self, "_hash"):
@@ -97,11 +97,12 @@ class LayeredComponentBase(BaseModel):
 
     @cached_property
     def geometry_layers(self) -> dict[str, LayerLevel]:
-        return {
+        layers = {
             k: v
             for k, v in self.layer_stack.layers.items()
             if not self.polygons[k].is_empty
         }
+        return dict(tuple(layers.items())[slice(*self.slice_stack)])
 
     @property
     def xmin(self) -> float:
