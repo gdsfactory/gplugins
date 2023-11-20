@@ -97,12 +97,11 @@ class LayeredComponentBase(BaseModel):
 
     @cached_property
     def geometry_layers(self) -> dict[str, LayerLevel]:
-        layers = {
+        return {
             k: v
             for k, v in self.layer_stack.layers.items()
             if not self.polygons[k].is_empty
         }
-        return dict(tuple(layers.items())[slice(*self.slice_stack)])
 
     @property
     def xmin(self) -> float:
