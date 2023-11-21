@@ -432,6 +432,7 @@ def write_sparameters(
     verbose: bool = True,
     run: bool = True,
     filepath: PathType | None = None,
+    overwrite: bool = False,
 ) -> Sparameters | Tidy3DComponent:
     """Writes the S-parameters for a component.
 
@@ -468,6 +469,7 @@ def write_sparameters(
         verbose: Whether to print verbose output for the ComponentModeler. Defaults to True.
         run: Whether to run the simulation. Defaults to True.
         filepath: Optional file path for the S-parameters. If None, uses hash of simulation.
+        overwrite: Whether to overwrite existing S-parameters. Defaults to False.
 
     """
     layer_stack = layer_stack or get_layer_stack()
@@ -513,7 +515,7 @@ def write_sparameters(
     filepath = filepath or dirpath / f"{hash_simulation(modeler)}.npz"
     filepath = pathlib.Path(filepath)
 
-    if filepath.exists():
+    if filepath.exists() and not overwrite:
         print(f"Simulation loaded from {filepath!r}")
         return dict(np.load(filepath))
     else:
@@ -546,5 +548,12 @@ if __name__ == "__main__":
     import gplugins as gp
 
     c = gf.components.straight()
-    sp = write_sparameters(c, sim_size_z=0, run=True)
+
+    # run = False
+    # c = write_sparameters(c, sim_size_z=0, run=False, center_z="core")
+    # modeler = c.get_component_modeler()
+    # modeler.plot_sim(z=0)
+    # plt.show()
+
+    sp = write_sparameters(c, sim_size_z=0, run=True, center_z="core")
     gp.plot.plot_sparameters(sp)

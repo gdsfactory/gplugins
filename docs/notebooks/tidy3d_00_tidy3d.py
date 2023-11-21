@@ -198,6 +198,7 @@ sp = gt.write_sparameters(
     filepath=PATH.sparameters_repo / "coupler_ring_2d.npz",
     run=True,
     sim_size_z=0,
+    center_z="core",
 )
 
 # %%
@@ -233,7 +234,11 @@ sp = gt.write_sparameters(
     filepath=PATH.sparameters_repo / "straight_2d.npz",
     run=True,
     sim_size_z=0,
+    center_z="core",
 )
+
+# %%
+gp.plot.plot_sparameters(sp)
 
 # %% [markdown]
 # ### 3D
