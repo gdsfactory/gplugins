@@ -88,7 +88,8 @@ schematic = [
   "natsort"
 ]
 siepic = [
-  "SiEPIC"
+  "SiEPIC",
+  "siepic_ebeam_pdk"
 ]
 tidy3d = [
   "tidy3d>=2.4.0,<2.5.0"

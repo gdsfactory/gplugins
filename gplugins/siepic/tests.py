@@ -7,23 +7,16 @@ from gplugins.siepic.verification import layout_check
 
 
 def test1():
-    # c = gf.components.mmi2x2()
+    import siepic_ebeam_pdk
+    techname = "EBeam"
 
     file_path = os.path.join(
         os.path.dirname(os.path.realpath(__file__)), "tests/mmi2x2.oas"
     )
     c = gf.import_gds(file_path, read_metadata=True)
 
-    # Uses the SiEPIC-EBeam-PDK, and assumes it is located in
-    # ~/Documents/GitHub/SiEPIC_EBeam_PDK/klayout
-    techname = "EBeam"
-    path_module = "~/Documents/GitHub/SiEPIC_EBeam_PDK/klayout"
-    path_module = os.path.expanduser(path_module)
-
-    #    klive.show(gdspath)
-
     # Run verification
-    layout_check(c, techname, path_module, show_klive=True)
+    layout_check(c, techname, show_klive=True)
 
 
 def test2():
@@ -33,16 +26,12 @@ def test2():
     mzi = gf.components.mzi(splitter=splitter)
     component_fiber_array = uc.add_fiber_array(component=mzi)
 
-    # Uses the SiEPIC-EBeam-PDK, and assumes it is located in
-    # ~/Documents/GitHub/SiEPIC_EBeam_PDK/klayout
+    # Uses the SiEPIC-EBeam-PDK
+    import siepic_ebeam_pdk
     techname = "EBeam"
-    path_module = "~/Documents/GitHub/SiEPIC_EBeam_PDK/klayout"
-    path_module = os.path.expanduser(path_module)
-
-    #    klive.show(gdspath)
 
     # Run verification
-    layout_check(component_fiber_array, techname, path_module, show_klive=True)
+    layout_check(component_fiber_array, techname, show_klive=True)
 
 
 if __name__ == "__main__":
