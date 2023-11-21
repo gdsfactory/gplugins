@@ -1,6 +1,8 @@
 """Test functional verification of simple layouts """
 import os
 
+import siepic_ebeam_pdk
+
 import gdsfactory as gf
 
 from gplugins.siepic.verification import layout_check
