@@ -25,9 +25,9 @@
 #
 # ## Materials
 #
-# To use gdsfactory LayerStack for different PDKs into tidy3d you have to create a mapping between each material name into a tidy3d Medim
+# To use gdsfactory LayerStack for different PDKs into tidy3d you have to create a mapping between each material name from the LayerStack into a tidy3d Medim
 #
-# Tidy3d provides you with a material database of dispersive materials.
+# Tidy3d provides you with a material database that also includes dispersive materials.
 
 # %%
 import gdsfactory as gf
