@@ -1,4 +1,6 @@
 import itertools
+from collections.abc import Collection
+from itertools import combinations
 from pathlib import Path
 
 import klayout.db as kdb
@@ -79,6 +81,7 @@ def plot_nets(
     interactive: bool = False,
     include_labels: bool = True,
     only_most_complex: bool = False,
+    nodes_to_reduce: Collection[str] | None = None,
 ) -> None:
     """Plots the connectivity between the components in the KLayout LayoutToNetlist file from :func:`~get_l2n`.
 
@@ -91,7 +94,10 @@ def plot_nets(
         include_labels: Whether to include labels in the graph connected to corresponding cells.
         only_most_complex: Whether to plot only the circuit with most connections or not.
             Helpful for not plotting subcircuits separately.
+        nodes_to_reduce: Nodes to reduce to a single edge. Comparison made with Python ``in`` operator.
+            Helpful for reducing trivial waveguide elements.
     """
+
     match Path(filepath).suffix:
         case ".l2n" | ".txt":
             l2n = kdb.LayoutToNetlist()
@@ -114,6 +120,25 @@ def plot_nets(
         include_labels=include_labels,
         only_most_complex=only_most_complex,
     )
+
+    if nodes_to_reduce:
+
+        def _removal_condition(node: str, degree: int) -> bool:
+            return degree == 2 and any(e in node for e in nodes_to_reduce)
+
+        while any(
+            _removal_condition(node, degree) for node, degree in G_connectivity.degree
+        ):
+            G_connectivity_tmp = G_connectivity.copy()
+            for node, degree in G_connectivity.degree:
+                if _removal_condition(node, degree):
+                    connected_to_node = [e[1] for e in G_connectivity.edges(node)]
+                    node_pairs_to_connect = list(combinations(connected_to_node, r=2))
+                    for pair in node_pairs_to_connect:
+                        G_connectivity_tmp.add_edge(pair[0], pair[1])
+                    G_connectivity_tmp.remove_node(node)
+                    break
+            G_connectivity = G_connectivity_tmp
 
     # Plotting the graph
     if interactive:
