@@ -7,16 +7,6 @@ from gplugins.tidy3d.component import (
 from gplugins.tidy3d.get_simulation_grating_coupler import (
     get_simulation_grating_coupler,
 )
-from gplugins.tidy3d.types import (
-    Tidy3DElementMapping,
-    Tidy3DMedium,
-    validate_medium,
-)
-from gplugins.tidy3d.util import (
-    get_mode_solvers,
-    get_port_normal,
-    sort_layers,
-)
 from gplugins.tidy3d.write_sparameters_grating_coupler import (
     write_sparameters_grating_coupler,
     write_sparameters_grating_coupler_batch,
@@ -24,13 +14,7 @@ from gplugins.tidy3d.write_sparameters_grating_coupler import (
 
 __all__ = [
     "Tidy3DComponent",
-    "Tidy3DElementMapping",
-    "Tidy3DMedium",
-    "get_mode_solvers",
-    "get_port_normal",
     "material_name_to_medium",
-    "sort_layers",
-    "validate_medium",
     "modes",
     "materials",
     "get_simulation_grating_coupler",

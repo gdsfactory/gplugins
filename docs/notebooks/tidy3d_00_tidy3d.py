@@ -164,32 +164,6 @@ fig.tight_layout()
 plt.show()
 
 # %% [markdown]
-# ### Mode solver
-
-# %%
-# we can solve for the modes of the different ports
-mode_solver = list(gt.get_mode_solvers(modeler, "o1").values())[0]
-mode_data = mode_solver.solve()
-
-# %%
-# and visualize them, this is taken directly from https://docs.flexcompute.com/projects/tidy3d/en/latest/notebooks/ModeSolver.html#Visualizing-Mode-Data
-fig, ax = plt.subplots(1, 3, tight_layout=True, figsize=(10, 3))
-abs(mode_data.Ex.isel(mode_index=0, f=0)).plot(x="y", y="z", ax=ax[0], cmap="magma")
-abs(mode_data.Ey.isel(mode_index=0, f=0)).plot(x="y", y="z", ax=ax[1], cmap="magma")
-abs(mode_data.Ez.isel(mode_index=0, f=0)).plot(x="y", y="z", ax=ax[2], cmap="magma")
-ax[0].set_title("|Ex(x, y)|")
-ax[1].set_title("|Ey(x, y)|")
-ax[2].set_title("|Ez(x, y)|")
-plt.setp(ax, aspect="equal")
-plt.show()
-
-# %%
-c = gt.write_sparameters(component, run=False)
-modeler = c.get_component_modeler()
-modeler.plot_sim(z=c.get_layer_center("core")[2])
-
-
-# %% [markdown]
 # ## Write S-parameters
 #
 # The most useful function is `gt.write_sparameters` which allows you to:
@@ -230,9 +204,20 @@ c.plot()
 sp = gt.write_sparameters(c, plot_simulation_layer_name="core", layer_stack=LAYER_STACK)
 
 # %%
-# lets plot the input mode
+# lets plot the fundamental input mode
 sp = gt.write_sparameters(
     c, plot_mode_port_name="o1", plot_mode_index=0, layer_stack=LAYER_STACK
+)
+
+# %%
+# lets plot the second order input mode
+mode_spec = td.ModeSpec(num_modes=2, filter_pol="te")
+sp = gt.write_sparameters(
+    c,
+    plot_mode_port_name="o1",
+    plot_mode_index=1,
+    layer_stack=LAYER_STACK,
+    mode_spec=mode_spec,
 )
 
 # %%
