@@ -346,8 +346,7 @@ fig = gt.plot_simulation(s)
 # We call this `1x1` port symmetry
 
 # %%
-# sp = gt.write_sparameters_1x1(c)
-
+# sp = gt.write_sparameters(c)
 sp = np.load(
     PATH.sparameters_repo / "bend_circular_radius2_9d7742b34c224827aeae808dc986308e.npz"
 )
@@ -366,8 +365,6 @@ fig = gt.plot_simulation(s, y=0.63)  # see output
 
 # %%
 # sp = gt.write_sparameters(c)
-
-# %%
 sp = np.load(PATH.sparameters_repo / "mmi1x2_507de731d50770de9096ac9f23321daa.npz")
 
 # %%
@@ -602,30 +599,3 @@ plt.xlabel("wavelength (um")
 plt.ylabel("Transmission (dB)")
 plt.title("transmission vs fiber angle (degrees)")
 plt.legend()
-
-# %%
-bend_radius = [1, 2]
-jobs = [
-    dict(
-        component=gf.components.bend_circular(radius=radius),
-        filepath=PATH.sparameters_repo / f"bend_r{radius}",
-    )
-    for radius in bend_radius
-]
-sps = gt.write_sparameters_batch(jobs)
-
-# %%
-for sp, radius in zip(sps, bend_radius):
-    sp = sp.result()
-    plt.plot(
-        sp["wavelengths"],
-        20 * np.log10(np.abs(sp["o2@0,o1@0"])),
-        label=str(radius),
-    )
-
-plt.xlabel("wavelength (um")
-plt.ylabel("Transmission (dB)")
-plt.title("transmission vs bend radius (um)")
-plt.legend()
-
-# %%
