@@ -587,8 +587,14 @@ if __name__ == "__main__":
     # modeler.plot_sim(z=0)
     # plt.show()
 
-    # sp = write_sparameters(c, sim_size_z=0, center_z="core", plot_simulation_layer_name='core', plot_simulation_port_index=1)
+    mode_spec = td.ModeSpec(num_modes=2, filter_pol="te")
+    # sp = write_sparameters(c, sim_size_z=0, center_z="core", plot_simulation_layer_name='core', plot_simulation_port_index=1, mode_spec=mode_spec)
     sp = write_sparameters(
-        c, sim_size_z=4, center_z="core", plot_mode_port_name="o1", plot_mode_index=1
+        c,
+        sim_size_z=4,
+        center_z="core",
+        plot_mode_port_name="o1",
+        plot_mode_index=1,
+        mode_spec=mode_spec,
     )
     # gp.plot.plot_sparameters(sp)

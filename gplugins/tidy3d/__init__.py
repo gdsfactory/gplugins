@@ -1,15 +1,8 @@
-# Deprecated
 from gplugins.tidy3d import materials, modes
 from gplugins.tidy3d.component import (
     Tidy3DComponent,
     material_name_to_medium,
     write_sparameters,
-)
-from gplugins.tidy3d.get_simulation import (
-    get_simulation,
-    plot_simulation,
-    plot_simulation_xz,
-    plot_simulation_yz,
 )
 from gplugins.tidy3d.get_simulation_grating_coupler import (
     get_simulation_grating_coupler,
@@ -40,10 +33,6 @@ __all__ = [
     "validate_medium",
     "modes",
     "materials",
-    "get_simulation",
-    "plot_simulation",
-    "plot_simulation_xz",
-    "plot_simulation_yz",
     "get_simulation_grating_coupler",
     "write_sparameters",
     "write_sparameters_grating_coupler",

@@ -237,7 +237,10 @@ sp = gt.write_sparameters(
 
 # %%
 sp = gt.write_sparameters(
-    c, plot_simulation_layer_name="nitride", layer_stack=LAYER_STACK
+    c,
+    plot_simulation_layer_name="nitride",
+    plot_simulation_port_index=1,
+    layer_stack=LAYER_STACK,
 )
 
 # %%
@@ -652,3 +655,5 @@ plt.xlabel("wavelength (um")
 plt.ylabel("Transmission (dB)")
 plt.title("transmission vs fiber angle (degrees)")
 plt.legend()
+
+# %%
