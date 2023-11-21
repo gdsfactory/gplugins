@@ -533,7 +533,7 @@ def write_sparameters(
                         ).values
 
         frequency = s.f.values
-        sp["wavelengths"] = td.constants.C_0 / frequency * 1e6
+        sp["wavelengths"] = td.constants.C_0 / frequency
         np.savez_compressed(filepath, **sp)
         print(f"Simulation saved to {filepath!r}")
 
@@ -547,4 +547,4 @@ if __name__ == "__main__":
 
     c = gf.components.straight()
     sp = write_sparameters(c, sim_size_z=0, run=True)
-    gp.plot.plot_sparameters(sp, units=1e3)
+    gp.plot.plot_sparameters(sp)
