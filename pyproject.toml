@@ -26,9 +26,6 @@ requires-python = ">=3.10"
 version = "0.8.5"
 
 [project.optional-dependencies]
-SiEPIC = [
-  "SiEPIC"
-]
 dagster = ["dagster", "dagit"]
 dev = [
   "pre-commit",
@@ -89,6 +86,9 @@ sax = [
 schematic = [
   "bokeh",
   "natsort"
+]
+siepic = [
+  "SiEPIC"
 ]
 tidy3d = [
   "tidy3d>=2.4.0,<2.5.0"
