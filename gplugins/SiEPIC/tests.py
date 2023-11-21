@@ -4,6 +4,7 @@ import os
 import gdsfactory as gf
 from verification import layout_check
 
+
 def test1():
     # c = gf.components.mmi2x2()
 
@@ -23,8 +24,8 @@ def test1():
     # Run verification
     layout_check(c, techname, path_module, show_klive=True)
 
+
 def test2():
-    import ubcpdk
     import ubcpdk.components as uc
 
     splitter = uc.ebeam_y_1550(decorator=gf.port.auto_rename_ports)
@@ -41,6 +42,7 @@ def test2():
 
     # Run verification
     layout_check(component_fiber_array, techname, path_module, show_klive=True)
+
 
 if __name__ == "__main__":
     test1()
