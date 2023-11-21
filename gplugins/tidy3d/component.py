@@ -431,7 +431,9 @@ def write_sparameters(
     dirpath: PathType = dirpath_default,
     verbose: bool = True,
     plot_simulation_layer_name: str | None = None,
-    plot_simulation_port_index: int | None = 0,
+    plot_simulation_port_index: int = 0,
+    plot_simulation_z: float | None = None,
+    plot_simulation_x: float | None = None,
     plot_mode_index: int | None = 0,
     plot_mode_port_name: str | None = None,
     filepath: PathType | None = None,
@@ -469,8 +471,10 @@ def write_sparameters(
         folder_name: The folder name for the ComponentModeler in flexcompute website. Defaults to "default".
         dirpath: Optional directory path for writing the Sparameters. Defaults to "~/.gdsfactory/sparameters".
         verbose: Whether to print verbose output for the ComponentModeler. Defaults to True.
-        plot_simulation_layer_name: Whether to run the simulation. Defaults to 'core'.
+        plot_simulation_layer_name: Optional layer name to plot. Defaults to None.
         plot_simulation_port_index: which port index to plot. Defaults to 0.
+        plot_simulation_z: which z coordinate to plot. Defaults to None.
+        plot_simulation_x: which x coordinate to plot. Defaults to None.
         plot_mode_index: which mode index to plot. Defaults to 0.
         plot_mode_port_name: which port name to plot. Defaults to None.
         filepath: Optional file path for the S-parameters. If None, uses hash of simulation.
@@ -513,13 +517,20 @@ def write_sparameters(
     )
     sp = {}
 
-    if plot_simulation_layer_name and plot_simulation_port_index is not None:
+    if plot_simulation_layer_name or plot_simulation_z or plot_simulation_x:
+        if plot_simulation_layer_name is None and plot_simulation_z is None:
+            raise ValueError(
+                "You need to specify plot_simulation_z or plot_simulation_layer_name"
+            )
+        z = plot_simulation_z or c.get_layer_center(plot_simulation_layer_name)[2]
+        x = plot_simulation_x or c.ports[plot_simulation_port_index].center[0]
+
         modeler = c.get_component_modeler(
             center_z=plot_simulation_layer_name, port_size_mult=(6, 4), sim_size_z=3.0
         )
         fig, ax = plt.subplots(2, 1)
-        modeler.plot_sim(z=c.get_layer_center(plot_simulation_layer_name)[2], ax=ax[0])
-        modeler.plot_sim(x=c.ports[plot_simulation_port_index].center[0], ax=ax[1])
+        modeler.plot_sim(z=z, ax=ax[0])
+        modeler.plot_sim(x=x, ax=ax[1])
         plt.show()
         return sp
 
@@ -587,14 +598,16 @@ if __name__ == "__main__":
     # modeler.plot_sim(z=0)
     # plt.show()
 
-    mode_spec = td.ModeSpec(num_modes=2, filter_pol="te")
+    # mode_spec = td.ModeSpec(num_modes=2, filter_pol="te")
     # sp = write_sparameters(c, sim_size_z=0, center_z="core", plot_simulation_layer_name='core', plot_simulation_port_index=1, mode_spec=mode_spec)
     sp = write_sparameters(
         c,
         sim_size_z=4,
         center_z="core",
-        plot_mode_port_name="o1",
-        plot_mode_index=1,
-        mode_spec=mode_spec,
+        plot_simulation_x=10,
+        plot_simulation_layer_name="core",
+        # plot_mode_port_name="o1",
+        # plot_mode_index=1,
+        # mode_spec=mode_spec,
     )
     # gp.plot.plot_sparameters(sp)

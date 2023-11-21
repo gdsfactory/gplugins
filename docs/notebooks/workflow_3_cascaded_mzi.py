@@ -54,6 +54,8 @@ core = layer_stack.layers["core"]
 clad = layer_stack.layers["clad"]
 box = layer_stack.layers["box"]
 
+layer_stack.layers.pop("substrate", None)
+
 print(
     f"""Stack:
 - {clad.material} clad with {clad.thickness}µm
@@ -198,17 +200,12 @@ sim_specs = dict(
     grid_spec=td.GridSpec.auto(min_steps_per_wvl=20),
 )
 
-simulation = gt.get_simulation(
+simulation = gt.write_sparameters(
     coupler,
-    ymargin=2.0,
-    num_modes=2,
-    plot_modes=True,
-    with_all_monitors=True,
-    **sim_specs,
+    plot_simulation_layer_name="core",
+    layer_stack=layer_stack,
 )
 
-simulation.plot(z=0)
-simulation.plot(x=0)
 
 # %% [markdown]
 # Because of the smooth S bend regions, the usual analytical models to calculate the power ratio of the DC give only a rough estimate.  We sweep a range of DC lengths based on those estimates to find the dimensions required in our design for the given PDK.
