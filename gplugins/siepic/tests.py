@@ -7,7 +7,6 @@ from gplugins.siepic.verification import layout_check
 
 
 def test1():
-    import siepic_ebeam_pdk
     techname = "EBeam"
 
     file_path = os.path.join(
@@ -27,7 +26,6 @@ def test2():
     component_fiber_array = uc.add_fiber_array(component=mzi)
 
     # Uses the SiEPIC-EBeam-PDK
-    import siepic_ebeam_pdk
     techname = "EBeam"
 
     # Run verification
