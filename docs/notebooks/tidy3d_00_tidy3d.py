@@ -183,7 +183,6 @@ plt.show()
 sp = gt.write_sparameters(
     component,
     filepath=PATH.sparameters_repo / "coupler_ring_2d.npz",
-    run=True,
     sim_size_z=0,
     center_z="core",
 )
