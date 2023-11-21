@@ -189,8 +189,21 @@ modeler = c.get_component_modeler()
 modeler.plot_sim(z=c.get_layer_center("core")[2])
 
 
-# %%
-PATH.sparameters_repo
+# %% [markdown]
+# ## Write S-parameters
+#
+# The most useful function is `gt.write_sparameters` which allows you to:
+#
+# - leverage a file cache to avoid running the same simulation twice.
+# - plot_simulation and modes before running
+# - run in 2D or 3D
+#
+#
+# ### file cache
+#
+# `write_sparameters` automatically will write your Sparameters in your home directory. By default uses a hidden folder in your home directory `dirpath=~/.gdsfactory/sparameters`.
+# If simulation is found it will load it automatically, if not it will run it and write the Sparameters to `filepath`
+# You can also specify a particular filepath to store simulations and load Sparameters from:
 
 # %%
 sp = gt.write_sparameters(
@@ -205,26 +218,52 @@ sp = gt.write_sparameters(
 gp.plot.plot_sparameters(sp)
 
 # %% [markdown]
+# ### Plot Simulations
+#
+# When setting up a simulation it's important to check if simulation and modes looks correct.
+
+# %%
+c = gf.components.taper_sc_nc()
+c.plot()
+
+# %%
+sp = gt.write_sparameters(c, plot_simulation_layer_name="core", layer_stack=LAYER_STACK)
+
+# %%
+# lets plot the input mode
+sp = gt.write_sparameters(
+    c, plot_mode_port_name="o1", plot_mode_index=0, layer_stack=LAYER_STACK
+)
+
+# %%
+sp = gt.write_sparameters(
+    c, plot_simulation_layer_name="nitride", layer_stack=LAYER_STACK
+)
+
+# %%
+# lets plot the output mode
+sp = gt.write_sparameters(
+    c, plot_mode_port_name="o2", plot_mode_index=0, layer_stack=LAYER_STACK
+)
+
+# %% [markdown]
 # ### 2D
 #
-# 2D planar simulations run faster than 3D. When running in 2D we don't consider the component thickness in the z dimension. 2D simulations take less credits but are also less accurate.
-
-# %%
-modeler = c.get_component_modeler(center_z="core", port_size_mult=(6, 4), sim_size_z=0)
-
-
-# %%
-fig, ax = plt.subplots(2, 1)
-modeler.plot_sim(z=c.get_layer_center("core")[2], ax=ax[0])
-modeler.plot_sim(x=c.ports[0].center[0], ax=ax[1])
-
+# 2D simulations take less credits but are also less accurate than 3D.
+# When running in 2D we don't consider the component thickness in the z dimension.
+#
+# For running simulations in 2D you need to set `sim_size_z = 0`.
+#
+# It is also important that you choose `center_z` correctly.
 
 # %%
 sp = gt.write_sparameters(
     component,
     filepath=PATH.sparameters_repo / "coupler_ring_2d.npz",
-    run=True,
     sim_size_z=0,
+    layer_stack=LAYER_STACK,
+    plot_simulation_layer_name="core",
+    center_z="core",
 )
 
 # %%
@@ -232,7 +271,6 @@ component = gf.components.straight()
 sp = gt.write_sparameters(
     component,
     filepath=PATH.sparameters_repo / "straight_2d.npz",
-    run=True,
     sim_size_z=0,
     center_z="core",
 )
@@ -249,7 +287,7 @@ gp.plot.plot_sparameters(sp)
 # %%
 c = gf.components.straight(length=2)
 sp = gt.write_sparameters(
-    c, filepath=PATH.sparameters_repo / "straight_3d.npz", run=True, sim_size_z=4
+    c, filepath=PATH.sparameters_repo / "straight_3d.npz", sim_size_z=4
 )
 gp.plot.plot_sparameters(sp)
 
@@ -258,25 +296,22 @@ gp.plot.plot_sparameters(sp)
 
 # %%
 component = gf.components.straight(length=0.1)
-c = gt.Tidy3DComponent(component=component, layer_stack=LAYER_STACK, dilation=0)
-modeler = c.get_component_modeler(center_z="core", port_size_mult=(6, 4), sim_size_z=4)
-modeler.plot_sim(z=c.get_layer_center("core")[2])
+sp = gt.write_sparameters(
+    component, layer_stack=LAYER_STACK, plot_simulation_layer_name="core", dilation=0
+)
 
-
-# %%
-component = gf.components.straight(length=0.1)
-c = gt.Tidy3DComponent(component=component, layer_stack=LAYER_STACK, dilation=0.5)
-modeler = c.get_component_modeler(center_z="core", port_size_mult=(6, 4), sim_size_z=4)
-modeler.plot_sim(z=c.get_layer_center("core")[2])
-
-# %%
-0.5 * 1.5
 
 # %% [markdown]
 # A `dilation = 0.5` makes a 0.5um waveguide 0.75um
 
 # %%
 0.5 * 0.8
+
+# %%
+component = gf.components.straight(length=0.1)
+sp = gt.write_sparameters(
+    component, layer_stack=LAYER_STACK, plot_simulation_layer_name="core", dilation=0.5
+)
 
 # %% [markdown]
 # A `dilation = -0.2` makes a 0.5um eroded down to 0.1um
@@ -286,24 +321,38 @@ modeler.plot_sim(z=c.get_layer_center("core")[2])
 
 # %%
 component = gf.components.straight(length=0.1)
-c = gt.Tidy3DComponent(component=component, layer_stack=LAYER_STACK, dilation=-0.2)
-modeler = c.get_component_modeler(center_z="core", port_size_mult=(6, 4), sim_size_z=4)
-modeler.plot_sim(z=c.get_layer_center("core")[2])
+sp = gt.write_sparameters(
+    component, layer_stack=LAYER_STACK, plot_simulation_layer_name="core", dilation=-0.2
+)
 
 # %% [markdown]
 # ## Plot monitors
 
 # %%
-component = gf.components.taper_sc_nc(length=10)
+component = gf.components.taper_strip_to_ridge(length=10)
 component.plot()
 
 # %%
-c = gt.Tidy3DComponent(component=component, layer_stack=LAYER_STACK, dilation=0)
-modeler = c.get_component_modeler(center_z="core", port_size_mult=(6, 4), sim_size_z=4)
-modeler.plot_sim(z=c.get_layer_center("core")[2])
+sp = gt.write_sparameters(
+    c,
+    plot_simulation_layer_name="core",
+    plot_simulation_port_index=0,
+    layer_stack=LAYER_STACK,
+)
 
 # %%
-modeler.plot_sim(z=c.get_layer_center("nitride")[2])
+sp = gt.write_sparameters(
+    c,
+    plot_simulation_layer_name="core",
+    plot_simulation_port_index=1,
+    layer_stack=LAYER_STACK,
+)
+sp = gt.write_sparameters(
+    c,
+    plot_simulation_layer_name="slab90",
+    plot_simulation_port_index=1,
+    layer_stack=LAYER_STACK,
+)
 
 # %%
 components = [
@@ -320,23 +369,22 @@ components = [
 
 for component_name in components:
     print(component_name)
-    plt.figure()
     component = gf.get_component(component_name)
-    c = gt.Tidy3DComponent(component=component, layer_stack=LAYER_STACK, dilation=0)
-    modeler = c.get_component_modeler(
-        center_z="core", port_size_mult=(6, 4), sim_size_z=4
+    gt.write_sparameters(
+        component=component,
+        layer_stack=LAYER_STACK,
+        plot_simulation_layer_name="core",
+        plot_simulation_port_index=0,
     )
-    modeler.plot_sim(z=c.get_layer_center("core")[2])
-
-# %% [markdown]
-# ## write_sparameters
-#
-# You can write Sparameters from a simulation as well as a group of simulations in parallel.
 
 # %%
 c = gf.components.bend_circular(radius=2)
-s = gt.get_simulation(c)
-fig = gt.plot_simulation(s)
+s = gt.write_sparameters(
+    c,
+    layer_stack=LAYER_STACK,
+    plot_simulation_layer_name="core",
+    plot_simulation_port_index=0,
+)
 
 # %% [markdown]
 # For a 2 port reciprocal passive component you can always assume `s21 = s12`
@@ -346,7 +394,6 @@ fig = gt.plot_simulation(s)
 # We call this `1x1` port symmetry
 
 # %%
-# sp = gt.write_sparameters(c)
 sp = np.load(
     PATH.sparameters_repo / "bend_circular_radius2_9d7742b34c224827aeae808dc986308e.npz"
 )
@@ -357,11 +404,12 @@ plot.plot_sparameters(sp, keys=("o2@0,o1@0",))
 
 # %%
 c = gf.components.mmi1x2()
-s = gt.get_simulation(c, plot_modes=True, port_margin=0.2, port_source_name="o2")
-fig = gt.plot_simulation(s, y=0)  # see input
-
-# %%
-fig = gt.plot_simulation(s, y=0.63)  # see output
+s = gt.write_sparameters(
+    c,
+    layer_stack=LAYER_STACK,
+    plot_simulation_layer_name="core",
+    plot_simulation_port_index=0,
+)
 
 # %%
 # sp = gt.write_sparameters(c)
@@ -384,7 +432,12 @@ c = gf.components.mmi2x2_with_sbend(with_sbend=False)
 c.plot()
 
 # %%
-sp = gt.write_sparameters(c, run=False)
+sp = gt.write_sparameters(
+    c,
+    layer_stack=LAYER_STACK,
+    plot_simulation_layer_name="core",
+    plot_simulation_port_index=0,
+)
 
 # %%
 # sp = gt.write_sparameters(c, filepath=PATH.sparameters_repo / 'mmi2x2_without_sbend.npz')

@@ -35,7 +35,7 @@ from gplugins.tidy3d.types import (
     Tidy3DElementMapping,
     Tidy3DMedium,
 )
-from gplugins.tidy3d.util import get_port_normal, sort_layers
+from gplugins.tidy3d.util import get_mode_solvers, get_port_normal, sort_layers
 
 PathType = pathlib.Path | str
 
@@ -428,14 +428,16 @@ def write_sparameters(
     run_time: float = 1e-12,
     shutoff: float = 1e-5,
     folder_name: str = "default",
-    path_dir: PathType = dirpath_default,
+    dirpath: PathType = dirpath_default,
     verbose: bool = True,
-    run: bool = True,
+    plot_simulation_layer_name: str | None = None,
+    plot_simulation_port_index: int | None = 0,
+    plot_mode_index: int | None = 0,
+    plot_mode_port_name: str | None = None,
     filepath: PathType | None = None,
     overwrite: bool = False,
-) -> Sparameters | Tidy3DComponent:
+) -> Sparameters:
     """Writes the S-parameters for a component.
-
 
     Args:
         component: gdsfactory component to write the S-parameters for.
@@ -464,10 +466,13 @@ def write_sparameters(
             Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
         run_time: The run time for the ComponentModeler. Defaults to 1e-12.
         shutoff: The shutoff value for the ComponentModeler. Defaults to 1e-5.
-        folder_name: The folder name for the ComponentModeler. Defaults to "default".
-        path_dir: Optional directory path for writing the Sparameters. Defaults to "~/.gdsfactory/sparameters".
+        folder_name: The folder name for the ComponentModeler in flexcompute website. Defaults to "default".
+        dirpath: Optional directory path for writing the Sparameters. Defaults to "~/.gdsfactory/sparameters".
         verbose: Whether to print verbose output for the ComponentModeler. Defaults to True.
-        run: Whether to run the simulation. Defaults to True.
+        plot_simulation_layer_name: Whether to run the simulation. Defaults to 'core'.
+        plot_simulation_port_index: which port index to plot. Defaults to 0.
+        plot_mode_index: which mode index to plot. Defaults to 0.
+        plot_mode_port_name: which port name to plot. Defaults to None.
         filepath: Optional file path for the S-parameters. If None, uses hash of simulation.
         overwrite: Whether to overwrite existing S-parameters. Defaults to False.
 
@@ -503,14 +508,44 @@ def write_sparameters(
         run_time=run_time,
         shutoff=shutoff,
         folder_name=folder_name,
-        path_dir=str(path_dir),
+        path_dir=str(dirpath),
         verbose=verbose,
     )
+    sp = {}
 
-    if not run:
-        return c
+    if plot_simulation_layer_name and plot_simulation_port_index is not None:
+        modeler = c.get_component_modeler(
+            center_z=plot_simulation_layer_name, port_size_mult=(6, 4), sim_size_z=3.0
+        )
+        fig, ax = plt.subplots(2, 1)
+        modeler.plot_sim(z=c.get_layer_center(plot_simulation_layer_name)[2], ax=ax[0])
+        modeler.plot_sim(x=c.ports[plot_simulation_port_index].center[0], ax=ax[1])
+        plt.show()
+        return sp
 
-    dirpath = pathlib.Path(path_dir)
+    elif plot_mode_index is not None and plot_mode_port_name:
+        modes = get_mode_solvers(modeler, port_name=plot_mode_port_name)
+        mode_solver = modes[f"smatrix_{plot_mode_port_name}_{plot_mode_index}"]
+        mode_data = mode_solver.solve()
+
+        fig, ax = plt.subplots(1, 3, tight_layout=True, figsize=(10, 3))
+        abs(mode_data.Ex.isel(mode_index=plot_mode_index, f=0)).plot(
+            x="y", y="z", ax=ax[0], cmap="magma"
+        )
+        abs(mode_data.Ey.isel(mode_index=plot_mode_index, f=0)).plot(
+            x="y", y="z", ax=ax[1], cmap="magma"
+        )
+        abs(mode_data.Ez.isel(mode_index=plot_mode_index, f=0)).plot(
+            x="y", y="z", ax=ax[2], cmap="magma"
+        )
+        ax[0].set_title("|Ex(x, y)|")
+        ax[1].set_title("|Ey(x, y)|")
+        ax[2].set_title("|Ez(x, y)|")
+        plt.setp(ax, aspect="equal")
+        plt.show()
+        return sp
+
+    dirpath = pathlib.Path(dirpath)
     dirpath.mkdir(parents=True, exist_ok=True)
     filepath = filepath or dirpath / f"{hash_simulation(modeler)}.npz"
     filepath = pathlib.Path(filepath)
@@ -519,7 +554,6 @@ def write_sparameters(
         print(f"Simulation loaded from {filepath!r}")
         return dict(np.load(filepath))
     else:
-        sp = {}
         s = modeler.run()
         for port_in in s.port_in.values:
             for port_out in s.port_out.values:
@@ -545,9 +579,7 @@ def write_sparameters(
 if __name__ == "__main__":
     import gdsfactory as gf
 
-    import gplugins as gp
-
-    c = gf.components.straight()
+    c = gf.components.taper_sc_nc()
 
     # run = False
     # c = write_sparameters(c, sim_size_z=0, run=False, center_z="core")
@@ -555,5 +587,8 @@ if __name__ == "__main__":
     # modeler.plot_sim(z=0)
     # plt.show()
 
-    sp = write_sparameters(c, sim_size_z=0, run=True, center_z="core")
-    gp.plot.plot_sparameters(sp)
+    # sp = write_sparameters(c, sim_size_z=0, center_z="core", plot_simulation_layer_name='core', plot_simulation_port_index=1)
+    sp = write_sparameters(
+        c, sim_size_z=4, center_z="core", plot_mode_port_name="o1", plot_mode_index=1
+    )
+    # gp.plot.plot_sparameters(sp)
