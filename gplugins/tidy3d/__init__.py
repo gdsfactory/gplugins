@@ -8,6 +8,7 @@ from gplugins.tidy3d.get_simulation_grating_coupler import (
     get_simulation_grating_coupler,
 )
 from gplugins.tidy3d.write_sparameters_grating_coupler import (
+    plot_simulation,
     write_sparameters_grating_coupler,
     write_sparameters_grating_coupler_batch,
 )
@@ -21,4 +22,5 @@ __all__ = [
     "write_sparameters",
     "write_sparameters_grating_coupler",
     "write_sparameters_grating_coupler_batch",
+    "plot_simulation",
 ]

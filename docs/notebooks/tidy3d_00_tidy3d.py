@@ -639,5 +639,3 @@ plt.xlabel("wavelength (um")
 plt.ylabel("Transmission (dB)")
 plt.title("transmission vs fiber angle (degrees)")
 plt.legend()
-
-# %%

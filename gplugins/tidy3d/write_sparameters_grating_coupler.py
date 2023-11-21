@@ -31,7 +31,7 @@ from gplugins.tidy3d.get_simulation_grating_coupler import (
 )
 
 
-def plot_simulation_yz(
+def plot_simulation(
     sim: td.Simulation,
     z: float = 0.0,
     y: float = 0.0,
@@ -174,7 +174,7 @@ def write_sparameters_grating_coupler(
         **kwargs,
     )
     if not run:
-        plot_simulation_yz(sim)
+        plot_simulation(sim)
         return {}
 
     start = time.time()
