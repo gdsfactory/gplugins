@@ -2,7 +2,7 @@
 import os
 
 import gdsfactory as gf
-from verification import layout_check
+from gplugins.siepic.verification import layout_check
 
 
 def test1():
