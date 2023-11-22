@@ -4,6 +4,11 @@
 
 <!-- towncrier release notes start -->
 
+## [0.8.7](https://github.com/gdsfactory/gplugins/releases/tag/v0.8.7) - 2023-11-21
+
+No significant changes.
+
+
 ## [0.8.6](https://github.com/gdsfactory/gplugins/releases/tag/v0.8.6) - 2023-11-08
 
 - [pre-commit.ci] pre-commit autoupdate [#220](https://github.com/gdsfactory/gplugins/pull/220)
