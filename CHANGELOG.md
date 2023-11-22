@@ -1,12 +1,21 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.8.6...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.8.7...main)
 
 <!-- towncrier release notes start -->
 
 ## [0.8.7](https://github.com/gdsfactory/gplugins/releases/tag/v0.8.7) - 2023-11-21
 
-No significant changes.
+- Assorted changes in docs and support `.spi` files for `plot_nets` [#237](https://github.com/gdsfactory/gplugins/pull/237)
+- Fix type annotation for port [#235](https://github.com/gdsfactory/gplugins/pull/235)
+- fix sdl for vscode [#234](https://github.com/gdsfactory/gplugins/pull/234)
+- Update vlsir requirement from <5.0.0,>=4.0.0 to >=4.0.0,<6.0.0 [#230](https://github.com/gdsfactory/gplugins/pull/230)
+- Update vlsirtools requirement from <5.0.0,>=4.0.0 to >=4.0.0,<6.0.0 [#229](https://github.com/gdsfactory/gplugins/pull/229)
+- add save_options argument when writing gds [#228](https://github.com/gdsfactory/gplugins/pull/228)
+- [pre-commit.ci] pre-commit autoupdate [#227](https://github.com/gdsfactory/gplugins/pull/227)
+- Gmeep: Multimode Simulations [#222](https://github.com/gdsfactory/gplugins/pull/222)
+- fix docs [#226](https://github.com/gdsfactory/gplugins/pull/226)
+- Ensure unique SPICE netlist elements with a counter [#224](https://github.com/gdsfactory/gplugins/pull/224)
 
 
 ## [0.8.6](https://github.com/gdsfactory/gplugins/releases/tag/v0.8.6) - 2023-11-08
