@@ -159,9 +159,9 @@ class Mode(BaseModel):
         """Plot Electric field module."""
         E = self.E / abs(max(self.E.min(), self.E.max(), key=abs)) if scale else self.E
         Eabs = np.sqrt(
-            np.multiply(E[:, :, 0, 2], E[:, :, 0, 2])
-            + np.multiply(E[:, :, 0, 1], E[:, :, 0, 1])
-            + np.multiply(E[:, :, 0, 0], E[:, :, 0, 0])
+            np.multiply(E[:, :, 0, 2].conjugate(), E[:, :, 0, 2])
+            + np.multiply(E[:, :, 0, 1].conjugate(), E[:, :, 0, 1])
+            + np.multiply(E[:, :, 0, 0].conjugate(), E[:, :, 0, 0])
         )
         ep = abs(Eabs)
         ep = 10 * np.log10(ep) if logscale else ep
@@ -304,9 +304,9 @@ class Mode(BaseModel):
     ) -> None:
         H = self.H / abs(max(self.H.min(), self.H.max(), key=abs)) if scale else self.H
         Habs = np.sqrt(
-            np.multiply(H[:, :, 0, 2], H[:, :, 0, 2])
-            + np.multiply(H[:, :, 0, 1], H[:, :, 0, 1])
-            + np.multiply(H[:, :, 0, 0], H[:, :, 0, 0])
+            np.multiply(H[:, :, 0, 2].conjugate(), H[:, :, 0, 2])
+            + np.multiply(H[:, :, 0, 1].conjugate(), H[:, :, 0, 1])
+            + np.multiply(H[:, :, 0, 0].conjugate(), H[:, :, 0, 0])
         )
         hp = abs(Habs)
         hp = 10 * np.log10(hp) if logscale else hp
