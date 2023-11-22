@@ -30,7 +30,6 @@ import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 import sax
-import tidy3d as td
 
 import gplugins.tidy3d as gt
 from gplugins.common.config import PATH
@@ -192,14 +191,6 @@ coupler = coupler_symmetric(
     cross_section=cross_section,
 )
 
-sim_specs = dict(
-    layer_stack=layer_stack,
-    wavelength_start=wavelengths[0],
-    wavelength_stop=wavelengths[-1],
-    wavelength_points=wavelengths.size,
-    grid_spec=td.GridSpec.auto(min_steps_per_wvl=20),
-)
-
 simulation = gt.write_sparameters(
     coupler,
     plot_simulation_layer_name="core",
@@ -223,14 +214,11 @@ sims = gt.write_sparameters_batch(
                 bend_factor=bend_factor,
                 cross_section=cross_section,
             ),
-            "port_source_names": ["o1"],
-            "ymargin": 2.0,
-            "num_modes": 2,
             "filepath": PATH.sparameters_repo / f"dc_{length}",
         }
         for length in sim_lengths
     ],
-    **sim_specs,
+    layer_stack=layer_stack,
 )
 
 s_params_list = [sim.result() for sim in sims]
@@ -310,20 +298,11 @@ sims = gt.write_sparameters_batch(
                 bend_factor=bend_factor,
                 cross_section=cross_section,
             ),
-            "ymargin": 2.0,
-            "num_modes": 2,
-            "port_source_names": ["o1"],
-            "port_symmetries": {
-                "o1@0,o1@0": {"o2@0,o2@0", "o3@0,o3@0", "o4@0,o4@0"},
-                "o2@0,o1@0": {"o1@0,o2@0", "o4@0,o3@0", "o3@0,o4@0"},
-                "o3@0,o1@0": {"o1@0,o3@0", "o4@0,o2@0", "o2@0,o4@0"},
-                "o4@0,o1@0": {"o1@0,o4@0", "o3@0,o2@0", "o2@0,o3@0"},
-            },
             "filepath": PATH.sparameters_repo / f"dc_{length}",
         }
         for length in lengths
     ],
-    **sim_specs,
+    layer_stack=layer_stack,
 )
 
 s_params_list = [sim.result() for sim in sims]
@@ -606,10 +585,8 @@ def bend_model(cross_section: gf.typings.CrossSectionSpec = "xs_sc"):
     component = gf.components.bend_euler(cross_section=cross_section)
     s = gt.write_sparameters(
         component=component,
-        num_modes=2,
-        port_source_names=["o1"],
         filepath=PATH.sparameters_repo / "bend_filter.npz",
-        **sim_specs,
+        layer_stack=layer_stack,
     )
     wavelengths = s.pop("wavelengths")
 
@@ -660,12 +637,8 @@ def coupler_model(
     )
     s = gt.write_sparameters(
         component=component,
-        ymargin=2.0,
-        num_modes=2,
-        port_source_names=["o1"],
         filepath=PATH.sparameters_repo
         / f"coupler_filter_gap={gap}_length={length}_s={separation}_bf={bend_factor}.npz",
-        **sim_specs,
     )
     wavelengths = s.pop("wavelengths")
 
@@ -789,3 +762,5 @@ ax.plot(lda, 20 * jnp.log10(jnp.abs(s[("o1", "o4")])), label="Thru")
 ax.set_ylim(-30, 0)
 ax.set_xlabel("λ (µm)")
 ax.legend()
+
+# %%

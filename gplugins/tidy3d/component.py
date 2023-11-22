@@ -17,6 +17,7 @@ Functions:
 import hashlib
 import io
 import pathlib
+from collections.abc import Awaitable
 from functools import cached_property
 from typing import Any
 
@@ -30,6 +31,7 @@ from pydantic import NonNegativeFloat
 from tidy3d.plugins.smatrix import ComponentModeler, Port
 
 from gplugins.common.base_models.component import LayeredComponentBase
+from gplugins.tidy3d.get_results import _executor
 from gplugins.tidy3d.types import (
     Sparameters,
     Tidy3DElementMapping,
@@ -583,14 +585,80 @@ def write_sparameters(
         sp["wavelengths"] = td.constants.C_0 / frequency
         np.savez_compressed(filepath, **sp)
         print(f"Simulation saved to {filepath!r}")
+        return sp
 
-    return sp
+
+def write_sparameters_batch(
+    jobs: list[dict[str, Any]], **kwargs
+) -> list[Awaitable[Sparameters]]:
+    """Returns Sparameters for a list of write_sparameters.
+
+    Each job runs in separate thread and is non blocking.
+    You need to get the results using sp.result().
+
+    Args:
+        jobs: list of kwargs for write_sparameters_grating_coupler.
+
+    keyword Args:
+        component: gdsfactory component to write the S-parameters for.
+        layer_stack: The layer stack for the component. If None, uses active pdk layer_stack.
+        material_mapping: A mapping of material names to Tidy3DMedium instances. Defaults to material_name_to_medium.
+        extend_ports: The extension length for ports. Defaults to 2.0.
+        port_offset: The offset for ports. Defaults to 0.2.
+        pad_xy_inner: The inner padding in the xy-plane. Defaults to 2.0.
+        pad_xy_outer: The outer padding in the xy-plane. Defaults to 2.0.
+        pad_z_inner: The inner padding in the z-direction. Defaults to 0.0.
+        pad_z_outer: The outer padding in the z-direction. Defaults to 0.0.
+        dilation: Dilation of the polygon in the base by shifting each edge along its normal outwards direction by a distance;
+        wavelength: The wavelength for the ComponentModeler. Defaults to 1.55.
+        bandwidth: The bandwidth for the ComponentModeler. Defaults to 0.2.
+        num_freqs: The number of frequencies for the ComponentModeler. Defaults to 21.
+        min_steps_per_wvl: The minimum number of steps per wavelength for the ComponentModeler. Defaults to 30.
+        center_z: The z-coordinate for the center of the ComponentModeler.
+            If None, the z-coordinate of the component is used. Defaults to None.
+        sim_size_z: simulation size um in the z-direction for the ComponentModeler. Defaults to 4.
+        port_size_mult: The size multiplier for the ports in the ComponentModeler. Defaults to (4.0, 3.0).
+        run_only: The run only specification for the ComponentModeler. Defaults to None.
+        element_mappings: The element mappings for the ComponentModeler. Defaults to ().
+        extra_monitors: The extra monitors for the ComponentModeler. Defaults to None.
+        mode_spec: The mode specification for the ComponentModeler. Defaults to td.ModeSpec(num_modes=1, filter_pol="te").
+        boundary_spec: The boundary specification for the ComponentModeler.
+            Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
+        run_time: The run time for the ComponentModeler. Defaults to 1e-12.
+        shutoff: The shutoff value for the ComponentModeler. Defaults to 1e-5.
+        folder_name: The folder name for the ComponentModeler in flexcompute website. Defaults to "default".
+        dirpath: Optional directory path for writing the Sparameters. Defaults to "~/.gdsfactory/sparameters".
+        verbose: Whether to print verbose output for the ComponentModeler. Defaults to True.
+        plot_simulation_layer_name: Optional layer name to plot. Defaults to None.
+        plot_simulation_port_index: which port index to plot. Defaults to 0.
+        plot_simulation_z: which z coordinate to plot. Defaults to None.
+        plot_simulation_x: which x coordinate to plot. Defaults to None.
+        plot_mode_index: which mode index to plot. Defaults to 0.
+        plot_mode_port_name: which port name to plot. Defaults to None.
+        filepath: Optional file path for the S-parameters. If None, uses hash of simulation.
+        overwrite: Whether to overwrite existing S-parameters. Defaults to False.
+    """
+    kwargs.update(verbose=False)
+    return [_executor.submit(write_sparameters, **job, **kwargs) for job in jobs]
 
 
 if __name__ == "__main__":
     import gdsfactory as gf
 
-    c = gf.components.taper_sc_nc()
+    from gplugins.common.config import PATH
+
+    sps = write_sparameters_batch(
+        [
+            dict(
+                component=gf.components.straight(length=i),
+                sim_size_z=0,
+                filepath=PATH.sparameters_repo / f"straight_{i}.npz",
+            )
+            for i in range(2)
+        ]
+    )
+
+    # c = gf.components.taper_sc_nc()
 
     # run = False
     # c = write_sparameters(c, sim_size_z=0, run=False, center_z="core")
@@ -600,14 +668,14 @@ if __name__ == "__main__":
 
     # mode_spec = td.ModeSpec(num_modes=2, filter_pol="te")
     # sp = write_sparameters(c, sim_size_z=0, center_z="core", plot_simulation_layer_name='core', plot_simulation_port_index=1, mode_spec=mode_spec)
-    sp = write_sparameters(
-        c,
-        sim_size_z=4,
-        center_z="core",
-        plot_simulation_x=10,
-        plot_simulation_layer_name="core",
-        # plot_mode_port_name="o1",
-        # plot_mode_index=1,
-        # mode_spec=mode_spec,
-    )
+    # sp = write_sparameters(
+    #     c,
+    #     sim_size_z=4,
+    #     center_z="core",
+    #     plot_simulation_x=10,
+    #     plot_simulation_layer_name="core",
+    #     # plot_mode_port_name="o1",
+    #     # plot_mode_index=1,
+    #     # mode_spec=mode_spec,
+    # )
     # gp.plot.plot_sparameters(sp)
