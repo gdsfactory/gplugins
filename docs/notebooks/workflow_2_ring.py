@@ -123,7 +123,6 @@ if __name__ == "__main__":
 # %%
 import gdsfactory as gf
 import toolz
-from omegaconf import OmegaConf
 
 c = gf.components.ring_single_heater(gap=0.2, radius=10, length_x=4)
 c.plot()
@@ -175,39 +174,6 @@ c.plot()
 # %%
 nm = 1e-3
 ring_te = toolz.compose(gf.routing.add_fiber_array, gf.components.ring_single)
-
-gaps = [210 * nm, 220 * nm, 230 * nm]
-rings = gf.grid([ring_te(gap=gap) for gap in gaps])
-rings_heater = [
-    gf.components.ring_single_heater(gap=0.2, radius=10, length_x=4) for gap in gaps
-]
-rings_heater_with_grating_couplers = [
-    gf.routing.add_fiber_array(ring) for ring in rings_heater
-]
-rings_with_pads = [
-    gf.routing.add_electrical_pads_top(ring, port_names=["l_e1", "r_e3"])
-    for ring in rings_heater_with_grating_couplers
-]
-
-
-@gf.cell
-def reticle(size=(1000, 1000)):
-    c = gf.Component()
-    r = c << rings
-    m = c << gf.pack(rings_with_pads)[0]
-    m.xmin = r.xmax + 10
-    m.ymin = r.ymin
-    c << gf.components.seal_ring(c.bbox)
-    return c
-
-
-m = reticle()
-gf.remove_from_cache(m)
-m.plot()
-
-# %%
-nm = 1e-3
-ring_te = toolz.compose(gf.routing.add_fiber_array, gf.components.ring_single)
 rings = gf.grid([ring_te(radius=r) for r in [10, 20, 50]])
 
 gaps = [210 * nm, 220 * nm, 230 * nm]
@@ -243,6 +209,42 @@ gf.remove_from_cache(m)
 m.plot()
 
 # %%
+nm = 1e-3
+ring_te = toolz.compose(gf.routing.add_fiber_array, gf.components.ring_single)
+
+gaps = [210 * nm, 220 * nm, 230 * nm]
+rings = gf.grid([ring_te(gap=gap, decorator=gf.labels.add_label_json) for gap in gaps])
+rings_heater = [
+    gf.components.ring_single_heater(gap=0.2, radius=10, length_x=4) for gap in gaps
+]
+rings_heater_with_grating_couplers = [
+    gf.routing.add_fiber_array(ring) for ring in rings_heater
+]
+rings_with_pads = [
+    gf.routing.add_electrical_pads_top(
+        ring, port_names=["l_e1", "r_e3"], decorator=gf.labels.add_label_json
+    )
+    for ring in rings_heater_with_grating_couplers
+]
+
+
+@gf.cell
+def reticle(size=(1000, 1000)):
+    c = gf.Component()
+    r = c << rings
+    m = c << gf.pack(rings_with_pads)[0]
+    m.xmin = r.xmax + 10
+    m.ymin = r.ymin
+    c << gf.components.seal_ring(c.bbox)
+    return c
+
+
+m = reticle()
+gf.remove_from_cache(m)
+m.show()
+m.plot()
+
+# %%
 gdspath = m.write_gds(gdspath="mask.gds", with_metadata=True)
 
 # %% [markdown]
@@ -252,11 +254,6 @@ gdspath = m.write_gds(gdspath="mask.gds", with_metadata=True)
 
 # %%
 labels_path = gdspath.with_suffix(".csv")
-gf.labels.write_labels.write_labels_klayout(gdspath=gdspath, layer_label=(66, 0))
-
-# %%
-mask_metadata = OmegaConf.load(gdspath.with_suffix(".yml"))
-tm = gf.labels.merge_test_metadata(mask_metadata=mask_metadata, labels_path=labels_path)
-
-# %%
-tm.keys()
+gf.labels.write_labels.write_labels_klayout(
+    gdspath=gdspath, layer_label="TEXT", prefix=""
+)

@@ -75,7 +75,7 @@ class Tidy3DComponent(LayeredComponentBase):
     """
 
     material_mapping: dict[str, Tidy3DMedium] = material_name_to_medium
-    extend_ports: NonNegativeFloat = 2.0
+    extend_ports: NonNegativeFloat = 0.5
     port_offset: float = 0.2
     pad_xy_inner: NonNegativeFloat = 2.0
     pad_xy_outer: NonNegativeFloat = 2.0
@@ -221,7 +221,7 @@ class Tidy3DComponent(LayeredComponentBase):
         self,
         wavelength: float = 1.55,
         bandwidth: float = 0.2,
-        num_freqs: int = 21,
+        num_freqs: int = 6,
         min_steps_per_wvl: int = 30,
         center_z: float | str | None = None,
         sim_size_z: float = 4.0,
@@ -408,7 +408,7 @@ def write_sparameters(
     component: Component,
     layer_stack: LayerStack | None = None,
     material_mapping: dict[str, Tidy3DMedium] = material_name_to_medium,
-    extend_ports: NonNegativeFloat = 2.0,
+    extend_ports: NonNegativeFloat = 0.5,
     port_offset: float = 0.2,
     pad_xy_inner: NonNegativeFloat = 2.0,
     pad_xy_outer: NonNegativeFloat = 2.0,
@@ -447,7 +447,7 @@ def write_sparameters(
         component: gdsfactory component to write the S-parameters for.
         layer_stack: The layer stack for the component. If None, uses active pdk layer_stack.
         material_mapping: A mapping of material names to Tidy3DMedium instances. Defaults to material_name_to_medium.
-        extend_ports: The extension length for ports. Defaults to 2.0.
+        extend_ports: The extension length for ports.
         port_offset: The offset for ports. Defaults to 0.2.
         pad_xy_inner: The inner padding in the xy-plane. Defaults to 2.0.
         pad_xy_outer: The outer padding in the xy-plane. Defaults to 2.0.
@@ -603,7 +603,7 @@ def write_sparameters_batch(
         component: gdsfactory component to write the S-parameters for.
         layer_stack: The layer stack for the component. If None, uses active pdk layer_stack.
         material_mapping: A mapping of material names to Tidy3DMedium instances. Defaults to material_name_to_medium.
-        extend_ports: The extension length for ports. Defaults to 2.0.
+        extend_ports: The extension length for ports.
         port_offset: The offset for ports. Defaults to 0.2.
         pad_xy_inner: The inner padding in the xy-plane. Defaults to 2.0.
         pad_xy_outer: The outer padding in the xy-plane. Defaults to 2.0.
@@ -643,20 +643,40 @@ def write_sparameters_batch(
 
 
 if __name__ == "__main__":
+    from functools import partial
+
     import gdsfactory as gf
 
     from gplugins.common.config import PATH
 
+    pdk = gf.get_active_pdk()
+    layer_stack = pdk.get_layer_stack()
+    layer_stack.layers.pop("substrate", None)
+
+    width = 0.45
+    cross_section = pdk.get_cross_section("xs_sc", width=width)
+    coupler_sc = partial(
+        gf.components.coupler,
+        dx=4,
+        dy=2,
+        cross_section=cross_section,
+    )  # Coupler Strip C-Band
+
     sps = write_sparameters_batch(
         [
             dict(
-                component=gf.components.straight(length=i),
-                sim_size_z=0,
-                filepath=PATH.sparameters_repo / f"straight_{i}.npz",
+                component=coupler_sc(length=i),
+                # sim_size_z=0,
+                filepath=PATH.sparameters_repo / f"dc_{i}.npz",
+                layer_stack=layer_stack,
+                # overwrite=True,
             )
-            for i in range(2)
+            for i in range(13)
         ]
     )
+
+    for spi in sps:
+        spi.result()
 
     # c = gf.components.taper_sc_nc()
 

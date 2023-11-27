@@ -63,131 +63,14 @@ print(
 )
 
 # %% [markdown]
-# The first component we need to design is the DC.  We model the coupling reagion first:
+# We use the `tidy3d` plugin to automatically create an FDTD simulation of the complete `coupler`.
 #
-
-
-# %%
-@gf.cell
-def coupler_straight(
-    gap: float, length: float, cross_section: gf.typings.CrossSectionSpec = "xs_sc"
-) -> gf.Component:
-    cs = gf.get_cross_section(cross_section)
-    Δy = (cs.width + gap) / 2
-
-    sc = gf.components.straight(length, cross_section=cross_section)
-
-    c = gf.Component()
-    arm0 = c.add_ref(sc).movey(Δy)
-    arm1 = c.add_ref(sc).movey(-Δy)
-
-    c.add_port(name="o1", port=arm1.ports["o1"])
-    c.add_port(name="o2", port=arm0.ports["o1"])
-    c.add_port(name="o3", port=arm0.ports["o2"])
-    c.add_port(name="o4", port=arm1.ports["o2"])
-
-    return c
-
-
-c = coupler_straight(gap, 2.0, cross_section=cross_section)
-c.plot()
-
-# %% [markdown]
-# Next, we design the waveguide separating region using S bends.
-#
-
+# We can inspect the simulation and port modes before running it to make sure our design is correct.
 
 # %%
-@gf.cell
-def coupler_splitter(
-    gap: float,
-    separation: float = 4.0,
-    bend_factor: float = 3.0,
-    cross_section: gf.typings.CrossSectionSpec = "xs_sc",
-) -> gf.Component:
-    cs = gf.get_cross_section(cross_section)
-    Δy = (cs.width + gap) / 2
-    Δx = (separation / 2 - Δy) * bend_factor
-    assert Δy < separation / 2
-
-    sc = gf.components.bend_s(
-        (Δx, separation / 2 - Δy), 199, cross_section=cross_section
-    )
-
-    c = gf.Component()
-    arm0 = c.add_ref(sc).movey(Δy)
-    arm1 = c.add_ref(sc).movey(Δy).mirror((0, 0), (1, 0))
-
-    c.add_port(name="o1", port=arm1.ports["o1"])
-    c.add_port(name="o2", port=arm0.ports["o1"])
-    c.add_port(name="o3", port=arm0.ports["o2"])
-    c.add_port(name="o4", port=arm1.ports["o2"])
-
-    return c
-
-
-separation = 2.0
-bend_factor = 4.0
-
-c = coupler_splitter(
-    gap, separation=separation, bend_factor=bend_factor, cross_section=cross_section
-)
-c.plot()
-
-# %% [markdown]
-# To complete the DC, we join the previous designs in a full component.
-#
-
-
-# %%
-@gf.cell
-def coupler_symmetric(
-    gap: float,
-    length: float,
-    separation: float = 4.0,
-    bend_factor: float = 3.0,
-    cross_section: gf.typings.CrossSectionSpec = "xs_sc",
-) -> gf.Component:
-    splitter = coupler_splitter(
-        gap, separation=separation, bend_factor=bend_factor, cross_section=cross_section
-    )
-    straight = coupler_straight(gap, length, cross_section=cross_section)
-
-    x = splitter.ports["o3"].x
-
-    c = gf.Component()
-    sp0 = c.add_ref(splitter).mirror((x, 0), (x, 1))
-    st = c.add_ref(straight)
-    st.connect("o1", sp0.ports["o1"])
-    sp1 = c.add_ref(splitter)
-    sp1.connect("o1", st.ports["o4"])
-
-    c.add_port(name="o1", port=sp0.ports["o4"])
-    c.add_port(name="o2", port=sp0.ports["o3"])
-    c.add_port(name="o3", port=sp1.ports["o3"])
-    c.add_port(name="o4", port=sp1.ports["o4"])
-
-    return c
-
-
-c = coupler_symmetric(
-    gap,
-    2.0,
-    separation=separation,
-    bend_factor=bend_factor,
-    cross_section=cross_section,
-)
-c.plot()
-
-# %% [markdown]
-# We use the `tidy3d` plugin to atumatically create an FDTD simulation of the complete DC.  We can inspect the simulation and port modes before running it to make sure our design is correct.
-
-# %%
-coupler = coupler_symmetric(
-    gap,
-    2.0,
-    separation=separation,
-    bend_factor=bend_factor,
+coupler = gf.components.coupler(
+    gap=gap,
+    length=2.0,
     cross_section=cross_section,
 )
 
@@ -202,27 +85,27 @@ simulation = gt.write_sparameters(
 # Because of the smooth S bend regions, the usual analytical models to calculate the power ratio of the DC give only a rough estimate.  We sweep a range of DC lengths based on those estimates to find the dimensions required in our design for the given PDK.
 
 # %%
-sim_lengths = np.linspace(0.0, 12.0, 13)
+sim_lengths = range(13)
 
-sims = gt.write_sparameters_batch(
-    [
-        {
-            "component": coupler_symmetric(
-                gap,
-                length,
-                separation=separation,
-                bend_factor=bend_factor,
-                cross_section=cross_section,
-            ),
-            "filepath": PATH.sparameters_repo / f"dc_{length}",
-        }
-        for length in sim_lengths
-    ],
-    layer_stack=layer_stack,
-)
-
+jobs = [
+    dict(
+        component=gf.components.coupler(
+            gap=gap, length=length, cross_section=cross_section
+        ),
+        filepath=PATH.sparameters_repo / f"dc_{length}.npz",
+        layer_stack=layer_stack,
+    )
+    for length in sim_lengths
+]
+sims = gt.write_sparameters_batch(jobs)
 s_params_list = [sim.result() for sim in sims]
 
+# %%
+s_params_list = [
+    dict(np.load(PATH.sparameters_repo / f"dc_{length}.npz")) for length in sim_lengths
+]
+
+# %%
 wavelengths = s_params_list[0]["wavelengths"]
 drop = np.array([np.abs(s["o3@0,o1@0"]) ** 2 for s in s_params_list])
 thru = np.array([np.abs(s["o4@0,o1@0"]) ** 2 for s in s_params_list])
@@ -291,14 +174,12 @@ print("Lengths:", lengths)
 sims = gt.write_sparameters_batch(
     [
         {
-            "component": coupler_symmetric(
-                gap,
-                length,
-                separation=separation,
-                bend_factor=bend_factor,
+            "component": gf.components.coupler(
+                gap=gap,
+                length=length,
                 cross_section=cross_section,
             ),
-            "filepath": PATH.sparameters_repo / f"dc_{length}",
+            "filepath": PATH.sparameters_repo / f"dc_{length}.npz",
         }
         for length in lengths
     ],
@@ -458,9 +339,7 @@ def mzi_arms(
     return (arm0, arm1)
 
 
-arm_references = mzi_arms(
-    mzi_deltas[0], separation=separation, cross_section=cross_section
-)
+arm_references = mzi_arms(mzi_deltas[0], cross_section=cross_section)
 
 # %% [markdown]
 # Now we can put all pieces together to layout the complete cascaded MZI filter:
@@ -483,11 +362,9 @@ def cascaded_mzi(
     c = gf.Component()
 
     coupler = c.add_ref(
-        coupler_symmetric(
-            coupler_gaps[0],
-            coupler_lengths[0],
-            separation=separation,
-            bend_factor=bend_factor,
+        gf.components.coupler(
+            gap=coupler_gaps[0],
+            length=coupler_lengths[0],
             cross_section=cross_section,
         )
     )
@@ -504,11 +381,9 @@ def cascaded_mzi(
             for r0, r1 in zip(arm[:-1], arm[1:]):
                 r1.connect("o1", r0.ports["o2"])
         coupler = c.add_ref(
-            coupler_symmetric(
-                g,
-                length,
-                separation=separation,
-                bend_factor=bend_factor,
+            gf.components.coupler(
+                gap=g,
+                length=length,
                 cross_section=cross_section,
             )
         )
@@ -524,8 +399,6 @@ layout = cascaded_mzi(
     coupler_gaps=[gap] * len(lengths),
     coupler_lengths=lengths,
     mzi_deltas=mzi_deltas,
-    separation=separation,
-    bend_factor=bend_factor,
     cross_section=cross_section,
 )
 layout.plot()
@@ -624,17 +497,15 @@ plt.xlabel("λ (µm)")
 def coupler_model(
     gap: float = 0.1,
     length: float = 1.0,
-    separation: float = 4.0,
-    bend_factor: float = 3.0,
     cross_section: gf.typings.CrossSectionSpec = "xs_sc",
 ):
-    component = coupler_symmetric(
-        gap,
-        length,
-        separation=separation,
-        bend_factor=bend_factor,
+    component = gf.components.coupler(
+        gap=gap,
+        length=length,
         cross_section=cross_section,
     )
+    separation = 2.0
+    bend_factor = 4.0
     s = gt.write_sparameters(
         component=component,
         filepath=PATH.sparameters_repo
@@ -671,10 +542,8 @@ def coupler_model(
 
 
 coupler_model(
-    gap,
-    lengths[0],
-    separation=separation,
-    bend_factor=bend_factor,
+    gap=gap,
+    length=lengths[0],
     cross_section=cross_section,
 )()
 
@@ -709,11 +578,9 @@ fig, ax = plt.subplots(len(pl_set), 1, figsize=(4, 3 * len(pl_set)))
 for i, (pr, length) in enumerate(pl_set):
     c = gf.Component(name="single mzi 2")
     ref = c.add_ref(
-        coupler_symmetric(
+        gf.components.coupler(
             gap,
             length,
-            separation=separation,
-            bend_factor=bend_factor,
             cross_section=cross_section,
         )
     )
@@ -744,8 +611,6 @@ layout = cascaded_mzi(
     coupler_gaps=[gap] * len(lengths),
     coupler_lengths=lengths,
     mzi_deltas=mzi_deltas,
-    separation=separation,
-    bend_factor=bend_factor,
     cross_section=cross_section,
 )
 netlist, models = patch_netlist(
