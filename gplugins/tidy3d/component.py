@@ -185,7 +185,7 @@ class Tidy3DComponent(LayeredComponentBase):
         sim_size_z: int,
         boundary_spec: td.BoundarySpec,
         monitors: tuple[Any, ...] | None = None,
-        run_time: float = 1e-12,
+        run_time: float = 10e-12,
         shutoff: float = 1e-5,
     ) -> td.Simulation:
         """
@@ -231,7 +231,7 @@ class Tidy3DComponent(LayeredComponentBase):
         extra_monitors: tuple[Any, ...] | None = None,
         mode_spec: td.ModeSpec = td.ModeSpec(num_modes=1, filter_pol="te"),
         boundary_spec: td.BoundarySpec = td.BoundarySpec.all_sides(boundary=td.PML()),
-        run_time: float = 1e-12,
+        run_time: float = 10e-12,
         shutoff: float = 1e-5,
         folder_name: str = "default",
         path_dir: str = ".",
@@ -253,7 +253,7 @@ class Tidy3DComponent(LayeredComponentBase):
             extra_monitors: The extra monitors for the ComponentModeler. Defaults to None.
             mode_spec: The mode specification for the ComponentModeler. Defaults to td.ModeSpec(num_modes=1, filter_pol="te").
             boundary_spec: The boundary specification for the ComponentModeler. Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
-            run_time: The run time for the ComponentModeler. Defaults to 1e-12.
+            run_time: The run time for the ComponentModeler.
             shutoff: The shutoff value for the ComponentModeler. Defaults to 1e-5.
             folder_name: The folder name for the ComponentModeler. Defaults to "default".
             path_dir: The directory path for the ComponentModeler. Defaults to ".".
@@ -262,6 +262,7 @@ class Tidy3DComponent(LayeredComponentBase):
         Returns:
             ComponentModeler: A ComponentModeler instance.
         """
+
         match center_z:
             case float():
                 cz = center_z
@@ -468,7 +469,7 @@ def write_sparameters(
         mode_spec: The mode specification for the ComponentModeler. Defaults to td.ModeSpec(num_modes=1, filter_pol="te").
         boundary_spec: The boundary specification for the ComponentModeler.
             Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
-        run_time: The run time for the ComponentModeler. Defaults to 1e-12.
+        run_time: The run time for the ComponentModeler.
         shutoff: The shutoff value for the ComponentModeler. Defaults to 1e-5.
         folder_name: The folder name for the ComponentModeler in flexcompute website. Defaults to "default".
         dirpath: Optional directory path for writing the Sparameters. Defaults to "~/.gdsfactory/sparameters".
@@ -671,12 +672,13 @@ if __name__ == "__main__":
                 layer_stack=layer_stack,
                 # overwrite=True,
             )
-            for i in range(13)
+            for i in range(25)
         ]
     )
 
+    sp = []
     for spi in sps:
-        spi.result()
+        sp.append(spi.result())
 
     # c = gf.components.taper_sc_nc()
 
