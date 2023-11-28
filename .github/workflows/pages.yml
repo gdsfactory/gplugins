@@ -30,7 +30,7 @@ jobs:
           eval "$(micromamba shell hook --shell=bash)"
           micromamba activate
           micromamba install -c conda-forge pymeep=*=mpi_mpich_* nlopt -y
-          make dev
+          make dev test-data
           make docs
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2

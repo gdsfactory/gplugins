@@ -143,7 +143,6 @@ FDTD Simulation
    :toctree: _autosummary/
 
    write_sparameters
-   write_sparameters_batch
    write_sparameters_grating_coupler
    write_sparameters_grating_coupler_batch
 

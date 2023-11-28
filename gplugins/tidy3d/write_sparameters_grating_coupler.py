@@ -5,6 +5,8 @@ import time
 from collections.abc import Awaitable
 
 import gdsfactory as gf
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 import numpy as np
 import tidy3d as td
 import yaml
@@ -24,10 +26,60 @@ from gplugins.common.utils.get_sparameters_path import (
     get_sparameters_path_tidy3d as get_sparameters_path,
 )
 from gplugins.tidy3d.get_results import _executor, get_results
-from gplugins.tidy3d.get_simulation import plot_simulation
 from gplugins.tidy3d.get_simulation_grating_coupler import (
     get_simulation_grating_coupler,
 )
+
+
+def plot_simulation(
+    sim: td.Simulation,
+    z: float = 0.0,
+    y: float = 0.0,
+    wavelength: float | None = 1.55,
+    figsize: tuple[float, float] = (11, 4),
+):
+    """Returns Simulation visual representation. Returns two views for 3D component and one view for 2D.
+
+    Args:
+        sim: simulation object.
+        z: (um).
+        y: (um).
+        wavelength: (um) for epsilon plot. None plot structures only.
+        figsize: figure size.
+
+    """
+    fig = plt.figure(figsize=figsize)
+    if sim.size[2] > 0.1 and sim.size[1] > 0.1:
+        gs = mpl.gridspec.GridSpec(1, 2, figure=fig, width_ratios=[1, 1.4])
+        ax1 = fig.add_subplot(gs[0, 0])
+        ax2 = fig.add_subplot(gs[0, 1])
+        if wavelength:
+            freq = td.constants.C_0 / wavelength
+            sim.plot_eps(z=z, ax=ax1, freq=freq)
+            sim.plot_eps(y=y, ax=ax2, freq=freq)
+        else:
+            sim.plot(z=z, ax=ax1)
+            sim.plot(y=y, ax=ax2)
+    elif sim.size[2] > 0.1:  # 2D grating sim_size_y = 0
+        gs = mpl.gridspec.GridSpec(1, 1, figure=fig, width_ratios=[1])
+        ax1 = fig.add_subplot(gs[0, 0])
+        if wavelength:
+            freq = td.constants.C_0 / wavelength
+            sim.plot_eps(y=y, ax=ax1, freq=freq)
+        else:
+            sim.plot(y=y, ax=ax1)
+
+    else:  # 2D planar component size_z = 0
+        gs = mpl.gridspec.GridSpec(1, 1, figure=fig, width_ratios=[1])
+        ax1 = fig.add_subplot(gs[0, 0])
+        if wavelength:
+            freq = td.constants.C_0 / wavelength
+            sim.plot_eps(z=z, ax=ax1, freq=freq)
+        else:
+            sim.plot(z=z, ax=ax1)
+
+    plt.show()
+    return fig
 
 
 def write_sparameters_grating_coupler(

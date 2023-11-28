@@ -143,6 +143,7 @@ jobs:
           eval "$(micromamba shell hook --shell=bash)"
           micromamba activate
           micromamba install -c conda-forge pymeep=*=mpi_mpich_* nlopt -y
+          make test-data
           make dev
           make docs
       - name: Expose docs artifact

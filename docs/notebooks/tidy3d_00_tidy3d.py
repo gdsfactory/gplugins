@@ -19,44 +19,29 @@
 #
 # [tidy3D](https://docs.flexcompute.com/projects/tidy3d/en/latest/) is a fast GPU based FDTD tool developed by flexcompute.
 #
-# To run, you need to [create an account](https://simulation.cloud/) and add credits. The number of credits that each simulation takes depends on the simulation computation time.
-#
-# We have commented the `write_sparameters` functions to save on credits when running these simulations.
+# To run, you need to [create an account](https://simulation.cloud/) and add credits. The number of credits that each simulation takes depends on the simulation size and computation time.
 #
 # ![cloud_model](https://i.imgur.com/5VTCPLR.png)
 #
 # ## Materials
 #
-# Tidy3d provides you with a material database of dispersive materials.
+# To use gdsfactory LayerStack for different PDKs into tidy3d you have to create a mapping between each material name from the LayerStack into a tidy3d Medim
+#
+# Tidy3d provides you with a material database that also includes dispersive materials.
 
 # %%
 import gdsfactory as gf
 import matplotlib.pyplot as plt
 import numpy as np
 import tidy3d as td
-from gdsfactory.components.taper import taper_sc_nc
 
+import gplugins as gp
 import gplugins.tidy3d as gt
 from gplugins import plot
 from gplugins.common.config import PATH
 
 # %%
-print(gt.materials.MaterialSpecTidy3d)
-
-# %%
-gt.materials.get_index(
-    3.4
-)  # get the index of a material with a given refractive index float
-
-# %%
-# get the index of a material with a name string, for the case that the refractive index has only one variant
-gt.materials.get_index(("SiO2", "Horiba"))
-
-# %%
-gt.materials.get_index(
-    ("cSi", "Li1993_293K")
-)  # get the index of a material with a name string, for the case that the refractive index has more than one variant
-
+gt.material_name_to_medium
 
 # %%
 nm = 1e-3
@@ -86,82 +71,234 @@ plt.xlabel("wavelength")
 plt.ylabel("n")
 
 # %% [markdown]
-# ## get_simulation
+# ## Component Modeler
 #
-# You can run `get_simulation` to convert a gdsfactory planar Component into a tidy3d simulation and make sure the simulation looks correct before running it
+# You can easily convert a gdsfactory planar Component into a tidy3d simulation and make sure the simulation looks correct before running it
+
+# %%
+from gdsfactory.generic_tech import LAYER_STACK, get_generic_pdk
+
+pdk = get_generic_pdk()
+pdk.activate()
+
+component = gf.components.coupler_ring()
+component.plot()
+
+# %%
+# define a mapping of pdk material names to tidy3d medium objects
+mapping = {
+    "si": td.Medium(name="Si", permittivity=3.47**2),
+    "sio2": td.Medium(name="SiO2", permittivity=1.47**2),
+}
+
+# setup the tidy3d component
+c = gt.Tidy3DComponent(
+    component=component,
+    layer_stack=LAYER_STACK,
+    material_mapping=mapping,
+    pad_xy_inner=2.0,
+    pad_xy_outer=2.0,
+    pad_z_inner=0,
+    pad_z_outer=0,
+    extend_ports=2.0,
+)
+
+# plot the component and the layerstack
+fig = plt.figure(constrained_layout=True)
+gs = fig.add_gridspec(ncols=2, nrows=3, width_ratios=(3, 1))
+ax0 = fig.add_subplot(gs[0, 0])
+ax1 = fig.add_subplot(gs[1, 0])
+ax2 = fig.add_subplot(gs[2, 0])
+axl = fig.add_subplot(gs[1, 1])
+c.plot_slice(x="core", ax=ax0)
+c.plot_slice(y="core", ax=ax1)
+c.plot_slice(z="core", ax=ax2)
+axl.legend(*ax0.get_legend_handles_labels(), loc="center")
+axl.axis("off")
+plt.show()
+
+
+# %%
+LAYER_STACK.layers.pop("substrate", None)
+
+# setup the tidy3d component
+c = gt.Tidy3DComponent(
+    component=component,
+    layer_stack=LAYER_STACK,
+    material_mapping=mapping,
+    pad_xy_inner=2.0,
+    pad_xy_outer=2.0,
+    pad_z_inner=0,
+    pad_z_outer=0,
+    extend_ports=2.0,
+)
+
+# plot the component and the layerstack
+fig = plt.figure(constrained_layout=True)
+gs = fig.add_gridspec(ncols=2, nrows=3, width_ratios=(3, 1))
+ax0 = fig.add_subplot(gs[0, 0])
+ax1 = fig.add_subplot(gs[1, 0])
+ax2 = fig.add_subplot(gs[2, 0])
+axl = fig.add_subplot(gs[1, 1])
+c.plot_slice(x="core", ax=ax0)
+c.plot_slice(y="core", ax=ax1)
+c.plot_slice(z="core", ax=ax2)
+axl.legend(*ax0.get_legend_handles_labels(), loc="center")
+axl.axis("off")
+plt.show()
+
+# %%
+c.plot_slice(x="core")
+
+# %%
+# initialize the tidy3d ComponentModeler
+modeler = c.get_component_modeler(
+    center_z="core", port_size_mult=(6, 4), sim_size_z=3.0
+)
+
+# we can plot the tidy3d simulation setup
+fig, ax = plt.subplots(2, 1)
+modeler.plot_sim(z=c.get_layer_center("core")[2], ax=ax[0])
+modeler.plot_sim(x=c.ports[0].center[0], ax=ax[1])
+fig.tight_layout()
+plt.show()
+
+# %% [markdown]
+# ## Write S-parameters
 #
-# `get_simulation` also has a `plot_modes` option so you can make sure you are monitoring the desired mode.
+# The most useful function is `gt.write_sparameters` which allows you to:
+#
+# - leverage a file cache to avoid running the same simulation twice.
+# - plot_simulation and modes before running
+# - run in 2D or 3D
+#
+#
+# ### file cache
+#
+# `write_sparameters` automatically will write your Sparameters in your home directory. By default uses a hidden folder in your home directory `dirpath=~/.gdsfactory/sparameters`.
+# If simulation is found it will load it automatically, if not it will run it and write the Sparameters to `filepath`
+# You can also specify a particular filepath to store simulations and load Sparameters from:
+
+# %%
+sp = gt.write_sparameters(
+    component,
+    filepath=PATH.sparameters_repo / "coupler_ring_2d.npz",
+    sim_size_z=0,
+    center_z="core",
+)
+
+# %%
+gp.plot.plot_sparameters(sp)
+
+# %% [markdown]
+# ### Plot Simulations
+#
+# When setting up a simulation it's important to check if simulation and modes looks correct.
+
+# %%
+c = gf.components.taper_sc_nc()
+c.plot()
+
+# %%
+sp = gt.write_sparameters(c, plot_simulation_layer_name="core", layer_stack=LAYER_STACK)
+
+# %%
+# lets plot the fundamental input mode
+sp = gt.write_sparameters(
+    c, plot_mode_port_name="o1", plot_mode_index=0, layer_stack=LAYER_STACK
+)
+
+# %%
+# lets plot the second order input mode
+mode_spec = td.ModeSpec(num_modes=2, filter_pol="te")
+sp = gt.write_sparameters(
+    c,
+    plot_mode_port_name="o1",
+    plot_mode_index=1,
+    layer_stack=LAYER_STACK,
+    mode_spec=mode_spec,
+)
+
+# %%
+sp = gt.write_sparameters(
+    c,
+    plot_simulation_layer_name="nitride",
+    plot_simulation_port_index=1,
+    layer_stack=LAYER_STACK,
+)
+
+# %%
+# lets plot the output mode
+sp = gt.write_sparameters(
+    c, plot_mode_port_name="o2", plot_mode_index=0, layer_stack=LAYER_STACK
+)
 
 # %% [markdown]
 # ### 2D
 #
-# 2D planar simulations run faster than 3D. When running in 2D we don't consider the component thickness in the z dimension
+# 2D simulations take less credits but are also less accurate than 3D.
+# When running in 2D we don't consider the component thickness in the z dimension.
+#
+# For running simulations in 2D you need to set `sim_size_z = 0`.
+#
+# It is also important that you choose `center_z` correctly.
 
 # %%
-c = gf.components.mmi1x2()
-s = gt.get_simulation(c, is_3d=False)
-fig = gt.plot_simulation(s)
+sp = gt.write_sparameters(
+    component,
+    filepath=PATH.sparameters_repo / "coupler_ring_2d.npz",
+    sim_size_z=0,
+    layer_stack=LAYER_STACK,
+    plot_simulation_layer_name="core",
+    center_z="core",
+)
+
+# %%
+component = gf.components.straight()
+sp = gt.write_sparameters(
+    component,
+    filepath=PATH.sparameters_repo / "straight_2d.npz",
+    sim_size_z=0,
+    center_z="core",
+)
+
+# %%
+gp.plot.plot_sparameters(sp)
 
 # %% [markdown]
 # ### 3D
 #
-# By default all simulations run in 3D unless indicated otherwise with the `is_3d` argument.
+# By default all simulations run in 3D unless indicated otherwise.
 # 3D simulations run quite fast thanks to the GPU solver on the server side hosted by tidy3d cloud.
 
 # %%
-help(gt.get_simulation)
-
-# %%
-c = gf.components.mmi1x2()
-s = gt.get_simulation(c)
-fig = gt.plot_simulation(s)
-
-# %%
-c = gf.components.coupler_ring()
-s = gt.get_simulation(c)
-fig = gt.plot_simulation(s)
-
-# %%
-c = gf.components.bend_circular(radius=2)
-s = gt.get_simulation(c)
-fig = gt.plot_simulation(s)
-
-# %%
-c = gf.components.straight()
-s = gt.get_simulation(c)
-fig = gt.plot_simulation(s)
-
-# %% [markdown]
-# ## Sidewall angle
-#
-# You can define the sidewall angle in degrees with respect to normal. Lets exaggerate the sidewall angle so we can clearly see it.
-
-# %%
-c = gf.components.straight()
-s = gt.get_simulation(c, sidewall_angle_deg=45, plot_modes=True)
-fig = gt.plot_simulation(s)
+c = gf.components.straight(length=2)
+sp = gt.write_sparameters(
+    c, filepath=PATH.sparameters_repo / "straight_3d.npz", sim_size_z=4
+)
+gp.plot.plot_sparameters(sp)
 
 # %% [markdown]
 # ## Erosion / dilation
 
 # %%
-c = gf.components.straight()
-s = gt.get_simulation(c, is_3d=False, dilation=0)
-fig = gt.plot_simulation(s)
+component = gf.components.straight(length=0.1)
+sp = gt.write_sparameters(
+    component, layer_stack=LAYER_STACK, plot_simulation_layer_name="core", dilation=0
+)
 
-# %%
-c = gf.components.straight()
-s = gt.get_simulation(c, is_3d=False, dilation=0.5)
-fig = gt.plot_simulation(s)
-
-# %%
-0.5 * 1.5
 
 # %% [markdown]
 # A `dilation = 0.5` makes a 0.5um waveguide 0.75um
 
 # %%
 0.5 * 0.8
+
+# %%
+component = gf.components.straight(length=0.1)
+sp = gt.write_sparameters(
+    component, layer_stack=LAYER_STACK, plot_simulation_layer_name="core", dilation=0.5
+)
 
 # %% [markdown]
 # A `dilation = -0.2` makes a 0.5um eroded down to 0.1um
@@ -170,35 +307,39 @@ fig = gt.plot_simulation(s)
 0.2 * 0.5
 
 # %%
-c = gf.components.straight()
-s = gt.get_simulation(c, is_3d=False, dilation=-0.2)
-fig = gt.plot_simulation(s)
+component = gf.components.straight(length=0.1)
+sp = gt.write_sparameters(
+    component, layer_stack=LAYER_STACK, plot_simulation_layer_name="core", dilation=-0.2
+)
 
 # %% [markdown]
-# ## Plot source and monitor modes
+# ## Plot monitors
 
 # %%
-c = gf.components.straight(length=3)
-s = gt.get_simulation(c, plot_modes=True, port_margin=1, ymargin=1)
-fig = gt.plot_simulation_xz(s)
+component = gf.components.taper_strip_to_ridge(length=10)
+component.plot()
 
 # %%
-c = gf.components.straight_rib(length=3)
-s = gt.get_simulation(c, plot_modes=True)
-fig = gt.plot_simulation_xz(s)
+sp = gt.write_sparameters(
+    c,
+    plot_simulation_layer_name="core",
+    plot_simulation_port_index=0,
+    layer_stack=LAYER_STACK,
+)
 
 # %%
-c = taper_sc_nc(length=10)
-s = gt.get_simulation(c, plot_modes=True)
-fig = gt.plot_simulation_xz(s)
-
-# %% [markdown]
-# Lets make sure the mode also looks correct on the Nitride side
-
-# %%
-c = taper_sc_nc(length=10)
-s = gt.get_simulation(c, port_source_name="o2", plot_modes=True)
-fig = gt.plot_simulation_xz(s)
+sp = gt.write_sparameters(
+    c,
+    plot_simulation_layer_name="core",
+    plot_simulation_port_index=1,
+    layer_stack=LAYER_STACK,
+)
+sp = gt.write_sparameters(
+    c,
+    plot_simulation_layer_name="slab90",
+    plot_simulation_port_index=1,
+    layer_stack=LAYER_STACK,
+)
 
 # %%
 components = [
@@ -215,20 +356,22 @@ components = [
 
 for component_name in components:
     print(component_name)
-    plt.figure()
-    c = gf.components.cells[component_name]()
-    s = gt.get_simulation(c)
-    fig = gt.plot_simulation(s)
-
-# %% [markdown]
-# ## write_sparameters
-#
-# You can write Sparameters from a simulation as well as a group of simulations in parallel.
+    component = gf.get_component(component_name)
+    gt.write_sparameters(
+        component=component,
+        layer_stack=LAYER_STACK,
+        plot_simulation_layer_name="core",
+        plot_simulation_port_index=0,
+    )
 
 # %%
 c = gf.components.bend_circular(radius=2)
-s = gt.get_simulation(c)
-fig = gt.plot_simulation(s)
+s = gt.write_sparameters(
+    c,
+    layer_stack=LAYER_STACK,
+    plot_simulation_layer_name="core",
+    plot_simulation_port_index=0,
+)
 
 # %% [markdown]
 # For a 2 port reciprocal passive component you can always assume `s21 = s12`
@@ -238,7 +381,6 @@ fig = gt.plot_simulation(s)
 # We call this `1x1` port symmetry
 
 # %%
-# sp = gt.write_sparameters_1x1(c)
 sp = np.load(
     PATH.sparameters_repo / "bend_circular_radius2_9d7742b34c224827aeae808dc986308e.npz"
 )
@@ -249,16 +391,15 @@ plot.plot_sparameters(sp, keys=("o2@0,o1@0",))
 
 # %%
 c = gf.components.mmi1x2()
-s = gt.get_simulation(c, plot_modes=True, port_margin=0.2, port_source_name="o2")
-fig = gt.plot_simulation(s, y=0)  # see input
-
-# %%
-fig = gt.plot_simulation(s, y=0.63)  # see output
+s = gt.write_sparameters(
+    c,
+    layer_stack=LAYER_STACK,
+    plot_simulation_layer_name="core",
+    plot_simulation_port_index=0,
+)
 
 # %%
 # sp = gt.write_sparameters(c)
-
-# %%
 sp = np.load(PATH.sparameters_repo / "mmi1x2_507de731d50770de9096ac9f23321daa.npz")
 
 # %%
@@ -278,7 +419,12 @@ c = gf.components.mmi2x2_with_sbend(with_sbend=False)
 c.plot()
 
 # %%
-sp = gt.write_sparameters(c, run=False)
+sp = gt.write_sparameters(
+    c,
+    layer_stack=LAYER_STACK,
+    plot_simulation_layer_name="core",
+    plot_simulation_port_index=0,
+)
 
 # %%
 # sp = gt.write_sparameters(c, filepath=PATH.sparameters_repo / 'mmi2x2_without_sbend.npz')
@@ -287,21 +433,6 @@ plot.plot_loss2x2(sp)
 
 # %%
 plot.plot_imbalance2x2(sp)
-
-# %% [markdown]
-# ## write_sparameters_batch
-#
-# You can also send a batch of component simulations in parallel to the tidy3d server.
-#
-#
-# ```python
-# jobs = [dict(component=gf.c.straight(length=1.11 + i)) for i in [1, 2]]
-# sps = gt.write_sparameters_batch_1x1(jobs)
-#
-# sp0 = sps[0]
-# sp = sp0.result()
-# plot.plot_sparameters(sp)
-# ```
 
 # %% [markdown]
 # ## get_simulation_grating_coupler
@@ -507,29 +638,4 @@ for sp, fiber_angle_deg in zip(sps, fiber_angles):
 plt.xlabel("wavelength (um")
 plt.ylabel("Transmission (dB)")
 plt.title("transmission vs fiber angle (degrees)")
-plt.legend()
-
-# %%
-bend_radius = [1, 2]
-jobs = [
-    dict(
-        component=gf.components.bend_circular(radius=radius),
-        filepath=PATH.sparameters_repo / f"bend_r{radius}",
-    )
-    for radius in bend_radius
-]
-sps = gt.write_sparameters_batch(jobs)
-
-# %%
-for sp, radius in zip(sps, bend_radius):
-    sp = sp.result()
-    plt.plot(
-        sp["wavelengths"],
-        20 * np.log10(np.abs(sp["o2@0,o1@0"])),
-        label=str(radius),
-    )
-
-plt.xlabel("wavelength (um")
-plt.ylabel("Transmission (dB)")
-plt.title("transmission vs bend radius (um)")
 plt.legend()

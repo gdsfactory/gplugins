@@ -22,7 +22,7 @@ cov:
 test-data:
 	git clone https://github.com/gdsfactory/gdsfactory-test-data.git -b test-data test-data
 
-test-data-developers:
+test-data-ssh:
 	git clone git@github.com:gdsfactory/gdsfactory-test-data.git -b test-data test-data
 
 git-rm-merged:

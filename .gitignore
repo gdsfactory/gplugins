@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 temp.msh2
 docs/notebooks/temporary
+docs/notebooks/batch-*
 
 # C extensions
 *.so

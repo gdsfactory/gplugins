@@ -1,11 +1,29 @@
+# ---
+# jupyter:
+#   jupytext:
+#     cell_metadata_filter: -all
+#     custom_cell_magics: kql
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.11.2
+#   kernelspec:
+#     display_name: base
+#     language: python
+#     name: python3
+# ---
+
+# %% [markdown]
 # # MZI filter
 #
 # In this example we will go over a [Mach–Zehnder interferometer](https://en.wikipedia.org/wiki/Mach%E2%80%93Zehnder_interferometer) filter design.
 #
 
+# %% [markdown]
 # ## Calculations
 
-# +
+# %%
 
 import gdsfactory as gf
 import numpy as np
@@ -16,7 +34,7 @@ PDK = get_generic_pdk()
 PDK.activate()
 
 
-# +
+# %%
 def mzi(
     wl: np.ndarray,
     neff: float | None,
@@ -120,13 +138,13 @@ if __name__ == "__main__":
     plt.grid()
     plt.legend()
     plt.show()
-# -
 
+# %% [markdown]
 # ## Mode solver
 #
 # For waveguides you can compute the EM modes.
 
-# +
+# %%
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -143,11 +161,12 @@ strip = gt.modes.Waveguide(
     group_index_step=10 * nm,
 )
 strip.plot_field(field_name="Ex", mode_index=0)  # TE
-# -
 
+# %%
 ng = strip.n_group[0]
 ng
 
+# %% [markdown]
 # ## FDTD
 #
 # Lets compute the Sparameters of a 1x2 power splitter using [tidy3D](https://docs.flexcompute.com/projects/tidy3d/en/latest/), which is a fast GPU based FDTD commercial solver.
@@ -156,26 +175,32 @@ ng
 #
 # ![cloud_model](https://i.imgur.com/5VTCPLR.png)
 
+# %%
 import gdsfactory as gf
 import gdsfactory.components as pdk
 
+# %%
 import gplugins as sim
 import gplugins.tidy3d as gt
 from gplugins.common.config import PATH
 
+# %%
 c = pdk.mmi1x2()
 c.plot()
 
-# +
+# %%
 # sp = gt.write_sparameters(c)
-# -
 
+# %%
 sp = np.load(PATH.sparameters_repo / "mmi1x2_507de731d50770de9096ac9f23321daa.npz")
 
+# %%
 sim.plot.plot_sparameters(sp)
 
+# %%
 sim.plot.plot_loss1x2(sp)
 
+# %% [markdown]
 # ## Circuit simulation
 #
 # For the simulations you need to build Sparameters models for your components using FDTD or other methods.
@@ -190,10 +215,11 @@ sim.plot.plot_loss1x2(sp)
 # We will be using SAX which is an open source circuit simulator.
 #
 
+# %%
 mzi10 = gf.components.mzi(splitter=c, delta_length=10)
-mzi10
+mzi10.plot()
 
-# +
+# %%
 import gdsfactory as gf
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
@@ -203,7 +229,7 @@ import sax
 import gplugins.sax as gsax
 
 
-# +
+# %%
 def straight(wl=1.5, length=10.0, neff=2.4) -> sax.SDict:
     return sax.reciprocal({("o1", "o2"): jnp.exp(2j * jnp.pi * neff * length / wl)})
 
@@ -213,8 +239,7 @@ def bend_euler(wl=1.5, length=20.0):
     return {k: 0.99 * v for k, v in straight(wl=wl, length=length).items()}
 
 
-# -
-
+# %%
 mmi1x2 = gsax.read.model_from_npz(sp)
 models = {
     "bend_euler": bend_euler,
@@ -222,9 +247,11 @@ models = {
     "straight": straight,
 }
 
+# %%
 netlist = mzi10.get_netlist()
 circuit, _ = sax.circuit(netlist=netlist, models=models)
 
+# %%
 wl = np.linspace(1.5, 1.6)
 S = circuit(wl=wl)
 plt.figure(figsize=(14, 4))
@@ -235,12 +262,15 @@ plt.ylabel("T")
 plt.grid(True)
 plt.show()
 
+# %%
 mzi20 = gf.components.mzi(splitter=c, delta_length=20)
-mzi20
+mzi20.plot()
 
+# %%
 netlist = mzi20.get_netlist()
 circuit, _ = sax.circuit(netlist=netlist, models=models)
 
+# %%
 wl = np.linspace(1.5, 1.6)
 S = circuit(wl=wl)
 plt.figure(figsize=(14, 4))

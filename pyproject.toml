@@ -88,7 +88,9 @@ schematic = [
   "natsort"
 ]
 tidy3d = [
-  "tidy3d>=2.4.0,<2.5.0"
+  "tidy3d>=2.4.0,<2.5.0",
+  "meshio",
+  "meshwell>=1.0.0,<1.1"
 ]
 vlsir = [
   "vlsir>=4.0.0,<6.0.0",
