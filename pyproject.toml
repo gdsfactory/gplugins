@@ -96,12 +96,6 @@ vlsir = [
   "vlsir>=4.0.0,<6.0.0",
   "vlsirtools>=4.0.0,<6.0.0"
 ]
-web = [
-  "jinja2",
-  "python-multipart",
-  "fastapi>=0.102.0,<1",
-  "uvicorn[standard]"
-]
 
 [tool.black]
 exclude = '''  # Specify the files/dirs that should be ignored by the black formatter
