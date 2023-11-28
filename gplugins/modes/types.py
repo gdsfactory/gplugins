@@ -130,10 +130,15 @@ class Mode(BaseModel):
         self,
         cmap: str = "binary",
         origin="lower",
-        logscale: bool = False,
         show: bool = True,
     ) -> None:
-        """Plot index profile."""
+        """Plot index profile.
+
+        Args:
+            cmap: colormap.
+            origin: origin of the plot.
+            show: show the plot.
+        """
         plt.imshow(
             self.eps**0.5,
             cmap=cmap,
@@ -277,22 +282,46 @@ class Mode(BaseModel):
         plt.figure(figsize=(16, 10), dpi=100)
 
         plt.subplot(2, 3, 1)
-        self.plot_ex(show=False, scale=scale, cmap=cmap, operation=operation)
+        self.plot_ex(
+            show=False,
+            scale=scale,
+            cmap=cmap,
+            operation=operation,
+            origin=origin,
+            logscale=logscale,
+        )
 
         plt.subplot(2, 3, 2)
-        self.plot_ey(show=False, scale=scale, cmap=cmap, operation=operation)
+        self.plot_ey(
+            show=False,
+            scale=scale,
+            cmap=cmap,
+            operation=operation,
+            origin=origin,
+            logscale=logscale,
+        )
 
         plt.subplot(2, 3, 3)
-        self.plot_ez(show=False, scale=scale, cmap=cmap, operation=operation)
+        self.plot_ez(
+            show=False,
+            scale=scale,
+            cmap=cmap,
+            operation=operation,
+            origin=origin,
+            logscale=logscale,
+        )
 
         plt.subplot(2, 3, 4)
-        self.plot_e(show=False, scale=scale)
+        self.plot_e(
+            show=False, scale=scale, cmap=cmap, origin=origin, logscale=logscale
+        )
 
         plt.subplot(2, 3, 5)
         self.plot_eps(show=False)
 
         plt.tight_layout()
-        plt.show()
+        if show:
+            plt.show()
 
     def plot_h(
         self,
@@ -422,22 +451,44 @@ class Mode(BaseModel):
         plt.figure(figsize=(16, 10), dpi=100)
 
         plt.subplot(2, 3, 1)
-        self.plot_hx(show=False, scale=scale, cmap=cmap, operation=operation)
+        self.plot_hx(
+            show=False,
+            scale=scale,
+            cmap=cmap,
+            operation=operation,
+            origin=origin,
+            logscale=logscale,
+        )
 
         plt.subplot(2, 3, 2)
-        self.plot_hy(show=False, scale=scale, cmap=cmap, operation=operation)
+        self.plot_hy(
+            show=False,
+            scale=scale,
+            cmap=cmap,
+            operation=operation,
+            origin=origin,
+            logscale=logscale,
+        )
 
         plt.subplot(2, 3, 3)
-        self.plot_hz(show=False, scale=scale, cmap=cmap, operation=operation)
+        self.plot_hz(
+            show=False,
+            scale=scale,
+            cmap=cmap,
+            operation=operation,
+            origin=origin,
+            logscale=logscale,
+        )
 
         plt.subplot(2, 3, 4)
-        self.plot_h(show=False, scale=scale)
+        self.plot_h(show=False, scale=scale, origin=origin, logscale=logscale)
 
         plt.subplot(2, 3, 5)
         self.plot_eps(show=False)
 
         plt.tight_layout()
-        plt.show()
+        if show:
+            plt.show()
 
 
 class Waveguide(BaseModel):
