@@ -243,4 +243,4 @@ if __name__ == "__main__":
         nm_per_pixel=1000,
         figsize=(11, 4),
     )
-    plt.savefig("test_mode.png"),
+    plt.savefig("test_mode.png")
