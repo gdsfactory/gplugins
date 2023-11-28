@@ -172,6 +172,7 @@ select = [
 ]
 
 [tool.ruff.per-file-ignores]
+"docs/notebooks/*.py" = ["F821", 'E402', 'F405', 'F403']
 "docs/notebooks/meep_01_sparameters.py" = ["F821", 'E402']
 "docs/notebooks/tcad_02_analytical_process.py" = ["F821", 'E402', 'F405', 'F403']
 

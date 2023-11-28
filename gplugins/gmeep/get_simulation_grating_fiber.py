@@ -210,16 +210,12 @@ def get_simulation_grating_fiber(
     wg_material = mp.Medium(index=nwg)
     top_clad_material = mp.Medium(index=clad_material)
     bottom_clad_material = mp.Medium(index=nbox)
-    fiber_core_material = (
-        fiber_numerical_aperture**2 + fiber_clad_material**2
-    ) ** 0.5
+    fiber_core_material = (fiber_numerical_aperture**2 + fiber_clad_material**2) ** 0.5
     fiber_clad_material = mp.Medium(index=fiber_clad_material)
     fiber_core_material = mp.Medium(index=fiber_core_material)
 
     # Useful reference point
-    grating_start = (
-        -fiber_xposition
-    )  # Since fiber dominates, keep it centered and offset the grating
+    grating_start = -fiber_xposition  # Since fiber dominates, keep it centered and offset the grating
 
     # Initialize domain x-z plane simulation
     cell_size = mp.Vector3(sxy, sz)

@@ -80,7 +80,8 @@ def trainable_simulations(x, loss=lambda x: x):
         )
         if use_mpi:  # change this to false if no MPI support
             s_params = gm.write_sparameters_meep_mpi(
-                cores=2, **meep_params  # set this to be the same as in `tune.Tuner`
+                cores=2,
+                **meep_params,  # set this to be the same as in `tune.Tuner`
             )
             s_params = np.load(
                 s_params
