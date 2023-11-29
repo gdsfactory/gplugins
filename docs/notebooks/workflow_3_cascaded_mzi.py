@@ -34,6 +34,7 @@ import sax
 
 import gplugins.tidy3d as gt
 from gplugins.common.config import PATH
+
 # -
 
 # We start by loading the desired PDK and setting the main geometry and filter parameters, such as DC gap and central wavelength.
@@ -436,7 +437,8 @@ def complex_interp(xs, x, y):
     ys_mag = jnp.interp(xs, x, jnp.abs(y))
     ys_phase = jnp.interp(xs, x, jnp.unwrap(jnp.angle(y)))
     return ys_mag * jnp.exp(1j * ys_phase)
-    
+
+
 @jax.jit
 def straight_model(wl=1.55, length: float = 1.0):
     n_eff = complex_interp(wl, straight_wavelengths, straight_neffs.real)
