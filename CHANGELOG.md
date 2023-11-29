@@ -4,6 +4,11 @@
 
 <!-- towncrier release notes start -->
 
+## [0.9.0](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.0) - 2023-11-29
+
+No significant changes.
+
+
 ## [0.8.7](https://github.com/gdsfactory/gplugins/releases/tag/v0.8.7) - 2023-11-21
 
 - Assorted changes in docs and support `.spi` files for `plot_nets` [#237](https://github.com/gdsfactory/gplugins/pull/237)
