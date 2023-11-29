@@ -6,8 +6,13 @@
 
 ## [0.9.0](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.0) - 2023-11-29
 
-No significant changes.
-
+- remove webapp [#252](https://github.com/gdsfactory/gplugins/pull/252)
+- remove black [#250](https://github.com/gdsfactory/gplugins/pull/250)
+- [pre-commit.ci] pre-commit autoupdate [#241](https://github.com/gdsfactory/gplugins/pull/241)
+- fix mpb cmap [#249](https://github.com/gdsfactory/gplugins/pull/249)
+- Tidy3d rework2 [#239](https://github.com/gdsfactory/gplugins/pull/239)
+- Support reducing nodes in plot nets [#245](https://github.com/gdsfactory/gplugins/pull/245)
+- Treating E and H as complex while plotting abs(E) [#248](https://github.com/gdsfactory/gplugins/pull/248)
 
 ## [0.8.7](https://github.com/gdsfactory/gplugins/releases/tag/v0.8.7) - 2023-11-21
 
