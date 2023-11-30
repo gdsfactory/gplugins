@@ -672,7 +672,7 @@ if __name__ == "__main__":
                 # filepath=PATH.sparameters_repo / f"dc_{i}.npz",
                 layer_stack=layer_stack,
                 sim_size_z=0,
-                overwrite=True,
+                # overwrite=True,
             )
             for i in range(2)
         ]
