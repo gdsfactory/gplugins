@@ -17,6 +17,7 @@ Functions:
 import hashlib
 import io
 import pathlib
+import time
 from collections.abc import Awaitable
 from functools import cached_property
 from typing import Any
@@ -498,6 +499,7 @@ def write_sparameters(
         pad_z_outer=pad_z_outer,
         dilation=dilation,
     )
+    path_dir = str(pathlib.Path(dirpath) / str(hash(c)))
 
     modeler = c.get_component_modeler(
         wavelength=wavelength,
@@ -515,7 +517,7 @@ def write_sparameters(
         run_time=run_time,
         shutoff=shutoff,
         folder_name=folder_name,
-        path_dir=str(dirpath),
+        path_dir=path_dir,
         verbose=verbose,
     )
     sp = {}
@@ -531,7 +533,7 @@ def write_sparameters(
         modeler = c.get_component_modeler(
             center_z=plot_simulation_layer_name, port_size_mult=(6, 4), sim_size_z=3.0
         )
-        fig, ax = plt.subplots(2, 1)
+        _, ax = plt.subplots(2, 1)
         modeler.plot_sim(z=z, ax=ax[0])
         modeler.plot_sim(x=x, ax=ax[1])
         plt.show()
@@ -542,7 +544,7 @@ def write_sparameters(
         mode_solver = modes[f"smatrix_{plot_mode_port_name}_{plot_mode_index}"]
         mode_data = mode_solver.solve()
 
-        fig, ax = plt.subplots(1, 3, tight_layout=True, figsize=(10, 3))
+        _, ax = plt.subplots(1, 3, tight_layout=True, figsize=(10, 3))
         abs(mode_data.Ex.isel(mode_index=plot_mode_index, f=0)).plot(
             x="y", y="z", ax=ax[0], cmap="magma"
         )
@@ -568,6 +570,7 @@ def write_sparameters(
         print(f"Simulation loaded from {filepath!r}")
         return dict(np.load(filepath))
     else:
+        time.sleep(0.2)
         s = modeler.run()
         for port_in in s.port_in.values:
             for port_out in s.port_out.values:
@@ -648,8 +651,6 @@ if __name__ == "__main__":
 
     import gdsfactory as gf
 
-    from gplugins.common.config import PATH
-
     pdk = gf.get_active_pdk()
     layer_stack = pdk.get_layer_stack()
     layer_stack.layers.pop("substrate", None)
@@ -663,23 +664,20 @@ if __name__ == "__main__":
         cross_section=cross_section,
     )  # Coupler Strip C-Band
 
-    sps = write_sparameters_batch(
+    sims = write_sparameters_batch(
         [
             dict(
                 component=coupler_sc(length=i),
                 # sim_size_z=0,
-                filepath=PATH.sparameters_repo / f"dc_{i}.npz",
+                # filepath=PATH.sparameters_repo / f"dc_{i}.npz",
                 layer_stack=layer_stack,
+                sim_size_z=0,
                 # overwrite=True,
             )
-            for i in range(25)
+            for i in range(2)
         ]
     )
-
-    sp = []
-    for spi in sps:
-        sp.append(spi.result())
-
+    s_params_list = [sim.result() for sim in sims]
     # c = gf.components.taper_sc_nc()
 
     # run = False

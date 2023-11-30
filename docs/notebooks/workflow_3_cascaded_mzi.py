@@ -85,10 +85,10 @@ coupler.plot()  # plot it
 
 
 # %%
-simulation = gt.write_sparameters(
+_ = gt.write_sparameters(
     coupler,
-    plot_simulation_layer_name="core",
     layer_stack=layer_stack,
+    plot_simulation_layer_name="core",
 )
 
 # %% [markdown]
@@ -437,10 +437,16 @@ plt.ylabel("n_eff")
 
 # %%
 @jax.jit
+def complex_interp(xs, x, y):
+    ys_mag = jnp.interp(xs, x, jnp.abs(y))
+    ys_phase = jnp.interp(xs, x, jnp.unwrap(jnp.angle(y)))
+    return ys_mag * jnp.exp(1j * ys_phase)
+
+
+@jax.jit
 def straight_model(wl=1.55, length: float = 1.0):
-    s21 = jnp.exp(
-        2j * jnp.pi * jnp.interp(wl, straight_wavelengths, straight_neffs) * length / wl
-    )
+    n_eff = complex_interp(wl, straight_wavelengths, straight_neffs.real)
+    s21 = jnp.exp(2j * jnp.pi * n_eff * length / wl)
     zero = jnp.zeros_like(wl)
     return {
         ("o1", "o1"): zero,
@@ -471,8 +477,8 @@ def bend_model(cross_section: gf.typings.CrossSectionSpec = "xs_sc"):
 
     @jax.jit
     def _model(wl=1.55):
-        s11 = jnp.interp(wl, wavelengths, s["o1@0,o1@0"])
-        s21 = jnp.interp(wl, wavelengths, s["o2@0,o1@0"])
+        s11 = complex_interp(wl, wavelengths, s["o1@0,o1@0"])
+        s21 = complex_interp(wl, wavelengths, s["o2@0,o1@0"])
         return {
             ("o1", "o1"): s11,
             ("o1", "o2"): s21,
@@ -524,10 +530,10 @@ def coupler_model(
 
     @jax.jit
     def _model(wl=1.55):
-        s11 = jnp.interp(wl, wavelengths, s["o1@0,o1@0"])
-        s21 = jnp.interp(wl, wavelengths, s["o2@0,o1@0"])
-        s31 = jnp.interp(wl, wavelengths, s["o3@0,o1@0"])
-        s41 = jnp.interp(wl, wavelengths, s["o4@0,o1@0"])
+        s11 = complex_interp(wl, wavelengths, s["o1@0,o1@0"])
+        s21 = complex_interp(wl, wavelengths, s["o2@0,o1@0"])
+        s31 = complex_interp(wl, wavelengths, s["o3@0,o1@0"])
+        s41 = complex_interp(wl, wavelengths, s["o4@0,o1@0"])
         return {
             ("o1", "o1"): s11,
             ("o1", "o2"): s21,
@@ -613,12 +619,6 @@ fig.tight_layout()
 # %%
 fig, ax = plt.subplots(1, 1, figsize=(12, 4))
 
-layout = cascaded_mzi(
-    coupler_gaps=[gap] * len(lengths),
-    coupler_lengths=lengths,
-    mzi_deltas=mzi_deltas,
-    cross_section=cross_section,
-)
 netlist, models = patch_netlist(
     layout.get_netlist(),
     {"straight": straight_model, "bend_euler": bend_model(cross_section=cross_section)},
