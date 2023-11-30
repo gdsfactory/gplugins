@@ -18,7 +18,6 @@ import hashlib
 import io
 import pathlib
 import time
-import uuid
 from collections.abc import Awaitable
 from functools import cached_property
 from typing import Any
@@ -487,7 +486,6 @@ def write_sparameters(
 
     """
     layer_stack = layer_stack or get_layer_stack()
-    path_dir = str(pathlib.Path(dirpath) / str(uuid.uuid4()))
 
     c = Tidy3DComponent(
         component=component,
@@ -501,6 +499,7 @@ def write_sparameters(
         pad_z_outer=pad_z_outer,
         dilation=dilation,
     )
+    path_dir = str(pathlib.Path(dirpath) / str(hash(c)))
 
     modeler = c.get_component_modeler(
         wavelength=wavelength,
@@ -665,7 +664,7 @@ if __name__ == "__main__":
         cross_section=cross_section,
     )  # Coupler Strip C-Band
 
-    sps = write_sparameters_batch(
+    sims = write_sparameters_batch(
         [
             dict(
                 component=coupler_sc(length=i),
@@ -678,7 +677,7 @@ if __name__ == "__main__":
             for i in range(2)
         ]
     )
-
+    s_params_list = [sim.result() for sim in sims]
     # c = gf.components.taper_sc_nc()
 
     # run = False
