@@ -440,6 +440,7 @@ def write_sparameters(
     plot_simulation_x: float | None = None,
     plot_mode_index: int | None = 0,
     plot_mode_port_name: str | None = None,
+    plot_epsilon: bool = False,
     filepath: PathType | None = None,
     overwrite: bool = False,
 ) -> Sparameters:
@@ -534,8 +535,13 @@ def write_sparameters(
             center_z=plot_simulation_layer_name, port_size_mult=(6, 4), sim_size_z=3.0
         )
         _, ax = plt.subplots(2, 1)
-        modeler.plot_sim(z=z, ax=ax[0])
-        modeler.plot_sim(x=x, ax=ax[1])
+        if plot_epsilon:
+            modeler.plot_sim_eps(z=z, ax=ax[0])
+            modeler.plot_sim_eps(x=x, ax=ax[1])
+
+        else:
+            modeler.plot_sim(z=z, ax=ax[0])
+            modeler.plot_sim(x=x, ax=ax[1])
         plt.show()
         return sp
 
@@ -647,55 +653,46 @@ def write_sparameters_batch(
 
 
 if __name__ == "__main__":
-    from functools import partial
-
     import gdsfactory as gf
 
-    pdk = gf.get_active_pdk()
-    layer_stack = pdk.get_layer_stack()
-    layer_stack.layers.pop("substrate", None)
+    # pdk = gf.get_active_pdk()
+    # layer_stack = pdk.get_layer_stack()
+    # layer_stack.layers.pop("substrate", None)
 
-    width = 0.45
-    cross_section = pdk.get_cross_section("xs_sc", width=width)
-    coupler_sc = partial(
-        gf.components.coupler,
-        dx=4,
-        dy=2,
-        cross_section=cross_section,
-    )  # Coupler Strip C-Band
+    # width = 0.45
+    # cross_section = pdk.get_cross_section("xs_sc", width=width)
+    # coupler_sc = partial(
+    #     gf.components.coupler,
+    #     dx=4,
+    #     dy=2,
+    #     cross_section=cross_section,
+    # )  # Coupler Strip C-Band
 
-    sims = write_sparameters_batch(
-        [
-            dict(
-                component=coupler_sc(length=i),
-                # sim_size_z=0,
-                # filepath=PATH.sparameters_repo / f"dc_{i}.npz",
-                layer_stack=layer_stack,
-                sim_size_z=0,
-                # overwrite=True,
-            )
-            for i in range(2)
-        ]
-    )
-    s_params_list = [sim.result() for sim in sims]
-    # c = gf.components.taper_sc_nc()
-
-    # run = False
-    # c = write_sparameters(c, sim_size_z=0, run=False, center_z="core")
-    # modeler = c.get_component_modeler()
-    # modeler.plot_sim(z=0)
-    # plt.show()
-
-    # mode_spec = td.ModeSpec(num_modes=2, filter_pol="te")
-    # sp = write_sparameters(c, sim_size_z=0, center_z="core", plot_simulation_layer_name='core', plot_simulation_port_index=1, mode_spec=mode_spec)
-    # sp = write_sparameters(
-    #     c,
-    #     sim_size_z=4,
-    #     center_z="core",
-    #     plot_simulation_x=10,
-    #     plot_simulation_layer_name="core",
-    #     # plot_mode_port_name="o1",
-    #     # plot_mode_index=1,
-    #     # mode_spec=mode_spec,
+    # sims = write_sparameters_batch(
+    #     [
+    #         dict(
+    #             component=coupler_sc(length=i),
+    #             # sim_size_z=0,
+    #             # filepath=PATH.sparameters_repo / f"dc_{i}.npz",
+    #             layer_stack=layer_stack,
+    #             sim_size_z=0,
+    #             overwrite=True,
+    #         )
+    #         for i in range(2)
+    #     ]
     # )
+    # s_params_list = [sim.result() for sim in sims]
+    c = gf.components.taper_sc_nc()
+
+    sp = write_sparameters(
+        c,
+        sim_size_z=4,
+        center_z="core",
+        plot_simulation_x=10,
+        plot_simulation_layer_name="core",
+        plot_epsilon=True,
+        # plot_mode_port_name="o1",
+        # plot_mode_index=1,
+        # mode_spec=mode_spec,
+    )
     # gp.plot.plot_sparameters(sp)
