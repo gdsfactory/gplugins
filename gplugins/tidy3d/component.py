@@ -49,6 +49,7 @@ material_name_to_medium = {
 
 home = pathlib.Path.home()
 dirpath_default = home / ".gdsfactory" / "sparameters"
+run_time_default = 20e-12
 
 
 def hash_simulation(simulation) -> str:
@@ -185,7 +186,7 @@ class Tidy3DComponent(LayeredComponentBase):
         sim_size_z: int,
         boundary_spec: td.BoundarySpec,
         monitors: tuple[Any, ...] | None = None,
-        run_time: float = 10e-12,
+        run_time: float = run_time_default,
         shutoff: float = 1e-5,
     ) -> td.Simulation:
         """
@@ -428,7 +429,7 @@ def write_sparameters(
     extra_monitors: tuple[Any, ...] | None = None,
     mode_spec: td.ModeSpec = td.ModeSpec(num_modes=1, filter_pol="te"),
     boundary_spec: td.BoundarySpec = td.BoundarySpec.all_sides(boundary=td.PML()),
-    run_time: float = 1e-12,
+    run_time: float = run_time_default,
     shutoff: float = 1e-5,
     folder_name: str = "default",
     dirpath: PathType = dirpath_default,
