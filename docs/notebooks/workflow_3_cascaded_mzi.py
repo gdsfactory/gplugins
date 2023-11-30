@@ -9,9 +9,9 @@
 #       format_version: '1.3'
 #       jupytext_version: 1.11.2
 #   kernelspec:
-#     display_name: gdsfactory
+#     display_name: base
 #     language: python
-#     name: gdsfactory
+#     name: python3
 # ---
 
 # %% [markdown]
