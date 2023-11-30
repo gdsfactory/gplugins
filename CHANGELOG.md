@@ -1,13 +1,13 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.8.7...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.9.1...main)
 
 <!-- towncrier release notes start -->
 
 ## [0.9.1](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.1) - 2023-11-30
 
-No significant changes.
-
+- Add tidy3d plot epsilon [#256](https://github.com/gdsfactory/gplugins/pull/256)
+- Fix mzi notebook and batch [#255](https://github.com/gdsfactory/gplugins/pull/255)
 
 ## [0.9.0](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.0) - 2023-11-29
 
