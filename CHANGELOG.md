@@ -4,6 +4,11 @@
 
 <!-- towncrier release notes start -->
 
+## [0.9.2](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.2) - 2023-11-30
+
+No significant changes.
+
+
 ## [0.9.1](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.1) - 2023-11-30
 
 - Add tidy3d plot epsilon [#256](https://github.com/gdsfactory/gplugins/pull/256)
