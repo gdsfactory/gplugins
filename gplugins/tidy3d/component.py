@@ -295,7 +295,7 @@ class Tidy3DComponent(LayeredComponentBase):
             shutoff=shutoff,
         )
 
-        ports = self.get_ports(mode_spec, port_size_mult, cz)
+        ports = self.get_ports(mode_spec, port_size_mult)
 
         modeler = ComponentModeler(
             simulation=sim,
