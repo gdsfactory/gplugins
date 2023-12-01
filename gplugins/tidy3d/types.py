@@ -11,7 +11,7 @@ def validate_medium(v):
     # Check if the input is an instance of td.Medium
     assert isinstance(
         v, td.AbstractMedium
-    ), f"Input should be an instance of {td.Medium}, but got {type(v)} instead"
+    ), f"Input should be a tidy3d medium, but got {type(v)} instead"
     return v
 
 
