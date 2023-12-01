@@ -532,7 +532,9 @@ def write_sparameters(
         x = plot_simulation_x or c.ports[plot_simulation_port_index].center[0]
 
         modeler = c.get_component_modeler(
-            center_z=plot_simulation_layer_name, port_size_mult=(6, 4), sim_size_z=3.0
+            center_z=plot_simulation_layer_name,
+            port_size_mult=port_size_mult,
+            sim_size_z=sim_size_z,
         )
         _, ax = plt.subplots(2, 1)
         if plot_epsilon:
