@@ -10,7 +10,7 @@ from pydantic.functional_validators import AfterValidator
 def validate_medium(v):
     # Check if the input is an instance of td.Medium
     assert isinstance(
-        v, td.Medium
+        v, td.AbstractMedium
     ), f"Input should be an instance of {td.Medium}, but got {type(v)} instead"
     return v
 
