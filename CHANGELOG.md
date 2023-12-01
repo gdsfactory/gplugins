@@ -1,12 +1,13 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.9.1...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.9.2...main)
 
 <!-- towncrier release notes start -->
 
 ## [0.9.2](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.2) - 2023-11-30
 
-No significant changes.
+- Fix port centers in z [#258](https://github.com/gdsfactory/gplugins/pull/258)
+- fix plot center_z [#257](https://github.com/gdsfactory/gplugins/pull/257)
 
 
 ## [0.9.1](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.1) - 2023-11-30
