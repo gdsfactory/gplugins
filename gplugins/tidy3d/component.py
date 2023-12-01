@@ -14,8 +14,6 @@ Functions:
     plot_slice: Plots a cross section of the component at a specified position.
 """
 
-import hashlib
-import io
 import pathlib
 import time
 from collections.abc import Awaitable
@@ -50,12 +48,6 @@ material_name_to_medium = {
 
 home = pathlib.Path.home()
 dirpath_default = home / ".gdsfactory" / "sparameters"
-
-
-def hash_simulation(simulation) -> str:
-    bf = io.BytesIO()
-    simulation.to_hdf5(bf)
-    return hashlib.sha256(bf.getvalue()).hexdigest()
 
 
 class Tidy3DComponent(LayeredComponentBase):
@@ -500,7 +492,6 @@ def write_sparameters(
         pad_z_outer=pad_z_outer,
         dilation=dilation,
     )
-    path_dir = str(pathlib.Path(dirpath) / str(hash(c)))
 
     modeler = c.get_component_modeler(
         wavelength=wavelength,
@@ -518,9 +509,12 @@ def write_sparameters(
         run_time=run_time,
         shutoff=shutoff,
         folder_name=folder_name,
-        path_dir=path_dir,
         verbose=verbose,
     )
+
+    path_dir = pathlib.Path(dirpath) / modeler._hash_self()
+    modeler = modeler.updated_copy(path_dir=str(path_dir))
+
     sp = {}
 
     if plot_simulation_layer_name or plot_simulation_z or plot_simulation_x:
@@ -571,7 +565,7 @@ def write_sparameters(
 
     dirpath = pathlib.Path(dirpath)
     dirpath.mkdir(parents=True, exist_ok=True)
-    filepath = filepath or dirpath / f"{hash_simulation(modeler)}.npz"
+    filepath = filepath or dirpath / f"{modeler._hash_self()}.npz"
     filepath = pathlib.Path(filepath)
 
     if filepath.exists() and not overwrite:
