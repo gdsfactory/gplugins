@@ -270,7 +270,7 @@ class Tidy3DComponent(LayeredComponentBase):
             case str():
                 cz = self.get_layer_center(center_z)[2]
             case None:
-                cz = self.center[2]
+                cz = np.mean(list({c[2] for c in self.port_centers}))
             case _:
                 raise ValueError(f"Invalid center_z: {center_z}")
 
