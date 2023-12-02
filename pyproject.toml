@@ -23,7 +23,7 @@ license = {file = "LICENSE"}
 name = "gplugins"
 readme = "README.md"
 requires-python = ">=3.10"
-version = "0.9.3"
+version = "0.9.4"
 
 [project.optional-dependencies]
 dagster = ["dagster", "dagit"]
@@ -68,7 +68,7 @@ gmsh = [
   "meshwell>=1.0.0,<1.1.0"
 ]
 klayout = [
-  "kfactory[git,ipy]>=0.9.3,<0.10",
+  "kfactory[git,ipy]>=0.9.4,<0.10",
   "pyvis<=0.3.1"
 ]
 meow = [
@@ -207,7 +207,7 @@ message_template = "Bump to {new_version}"
 tag_template = "v{new_version}"
 
 [tool.tbump.version]
-current = "0.9.3"
+current = "0.9.4"
 regex = '''
   (?P<major>\d+)
   \.
