@@ -1,18 +1,16 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.9.2...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.9.4...main)
 
 <!-- towncrier release notes start -->
 
 ## [0.9.4](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.4) - 2023-12-01
 
-No significant changes.
-
+- allow complex materials and rely on tidy3d hash function [#261](https://github.com/gdsfactory/gplugins/pull/261)
 
 ## [0.9.3](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.3) - 2023-12-01
 
-No significant changes.
-
+- Check for AbstractMedium instead of Medium in validator [#260](https://github.com/gdsfactory/gplugins/pull/260)
 
 ## [0.9.2](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.2) - 2023-11-30
 
