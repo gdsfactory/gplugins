@@ -6,8 +6,7 @@
 
 ## [0.9.5](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.5) - 2023-12-03
 
-No significant changes.
-
+- ask users to report version and fix kfactory pin [#263](https://github.com/gdsfactory/gplugins/pull/263)
 
 ## [0.9.4](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.4) - 2023-12-01
 
