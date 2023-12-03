@@ -4,6 +4,11 @@
 
 <!-- towncrier release notes start -->
 
+## [0.9.5](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.5) - 2023-12-03
+
+No significant changes.
+
+
 ## [0.9.4](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.4) - 2023-12-01
 
 - allow complex materials and rely on tidy3d hash function [#261](https://github.com/gdsfactory/gplugins/pull/261)
