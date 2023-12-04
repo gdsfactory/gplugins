@@ -1,13 +1,12 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.9.4...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.9.6...main)
 
 <!-- towncrier release notes start -->
 
 ## [0.9.6](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.6) - 2023-12-04
 
-No significant changes.
-
+- uping gdsfactory upper bound [#266](https://github.com/gdsfactory/gplugins/pull/266)
 
 ## [0.9.5](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.5) - 2023-12-03
 
