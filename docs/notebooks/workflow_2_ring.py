@@ -261,5 +261,3 @@ labels_path = gdspath.with_suffix(".csv")
 gf.labels.write_labels.write_labels_klayout(
     gdspath=gdspath, layer_label="TEXT", prefix=""
 )
-
-# %%
