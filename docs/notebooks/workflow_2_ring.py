@@ -178,13 +178,16 @@ rings = gf.grid([ring_te(radius=r) for r in [10, 20, 50]])
 
 gaps = [210 * nm, 220 * nm, 230 * nm]
 rings_heater = [
-    gf.components.ring_single_heater(gap=0.2, radius=10, length_x=4) for gap in gaps
+    gf.components.ring_single_heater(
+        gap=0.2, radius=10, length_x=4, name=f"ring_heater_{int(gap*1e3)}"
+    )
+    for gap in gaps
 ]
 rings_heater_with_grating_couplers = [
     gf.routing.add_fiber_array(ring) for ring in rings_heater
 ]
 rings_with_pads = [
-    gf.routing.add_electrical_pads_top(ring)
+    gf.routing.add_electrical_pads_top(ring, name=f"{ring.name}_pads")
     for ring in rings_heater_with_grating_couplers
 ]
 
@@ -200,7 +203,7 @@ def reticle(size=(1000, 1000)):
     )
     m.xmin = r.xmax + 10
     m.ymin = r.ymin
-    c << gf.components.seal_ring(c.bbox)
+    _ = c << gf.components.seal_ring(c.bbox)
     return c
 
 
@@ -214,8 +217,9 @@ ring_te = toolz.compose(gf.routing.add_fiber_array, gf.components.ring_single)
 
 gaps = [210 * nm, 220 * nm, 230 * nm]
 rings = gf.grid([ring_te(gap=gap, decorator=gf.labels.add_label_json) for gap in gaps])
+
 rings_heater = [
-    gf.components.ring_single_heater(gap=0.2, radius=10, length_x=4) for gap in gaps
+    gf.components.ring_single_heater(gap=gap, radius=10, length_x=4) for gap in gaps
 ]
 rings_heater_with_grating_couplers = [
     gf.routing.add_fiber_array(ring) for ring in rings_heater
@@ -235,7 +239,7 @@ def reticle(size=(1000, 1000)):
     m = c << gf.pack(rings_with_pads)[0]
     m.xmin = r.xmax + 10
     m.ymin = r.ymin
-    c << gf.components.seal_ring(c.bbox)
+    _ = c << gf.components.seal_ring(c.bbox)
     return c
 
 
@@ -257,3 +261,5 @@ labels_path = gdspath.with_suffix(".csv")
 gf.labels.write_labels.write_labels_klayout(
     gdspath=gdspath, layer_label="TEXT", prefix=""
 )
+
+# %%
