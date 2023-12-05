@@ -27,13 +27,13 @@ from gdsfactory.component import Component
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 from pydantic import NonNegativeFloat
+from tidy3d.components.types import Symmetry
 from tidy3d.plugins.smatrix import ComponentModeler, Port
 
 from gplugins.common.base_models.component import LayeredComponentBase
 from gplugins.tidy3d.get_results import _executor
 from gplugins.tidy3d.types import (
     Sparameters,
-    Symmetry,
     Tidy3DElementMapping,
     Tidy3DMedium,
 )
