@@ -1,13 +1,13 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.9.6...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.9.7...main)
 
 <!-- towncrier release notes start -->
 
 ## [0.9.7](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.7) - 2023-12-05
 
-No significant changes.
-
+- expose symmetry and other tidy3d simulation args [#269](https://github.com/gdsfactory/gplugins/pull/269)
+- Update kfactory[git,ipy] requirement from <0.10,>=0.9.3 to >=0.9.3,<0.11 [#267](https://github.com/gdsfactory/gplugins/pull/267)
 
 ## [0.9.6](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.6) - 2023-12-04
 
