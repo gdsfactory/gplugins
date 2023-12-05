@@ -33,6 +33,7 @@ from gplugins.common.base_models.component import LayeredComponentBase
 from gplugins.tidy3d.get_results import _executor
 from gplugins.tidy3d.types import (
     Sparameters,
+    Symmetry,
     Tidy3DElementMapping,
     Tidy3DMedium,
 )
@@ -180,6 +181,8 @@ class Tidy3DComponent(LayeredComponentBase):
         monitors: tuple[Any, ...] | None = None,
         run_time: float = 10e-12,
         shutoff: float = 1e-5,
+        symmetry: tuple[Symmetry, Symmetry, Symmetry] = (0, 0, 0),
+        **kwargs,
     ) -> td.Simulation:
         """
         Returns a Simulation instance for the component.
@@ -192,6 +195,10 @@ class Tidy3DComponent(LayeredComponentBase):
             monitors (tuple[Any, ...] | None, optional): The monitors for the simulation. If None, no monitors are used. Defaults to None.
             run_time (float, optional): The run time for the simulation. Defaults to 1e-12.
             shutoff (float, optional): The shutoff value for the simulation. Defaults to 1e-5.
+            symmetry (tuple[Symmetry, Symmetry, Symmetry], optional): The symmetry for the simulation. Defaults to (0,0,0).
+
+        Keyword Args:
+            **kwargs: Additional keyword arguments for the Simulation constructor.
 
         Returns:
             td.Simulation: A Simulation instance.
@@ -207,6 +214,8 @@ class Tidy3DComponent(LayeredComponentBase):
             boundary_spec=boundary_spec,
             run_time=run_time,
             shutoff=shutoff,
+            symmetry=symmetry,
+            **kwargs,
         )
         return sim
 
@@ -229,6 +238,8 @@ class Tidy3DComponent(LayeredComponentBase):
         folder_name: str = "default",
         path_dir: str = ".",
         verbose: bool = True,
+        symmetry: tuple[Symmetry, Symmetry, Symmetry] = (0, 0, 0),
+        **kwargs,
     ) -> ComponentModeler:
         """
         Returns a ComponentModeler instance for the component.
@@ -251,6 +262,8 @@ class Tidy3DComponent(LayeredComponentBase):
             folder_name: The folder name for the ComponentModeler. Defaults to "default".
             path_dir: The directory path for the ComponentModeler. Defaults to ".".
             verbose: Whether to print verbose output for the ComponentModeler. Defaults to True.
+            symmetry (tuple[Symmetry, Symmetry, Symmetry], optional): The symmetry for the simulation. Defaults to (0,0,0).
+            kwargs: Additional keyword arguments for the Simulation constructor.
 
         Returns:
             ComponentModeler: A ComponentModeler instance.
@@ -285,6 +298,8 @@ class Tidy3DComponent(LayeredComponentBase):
             monitors=extra_monitors,
             run_time=run_time,
             shutoff=shutoff,
+            symmetry=symmetry,
+            **kwargs,
         )
 
         ports = self.get_ports(mode_spec, port_size_mult)
@@ -421,6 +436,7 @@ def write_sparameters(
     extra_monitors: tuple[Any, ...] | None = None,
     mode_spec: td.ModeSpec = td.ModeSpec(num_modes=1, filter_pol="te"),
     boundary_spec: td.BoundarySpec = td.BoundarySpec.all_sides(boundary=td.PML()),
+    symmetry: tuple[Symmetry, Symmetry, Symmetry] = (0, 0, 0),
     run_time: float = 1e-12,
     shutoff: float = 1e-5,
     folder_name: str = "default",
@@ -435,6 +451,7 @@ def write_sparameters(
     plot_epsilon: bool = False,
     filepath: PathType | None = None,
     overwrite: bool = False,
+    **kwargs,
 ) -> Sparameters:
     """Writes the S-parameters for a component.
 
@@ -463,6 +480,7 @@ def write_sparameters(
         mode_spec: The mode specification for the ComponentModeler. Defaults to td.ModeSpec(num_modes=1, filter_pol="te").
         boundary_spec: The boundary specification for the ComponentModeler.
             Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
+        symmetry (tuple[Symmetry, Symmetry, Symmetry], optional): The symmetry for the simulation. Defaults to (0,0,0).
         run_time: The run time for the ComponentModeler.
         shutoff: The shutoff value for the ComponentModeler. Defaults to 1e-5.
         folder_name: The folder name for the ComponentModeler in flexcompute website. Defaults to "default".
@@ -476,6 +494,7 @@ def write_sparameters(
         plot_mode_port_name: which port name to plot. Defaults to None.
         filepath: Optional file path for the S-parameters. If None, uses hash of simulation.
         overwrite: Whether to overwrite existing S-parameters. Defaults to False.
+        kwargs: Additional keyword arguments for the tidy3d Simulation constructor.
 
     """
     layer_stack = layer_stack or get_layer_stack()
@@ -510,6 +529,8 @@ def write_sparameters(
         shutoff=shutoff,
         folder_name=folder_name,
         verbose=verbose,
+        symmetry=symmetry,
+        **kwargs,
     )
 
     path_dir = pathlib.Path(dirpath) / modeler._hash_self()
@@ -630,6 +651,7 @@ def write_sparameters_batch(
         mode_spec: The mode specification for the ComponentModeler. Defaults to td.ModeSpec(num_modes=1, filter_pol="te").
         boundary_spec: The boundary specification for the ComponentModeler.
             Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
+        symmetry (tuple[Symmetry, Symmetry, Symmetry], optional): The symmetry for the simulation. Defaults to (0,0,0).
         run_time: The run time for the ComponentModeler. Defaults to 1e-12.
         shutoff: The shutoff value for the ComponentModeler. Defaults to 1e-5.
         folder_name: The folder name for the ComponentModeler in flexcompute website. Defaults to "default".
@@ -643,6 +665,7 @@ def write_sparameters_batch(
         plot_mode_port_name: which port name to plot. Defaults to None.
         filepath: Optional file path for the S-parameters. If None, uses hash of simulation.
         overwrite: Whether to overwrite existing S-parameters. Defaults to False.
+        kwargs: Additional keyword arguments for the tidy3d Simulation constructor.
     """
     kwargs.update(verbose=False)
     return [_executor.submit(write_sparameters, **job, **kwargs) for job in jobs]
