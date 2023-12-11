@@ -133,6 +133,7 @@ class Tidy3DComponent(LayeredComponentBase):
         mode_spec: td.ModeSpec,
         size_mult: float | tuple[float, float] = (4.0, 2.0),
         cz: float | None = None,
+        grid_eps: float | None = None,
     ) -> list[Port]:
         """
         Returns a list of Port instances for each optical port in the component.
@@ -141,6 +142,7 @@ class Tidy3DComponent(LayeredComponentBase):
             mode_spec (td.ModeSpec): The mode specification for the ports.
             size_mult (float | tuple[float, float], optional): The size multiplier for the ports. Defaults to (4.0, 2.0).
             cz (float | None, optional): The z-coordinate for the ports. If None, the z-coordinate of the component is used. Defaults to None.
+            grid_eps (float | None, optional): Rounding tolerance for port coordinates. If None, the coordinates are not rounded. Defaults to None.
 
         Returns:
             list[Port]: A list of Port instances.
@@ -161,9 +163,12 @@ class Tidy3DComponent(LayeredComponentBase):
                     size[2] = size_mult[1] * port.width
             size[axis] = 0
 
+            if grid_eps is not None:
+                center = np.round(center, abs(int(np.log10(grid_eps))))
+
             ports.append(
                 Port(
-                    center=center,
+                    center=tuple(center),
                     size=tuple(size),
                     direction=direction,
                     mode_spec=mode_spec,
@@ -235,6 +240,7 @@ class Tidy3DComponent(LayeredComponentBase):
         boundary_spec: td.BoundarySpec = td.BoundarySpec.all_sides(boundary=td.PML()),
         run_time: float = 10e-12,
         shutoff: float = 1e-5,
+        grid_eps: float = 1e-6,
         folder_name: str = "default",
         path_dir: str = ".",
         verbose: bool = True,
@@ -259,6 +265,7 @@ class Tidy3DComponent(LayeredComponentBase):
             boundary_spec: The boundary specification for the ComponentModeler. Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
             run_time: The run time for the ComponentModeler.
             shutoff: The shutoff value for the ComponentModeler. Defaults to 1e-5.
+            grid_eps: Rounding tolerance for coordinates, e.g. port locations and layer centers (μm).
             folder_name: The folder name for the ComponentModeler. Defaults to "default".
             path_dir: The directory path for the ComponentModeler. Defaults to ".".
             verbose: Whether to print verbose output for the ComponentModeler. Defaults to True.
@@ -278,6 +285,8 @@ class Tidy3DComponent(LayeredComponentBase):
                 cz = np.mean(list({c[2] for c in self.port_centers}))
             case _:
                 raise ValueError(f"Invalid center_z: {center_z}")
+
+        cz = np.round(cz, abs(int(np.log10(grid_eps)))).item()
 
         freqs = td.C_0 / np.linspace(
             wavelength - bandwidth / 2, wavelength + bandwidth / 2, num_freqs
@@ -302,7 +311,7 @@ class Tidy3DComponent(LayeredComponentBase):
             **kwargs,
         )
 
-        ports = self.get_ports(mode_spec, port_size_mult)
+        ports = self.get_ports(mode_spec, port_size_mult, grid_eps=grid_eps)
 
         modeler = ComponentModeler(
             simulation=sim,
