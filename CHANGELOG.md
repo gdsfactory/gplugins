@@ -1,12 +1,12 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.9.7...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.9.8...main)
 
 <!-- towncrier release notes start -->
 
 ## [0.9.8](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.8) - 2023-12-11
 
-No significant changes.
+- Round port locations and layer centers to one picometer by default [#273](https://github.com/gdsfactory/gplugins/pull/273)
 
 
 ## [0.9.7](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.7) - 2023-12-05
