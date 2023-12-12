@@ -979,9 +979,7 @@ plt.show()
 
 # %%
 delta_length = 10
-mzi_component = gf.components.mzi_phase_shifter_top_heater_metal(
-    delta_length=delta_length
-)
+mzi_component = gf.components.mzi_phase_shifter(delta_length=delta_length)
 mzi_component.plot()
 
 
@@ -1036,9 +1034,7 @@ models = {
 }
 
 # %%
-mzi_component = gf.components.mzi_phase_shifter_top_heater_metal(
-    delta_length=delta_length
-)
+mzi_component = gf.components.mzi_phase_shifter(delta_length=delta_length)
 netlist = sax.netlist(mzi_component.get_netlist())
 
 # %%
