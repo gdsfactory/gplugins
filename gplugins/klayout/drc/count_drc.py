@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pathlib
 
+import yaml
 from klayout import rdb
 
 PathType = pathlib.Path | str
@@ -24,7 +25,7 @@ def count_drc(rdb_path: PathType, threshold: int = 0) -> dict[str, int]:
 
     if rdb_path.is_dir():
         for rdb_file in rdb_path.glob("*.rdb"):
-            errors_dict.update(count_drc(rdb_file))
+            errors_dict[rdb_file.stem] = count_drc(rdb_file)
 
     else:
         r = rdb.ReportDatabase()
@@ -39,21 +40,32 @@ def count_drc(rdb_path: PathType, threshold: int = 0) -> dict[str, int]:
             if errors > threshold:
                 errors_dict[category.name()] = errors
 
-    return dict(sorted(errors_dict.items(), key=lambda item: item[1], reverse=True))
+        return dict(sorted(errors_dict.items(), key=lambda item: item[1], reverse=True))
+    return errors_dict
+
+
+def write_count_drc(rdb_path: PathType, filepath: PathType, theshold: int = 0) -> None:
+    """Write DRC report to YAML.
+
+    Args:
+        rdb_path: Path to rdb file or directory of rdb files.
+        filepath: Path to output YAML file.
+        threshold: Minimum number of errors to be included in the output.
+
+    """
+    data = count_drc(rdb_path=rdb_path, threshold=theshold)
+    with open(filepath, "w") as file:
+        yaml.dump(data, file, default_flow_style=False)
 
 
 if __name__ == "__main__":
-    import matplotlib.pyplot as plt
+    # import matplotlib.pyplot as plt
 
-    rdb_path = pathlib.Path("/home/jmatres/Downloads/demo.rdb")
+    rdb_path = pathlib.Path("/home/jmatres/Downloads/demo")
     errors = count_drc(rdb_path, threshold=100)
 
-    plt.bar(errors.keys(), errors.values())
-
-    # Adding titles and labels
-    plt.title("Histogram of Data")
-    plt.xlabel("Categories")
-    plt.ylabel("Errors")
-    plt.show()
-
-    # error_count = count_drc(rdb_path)
+    # plt.bar(errors.keys(), errors.values())
+    # plt.title("Histogram of Data")
+    # plt.xlabel("Categories")
+    # plt.ylabel("Errors")
+    # plt.show()
