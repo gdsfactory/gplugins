@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pathlib
 
+import matplotlib.pyplot as plt
 import yaml
 from klayout import rdb
 
@@ -33,18 +34,22 @@ def count_drc(rdb_path: PathType, threshold: int = 0) -> dict[str, int]:
 
         categories = {cat.rdb_id(): cat for cat in r.each_category()}
 
+        errors_total = 0
+
         for category_id, category in categories.items():
             errors_per_category = r.each_item_per_category(category_id)
             errors = len(list(errors_per_category))
+            errors_total += errors
 
             if errors > threshold:
                 errors_dict[category.name()] = errors
 
+        errors_dict["total"] = errors_total
         return dict(sorted(errors_dict.items(), key=lambda item: item[1], reverse=True))
     return errors_dict
 
 
-def write_count_drc(rdb_path: PathType, filepath: PathType, theshold: int = 0) -> None:
+def write_yaml(rdb_path: PathType, filepath: PathType, theshold: int = 0) -> None:
     """Write DRC report to YAML.
 
     Args:
@@ -58,14 +63,28 @@ def write_count_drc(rdb_path: PathType, filepath: PathType, theshold: int = 0) -
         yaml.dump(data, file, default_flow_style=False)
 
 
+def plot_drc(errors: dict[str, int]) -> None:
+    """Plot DRC errors.
+
+    Args:
+        errors: Dict of error names to number of errors.
+    """
+
+    plt.bar(errors.keys(), errors.values())
+    plt.title("DRC Errors")
+    plt.xlabel("Categories")
+    plt.ylabel("Error count")
+    plt.show()
+
+
 if __name__ == "__main__":
-    # import matplotlib.pyplot as plt
+    import argparse
 
-    rdb_path = pathlib.Path("/home/jmatres/Downloads/demo")
-    errors = count_drc(rdb_path, threshold=100)
+    parser = argparse.ArgumentParser(description="Count DRC errors.")
+    parser.add_argument("rdb_path", help="Path to rdb file or directory of rdb files.")
+    parser.add_argument("filepath", help="Path to output YAML file.")
 
-    # plt.bar(errors.keys(), errors.values())
-    # plt.title("Histogram of Data")
-    # plt.xlabel("Categories")
-    # plt.ylabel("Errors")
-    # plt.show()
+    write_yaml(**vars(parser.parse_args()))
+
+    # rdb_path = pathlib.Path("/home/jmatres/Downloads/demo")
+    # errors = count_drc(rdb_path, threshold=100)
