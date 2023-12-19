@@ -1,13 +1,16 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.9.8...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.9.9...main)
 
 <!-- towncrier release notes start -->
 
 ## [0.9.9](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.9) - 2023-12-19
 
-No significant changes.
-
+- [pre-commit.ci] pre-commit autoupdate [#282](https://github.com/gdsfactory/gplugins/pull/282)
+- Add drc counter [#280](https://github.com/gdsfactory/gplugins/pull/280)
+- Bump tidy3d from 2.5.0rc3 to 2.5.0 [#278](https://github.com/gdsfactory/gplugins/pull/278)
+- fix docs  [#276](https://github.com/gdsfactory/gplugins/pull/276)
+- [pre-commit.ci] pre-commit autoupdate [#274](https://github.com/gdsfactory/gplugins/pull/274)
 
 ## [0.9.8](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.8) - 2023-12-11
 
