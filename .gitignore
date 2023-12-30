@@ -12,7 +12,6 @@ docs/notebooks/batch-*
 *.hdf5
 *.msh
 *.dat
-*.ipynb
 *.gds
 *.pkl
 *.txt
@@ -51,7 +50,6 @@ share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-*.ipynb
 MANIFEST
 
 # PyInstaller
