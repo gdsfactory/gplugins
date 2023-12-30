@@ -23,7 +23,7 @@ license = {file = "LICENSE"}
 name = "gplugins"
 readme = "README.md"
 requires-python = ">=3.10"
-version = "0.9.8"
+version = "0.9.9"
 
 [project.optional-dependencies]
 dagster = ["dagster", "dagit"]
@@ -44,7 +44,7 @@ dev = [
 devsim = [
   "devsim",
   "pyvista<=0.40",
-  "tidy3d==2.5.0rc3"
+  "tidy3d==2.5.0"
 ]
 docs = [
   "jupytext",
@@ -75,7 +75,7 @@ meow = [
   "jaxlib",
   "jax",
   "meow-sim>0.8,<0.9",
-  "tidy3d==2.5.0rc3"
+  "tidy3d==2.5.0"
 ]
 sax = [
   "jaxlib",
@@ -88,7 +88,7 @@ schematic = [
   "natsort"
 ]
 tidy3d = [
-  "tidy3d==2.5.0rc3",
+  "tidy3d==2.5.0",
   "meshio",
   "meshwell>=1.0.0,<1.1"
 ]
@@ -208,7 +208,7 @@ message_template = "Bump to {new_version}"
 tag_template = "v{new_version}"
 
 [tool.tbump.version]
-current = "0.9.8"
+current = "0.9.9"
 regex = '''
   (?P<major>\d+)
   \.
