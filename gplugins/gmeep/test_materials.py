@@ -71,5 +71,5 @@ def test_materials_override_complex() -> None:
 
 
 if __name__ == "__main__":
-    # test_materials_override()
-    test_materials_override_complex()
+    test_materials_override()
+    # test_materials_override_complex()
