@@ -15,6 +15,8 @@ docs/notebooks/batch-*
 *.gds
 *.pkl
 *.txt
+*.csv
+*.html
 test-data/
 _autosummary/
 gplugins/path_length_analysis/test_pathlength_reporting/

@@ -241,8 +241,12 @@ def _get_edge_based_route_attr_graph(
     for inst_name in netlist["instances"]:
         ref = component.named_references[inst_name]
         inst_refs[inst_name] = ref
-        if "route_info" in ref.parent.info:
-            inst_route_attrs[inst_name] = ref.parent.info["route_info"]
+        info = ref.parent.info.model_dump()
+        if "route_info_length" in info:
+            inst_route_attrs[inst_name] = dict()
+            for key, value in info.items():
+                if key.startswith("route_info"):
+                    inst_route_attrs[inst_name].update({key: value})
         for port_name, port in ref.ports.items():
             ploc = port.center
             pname = f"{inst_name},{port_name}"
@@ -345,10 +349,10 @@ def get_edge_based_route_attr_graph(
     from gdsfactory.get_netlist import get_netlist, get_netlist_recursive
 
     if recursive:
-        netlists = get_netlist_recursive(pic, component_suffix="", full_settings=True)
+        netlists = get_netlist_recursive(pic, component_suffix="")
         netlist = netlists[pic.name]
     else:
-        netlist = get_netlist(pic, full_settings=True)
+        netlist = get_netlist(pic)
         netlists = None
 
     return _get_edge_based_route_attr_graph(
