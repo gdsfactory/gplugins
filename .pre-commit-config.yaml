@@ -46,3 +46,14 @@ repos:
         types: [file]
         files: \.(j2|yml|yaml)$
         exclude: .github/.*|web|elmer
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.6.1
+    hooks:
+      - id: nbstripout
+        files: ".ipynb"
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.6
+    hooks:
+      - id: codespell
+        additional_dependencies:
+          - tomli
