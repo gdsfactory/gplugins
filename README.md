@@ -41,7 +41,7 @@ pip install "gplugins[devsim,femwell,gmsh,schematic,meow,meshwell,ray,sax,tidy3d
 Or install only the plugins you need. For example:
 
 ```bash
-pip install gplugins[schematic,femwell,meow,sax,tidy3d]`
+pip install "gplugins[schematic,femwell,meow,sax,tidy3d]" --upgrade
 
 ```
 
