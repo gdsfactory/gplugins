@@ -1,3 +1,4 @@
+schema: null
 instances:
   mmi1:
     component: mmi1x2
@@ -7,10 +8,12 @@ instances:
     settings: {gap_mmi: 0.7}
   s1:
     component: straight
-    settings: {length: 20}
+    settings: {length: 20, npoints: 2, layer: null, width: null, add_pins: true, cross_section: xs_sc,
+      add_bbox: null}
   s2:
     component: straight
-    settings: {length: 40}
+    settings: {length: 40, npoints: 2, layer: null, width: null, add_pins: true, cross_section: xs_sc,
+      add_bbox: null}
 schematic_placements:
   mmi1: {x: null, y: null, port: null, rotation: 0.0, dx: -22.832156230736544, dy: -0.9358105716724547,
     mirror: null}
@@ -26,3 +29,4 @@ nets:
 - ['mmi1,o3', 's2,o1']
 - ['mmi2,o1', 's2,o2']
 ports: {o1: 'mmi1,o1', o2: 'mmi2,o3', o3: 'mmi2,o4'}
+schema_version: 1
