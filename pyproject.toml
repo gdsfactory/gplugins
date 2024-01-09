@@ -15,7 +15,8 @@ classifiers = [
 ]
 dependencies = [
   "gdsfactory>=7.10.1",
-  "pint"
+  "pint",
+  "tqdm",
 ]
 description = "gdsfactory plugins"
 keywords = ["python"]
