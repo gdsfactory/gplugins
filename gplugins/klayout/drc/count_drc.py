@@ -49,7 +49,7 @@ def count_drc(rdb_path: PathType, threshold: int = 0) -> dict[str, int]:
     return errors_dict
 
 
-def write_yaml(rdb_path: PathType, filepath: PathType, theshold: int = 0) -> None:
+def write_yaml(rdb_path: PathType, filepath: PathType, threshold: int = 0) -> None:
     """Write DRC report to YAML.
 
     Args:
@@ -58,7 +58,7 @@ def write_yaml(rdb_path: PathType, filepath: PathType, theshold: int = 0) -> Non
         threshold: Minimum number of errors to be included in the output.
 
     """
-    data = count_drc(rdb_path=rdb_path, threshold=theshold)
+    data = count_drc(rdb_path=rdb_path, threshold=threshold)
     with open(filepath, "w") as file:
         yaml.dump(data, file, default_flow_style=False)
 

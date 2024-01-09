@@ -19,10 +19,10 @@ if not results_dir.is_dir():
 @pytest.mark.parametrize("component_name", primitive_components)
 def test_primitives_have_route_info(component_name) -> None:
     c = gf.get_component(component_name)
-    assert "route_info" in c.info
-    assert "length" in c.info
-    assert c.info["length"] > 0
-    assert c.info["route_info"]["length"] == c.info["length"]
+    info = c.info.model_dump()
+    assert "route_info_length" in info
+    assert c.info["route_info_length"] > 0
+    assert c.info["route_info_length"] == c.info["length"]
 
 
 @pytest.mark.parametrize("cross_section", supported_cross_sections)
@@ -43,8 +43,10 @@ def test_pathlength_extraction(cross_section) -> None:
     report_pathlengths(c, result_dir=results_dir)
     data = pd.read_csv(results_dir / f"{component_name}.pathlengths.csv")
     assert data.shape[0] == 1
-    assert data["length"][0] == expected_total_length
-    assert data[f"{cross_section.lower()}_length"][0] == expected_total_length
+    assert data["route_info_length"][0] == expected_total_length
+    assert (
+        data[f"route_info_{cross_section.lower()}_length"][0] == expected_total_length
+    )
     src_inst = data["src_inst"][0]
     dst_int = data["dst_inst"][0]
     assert {src_inst, dst_int} == {"s0", f"s{len(lengths) - 1}"}
@@ -72,7 +74,7 @@ def test_multi_path_extraction() -> None:
     report_pathlengths(c, result_dir=results_dir)
     data = pd.read_csv(results_dir / f"{component_name}.pathlengths.csv")
     assert data.shape[0] == 2
-    extracted_lengths = data["length"].to_list()
+    extracted_lengths = data["route_info_length"].to_list()
     assert set(extracted_lengths) == {expected_total_length1, expected_total_length2}
 
 
@@ -121,8 +123,10 @@ def test_hierarchical_pathlength_extraction() -> None:
     report_pathlengths(c, result_dir=results_dir)
     data = pd.read_csv(results_dir / f"{component_name}.pathlengths.csv")
     assert data.shape[0] == 1
-    assert data["length"][0] == expected_total_length
-    assert data[f"{cross_section.lower()}_length"][0] == expected_total_length
+    assert data["route_info_length"][0] == expected_total_length
+    assert (
+        data[f"route_info_{cross_section.lower()}_length"][0] == expected_total_length
+    )
     src_inst = data["src_inst"][0]
     dst_int = data["dst_inst"][0]
     assert {src_inst, dst_int} == {"istart", "iend"}
@@ -151,8 +155,10 @@ def test_transformed_hierarchical_pathlength_extraction() -> None:
     report_pathlengths(c, result_dir=results_dir)
     data = pd.read_csv(results_dir / f"{component_name}.pathlengths.csv")
     assert data.shape[0] == 1
-    assert data["length"][0] == expected_total_length
-    assert data[f"{cross_section.lower()}_length"][0] == expected_total_length
+    assert data["route_info_length"][0] == expected_total_length
+    assert (
+        data[f"route_info_{cross_section.lower()}_length"][0] == expected_total_length
+    )
     src_inst = data["src_inst"][0]
     dst_int = data["dst_inst"][0]
     assert {src_inst, dst_int} == {"istart", "iend"}
