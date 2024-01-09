@@ -241,8 +241,12 @@ def _get_edge_based_route_attr_graph(
     for inst_name in netlist["instances"]:
         ref = component.named_references[inst_name]
         inst_refs[inst_name] = ref
-        if "route_info" in ref.parent.info:
-            inst_route_attrs[inst_name] = ref.parent.info["route_info"]
+        info = ref.parent.info.model_dump()
+        if "route_info_length" in info:
+            inst_route_attrs[inst_name] = dict()
+            for key, value in info.items():
+                if key.startswith("route_info"):
+                    inst_route_attrs[inst_name].update({key: value})
         for port_name, port in ref.ports.items():
             ploc = port.center
             pname = f"{inst_name},{port_name}"
@@ -345,10 +349,10 @@ def get_edge_based_route_attr_graph(
     from gdsfactory.get_netlist import get_netlist, get_netlist_recursive
 
     if recursive:
-        netlists = get_netlist_recursive(pic, component_suffix="", full_settings=True)
+        netlists = get_netlist_recursive(pic, component_suffix="")
         netlist = netlists[pic.name]
     else:
-        netlist = get_netlist(pic, full_settings=True)
+        netlist = get_netlist(pic)
         netlists = None
 
     return _get_edge_based_route_attr_graph(
@@ -436,13 +440,13 @@ def get_pathlength_widgets(
         "dst_port": [],
         "xs": [],
         "ys": [],
-        "rib_length": [],
-        "length": [],
-        "strip_length": [],
-        "r2s_length": [],
-        "m2_length": [],
+        "route_info_xs_rc_length": [],
+        "route_info_length": [],
+        "route_info_xs_sc_length": [],
+        "route_info_r2s_length": [],
+        "route_info_m2_length": [],
         "color": [],
-        "n_bend_90": [],
+        "route_info_n_bend_90": [],
     }
     for i, path in enumerate(paths):
         if "dst_node" in path:
@@ -498,12 +502,13 @@ def get_pathlength_widgets(
         TableColumn(field="src_port", title="Port"),
         TableColumn(field="dst_inst", title="Dest"),
         TableColumn(field="dst_port", title="Port"),
-        TableColumn(field="length", title="Length"),
+        TableColumn(field="route_info_length", title="Length"),
     ]
     columns.extend(
-        TableColumn(field=f"{cs_name}_length", title=cs_name) for cs_name in cs_colors
+        TableColumn(field=f"route_info_{cs_name}_length", title=cs_name)
+        for cs_name in cs_colors
     )
-    columns.append(TableColumn(field="n_bend_90", title="# bend90"))
+    columns.append(TableColumn(field="route_info_n_bend_90", title="# bend90"))
     table = DataTable(
         source=paths_ds,
         columns=columns,
@@ -518,7 +523,7 @@ def get_pathlength_widgets(
         tooltips=[
             ("Start", "@start_name"),
             ("End", "@end_name"),
-            ("Length", "@length"),
+            ("Length", "@route_info_length"),
         ],
         renderers=[graph_renderer.edge_renderer],
         anchor="center",

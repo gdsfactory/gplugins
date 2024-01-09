@@ -1,4 +1,4 @@
-# gplugins 0.9.9
+# gplugins 0.9.11
 
 [![docs](https://github.com/gdsfactory/gplugins/actions/workflows/pages.yml/badge.svg)](https://gdsfactory.github.io/gplugins/)
 [![PyPI](https://img.shields.io/pypi/v/gplugins)](https://pypi.org/project/gplugins/)
@@ -41,7 +41,7 @@ pip install "gplugins[devsim,femwell,gmsh,schematic,meow,meshwell,ray,sax,tidy3d
 Or install only the plugins you need. For example:
 
 ```bash
-pip install gplugins[schematic,femwell,meow,sax,tidy3d]`
+pip install "gplugins[schematic,femwell,meow,sax,tidy3d]" --upgrade
 
 ```
 
