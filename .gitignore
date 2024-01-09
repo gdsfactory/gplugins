@@ -12,10 +12,11 @@ docs/notebooks/batch-*
 *.hdf5
 *.msh
 *.dat
-*.ipynb
 *.gds
 *.pkl
 *.txt
+*.csv
+*.html
 test-data/
 _autosummary/
 gplugins/path_length_analysis/test_pathlength_reporting/
@@ -51,7 +52,6 @@ share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-*.ipynb
 MANIFEST
 
 # PyInstaller
