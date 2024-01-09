@@ -440,13 +440,13 @@ def get_pathlength_widgets(
         "dst_port": [],
         "xs": [],
         "ys": [],
-        "rib_length": [],
-        "length": [],
-        "strip_length": [],
-        "r2s_length": [],
-        "m2_length": [],
+        "route_info_xs_rc_length": [],
+        "route_info_length": [],
+        "route_info_xs_sc_length": [],
+        "route_info_r2s_length": [],
+        "route_info_m2_length": [],
         "color": [],
-        "n_bend_90": [],
+        "route_info_n_bend_90": [],
     }
     for i, path in enumerate(paths):
         if "dst_node" in path:
@@ -502,12 +502,13 @@ def get_pathlength_widgets(
         TableColumn(field="src_port", title="Port"),
         TableColumn(field="dst_inst", title="Dest"),
         TableColumn(field="dst_port", title="Port"),
-        TableColumn(field="length", title="Length"),
+        TableColumn(field="route_info_length", title="Length"),
     ]
     columns.extend(
-        TableColumn(field=f"{cs_name}_length", title=cs_name) for cs_name in cs_colors
+        TableColumn(field=f"route_info_{cs_name}_length", title=cs_name)
+        for cs_name in cs_colors
     )
-    columns.append(TableColumn(field="n_bend_90", title="# bend90"))
+    columns.append(TableColumn(field="route_info_n_bend_90", title="# bend90"))
     table = DataTable(
         source=paths_ds,
         columns=columns,
@@ -522,7 +523,7 @@ def get_pathlength_widgets(
         tooltips=[
             ("Start", "@start_name"),
             ("End", "@end_name"),
-            ("Length", "@length"),
+            ("Length", "@route_info_length"),
         ],
         renderers=[graph_renderer.edge_renderer],
         anchor="center",
