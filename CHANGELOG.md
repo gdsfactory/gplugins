@@ -1,13 +1,12 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.9.10...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.9.11...main)
 
 <!-- towncrier release notes start -->
 
 ## [0.9.11](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.11) - 2024-01-09
 
-No significant changes.
-
+- fix path_length_analysis [#293](https://github.com/gdsfactory/gplugins/pull/293)
 
 ## [0.9.10](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.10) - 2024-01-07
 
