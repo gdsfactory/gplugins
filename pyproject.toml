@@ -57,7 +57,7 @@ femwell = [
   "meshwell>=1.0.0,<1.1"
 ]
 gmsh = [
-  "gmsh==4.11.1",
+  "gmsh==4.12.1",
   "h5py",
   "mapbox_earcut",
   "meshio",
