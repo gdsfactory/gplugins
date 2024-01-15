@@ -15,7 +15,8 @@ classifiers = [
 ]
 dependencies = [
   "gdsfactory>=7.10.1",
-  "pint"
+  "pint",
+  "tqdm"
 ]
 description = "gdsfactory plugins"
 keywords = ["python"]
@@ -44,7 +45,7 @@ dev = [
 devsim = [
   "devsim",
   "pyvista<=0.40",
-  "tidy3d==2.5.1"
+  "tidy3d==2.5.2"
 ]
 docs = [
   "jupytext",
@@ -75,7 +76,7 @@ meow = [
   "jaxlib",
   "jax",
   "meow-sim>0.8,<0.9",
-  "tidy3d==2.5.1"
+  "tidy3d==2.5.2"
 ]
 sax = [
   "jaxlib",
@@ -88,7 +89,7 @@ schematic = [
   "natsort"
 ]
 tidy3d = [
-  "tidy3d==2.5.1",
+  "tidy3d==2.5.2",
   "meshio",
   "meshwell>=1.0.0,<1.1"
 ]
