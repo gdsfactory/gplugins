@@ -81,7 +81,7 @@ meow = [
 sax = [
   "jaxlib",
   "jax",
-  "sax>=0.10.3,<0.11.0",
+  "sax>=0.10.3,<0.12.0",
   "scikit-learn"
 ]
 schematic = [
