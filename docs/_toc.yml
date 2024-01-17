@@ -35,7 +35,7 @@ parts:
       - file: plugins_fdtd
         sections:
           - file: notebooks/tidy3d_00_tidy3d
-          - file: notebooks/fdtdz_01.py
+          - file: notebooks/fdtdz_01
           - file: notebooks/meep_01_sparameters
           - file: notebooks/meep_02_gratings
           - file: notebooks/meep_03_fields
@@ -54,7 +54,7 @@ parts:
       - file: notebooks/klayout_drc
       - file: notebooks/11_get_netlist
       - file: notebooks/11_get_netlist_spice
-      - file: notebooks/path_length_analysis.py
+      - file: notebooks/path_length_analysis
   - caption: Workflows
     chapters:
       - file: workflow
