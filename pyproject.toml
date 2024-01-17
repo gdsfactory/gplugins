@@ -97,26 +97,6 @@ vlsir = [
   "vlsirtools>=4.0.0,<6.0.0"
 ]
 
-[tool.black]
-exclude = '''  # Specify the files/dirs that should be ignored by the black formatter
-/(
-    \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | env
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
-include = '\.pyi?$'
-line-length = 88
-target-version = ['py310']
-
 [tool.codespell]
 ignore-words-list = 'te, te/tm, te, ba, fpr, fpr_spacing, ro, nd, donot, schem, Ue'
 skip = 'notebooks/palace_02_fullwave.ipynb'
@@ -129,6 +109,9 @@ strict = true
 enabled = true
 live_mode = true
 strict = true
+
+[tool.pyright]
+reportUnusedExpression = false
 
 [tool.pytest.ini_options]
 addopts = '--tb=short'
