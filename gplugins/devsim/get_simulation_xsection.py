@@ -23,7 +23,7 @@ from devsim.python_packages import model_create, simple_physics
 from pydantic import BaseModel, ConfigDict
 from scipy.interpolate import griddata
 
-from gplugins.common.utils.disable_print import disable_print, enable_print
+from gplugins.common.utils.disable_print import DisablePrint
 from gplugins.tidy3d.materials import get_nk
 from gplugins.tidy3d.modes import Precision, Waveguide
 
@@ -471,9 +471,8 @@ class PINWaveguide(BaseModel):
         )  # , scalar_bar_args=sargs)
         _ = plotter.show_grid()
         _ = plotter.camera_position = "xy"
-        disable_print()
-        _ = plotter.show(jupyter_backend=jupyter_backend)
-        enable_print()
+        with DisablePrint():
+            _ = plotter.show(jupyter_backend=jupyter_backend)
 
     def list_fields(self, tempfile="temp.dat"):
         """Returns the header of the mesh, which lists all possible fields."""

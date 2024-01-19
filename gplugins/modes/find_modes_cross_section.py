@@ -21,7 +21,7 @@ from gdsfactory.config import PATH
 from gdsfactory.typings import CrossSectionSpec, PathType
 from meep import mpb
 
-from gplugins.common.utils.disable_print import disable_print, enable_print
+from gplugins.common.utils.disable_print import DisablePrint
 from gplugins.common.utils.get_sparameters_path import get_kwargs_hash
 from gplugins.modes.get_mode_solver_cross_section import (
     get_mode_solver_cross_section,
@@ -108,22 +108,21 @@ def find_modes_cross_section(
             return modes
 
     # Output the x component of the Poynting vector for mode_number bands at omega
-    disable_print()
-    k = mode_solver.find_k(
-        parity,
-        omega,
-        mode_number,
-        mode_number + nmodes,
-        mp.Vector3(1),
-        tol,
-        omega * 2.02,
-        omega * 0.01,
-        omega * 10,
-        # mpb.output_poynting_x,
-        mpb.display_yparities,
-        mpb.display_group_velocities,
-    )
-    enable_print()
+    with DisablePrint():
+        k = mode_solver.find_k(
+            parity,
+            omega,
+            mode_number,
+            mode_number + nmodes,
+            mp.Vector3(1),
+            tol,
+            omega * 2.02,
+            omega * 0.01,
+            omega * 10,
+            # mpb.output_poynting_x,
+            mpb.display_yparities,
+            mpb.display_group_velocities,
+        )
     neff = np.array(k) * wavelength
 
     # vg = mode_solver.compute_group_velocities()
