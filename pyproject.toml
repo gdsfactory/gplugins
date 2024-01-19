@@ -75,13 +75,13 @@ klayout = [
 meow = [
   "jaxlib",
   "jax",
-  "meow-sim>0.8,<0.9",
+  "meow-sim>=0.9.0,<0.10.0",
   "tidy3d==2.5.2"
 ]
 sax = [
   "jaxlib",
   "jax",
-  "sax>=0.10.3,<0.11.0",
+  "sax>=0.11.1,<0.12.0",
   "scikit-learn"
 ]
 schematic = [
