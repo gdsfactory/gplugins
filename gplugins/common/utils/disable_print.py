@@ -9,7 +9,7 @@ class DisablePrint:
     def __init__(self):
         self.output = sys.stdout
 
-    def __enter__(self) -> "DisablePrint":
+    def __enter__(self) -> DisablePrint:
         sys.stdout = open(os.devnull, "w")
         return self
 
