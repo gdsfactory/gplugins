@@ -75,7 +75,7 @@ klayout = [
 meow = [
   "jaxlib",
   "jax",
-  "meow-sim>0.8,<0.9",
+  "meow-sim>0.8,<0.10",
   "tidy3d==2.5.2"
 ]
 sax = [
