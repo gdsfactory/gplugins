@@ -66,7 +66,7 @@ class Tidy3DComponent(LayeredComponentBase):
         dilation (float): Dilation of the polygon in the base by shifting each edge along its
             normal outwards direction by a distance;
             a negative value corresponds to erosion. Defaults to zero.
-       reference_plane (Literal["bottom", "middle", "top"]): the reference plane 
+       reference_plane (Literal["bottom", "middle", "top"]): the reference plane
            used by tidy3d's PolySlab when applying sidewall_angle to a layer
     """
 
