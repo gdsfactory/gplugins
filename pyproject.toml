@@ -50,7 +50,7 @@ devsim = [
 docs = [
   "jupytext",
   "matplotlib",
-  "jupyter-book==0.15.1",
+  "jupyter-book==1.0.0",
   "pyvista[jupyter]<=0.40"
 ]
 femwell = [
