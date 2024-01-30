@@ -18,7 +18,7 @@ import pathlib
 import time
 from collections.abc import Awaitable
 from functools import cached_property
-from typing import Any
+from typing import Any, Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -66,6 +66,8 @@ class Tidy3DComponent(LayeredComponentBase):
         dilation (float): Dilation of the polygon in the base by shifting each edge along its
             normal outwards direction by a distance;
             a negative value corresponds to erosion. Defaults to zero.
+       reference_plane (Literal["bottom", "middle", "top"]): the reference plane
+           used by tidy3d's PolySlab when applying sidewall_angle to a layer
     """
 
     material_mapping: dict[str, Tidy3DMedium] = material_name_to_medium
@@ -76,6 +78,7 @@ class Tidy3DComponent(LayeredComponentBase):
     pad_z_inner: float = 0.0
     pad_z_outer: NonNegativeFloat = 0.0
     dilation: float = 0.0
+    reference_plane: Literal["bottom", "middle", "top"] = "middle"
 
     @cached_property
     def polyslabs(self) -> dict[str, tuple[td.PolySlab, ...]]:
@@ -96,7 +99,7 @@ class Tidy3DComponent(LayeredComponentBase):
                     axis=2,
                     slab_bounds=(bbox[0][2], bbox[1][2]),
                     sidewall_angle=np.deg2rad(layer.sidewall_angle),
-                    reference_plane="middle",
+                    reference_plane=self.reference_plane,
                     dilation=self.dilation,
                 )
                 for v in self.get_vertices(name)
