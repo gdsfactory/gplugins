@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import meshio
 from gdsfactory import Component
 from gdsfactory.typings import ComponentSpec, Layer, LayerStack
@@ -29,6 +31,7 @@ def get_mesh(
     wafer_padding: float = 0.0,
     wafer_layer: Layer = (99999, 0),
     default_characteristic_length=0.5,
+    background_remeshing_file: Path | None = None,
     **kwargs,
 ):
     """Returns a gmsh mesh of the component for finite element simulation.
@@ -43,6 +46,7 @@ def get_mesh(
         xsection_bounds: used to define in-plane line for uz meshing.
         wafer_padding: padding beyond bbox to add to WAFER layers.
         wafer_layer: layer to use for WAFER padding.
+        background_remeshing_file: .pos file to use as a remeshing field. Overrides resolutions if not None.
 
     Keyword Args:
         Arguments for the target meshing function in gplugins.gmsh
@@ -111,6 +115,7 @@ def get_mesh(
             resolutions=new_resolutions,
             layer_physical_map=layer_physical_map,
             layer_meshbool_map=layer_meshbool_map,
+            background_remeshing_file=background_remeshing_file,
             **kwargs,
         )
     elif type == "uz":
@@ -128,6 +133,7 @@ def get_mesh(
             resolutions=new_resolutions,
             layer_physical_map=layer_physical_map,
             layer_meshbool_map=layer_meshbool_map,
+            background_remeshing_file=background_remeshing_file,
             **kwargs,
         )
     elif type == "3D":
@@ -138,6 +144,7 @@ def get_mesh(
             resolutions=new_resolutions,
             layer_physical_map=layer_physical_map,
             layer_meshbool_map=layer_meshbool_map,
+            background_remeshing_file=background_remeshing_file,
             **kwargs,
         )
     else:
