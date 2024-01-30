@@ -25,16 +25,6 @@ class LocalMapping:
     domains: List[Polygon]
 
 
-def validate_mapping(mappings: List[LocalMapping]):
-    old_layers = []
-    for mapping in mappings:
-        layer = mapping.old_layer_name
-        if layer in old_layers:
-            raise ValueError(f"More than one Mapping with old_layer_name = {layer}!")
-        else:
-            old_layers.append(layer)
-
-
 def get_component_with_local_layers(
     component,
     layer_stack,
@@ -50,11 +40,9 @@ def get_component_with_local_layers(
         precision: of the boolean operations.
     """
     # Initialize returned component and layerstack
-    local_component = gf.Component()
+    local_component = component.flatten()
     local_layer_stack = layer_stack.model_copy()
-    all_layers = set(component.get_layers())
 
-    validate_mapping(mappings)
     for mapping in mappings:
         # Create the new layer
         old_layer_number = layer_stack.layers[mapping.old_layer_name].layer
@@ -62,14 +50,12 @@ def get_component_with_local_layers(
         new_layer.layer = mapping.new_layer_number
         local_layer_stack.layers[mapping.new_layer_name] = new_layer
 
-        # Track layers that have been modified
-        all_layers -= {
-            old_layer_number,
-        }
-
         # Assign the polygons
         for domain in mapping.domains:
-            layer_polygons = component.get_polygons(by_spec=True)[old_layer_number]
+            layer_polygons = local_component.get_polygons(by_spec=True)[
+                old_layer_number
+            ]
+            local_component.remove_layers([old_layer_number])
             gds_layer, gds_datatype = _parse_layer(old_layer_number)
             for layer_polygon in layer_polygons:
                 # Polygons inside the domain
@@ -96,12 +82,6 @@ def get_component_with_local_layers(
                     )
                 if p_outside:
                     local_component.add_polygon(p_outside, layer=old_layer_number)
-
-    # Add other layers back untouched
-    for layer in all_layers:
-        layer_polygons = component.get_polygons(by_spec=True)[layer]
-        for layer_polygon in layer_polygons:
-            local_component.add_polygon(layer_polygon, layer=layer)
 
     return local_component, local_layer_stack
 
