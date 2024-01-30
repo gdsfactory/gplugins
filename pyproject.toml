@@ -14,8 +14,9 @@ classifiers = [
   "Operating System :: OS Independent"
 ]
 dependencies = [
-  "gdsfactory[cad]>=7.8.1,<7.9",
-  "pint"
+  "gdsfactory>=7.10.1",
+  "pint",
+  "tqdm"
 ]
 description = "gdsfactory plugins"
 keywords = ["python"]
@@ -23,7 +24,7 @@ license = {file = "LICENSE"}
 name = "gplugins"
 readme = "README.md"
 requires-python = ">=3.10"
-version = "0.9.3"
+version = "0.9.11"
 
 [project.optional-dependencies]
 dagster = ["dagster", "dagit"]
@@ -44,12 +45,12 @@ dev = [
 devsim = [
   "devsim",
   "pyvista<=0.40",
-  "tidy3d==2.5.0rc3"
+  "tidy3d==2.5.2"
 ]
 docs = [
   "jupytext",
   "matplotlib",
-  "jupyter-book==0.15.1",
+  "jupyter-book==1.0.0",
   "pyvista[jupyter]<=0.40"
 ]
 femwell = [
@@ -57,7 +58,7 @@ femwell = [
   "meshwell>=1.0.0,<1.1"
 ]
 gmsh = [
-  "gmsh",
+  "gmsh==4.12.1",
   "h5py",
   "mapbox_earcut",
   "meshio",
@@ -68,19 +69,19 @@ gmsh = [
   "meshwell>=1.0.0,<1.1.0"
 ]
 klayout = [
-  "kfactory[git,ipy]>=0.9.3,<0.10",
+  "kfactory[git,ipy]>=0.9.3,<0.11",
   "pyvis<=0.3.1"
 ]
 meow = [
   "jaxlib",
   "jax",
-  "meow-sim>0.8,<0.9",
-  "tidy3d==2.5.0rc3"
+  "meow-sim>=0.9.0,<0.10.0",
+  "tidy3d==2.5.2"
 ]
 sax = [
   "jaxlib",
   "jax",
-  "sax>=0.10.3,<0.11.0",
+  "sax>=0.11.1,<0.12.0",
   "scikit-learn"
 ]
 schematic = [
@@ -88,7 +89,7 @@ schematic = [
   "natsort"
 ]
 tidy3d = [
-  "tidy3d==2.5.0rc3",
+  "tidy3d==2.5.2",
   "meshio",
   "meshwell>=1.0.0,<1.1"
 ]
@@ -97,28 +98,9 @@ vlsir = [
   "vlsirtools>=4.0.0,<6.0.0"
 ]
 
-[tool.black]
-exclude = '''  # Specify the files/dirs that should be ignored by the black formatter
-/(
-    \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | env
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
-include = '\.pyi?$'
-line-length = 88
-target-version = ['py310']
-
 [tool.codespell]
-ignore-words-list = "te, te/tm, te, ba, fpr, fpr_spacing, ro, nd, donot, schem"
+ignore-words-list = 'te, te/tm, te, ba, fpr, fpr_spacing, ro, nd, donot, schem, Ue'
+skip = 'notebooks/palace_02_fullwave.ipynb'
 
 [tool.mypy]
 python_version = "3.10"
@@ -128,6 +110,9 @@ strict = true
 enabled = true
 live_mode = true
 strict = true
+
+[tool.pyright]
+reportUnusedExpression = false
 
 [tool.pytest.ini_options]
 addopts = '--tb=short'
@@ -207,7 +192,7 @@ message_template = "Bump to {new_version}"
 tag_template = "v{new_version}"
 
 [tool.tbump.version]
-current = "0.9.3"
+current = "0.9.11"
 regex = '''
   (?P<major>\d+)
   \.

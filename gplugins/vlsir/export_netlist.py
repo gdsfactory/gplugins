@@ -19,7 +19,7 @@ from klayout.db import (
     # Pin, # Equivalent to Port
     Net,  # Equivalent to Signal
     Netlist,  # Equivalent to Package
-    SubCircuit,  # Equivalent to Instance witha Reference Module
+    SubCircuit,  # Equivalent to Instance with a Reference Module
 )
 from vlsir.circuit_pb2 import (
     Connection,

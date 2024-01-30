@@ -215,7 +215,9 @@ def get_simulation_grating_fiber(
     fiber_core_material = mp.Medium(index=fiber_core_material)
 
     # Useful reference point
-    grating_start = -fiber_xposition  # Since fiber dominates, keep it centered and offset the grating
+    grating_start = (
+        -fiber_xposition
+    )  # Since fiber dominates, keep it centered and offset the grating
 
     # Initialize domain x-z plane simulation
     cell_size = mp.Vector3(sxy, sz)

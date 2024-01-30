@@ -14,13 +14,11 @@ Functions:
     plot_slice: Plots a cross section of the component at a specified position.
 """
 
-import hashlib
-import io
 import pathlib
 import time
 from collections.abc import Awaitable
 from functools import cached_property
-from typing import Any
+from typing import Any, Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -29,6 +27,7 @@ from gdsfactory.component import Component
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 from pydantic import NonNegativeFloat
+from tidy3d.components.types import Symmetry
 from tidy3d.plugins.smatrix import ComponentModeler, Port
 
 from gplugins.common.base_models.component import LayeredComponentBase
@@ -52,12 +51,6 @@ home = pathlib.Path.home()
 dirpath_default = home / ".gdsfactory" / "sparameters"
 
 
-def hash_simulation(simulation) -> str:
-    bf = io.BytesIO()
-    simulation.to_hdf5(bf)
-    return hashlib.sha256(bf.getvalue()).hexdigest()
-
-
 class Tidy3DComponent(LayeredComponentBase):
     """
     Represents a 3D component in the Tidy3D simulation environment.
@@ -73,6 +66,8 @@ class Tidy3DComponent(LayeredComponentBase):
         dilation (float): Dilation of the polygon in the base by shifting each edge along its
             normal outwards direction by a distance;
             a negative value corresponds to erosion. Defaults to zero.
+       reference_plane (Literal["bottom", "middle", "top"]): the reference plane
+           used by tidy3d's PolySlab when applying sidewall_angle to a layer
     """
 
     material_mapping: dict[str, Tidy3DMedium] = material_name_to_medium
@@ -83,6 +78,7 @@ class Tidy3DComponent(LayeredComponentBase):
     pad_z_inner: float = 0.0
     pad_z_outer: NonNegativeFloat = 0.0
     dilation: float = 0.0
+    reference_plane: Literal["bottom", "middle", "top"] = "middle"
 
     @cached_property
     def polyslabs(self) -> dict[str, tuple[td.PolySlab, ...]]:
@@ -103,7 +99,7 @@ class Tidy3DComponent(LayeredComponentBase):
                     axis=2,
                     slab_bounds=(bbox[0][2], bbox[1][2]),
                     sidewall_angle=np.deg2rad(layer.sidewall_angle),
-                    reference_plane="middle",
+                    reference_plane=self.reference_plane,
                     dilation=self.dilation,
                 )
                 for v in self.get_vertices(name)
@@ -140,6 +136,7 @@ class Tidy3DComponent(LayeredComponentBase):
         mode_spec: td.ModeSpec,
         size_mult: float | tuple[float, float] = (4.0, 2.0),
         cz: float | None = None,
+        grid_eps: float | None = None,
     ) -> list[Port]:
         """
         Returns a list of Port instances for each optical port in the component.
@@ -148,6 +145,7 @@ class Tidy3DComponent(LayeredComponentBase):
             mode_spec (td.ModeSpec): The mode specification for the ports.
             size_mult (float | tuple[float, float], optional): The size multiplier for the ports. Defaults to (4.0, 2.0).
             cz (float | None, optional): The z-coordinate for the ports. If None, the z-coordinate of the component is used. Defaults to None.
+            grid_eps (float | None, optional): Rounding tolerance for port coordinates. If None, the coordinates are not rounded. Defaults to None.
 
         Returns:
             list[Port]: A list of Port instances.
@@ -168,9 +166,12 @@ class Tidy3DComponent(LayeredComponentBase):
                     size[2] = size_mult[1] * port.width
             size[axis] = 0
 
+            if grid_eps is not None:
+                center = np.round(center, abs(int(np.log10(grid_eps))))
+
             ports.append(
                 Port(
-                    center=center,
+                    center=tuple(center),
                     size=tuple(size),
                     direction=direction,
                     mode_spec=mode_spec,
@@ -188,6 +189,8 @@ class Tidy3DComponent(LayeredComponentBase):
         monitors: tuple[Any, ...] | None = None,
         run_time: float = 10e-12,
         shutoff: float = 1e-5,
+        symmetry: tuple[Symmetry, Symmetry, Symmetry] = (0, 0, 0),
+        **kwargs,
     ) -> td.Simulation:
         """
         Returns a Simulation instance for the component.
@@ -200,6 +203,10 @@ class Tidy3DComponent(LayeredComponentBase):
             monitors (tuple[Any, ...] | None, optional): The monitors for the simulation. If None, no monitors are used. Defaults to None.
             run_time (float, optional): The run time for the simulation. Defaults to 1e-12.
             shutoff (float, optional): The shutoff value for the simulation. Defaults to 1e-5.
+            symmetry (tuple[Symmetry, Symmetry, Symmetry], optional): The symmetry for the simulation. Defaults to (0,0,0).
+
+        Keyword Args:
+            **kwargs: Additional keyword arguments for the Simulation constructor.
 
         Returns:
             td.Simulation: A Simulation instance.
@@ -215,6 +222,8 @@ class Tidy3DComponent(LayeredComponentBase):
             boundary_spec=boundary_spec,
             run_time=run_time,
             shutoff=shutoff,
+            symmetry=symmetry,
+            **kwargs,
         )
         return sim
 
@@ -234,9 +243,12 @@ class Tidy3DComponent(LayeredComponentBase):
         boundary_spec: td.BoundarySpec = td.BoundarySpec.all_sides(boundary=td.PML()),
         run_time: float = 10e-12,
         shutoff: float = 1e-5,
+        grid_eps: float = 1e-6,
         folder_name: str = "default",
         path_dir: str = ".",
         verbose: bool = True,
+        symmetry: tuple[Symmetry, Symmetry, Symmetry] = (0, 0, 0),
+        **kwargs,
     ) -> ComponentModeler:
         """
         Returns a ComponentModeler instance for the component.
@@ -256,9 +268,12 @@ class Tidy3DComponent(LayeredComponentBase):
             boundary_spec: The boundary specification for the ComponentModeler. Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
             run_time: The run time for the ComponentModeler.
             shutoff: The shutoff value for the ComponentModeler. Defaults to 1e-5.
+            grid_eps: Rounding tolerance for coordinates, e.g. port locations and layer centers (μm).
             folder_name: The folder name for the ComponentModeler. Defaults to "default".
             path_dir: The directory path for the ComponentModeler. Defaults to ".".
             verbose: Whether to print verbose output for the ComponentModeler. Defaults to True.
+            symmetry (tuple[Symmetry, Symmetry, Symmetry], optional): The symmetry for the simulation. Defaults to (0,0,0).
+            kwargs: Additional keyword arguments for the Simulation constructor.
 
         Returns:
             ComponentModeler: A ComponentModeler instance.
@@ -273,6 +288,8 @@ class Tidy3DComponent(LayeredComponentBase):
                 cz = np.mean(list({c[2] for c in self.port_centers}))
             case _:
                 raise ValueError(f"Invalid center_z: {center_z}")
+
+        cz = np.round(cz, abs(int(np.log10(grid_eps)))).item()
 
         freqs = td.C_0 / np.linspace(
             wavelength - bandwidth / 2, wavelength + bandwidth / 2, num_freqs
@@ -293,9 +310,11 @@ class Tidy3DComponent(LayeredComponentBase):
             monitors=extra_monitors,
             run_time=run_time,
             shutoff=shutoff,
+            symmetry=symmetry,
+            **kwargs,
         )
 
-        ports = self.get_ports(mode_spec, port_size_mult)
+        ports = self.get_ports(mode_spec, port_size_mult, grid_eps=grid_eps)
 
         modeler = ComponentModeler(
             simulation=sim,
@@ -429,6 +448,7 @@ def write_sparameters(
     extra_monitors: tuple[Any, ...] | None = None,
     mode_spec: td.ModeSpec = td.ModeSpec(num_modes=1, filter_pol="te"),
     boundary_spec: td.BoundarySpec = td.BoundarySpec.all_sides(boundary=td.PML()),
+    symmetry: tuple[Symmetry, Symmetry, Symmetry] = (0, 0, 0),
     run_time: float = 1e-12,
     shutoff: float = 1e-5,
     folder_name: str = "default",
@@ -443,6 +463,7 @@ def write_sparameters(
     plot_epsilon: bool = False,
     filepath: PathType | None = None,
     overwrite: bool = False,
+    **kwargs,
 ) -> Sparameters:
     """Writes the S-parameters for a component.
 
@@ -471,6 +492,7 @@ def write_sparameters(
         mode_spec: The mode specification for the ComponentModeler. Defaults to td.ModeSpec(num_modes=1, filter_pol="te").
         boundary_spec: The boundary specification for the ComponentModeler.
             Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
+        symmetry (tuple[Symmetry, Symmetry, Symmetry], optional): The symmetry for the simulation. Defaults to (0,0,0).
         run_time: The run time for the ComponentModeler.
         shutoff: The shutoff value for the ComponentModeler. Defaults to 1e-5.
         folder_name: The folder name for the ComponentModeler in flexcompute website. Defaults to "default".
@@ -484,6 +506,7 @@ def write_sparameters(
         plot_mode_port_name: which port name to plot. Defaults to None.
         filepath: Optional file path for the S-parameters. If None, uses hash of simulation.
         overwrite: Whether to overwrite existing S-parameters. Defaults to False.
+        kwargs: Additional keyword arguments for the tidy3d Simulation constructor.
 
     """
     layer_stack = layer_stack or get_layer_stack()
@@ -500,7 +523,6 @@ def write_sparameters(
         pad_z_outer=pad_z_outer,
         dilation=dilation,
     )
-    path_dir = str(pathlib.Path(dirpath) / str(hash(c)))
 
     modeler = c.get_component_modeler(
         wavelength=wavelength,
@@ -518,9 +540,14 @@ def write_sparameters(
         run_time=run_time,
         shutoff=shutoff,
         folder_name=folder_name,
-        path_dir=path_dir,
         verbose=verbose,
+        symmetry=symmetry,
+        **kwargs,
     )
+
+    path_dir = pathlib.Path(dirpath) / modeler._hash_self()
+    modeler = modeler.updated_copy(path_dir=str(path_dir))
+
     sp = {}
 
     if plot_simulation_layer_name or plot_simulation_z or plot_simulation_x:
@@ -571,7 +598,7 @@ def write_sparameters(
 
     dirpath = pathlib.Path(dirpath)
     dirpath.mkdir(parents=True, exist_ok=True)
-    filepath = filepath or dirpath / f"{hash_simulation(modeler)}.npz"
+    filepath = filepath or dirpath / f"{modeler._hash_self()}.npz"
     filepath = pathlib.Path(filepath)
 
     if filepath.exists() and not overwrite:
@@ -636,6 +663,7 @@ def write_sparameters_batch(
         mode_spec: The mode specification for the ComponentModeler. Defaults to td.ModeSpec(num_modes=1, filter_pol="te").
         boundary_spec: The boundary specification for the ComponentModeler.
             Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
+        symmetry (tuple[Symmetry, Symmetry, Symmetry], optional): The symmetry for the simulation. Defaults to (0,0,0).
         run_time: The run time for the ComponentModeler. Defaults to 1e-12.
         shutoff: The shutoff value for the ComponentModeler. Defaults to 1e-5.
         folder_name: The folder name for the ComponentModeler in flexcompute website. Defaults to "default".
@@ -649,6 +677,7 @@ def write_sparameters_batch(
         plot_mode_port_name: which port name to plot. Defaults to None.
         filepath: Optional file path for the S-parameters. If None, uses hash of simulation.
         overwrite: Whether to overwrite existing S-parameters. Defaults to False.
+        kwargs: Additional keyword arguments for the tidy3d Simulation constructor.
     """
     kwargs.update(verbose=False)
     return [_executor.submit(write_sparameters, **job, **kwargs) for job in jobs]

@@ -69,7 +69,7 @@ sphinx:
       "ComponentSpec": "ComponentSpec"
     nb_execution_show_tb: True
     nb_execution_raise_on_error: true
-    nb_custom_formats:
-        .py:
-            - jupytext.reads
-            - fmt: py
+    # nb_custom_formats:
+    #     .py:
+    #         - jupytext.reads
+    #         - fmt: py

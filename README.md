@@ -1,4 +1,4 @@
-# gplugins 0.9.3
+# gplugins 0.9.11
 
 [![docs](https://github.com/gdsfactory/gplugins/actions/workflows/pages.yml/badge.svg)](https://gdsfactory.github.io/gplugins/)
 [![PyPI](https://img.shields.io/pypi/v/gplugins)](https://pypi.org/project/gplugins/)
@@ -28,15 +28,26 @@ gdsfactory plugins:
 
 You can install most plugins with:
 
+```bash
+pip install "gdsfactory[full]" --upgrade
 ```
+
+or
+
+```bash
 pip install "gplugins[devsim,femwell,gmsh,schematic,meow,meshwell,ray,sax,tidy3d]" --upgrade
 ```
 
-Or install only the plugins you need with for example `pip install gplugins[schematic,femwell,meow,sax,tidy3d]` from the available plugins.
+Or install only the plugins you need. For example:
+
+```bash
+pip install "gplugins[schematic,femwell,meow,sax,tidy3d]" --upgrade
+
+```
 
 ### Non-pip plugins
 
-The following plugins require special installation without pip:
+The following plugins require special installation as they can't be installed with `pip`:
 
 - For Meep and MPB you need to use `conda` or `mamba` on MacOS, Linux or [Windows WSL (Windows Subsystem for Linux)](https://learn.microsoft.com/en-us/windows/wsl/install) with `conda install pymeep=*=mpi_mpich_* -c conda-forge -y`
 - For Elmer, refer to [Elmer FEM – Installation](https://www.elmerfem.org/blog/binaries/) for installation or compilation instructions each platform. Gplugins assumes `ElmerSolver`, `ElmerSolver_mpi`, and `ElmerGrid` are available in your PATH environment variable.

@@ -1,13 +1,51 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.9.2...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.9.11...main)
 
 <!-- towncrier release notes start -->
 
+## [0.9.11](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.11) - 2024-01-09
+
+- fix path_length_analysis [#293](https://github.com/gdsfactory/gplugins/pull/293)
+
+## [0.9.10](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.10) - 2024-01-07
+
+- use notebooks for ease of use [#284](https://github.com/gdsfactory/gplugins/pull/284)
+- update to work with latest gdsfactory >=7.10.1
+
+## [0.9.9](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.9) - 2023-12-19
+
+- [pre-commit.ci] pre-commit autoupdate [#282](https://github.com/gdsfactory/gplugins/pull/282)
+- Add drc counter [#280](https://github.com/gdsfactory/gplugins/pull/280)
+- Bump tidy3d from 2.5.0rc3 to 2.5.0 [#278](https://github.com/gdsfactory/gplugins/pull/278)
+- fix docs  [#276](https://github.com/gdsfactory/gplugins/pull/276)
+- [pre-commit.ci] pre-commit autoupdate [#274](https://github.com/gdsfactory/gplugins/pull/274)
+
+## [0.9.8](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.8) - 2023-12-11
+
+- Round port locations and layer centers to one picometer by default [#273](https://github.com/gdsfactory/gplugins/pull/273)
+
+
+## [0.9.7](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.7) - 2023-12-05
+
+- expose symmetry and other tidy3d simulation args [#269](https://github.com/gdsfactory/gplugins/pull/269)
+- Update kfactory[git,ipy] requirement from <0.10,>=0.9.3 to >=0.9.3,<0.11 [#267](https://github.com/gdsfactory/gplugins/pull/267)
+
+## [0.9.6](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.6) - 2023-12-04
+
+- uping gdsfactory upper bound [#266](https://github.com/gdsfactory/gplugins/pull/266)
+
+## [0.9.5](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.5) - 2023-12-03
+
+- ask users to report version and fix kfactory pin [#263](https://github.com/gdsfactory/gplugins/pull/263)
+
+## [0.9.4](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.4) - 2023-12-01
+
+- allow complex materials and rely on tidy3d hash function [#261](https://github.com/gdsfactory/gplugins/pull/261)
+
 ## [0.9.3](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.3) - 2023-12-01
 
-No significant changes.
-
+- Check for AbstractMedium instead of Medium in validator [#260](https://github.com/gdsfactory/gplugins/pull/260)
 
 ## [0.9.2](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.2) - 2023-11-30
 
