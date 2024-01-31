@@ -76,6 +76,7 @@ def xy_xsection_mesh(
     port_names: list[str] | None = None,
     gmsh_version: float | None = None,
     layer_port_delimiter: str | None = None,
+    background_remeshing_file=None,
     optimization_flags: tuple[tuple[str, int]] | None = None,
 ):
     """Mesh xy cross-section of component at height z.
@@ -173,6 +174,7 @@ def xy_xsection_mesh(
         gmsh_version=gmsh_version,
         filename=filename,
         verbosity=verbosity,
+        background_remeshing_file=background_remeshing_file,
         optimization_flags=optimization_flags,
     )
 
