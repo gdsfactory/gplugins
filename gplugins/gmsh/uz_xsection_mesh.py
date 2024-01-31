@@ -213,6 +213,7 @@ def uz_xsection_mesh(
     n_threads: int = get_number_of_cores(),
     gmsh_version: float | None = None,
     interface_delimiter: str = "___",
+    optimization_flags: tuple[tuple[str, int]] | None = None,
     **kwargs,
 ):
     """Mesh uz cross-section of component along line u = [[x1,y1] , [x2,y2]].
@@ -391,6 +392,7 @@ def uz_xsection_mesh(
         filename=filename,
         verbosity=verbosity,
         interface_delimiter=interface_delimiter,
+        optimization_flags=optimization_flags,
     )
 
 
