@@ -213,6 +213,8 @@ def uz_xsection_mesh(
     n_threads: int = get_number_of_cores(),
     gmsh_version: float | None = None,
     interface_delimiter: str = "___",
+    background_remeshing_file=None,
+    optimization_flags: tuple[tuple[str, int]] | None = None,
     **kwargs,
 ):
     """Mesh uz cross-section of component along line u = [[x1,y1] , [x2,y2]].
@@ -239,6 +241,7 @@ def uz_xsection_mesh(
         u_offset: quantity to add to the "u" coordinates, useful to convert back to x or y if parallel to those axes
         atol: tolerance used to establish equivalency between vertices
         left_right_periodic_bcs: if True, makes the left and right simulation edge meshes periodic
+        background_remeshing_file: .pos file to use as a remeshing field. Overrides resolutions if not None.
     """
     # Fuse and cleanup polygons of same layer in case user overlapped them
     layer_polygons_dict = cleanup_component(
@@ -391,6 +394,8 @@ def uz_xsection_mesh(
         filename=filename,
         verbosity=verbosity,
         interface_delimiter=interface_delimiter,
+        background_remeshing_file=background_remeshing_file,
+        optimization_flags=optimization_flags,
     )
 
 

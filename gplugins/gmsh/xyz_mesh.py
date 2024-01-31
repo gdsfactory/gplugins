@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 import gdsfactory as gf
@@ -157,6 +158,8 @@ def xyz_mesh(
     edge_ports: List[str] | None = None,
     gmsh_version: float | None = None,
     layer_port_delimiter: str | None = None,
+    background_remeshing_file: Path = None,
+    optimization_flags: tuple[tuple[str, int]] | None = None,
 ) -> bool:
     """Full 3D mesh of component.
 
@@ -194,6 +197,7 @@ def xyz_mesh(
         gmsh_version: Gmsh mesh format version. For example, Palace requires an older version of 2.2,
             see https://mfem.org/mesh-formats/#gmsh-mesh-formats.
         layer_port_delimiter: Delimiter to use for new layers generated for ports: "layer{delimiter}port_name".
+        background_remeshing_file: .pos file to use as a remeshing field. Overrides resolutions if not None.
     """
     if port_names:
         mesh_component = gf.Component()
@@ -308,6 +312,8 @@ def xyz_mesh(
         gmsh_version=gmsh_version,
         filename=filename,
         verbosity=verbosity,
+        background_remeshing_file=background_remeshing_file,
+        optimization_flags=optimization_flags,
     )
 
 
