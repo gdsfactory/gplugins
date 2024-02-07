@@ -69,7 +69,7 @@ gmsh = [
   "meshwell>=1.0.7,<=1.1"
 ]
 klayout = [
-  "kfactory[git,ipy]>=0.9.3,<0.11",
+  "kfactory[git,ipy]>=0.9.3,<0.12",
   "pyvis<=0.3.1"
 ]
 meow = [
