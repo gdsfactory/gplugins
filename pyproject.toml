@@ -55,7 +55,7 @@ docs = [
 ]
 femwell = [
   "femwell>=0.1.6,<0.2",
-  "meshwell>=1.0.0,<1.1"
+  "meshwell>=1.0.0,<=1.0.5"
 ]
 gmsh = [
   "gmsh==4.12.2",
@@ -66,7 +66,7 @@ gmsh = [
   "pyvista<=0.40",
   "trimesh",
   "shapely",
-  "meshwell>=1.0.5,<1.1.0"
+  "meshwell>=1.0.5,<=1.0.5"
 ]
 klayout = [
   "kfactory[git,ipy]>=0.9.3,<0.11",
@@ -91,7 +91,7 @@ schematic = [
 tidy3d = [
   "tidy3d==2.5.2",
   "meshio",
-  "meshwell>=1.0.0,<1.1"
+  "meshwell>=1.0.0,<=1.0.5"
 ]
 vlsir = [
   "vlsir>=4.0.0,<6.0.0",
