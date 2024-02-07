@@ -1,12 +1,13 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.9.12...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.9.13...main)
 
 <!-- towncrier release notes start -->
 
 ## [0.9.13](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.13) - 2024-02-07
 
-No significant changes.
+- pin older version of meshwell [#334](https://github.com/gdsfactory/gplugins/pull/334)
+- pin latest working version of jax and jaxlib for sax to work [#332](https://github.com/gdsfactory/gplugins/pull/332)
 
 
 ## [0.9.12](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.12) - 2024-02-07
