@@ -146,7 +146,7 @@ def plot_nets(
             from pyvis.network import Network
         except ModuleNotFoundError as e:
             raise UserWarning(
-                "You need to `pip install pyvis` or `gplugins[klayout]`"
+                "You need to `pip install pyvis<=0.3.1` or `gplugins[klayout]`"
             ) from e
 
         net = Network(
