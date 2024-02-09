@@ -20,7 +20,6 @@ def component_test_density1():
     small_rect2 = c << gf.components.rectangle(size=(25, 25), layer=(2, 0))
     small_rect2.ymax = 100 - small_rect2.ysize
     small_rect2.xmax = large_rect.xmax - small_rect2.xsize
-    # c.write_gds(PATH.test_data / "test_gds_density1.gds")
     return c
 
 
@@ -49,11 +48,12 @@ expected_densities = (
 )
 def test_calculate_density(layer, tile_size, expected_densities):
     gdspath = PATH.test_data / "test_gds_density1.gds"
-    threads = (
-        gf.config.get_number_of_cores()
-    )  # Utilize all available cores for the test
 
-    # Calculate density using the provided parameters
+    test_component = component_test_density1()
+    test_component.write_gds(PATH.test_data / "test_gds_density1.gds")
+
+    threads = gf.config.get_number_of_cores()
+
     bbox = get_gds_bbox(gdspath=gdspath)
     if expected_densities is None:
         with pytest.raises(ValueError) as e:

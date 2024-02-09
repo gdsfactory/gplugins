@@ -264,3 +264,28 @@ def plot_density_heatmap(
     else:
         plt.title(title or f"Layer: {layer}, tile size: {tile_size}, layer bbox only")
     plt.show()
+
+
+if __name__ == "__main__":
+
+    @gf.cell
+    def component_test_density1():
+        c = gf.Component("density_test1")
+        large_rect = c << gf.components.rectangle(size=(100, 150), layer=(1, 0))
+        _small_rect = c << gf.components.rectangle(size=(50, 50), layer=(2, 0))
+        small_rect2 = c << gf.components.rectangle(size=(25, 25), layer=(2, 0))
+        small_rect2.ymax = 100 - small_rect2.ysize
+        small_rect2.xmax = large_rect.xmax - small_rect2.xsize
+        # c.write_gds(PATH.test_data / "test_gds_density1.gds")
+        return c
+
+    test_component = component_test_density1()
+    test_component.write_gds("./test_gds_density1.gds")
+
+    plot_density_heatmap(
+        gdspath="./test_gds_density1.gds",
+        layer=(2, 0),
+        tile_size=(20, 20),
+        visualize_with_full_gds=True,
+        visualize_polygons=True,
+    )
