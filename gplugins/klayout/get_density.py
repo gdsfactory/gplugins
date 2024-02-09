@@ -4,6 +4,7 @@ import gdsfactory as gf
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
+from gdsfactory.config import get_number_of_cores
 from gdsfactory.typings import Layer
 from klayout.db import Layout, TileOutputReceiver, TilingProcessor
 
@@ -33,12 +34,15 @@ class DensityOutputReceiver(TileOutputReceiver):
 
 
 def calculate_density(
-    gdspath: Path, layer: Layer, tile_size: tuple = (200, 200), threads: int = 1
+    gdspath: Path,
+    layer: Layer,
+    tile_size: tuple = (200, 200),
+    threads: int = get_number_of_cores(),
 ):
     """
     Calculates the density of a given layer in a GDS file and returns the density data.
 
-    This function processes a GDS file to calculate the density of a specified layer. It divides the layout into tiles of a specified size, computes the density of the layer within each tile, and returns a list of density data. The density is calculated as the area of the layer within a tile divided by the total area of the tile.
+    Process a GDS file to calculate the density of a specified layer. It divides the layout into tiles of a specified size, computes the density of the layer within each tile, and returns a (x,y,density) list of density data. The density is calculated as the area of the layer within a tile divided by the total area of the tile.
 
     Args:
         gdspath (Path): The path to the GDS file.
@@ -49,6 +53,13 @@ def calculate_density(
     Returns:
         list: A list of tuples, each containing the bottom-left x-coordinate, bottom-left y-coordinate, and density of each tile.
     """
+    # Validate input
+    (xmin, ymin), (xmax, ymax) = get_gds_bbox(gdspath=gdspath, layer=layer)
+    if tile_size[0] > xmax - xmin and tile_size[1] > ymax - ymin:
+        raise ValueError(
+            f"Too large tile size {tile_size} for bbox {(xmin, ymin), (xmax, ymax)}: reduce tile size (and merge later if needed)."
+        )
+
     # Get GDS
     ly = Layout()
     ly.read(gdspath)
@@ -88,17 +99,22 @@ def get_layer_polygons(gdspath: Path, layer: Layer) -> list[np.array]:
     return component_layer.get_polygons()
 
 
-def get_gds_bbox(gdspath: Path) -> tuple[tuple[float, float], tuple[float, float]]:
+def get_gds_bbox(
+    gdspath: Path, layer: Layer | None = None
+) -> tuple[tuple[float, float], tuple[float, float]]:
     """
     Calculates the bounding box of the entire GDS file using gdsfactory.
 
     Args:
         gdspath (Path): The path to the GDS file.
+        layer (Layer): if not None, only consider the bbox of that specific layer
 
     Returns:
         tuple: ((xmin,ymin),(xmax,ymax))
     """
     component = gf.import_gds(gdspath)
+    if layer is not None:
+        component = component.extract(layers=[layer])
     return component.bbox
 
 
@@ -138,13 +154,13 @@ def density_data_to_meshgrid(
         y_extension = []
         density_extension = []
         # Extend unique_x and unique_y to cover the full bbox range
-        while unique_x[0] > xmin:
+        while unique_x[0] > xmin + x_spacing / 2:
             unique_x = np.insert(unique_x, 0, unique_x[0] - x_spacing)
-        while unique_x[-1] < xmax:
+        while unique_x[-1] < xmax - x_spacing / 2:
             unique_x = np.append(unique_x, unique_x[-1] + x_spacing)
-        while unique_y[0] > ymin:
+        while unique_y[0] > ymin + y_spacing / 2:
             unique_y = np.insert(unique_y, 0, unique_y[0] - y_spacing)
-        while unique_y[-1] < ymax:
+        while unique_y[-1] < ymax - y_spacing / 2:
             unique_y = np.append(unique_y, unique_y[-1] + y_spacing)
 
         # Generate all combinations of new x and y coordinates
@@ -182,7 +198,7 @@ def plot_density_heatmap(
     gdspath: Path,
     layer: Layer,
     tile_size: tuple = (200, 200),
-    threads: int = 1,
+    threads: int = get_number_of_cores(),
     cmap=cm.Reds,
     title: str | None = None,
     visualize_with_full_gds: bool = True,
@@ -195,11 +211,11 @@ def plot_density_heatmap(
         gdspath (Path): The path to the GDS file for which the density heatmap is to be plotted.
         layer (Layer): The specific layer within the GDS file for which the density heatmap is to be generated.
         tile_size (Tuple, optional): The dimensions (width, height) of each tile, in database units, used for density calculation. Defaults to (200, 200).
-        threads (int, optional): The number of threads to utilize for processing the density calculations. Defaults to 1.
+        threads (int, optional): The number of threads to utilize for processing the density calculations. Defaults to the total number of threads.
         cmap (Colormap, optional): The matplotlib colormap to use for the heatmap. Defaults to cm.Reds.
         title (str | None, optional): The title for the heatmap plot. If None, a default title is generated based on layer and tile size. Defaults to None.
-        consider_full_gds_extent (bool, optional): Flag indicating whether to consider the full extent of the GDS file for plotting, extending the heatmap beyond the immediate area containing data to the full bounding box of the GDS file. Defaults to True.
-        plot_layer (bool, optional): Flag indicating whether to overlay the actual layer polygons on top of the heatmap for reference. Defaults to False.
+        visualize_with_full_gds (bool, optional): Flag indicating whether to consider the full extent of the GDS file for plotting. Defaults to True.
+        visualize_polygons (bool, optional): Flag indicating whether to overlay the actual layer polygons on top of the heatmap for reference. Defaults to False.
     """
     density_data = calculate_density(
         gdspath=gdspath, layer=layer, tile_size=tile_size, threads=threads
@@ -240,5 +256,11 @@ def plot_density_heatmap(
     plt.colorbar(label="Density")
     plt.xlabel("X (um)")
     plt.ylabel("Y (um)")
-    plt.title(title or f"Layer: {layer}, tile size: {tile_size}")
+    if visualize_with_full_gds:
+        plt.title(
+            title
+            or f"Layer: {layer}, tile size: {tile_size}, total density ~{np.mean(Zi) * 100:1.2f}%"
+        )
+    else:
+        plt.title(title or f"Layer: {layer}, tile size: {tile_size}, layer bbox only")
     plt.show()
