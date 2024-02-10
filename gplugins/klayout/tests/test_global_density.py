@@ -10,7 +10,6 @@ from gplugins.klayout.get_density import (
     density_data_to_meshgrid,
     estimate_weighted_global_density,
     get_gds_bbox,
-    plot_density_heatmap,
 )
 
 
@@ -109,15 +108,5 @@ def test_estimate_weighted_global_density(
     estimated_density = estimate_weighted_global_density(
         Xi=Xi, Yi=Yi, Zi=Zi, bbox=get_gds_bbox(gdspath)
     )
-
-    plot_density_heatmap(
-        gdspath=gdspath,
-        layer=(2, 0),
-        tile_size=tile_size,
-        visualize_with_full_gds=True,
-        visualize_polygons=True,
-    )
-
-    print(estimated_density)
 
     assert np.isclose(estimated_density, expected_global_density)
