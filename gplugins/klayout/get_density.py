@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from gdsfactory.config import get_number_of_cores
 from gdsfactory.typings import Layer
-from klayout.db import Layout, TileOutputReceiver, TilingProcessor
+from klayout.db import Box, Layout, TileOutputReceiver, TilingProcessor
 
 
 class DensityOutputReceiver(TileOutputReceiver):
@@ -14,7 +14,9 @@ class DensityOutputReceiver(TileOutputReceiver):
         super().__init__()
         self.data = []
 
-    def put(self, ix, iy, tile, obj, dbu, clip):
+    def put(
+        self, ix: int, iy: int, tile: Box, obj: float, dbu: float, clip: bool
+    ) -> None:
         """
         Arguments:
             ix: index position of the tile along the x-axis in a grid of tiles.
@@ -23,6 +25,9 @@ class DensityOutputReceiver(TileOutputReceiver):
             obj: density value (for this task)
             dbu: database units per user unit.
             clip: flag indicating if the tile has been clipped
+
+        Add data as:
+            (tile_center_x, tile_center_y, density)
         """
         self.data.append(
             (
@@ -35,10 +40,10 @@ class DensityOutputReceiver(TileOutputReceiver):
 
 def calculate_density(
     gdspath: Path,
-    layer: Layer,
-    tile_size: tuple = (200, 200),
+    layer: tuple[int, int],
+    tile_size: tuple[int, int] = (200, 200),
     threads: int = get_number_of_cores(),
-):
+) -> list[tuple[float, float, float]]:
     """
     Calculates the density of a given layer in a GDS file and returns the density data.
 
@@ -51,7 +56,7 @@ def calculate_density(
         threads (int, optional): The number of threads to use for processing. Defaults to total number of threads.
 
     Returns:
-        list: A list of tuples, each containing the bottom-left x-coordinate, bottom-left y-coordinate, and density of each tile.
+        list: A list of tuples, each containing the center x-coordinate, center y-coordinate, and density of each tile.
     """
     # Validate input
     (xmin, ymin), (xmax, ymax) = get_gds_bbox(gdspath=gdspath, layer=layer)
@@ -118,10 +123,67 @@ def get_gds_bbox(
     return component.bbox
 
 
+def extend_grid_and_density_to_bbox(
+    x: np.ndarray,
+    y: np.ndarray,
+    density: np.ndarray,
+    bbox: tuple[tuple[float, float], tuple[float, float]],
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Extends the grid and pads the density arrays with zeros to cover the entire bounding box.
+
+    Args:
+        x (np.ndarray): Current x coordinates.
+        y (np.ndarray): Current y coordinates.
+        density (np.ndarray): Density values corresponding to the x and y coordinates.
+        bbox (tuple): Bounding box specified as ((xmin, ymin), (xmax, ymax)).
+
+    Returns:
+        tuple: Updated unique_x, unique_y, x, y, and density arrays.
+    """
+    (xmin, ymin), (xmax, ymax) = bbox
+
+    unique_x = np.unique(x)
+    unique_y = np.unique(y)
+
+    x_spacing = unique_x[1] - unique_x[0]
+    y_spacing = unique_y[1] - unique_y[0]
+
+    # Extend unique_x and unique_y to cover the full bbox range
+    while unique_x[0] > xmin + x_spacing / 2:
+        unique_x = np.insert(unique_x, 0, unique_x[0] - x_spacing)
+    while unique_x[-1] < xmax - x_spacing / 2:
+        unique_x = np.append(unique_x, unique_x[-1] + x_spacing)
+    while unique_y[0] > ymin + y_spacing / 2:
+        unique_y = np.insert(unique_y, 0, unique_y[0] - y_spacing)
+    while unique_y[-1] < ymax - y_spacing / 2:
+        unique_y = np.append(unique_y, unique_y[-1] + y_spacing)
+
+    # Generate all combinations of new x and y coordinates
+    new_x, new_y = np.meshgrid(unique_x, unique_y)
+    new_x = new_x.flatten()
+    new_y = new_y.flatten()
+
+    # Filter out the original x, y pairs
+    original_xy = set(zip(x, y))
+    new_xy = set(zip(new_x, new_y)) - original_xy
+
+    # Extend x, y, and density arrays with new combinations
+    x_extension, y_extension = zip(*new_xy) if new_xy else ([], [])
+    density_extension = [0] * len(x_extension)
+
+    # Update x, y, and density arrays with extensions
+    x = np.concatenate((x, np.array(x_extension)))
+    y = np.concatenate((y, np.array(y_extension)))
+    density = np.concatenate((density, np.array(density_extension)))
+
+    return x, y, density
+
+
 def density_data_to_meshgrid(
     density_data: list[tuple[float, float, float]],
     bbox: tuple[tuple[float, float], tuple[float, float]] | None = None,
-):
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Converts density data into a meshgrid for plotting.
 
@@ -140,46 +202,12 @@ def density_data_to_meshgrid(
     y = np.array(y)
     density = np.array(density)
 
+    if bbox is not None:
+        x, y, density = extend_grid_and_density_to_bbox(x, y, density, bbox)
+
     # Determine unique x and y coordinates for grid
     unique_x = np.unique(x)
     unique_y = np.unique(y)
-
-    if bbox is not None:
-        (xmin, ymin), (xmax, ymax) = bbox
-        x_spacing = unique_x[1] - unique_x[0]
-        y_spacing = unique_y[1] - unique_y[0]
-
-        # Extend unique_x down to xmin and up to xmax and add x, y, density = 0 data
-        x_extension = []
-        y_extension = []
-        density_extension = []
-        # Extend unique_x and unique_y to cover the full bbox range
-        while unique_x[0] > xmin + x_spacing / 2:
-            unique_x = np.insert(unique_x, 0, unique_x[0] - x_spacing)
-        while unique_x[-1] < xmax - x_spacing / 2:
-            unique_x = np.append(unique_x, unique_x[-1] + x_spacing)
-        while unique_y[0] > ymin + y_spacing / 2:
-            unique_y = np.insert(unique_y, 0, unique_y[0] - y_spacing)
-        while unique_y[-1] < ymax - y_spacing / 2:
-            unique_y = np.append(unique_y, unique_y[-1] + y_spacing)
-
-        # Generate all combinations of new x and y coordinates
-        new_x, new_y = np.meshgrid(unique_x, unique_y)
-        new_x = new_x.flatten()
-        new_y = new_y.flatten()
-
-        # Filter out the original x, y pairs
-        original_xy = set(zip(x, y))
-        new_xy = set(zip(new_x, new_y)) - original_xy
-
-        # Extend x, y, and density arrays with new combinations
-        x_extension, y_extension = zip(*new_xy) if new_xy else ([], [])
-        density_extension = [0] * len(x_extension)
-
-        # Update x, y, and density arrays with extensions
-        x = np.concatenate((x, np.array(x_extension)))
-        y = np.concatenate((y, np.array(y_extension)))
-        density = np.concatenate((density, np.array(density_extension)))
 
     # Create a grid for plotting
     Xi, Yi = np.meshgrid(unique_x, unique_y)
@@ -192,6 +220,71 @@ def density_data_to_meshgrid(
         Zi[yi_index, xi_index] = density[i]
 
     return Xi, Yi, Zi
+
+
+def estimate_weighted_global_density(
+    Xi: np.ndarray,
+    Yi: np.ndarray,
+    Zi: np.ndarray,
+    bbox: tuple[tuple[float, float], tuple[float, float]] | None = None,
+) -> float:
+    """
+    Calculates the mean density within a specified bounding box or overall if bbox is None.
+
+    Args:
+        Xi (np.ndarray): 2D array of X coordinates.
+        Yi (np.ndarray): 2D array of Y coordinates.
+        Zi (np.ndarray): 2D array of density values.
+        bbox (tuple[tuple[float, float], tuple[float, float]], optional): Bounding box specified as ((xmin, ymin), (xmax, ymax)). Defaults to None.
+
+    Returns:
+        float: Mean density value.
+    """
+    (xmin, ymin), (xmax, ymax) = bbox
+
+    total_weighted_density = 0
+    total_weight = 0
+
+    # Calculate the spacing between grid points
+    xi_spacing = np.unique(np.diff(Xi[0, :]))[0]
+    yi_spacing = np.unique(np.diff(Yi[:, 0]))[0]
+
+    # Calculate half spacing for overlap calculation
+    half_xi_spacing = xi_spacing / 2
+    half_yi_spacing = yi_spacing / 2
+
+    # Iterate over each grid point to calculate weighted density
+    for i in range(Xi.shape[0]):
+        for j in range(Xi.shape[1]):
+            # Calculate the center of each tile
+            x_center = Xi[i, j]
+            y_center = Yi[i, j]
+
+            # Calculate the overlap between the bbox and the tile
+            x_overlap = max(
+                0,
+                min(x_center + half_xi_spacing, xmax)
+                - max(x_center - half_xi_spacing, xmin),
+            )
+            y_overlap = max(
+                0,
+                min(y_center + half_yi_spacing, ymax)
+                - max(y_center - half_yi_spacing, ymin),
+            )
+            overlap_area = x_overlap * y_overlap
+
+            # Calculate the weighted density
+            if overlap_area > 0:
+                total_weighted_density += Zi[i, j] * overlap_area
+                total_weight += overlap_area
+
+    # Calculate the weighted average density
+    if total_weight > 0:
+        weighted_average_density = total_weighted_density / total_weight
+    else:
+        weighted_average_density = 0
+
+    return weighted_average_density
 
 
 def plot_density_heatmap(
@@ -257,9 +350,12 @@ def plot_density_heatmap(
     plt.xlabel("X (um)")
     plt.ylabel("Y (um)")
     if visualize_with_full_gds:
+        estimate = estimate_weighted_global_density(
+            Xi, Yi, Zi, bbox=get_gds_bbox(gdspath)
+        )
         plt.title(
             title
-            or f"Layer: {layer}, tile size: {tile_size}, total density ~{np.mean(Zi) * 100:1.2f}%"
+            or f"Layer: {layer}, tile size: {tile_size}, total density ~{estimate * 100:1.2f}%"
         )
     else:
         plt.title(title or f"Layer: {layer}, tile size: {tile_size}, layer bbox only")
@@ -272,7 +368,9 @@ if __name__ == "__main__":
     def component_test_density1():
         c = gf.Component("density_test1")
         large_rect = c << gf.components.rectangle(size=(100, 150), layer=(1, 0))
-        _small_rect = c << gf.components.rectangle(size=(50, 50), layer=(2, 0))
+        small_rect = c << gf.components.rectangle(size=(50, 50), layer=(2, 0))
+        small_rect.x += 10
+        small_rect.y += 10
         small_rect2 = c << gf.components.rectangle(size=(25, 25), layer=(2, 0))
         small_rect2.ymax = 100 - small_rect2.ysize
         small_rect2.xmax = large_rect.xmax - small_rect2.xsize
@@ -281,6 +379,8 @@ if __name__ == "__main__":
 
     test_component = component_test_density1()
     test_component.write_gds("./test_gds_density1.gds")
+
+    test_component.show()
 
     plot_density_heatmap(
         gdspath="./test_gds_density1.gds",
