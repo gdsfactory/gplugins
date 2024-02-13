@@ -68,10 +68,6 @@ gmsh = [
   "shapely",
   "meshwell>=1.0.7,<=1.1"
 ]
-klayout = [
-  "kfactory[git,ipy]>=0.9.3,<0.11",
-  "pyvis<=0.3.1"
-]
 meow = [
   "jax==0.4.23",
   "jaxlib==0.4.23",
@@ -82,7 +78,8 @@ sax = [
   "jax<=0.4.23",
   "jaxlib<=0.4.23",
   "sax>=0.11.1,<0.12.0",
-  "scikit-learn"
+  "scikit-learn",
+  "pyvis<=0.3.1"
 ]
 schematic = [
   "bokeh",
