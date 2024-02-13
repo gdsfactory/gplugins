@@ -76,7 +76,7 @@ meow = [
 ]
 sax = [
   "jax<=0.4.23",
-  "jaxlib<=0.4.23",
+  "jaxlib<=0.4.24",
   "sax>=0.11.1,<0.12.0",
   "scikit-learn",
   "pyvis<=0.3.1"
