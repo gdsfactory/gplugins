@@ -57,14 +57,18 @@ def test_calculate_density(layer, tile_size, expected_densities):
     bbox = get_gds_bbox(gdspath=gdspath)
     if expected_densities is None:
         with pytest.raises(ValueError) as e:
-            calculate_density(gdspath, layer, tile_size, threads)
+            calculate_density(
+                gdspath=gdspath, layer=layer, tile_size=tile_size, threads=threads
+            )
             assert (
                 str(e.value)
                 == f"Too large tile size {tile_size} for bbox {(bbox[0][0], bbox[0][1]), (bbox[1][0], bbox[1][1])}: reduce tile size (and merge later if needed)."
             )
             return
     else:
-        density_data = calculate_density(gdspath, layer, tile_size, threads)
+        density_data = calculate_density(
+            gdspath=gdspath, layer=layer, tile_size=tile_size, threads=threads
+        )
 
         # Get density meshgrid
         Xi, Yi, Zi = density_data_to_meshgrid(density_data=density_data, bbox=bbox)
