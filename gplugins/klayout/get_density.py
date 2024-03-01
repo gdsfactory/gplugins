@@ -41,6 +41,7 @@ class DensityOutputReceiver(TileOutputReceiver):
 def calculate_density(
     gdspath: Path,
     layer: tuple[int, int],
+    cellname: str | None = None,
     tile_size: tuple[int, int] = (200, 200),
     threads: int = get_number_of_cores(),
 ) -> list[tuple[float, float, float]]:
@@ -59,7 +60,9 @@ def calculate_density(
         list: A list of tuples, each containing the center x-coordinate, center y-coordinate, and density of each tile.
     """
     # Validate input
-    (xmin, ymin), (xmax, ymax) = get_gds_bbox(gdspath=gdspath, layer=layer)
+    (xmin, ymin), (xmax, ymax) = get_gds_bbox(
+        gdspath=gdspath, layer=layer, cellname=cellname
+    )
     if tile_size[0] > xmax - xmin and tile_size[1] > ymax - ymin:
         raise ValueError(
             f"Too large tile size {tile_size} for bbox {(xmin, ymin), (xmax, ymax)}: reduce tile size (and merge later if needed)."
@@ -87,7 +90,9 @@ def calculate_density(
     return out_receiver.data
 
 
-def get_layer_polygons(gdspath: Path, layer: Layer) -> list[np.array]:
+def get_layer_polygons(
+    gdspath: Path, layer: Layer, cellname: str | None = None
+) -> list[np.array]:
     """
     Extracts polygons from a specified layer in a GDS file using gdsfactory.
 
@@ -99,13 +104,15 @@ def get_layer_polygons(gdspath: Path, layer: Layer) -> list[np.array]:
         list: A list of polygons from the specified layer.
     """
     # Load the layout and initialize an empty list to hold polygon coordinates
-    component = gf.import_gds(gdspath)
+    component = gf.import_gds(gdspath=gdspath, cellname=cellname)
     component_layer = component.extract(layers=[layer])
     return component_layer.get_polygons()
 
 
 def get_gds_bbox(
-    gdspath: Path, layer: Layer | None = None
+    gdspath: Path,
+    layer: Layer | None = None,
+    cellname: str | None = None,
 ) -> tuple[tuple[float, float], tuple[float, float]]:
     """
     Calculates the bounding box of the entire GDS file using gdsfactory.
@@ -117,7 +124,7 @@ def get_gds_bbox(
     Returns:
         tuple: ((xmin,ymin),(xmax,ymax))
     """
-    component = gf.import_gds(gdspath)
+    component = gf.import_gds(gdspath, cellname=cellname)
     if layer is not None:
         component = component.extract(layers=[layer])
     return component.bbox
@@ -290,6 +297,7 @@ def estimate_weighted_global_density(
 def plot_density_heatmap(
     gdspath: Path,
     layer: Layer,
+    cellname: str | None = None,
     tile_size: tuple = (200, 200),
     threads: int = get_number_of_cores(),
     cmap=cm.Reds,
@@ -311,12 +319,18 @@ def plot_density_heatmap(
         visualize_polygons (bool, optional): Flag indicating whether to overlay the actual layer polygons on top of the heatmap for reference. Defaults to False.
     """
     density_data = calculate_density(
-        gdspath=gdspath, layer=layer, tile_size=tile_size, threads=threads
+        gdspath=gdspath,
+        cellname=cellname,
+        layer=layer,
+        tile_size=tile_size,
+        threads=threads,
     )
 
     Xi, Yi, Zi = density_data_to_meshgrid(
         density_data=density_data,
-        bbox=get_gds_bbox(gdspath) if visualize_with_full_gds else None,
+        bbox=get_gds_bbox(gdspath, cellname=cellname)
+        if visualize_with_full_gds
+        else None,
     )
 
     # Plot the heatmap
@@ -338,7 +352,7 @@ def plot_density_heatmap(
             x, y = polygon[:, 0], polygon[:, 1]
             plt.fill(x, y, fill=False, edgecolor="r", hatch="/", linewidth=2)
     if visualize_with_full_gds:
-        (xmin, ymin), (xmax, ymax) = get_gds_bbox(gdspath)
+        (xmin, ymin), (xmax, ymax) = get_gds_bbox(gdspath, cellname=cellname)
         plt.plot(
             [xmin, xmax, xmax, xmin, xmin],
             [ymin, ymin, ymax, ymax, ymin],
@@ -351,7 +365,7 @@ def plot_density_heatmap(
     plt.ylabel("Y (um)")
     if visualize_with_full_gds:
         estimate = estimate_weighted_global_density(
-            Xi, Yi, Zi, bbox=get_gds_bbox(gdspath)
+            Xi, Yi, Zi, bbox=get_gds_bbox(gdspath, cellname=cellname)
         )
         plt.title(
             title
