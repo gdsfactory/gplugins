@@ -35,12 +35,13 @@ def load_sample_netlist():
     return netlist
 
 
-def schemedit_html(comp_or_net, height=None):
+def schemedit_html(comp_or_net, height=None, patch=True):
     if isinstance(comp_or_net, gf.Component):
         netlist = get_netlist(comp_or_net)
     else:
         netlist = deepcopy(comp_or_net)
-    netlist = patch_netlist(netlist)
+    if patch:
+        netlist = patch_netlist(netlist)
     if not height:
         height = 0
     height = int(height)
