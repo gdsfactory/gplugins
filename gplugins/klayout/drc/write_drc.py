@@ -443,14 +443,14 @@ if __name__ == "__main__":
 
     rules = [
         derived_layer_boolean("TRENCH", "SLAB90", "-", "WG"),
-        # check_width(layer="WG", value=0.2),
-        # check_space(layer="WG", value=0.2),
-        # check_separation(layer1="HEATER", layer2="M1", value=1.0),
-        # check_enclosing(layer1="VIAC", layer2="M1", value=0.2),
-        # check_area(layer="WG", min_area_um2=0.05),
-        # check_not_inside(layer="VIAC", not_inside="NPP"),
-        # new_layers(TRENCHES=(2, 33)),
-        # size(layer="WG", dbu=1000),
+        check_width(layer="WG", value=0.2),
+        check_space(layer="WG", value=0.2),
+        check_separation(layer1="HEATER", layer2="M1", value=1.0),
+        check_enclosing(layer1="VIAC", layer2="M1", value=0.2),
+        check_area(layer="WG", min_area_um2=0.05),
+        check_not_inside(layer="VIAC", not_inside="NPP"),
+        new_layers(TRENCHES=(2, 33)),
+        size(layer="WG", value=1000),
         output_layer("TRENCH", (2, 33)),
     ]
 
