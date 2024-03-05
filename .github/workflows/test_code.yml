@@ -23,13 +23,12 @@ jobs:
           pip install pre-commit
           pre-commit run -a
   test_code_pip:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
+    container: ghcr.io/gdsfactory/gdsfactory:main
     strategy:
       fail-fast: false
       max-parallel: 12
       matrix:
-        python-version: ['3.11']
-        os: [ubuntu-latest]
         plugin: [femwell, gmsh, meow, sax, tidy3d, klayout, vlsir]
 
     name: Test ${{ matrix.plugin }} on ${{ matrix.os }}
@@ -40,10 +39,6 @@ jobs:
           path: |
             ~/.cache/pip
           key: ${{ hashFiles('pyproject.toml') }}
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
           make gmsh

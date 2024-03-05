@@ -76,9 +76,6 @@ gmsh = [
   "shapely",
   "meshwell>=1.0.7,<=1.1"
 ]
-klayout = [
-  "pyvis"
-]
 meow = [
   "jax==0.4.23",
   "jaxlib==0.4.23",
