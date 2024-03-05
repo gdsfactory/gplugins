@@ -4,6 +4,11 @@
 
 <!-- towncrier release notes start -->
 
+## [0.10.0](https://github.com/gdsfactory/gplugins/releases/tag/v0.10.0) - 2024-03-05
+
+No significant changes.
+
+
 ## [0.9.13](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.13) - 2024-02-07
 
 - pin older version of meshwell [#334](https://github.com/gdsfactory/gplugins/pull/334)
