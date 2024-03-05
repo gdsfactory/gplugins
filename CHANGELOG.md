@@ -1,12 +1,18 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.9.13...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.10.0...main)
 
 <!-- towncrier release notes start -->
 
 ## [0.10.0](https://github.com/gdsfactory/gplugins/releases/tag/v0.10.0) - 2024-03-05
 
-No significant changes.
+- basic python-driven density analytics, using klayout tiling processor [#339](https://github.com/gdsfactory/gplugins/pull/339)
+- Fix tidy3d grating couplers new port names and add drc samples [#350](https://github.com/gdsfactory/gplugins/pull/350)
+- better pyproject [#342](https://github.com/gdsfactory/gplugins/pull/342)
+- better global density estimation [#340](https://github.com/gdsfactory/gplugins/pull/340)
+- Mention correct pinned pyvis version [#338](https://github.com/gdsfactory/gplugins/pull/338)
+- fix xy meshing [#349](https://github.com/gdsfactory/gplugins/pull/349)
+- add cellname parametrization, update pyproject for pre-commit to run [#343](https://github.com/gdsfactory/gplugins/pull/343)
 
 
 ## [0.9.13](https://github.com/gdsfactory/gplugins/releases/tag/v0.9.13) - 2024-02-07
