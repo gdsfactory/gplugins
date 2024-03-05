@@ -88,7 +88,7 @@ def write_sparameters_grating_coupler(
     filepath: PathType | None = None,
     overwrite: bool = False,
     port_waveguide_name: str = "o1",
-    fiber_port_prefix: str = "opt",
+    fiber_port_prefix: str = "o2",
     verbose: bool = False,
     run: bool = True,
     **kwargs,
