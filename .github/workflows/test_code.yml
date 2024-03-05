@@ -31,7 +31,7 @@ jobs:
       matrix:
         plugin: [femwell, gmsh, meow, sax, tidy3d, klayout, vlsir]
 
-    name: Test ${{ matrix.plugin }} on ${{ matrix.os }}
+    name: Test ${{ matrix.plugin }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -41,7 +41,6 @@ jobs:
           key: ${{ hashFiles('pyproject.toml') }}
       - name: Install dependencies
         run: |
-          make gmsh
           pip install -e .[${{ matrix.plugin }},dev]
       - name: Test with pytest
         env:
