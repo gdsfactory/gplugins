@@ -49,7 +49,7 @@ def get_simulation_grating_coupler(
     plot_modes: bool = False,
     num_modes: int = 2,
     run_time_ps: float = 10.0,
-    fiber_port_prefix: str = "opt",
+    fiber_port_prefix: str = "o2",
     fiber_xoffset: float = -7,
     fiber_z: float = 2,
     fiber_mfd: float = 10.4,
