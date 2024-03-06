@@ -4,6 +4,11 @@
 
 <!-- towncrier release notes start -->
 
+## [0.10.1](https://github.com/gdsfactory/gplugins/releases/tag/v0.10.1) - 2024-03-05
+
+No significant changes.
+
+
 ## [0.10.0](https://github.com/gdsfactory/gplugins/releases/tag/v0.10.0) - 2024-03-05
 
 - basic python-driven density analytics, using klayout tiling processor [#339](https://github.com/gdsfactory/gplugins/pull/339)
