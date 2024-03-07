@@ -4,6 +4,11 @@
 
 <!-- towncrier release notes start -->
 
+## [0.10.2](https://github.com/gdsfactory/gplugins/releases/tag/v0.10.2) - 2024-03-06
+
+No significant changes.
+
+
 ## [0.10.1](https://github.com/gdsfactory/gplugins/releases/tag/v0.10.1) - 2024-03-05
 
 - fix grating prefix for tidy3d plugin [#351](https://github.com/gdsfactory/gplugins/pull/351)
