@@ -5,6 +5,8 @@ __pycache__/
 temp.msh2
 docs/notebooks/temporary
 docs/notebooks/batch-*
+.virtual_documents/
+
 
 # C extensions
 *.so
