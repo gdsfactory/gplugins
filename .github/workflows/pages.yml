@@ -1,4 +1,4 @@
-name: Sphinx docs to gh-pages
+name: Build docs
 
 on:
   push:
