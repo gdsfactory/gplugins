@@ -12,7 +12,7 @@ from gdsfactory.technology.processes import (
     Lithography,
     Planarize,
 )
-from gdsfactory.typings import Dict, Tuple
+from gdsfactory.typings import Tuple
 
 from gplugins.gmsh.parse_gds import cleanup_component_layermap
 from gplugins.sentaurus.mask_sde import get_sentaurus_mask_3D
@@ -20,6 +20,9 @@ from gplugins.sentaurus.mask_sde import get_sentaurus_mask_3D
 DEFAULT_HEADER = """(sde:clear)
 (sde:set-process-up-direction "+z")
 """
+
+REMESH_STR = """(sdedr:define-refinement-size \"RefDef.BG\" 1.0 1.0 1.0 0.01 0.01 0.001)
+(sdedr:define-refinement-function \"RefDef.BG\" \"DopingConcentration\" \"MaxTransDiff\" 1)\n"""
 
 
 def initialize_sde(
@@ -72,16 +75,19 @@ def initialize_sde(
     output_str += f"(sdepe:define-pe-domain {xmin} {ymin} {xmax} {ymax})\n"
 
     # Regions
+    regions = []
     layer = waferstack.layers["substrate"]
+    regions.append(f"substrate_{layer.material}")
     output_str += f'(sdepe:add-substrate "material" "{layer.material}" "thickness" {layer.thickness} "base" {layer.zmin:1.3f})\n'
 
     for layername, layer in sorted(waferstack.layers.items(), key=lambda x: x[1].zmin):
         if layername == "substrate":
             continue
         else:
+            regions.append(f"{layername}_{layer.material}")
             output_str += f'(sdepe:depo "material" "{layer.material}" "thickness" {layer.thickness})\n'
 
-    return output_str, get_mask, layer_polygons_dict, xmin, xmax, ymin, ymax
+    return output_str, get_mask, layer_polygons_dict, xmin, xmax, ymin, ymax, regions
 
 
 def write_sde(
@@ -89,21 +95,15 @@ def write_sde(
     waferstack,
     layermap,
     process,
-    xsection_bounds: tuple[tuple[float, float], tuple[float, float]] = None,
-    u_offset: float = 0.0,
     init_tdr: str = None,
     save_directory: Path = None,
     execution_directory: Path = None,
     filename: str = "sprocess_fps.cmd",
-    struct_prefix: str = "struct_",
     fileout: str | None = None,
     round_tol: int = 3,
     simplify_tol: float = 1e-3,
-    initial_z_resolutions: Dict = None,
-    initial_xy_resolution: float = None,
-    extra_resolution_str: str = None,
-    num_threads: int = 6,
     device_remesh: bool = True,
+    remesh_str: str = REMESH_STR,
 ):
     """Writes a Sentaurus Device Editor Scheme file for the component + layermap + initial waferstack + process.
 
@@ -156,6 +156,7 @@ def write_sde(
             xmax,
             ymin,
             ymax,
+            regions,
         ) = initialize_sde(
             component=component,
             waferstack=waferstack,
@@ -202,6 +203,7 @@ def write_sde(
                 )
 
             if isinstance(step, Grow):
+                regions.append(f"{step.name}_{step.material}")
                 f.write(
                     f'(sdepe:depo "material" "{step.material}" "thickness" {step.thickness} "type" "{type}" "region" "{step.material}")\n'
                 )
@@ -214,35 +216,31 @@ def write_sde(
                 f.write(
                     f'(sdedr:define-gaussian-profile "{step.name}" "{species}" "PeakPos" {step.range} "PeakVal" {step.peak_conc} "Length" {step.vertical_straggle} "Gauss" "StdDev" {step.lateral_straggle})\n'
                 )
-                f.write(f'(sdepe:implant "{step.name}")\n')
+                f.write(f'(sdepe:implant "{step.name}" "flat")\n')
 
             if isinstance(step, Lithography):
                 if step.layer:
                     f.write('(sdepe:remove "material" "Resist")\n')
 
-            #         if isinstance(step, Planarize):
-            #             f.write(f"transform cut up location=-{step.height:1.3f}<um>\n")
+            if isinstance(step, Planarize):
+                f.write(f'(sdepe:polish-device "thickness" {step.height:1.3f})\n')
 
             if isinstance(step, ArbitraryStep):
                 f.write(step.info)
                 f.write("\n")
 
-        #         f.write("\n")
+        # Remeshing options
+        if device_remesh:
+            f.write(remesh_str)
+            for region in regions:
+                if "silicon" in region:
+                    f.write(
+                        f'(sdedr:define-refinement-region "{region}" "RefDef.BG" "{region}")\n'
+                    )
 
-        #     # Remeshing options
-        #     if device_remesh:
-        #         f.write("\n")
-
-        #         for _layername, layer in waferstack.layers.items():
-        #             if layer.info and layer.info["active"] is True:
-        #                 f.write(
-        #                     f"""refinebox name= Global min= {{ {layer.zmin - layer.thickness:1.3f} {xmin} {ymin} }} max= {{ {layer.zmin:1.3f} {xmax} {ymax} }} refine.min.edge= {{ 0.0005 0.0005 0.0005 }} refine.max.edge= {{ 0.01 0.01 0.01 }}  refine.fields= {{ NetActive }} def.max.asinhdiff= 0.5 adaptive {layer.material}
-        # """
-        #                 )
-        #         f.write("grid remesh\n")
-
-        # Create structure
-        f.write(f'(sde:save-model "{fileout}")')
+        # Save structure and build mesh
+        f.write(f'(sde:save-model "{fileout}")\n')
+        f.write(f'(sde:build-mesh "" "{fileout}")')
         f.write("\n")
 
 
