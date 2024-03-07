@@ -12,7 +12,7 @@ from gdsfactory.technology.processes import (
     Lithography,
     Planarize,
 )
-from gdsfactory.typings import Dict
+from gdsfactory.typings import Dict, Tuple
 
 from gplugins.gmsh.parse_gds import cleanup_component_layermap
 from gplugins.sentaurus.mask import get_sentaurus_mask_2D, get_sentaurus_mask_3D
@@ -372,20 +372,19 @@ def write_sprocess(
 
 def write_add_contacts_to_tdr(
     struct_in: str = "/struct_out_fps.tdr",
-    struct_out: str = "struct_out_fps.tdr",
+    struct_out: str = "struct_out_contacts_fps.tdr",
     contact_str: str = None,
     filename: str = "sprocess_contacts.cmd",
     save_directory: Path = None,
     execution_directory: Path = None,
 ):
-    """Add contacts to tdr file.
+    """Add contacts to tdr file, and (optionally) remesh.
 
     Arguments:
     struct_in: filepath of the struct to modify
     struct_out: filepath of the output struct
-    contacts_dict: dict containing information of contact to add
-        key: contact name
-        value:
+    remesh_str: dict containing information of remeshing to add
+    contacts_str: dict containing information of contact to add
     """
     # Fix paths
     save_directory = Path("./") if save_directory is None else Path(save_directory)
@@ -408,6 +407,95 @@ def write_add_contacts_to_tdr(
     with open(out_file, "a") as f:
         f.write(f"init tdr= {str(relative_input_tdr_file)}")
         f.write("\n")
+
+        # Manual for now
+        f.write(contact_str)
+
+        # Create structure
+        f.write("\n")
+        f.write(f"struct tdr={str(relative_output_tdr_file)}")
+
+
+def write_generic_sprocess_tdr(
+    struct_in: str = "/struct_out_fps.tdr",
+    struct_out: str = "struct_out_contacts_fps.tdr",
+    lines: str = None,
+    filename: str = "sprocess_contacts.cmd",
+    save_directory: Path = None,
+    execution_directory: Path = None,
+):
+    """Loads struct_in, add scripts lines, and outputs struct_out."""
+    # Fix paths
+    save_directory = Path("./") if save_directory is None else Path(save_directory)
+    execution_directory = (
+        Path("./") if execution_directory is None else Path(execution_directory)
+    )
+
+    save_directory.relative_to(execution_directory)
+
+    relative_input_tdr_file = struct_in.relative_to(execution_directory)
+    relative_output_tdr_file = struct_out.relative_to(execution_directory)
+
+    # Setup TCL file
+    out_file = pathlib.Path(save_directory / filename)
+    save_directory.mkdir(parents=True, exist_ok=True)
+    if out_file.exists():
+        out_file.unlink()
+
+    # Load TDR file
+    with open(out_file, "a") as f:
+        f.write(f"init tdr= {str(relative_input_tdr_file)}")
+        f.write("\n")
+
+        # Manual for now
+        f.write(lines)
+
+        # Create structure
+        f.write("\n")
+        f.write(f"struct tdr={str(relative_output_tdr_file)}")
+
+
+def write_extrude_combine_tdrs(
+    structs_in: str = "/struct_out_fps.tdr",
+    extrusions: Tuple[float] = (0,),
+    struct_out: str = "struct_out_fps.tdr",
+    contact_str: str = None,
+    remesh_str: str = None,
+    filename: str = "sprocess_contacts.cmd",
+    save_directory: Path = None,
+    execution_directory: Path = None,
+):
+    """Extrude the 2D structs_in according to extrusions, paste the structs sequentially into one tdr, add contacts, and remesh.
+
+    Arguments:
+    structs_in: list of filepath of the structs to combine (in order, left to right)
+    struct_out: filepath of the output struct
+    extrusions: list of extrusion lengths for structs_in that are 2D
+    contact_str: str to add contacts
+    remesh_str: str to remesh
+    """
+    # Fix paths
+    save_directory = Path("./") if save_directory is None else Path(save_directory)
+    execution_directory = (
+        Path("./") if execution_directory is None else Path(execution_directory)
+    )
+
+    save_directory.relative_to(execution_directory)
+
+    structs_in.relative_to(execution_directory)
+    relative_output_tdr_file = struct_out.relative_to(execution_directory)
+
+    # Setup TCL file
+    out_file = pathlib.Path(save_directory / filename)
+    save_directory.mkdir(parents=True, exist_ok=True)
+    if out_file.exists():
+        out_file.unlink()
+
+    with open(out_file, "a") as f:
+        # Load and extrude first tdr file
+        tdr_file = str(structs_in[0])
+        f.write(f"init tdr= {tdr_file}\n")
+        f.write(f"init tdr= {tdr_file}\n")
 
         # Manual for now
         f.write(contact_str)
