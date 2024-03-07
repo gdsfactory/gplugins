@@ -23,6 +23,7 @@ execute:
     - "*02_model_extraction*"
     - "*palace*"
     - "*fdtdz*"
+    - "*elmer_01_electrostatic*"
     # - "*sax_01_sax*"
     # - "*20_schematic_driven_layout*"
     # - "*001_meep_sparameters*"
