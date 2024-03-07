@@ -131,7 +131,8 @@ norecursedirs = [
   'gplugins/devsim',
   'gplugins/sax/integrations',
   'gplugins/tidy3d/tests/tests_sparameters',
-  'gplugins/fdtdz'
+  'gplugins/fdtdz',
+  'gplugins/elmer'
 ]
 python_files = ["gplugins/*.py", "notebooks/*.ipynb", "tests/*.py"]
 testpaths = ["gplugins/", "tests"]
