@@ -21,8 +21,9 @@ DEFAULT_HEADER = """(sde:clear)
 (sde:set-process-up-direction "+z")
 """
 
-REMESH_STR = """(sdedr:define-refinement-size \"RefDef.BG\" 1.0 1.0 1.0 0.01 0.01 0.001)
-(sdedr:define-refinement-function \"RefDef.BG\" \"DopingConcentration\" \"MaxTransDiff\" 1)\n"""
+REMESH_STR = """(sdedr:define-refinement-size \"RefDef.BG\" 1.0 1.0 1.0 0.001 0.001 0.001)
+(sdedr:define-refinement-function \"RefDef.BG\" \"DopingConcentration\" \"MaxTransDiff\" 1)
+"""
 
 
 def initialize_sde(
@@ -33,6 +34,7 @@ def initialize_sde(
     u_offset: float = 0.0,
     round_tol: int = 3,
     simplify_tol: float = 1e-3,
+    header_str: str = DEFAULT_HEADER,
 ):
     """Returns a string defining the geometry definition for a Sentaurus sde file based on a component, initial wafer state, and settings.
 
@@ -69,23 +71,19 @@ def initialize_sde(
         ymax = component.ymax
 
     # Initialize
-    output_str += "(sde:clear)\n"
+    output_str += header_str
 
     # Initial z-mesh from waferstack and resolutions
-    output_str += f"(sdepe:define-pe-domain {xmin} {ymin} {xmax} {ymax})\n"
+    # output_str += f"(sdepe:define-pe-domain {xmin} {ymin} {xmax} {ymax})\n"
 
     # Regions
     regions = []
-    layer = waferstack.layers["substrate"]
-    regions.append(f"substrate_{layer.material}")
-    output_str += f'(sdepe:add-substrate "material" "{layer.material}" "thickness" {layer.thickness} "base" {layer.zmin:1.3f})\n'
-
-    for layername, layer in sorted(waferstack.layers.items(), key=lambda x: x[1].zmin):
-        if layername == "substrate":
-            continue
-        else:
-            regions.append(f"{layername}_{layer.material}")
-            output_str += f'(sdepe:depo "material" "{layer.material}" "thickness" {layer.thickness})\n'
+    for layername, layer in sorted(waferstack.layers.items()):
+        region_name = f"{layername}_{layer.material}"
+        regions.append(region_name)
+        zlo = min(layer.zmin, layer.zmin + layer.thickness)
+        zhi = max(layer.zmin, layer.zmin + layer.thickness)
+        output_str += f'(sdegeo:create-cuboid (position {xmin} {ymin} {zlo}) (position {xmax} {ymax} {zhi}) "{layer.material}" "{region_name}")\n'
 
     return output_str, get_mask, layer_polygons_dict, xmin, xmax, ymin, ymax, regions
 
@@ -104,6 +102,8 @@ def write_sde(
     simplify_tol: float = 1e-3,
     device_remesh: bool = True,
     remesh_str: str = REMESH_STR,
+    header_str: str = DEFAULT_HEADER,
+    num_threads: int = 6,
 ):
     """Writes a Sentaurus Device Editor Scheme file for the component + layermap + initial waferstack + process.
 
@@ -163,6 +163,7 @@ def write_sde(
             layermap=layermap,
             round_tol=round_tol,
             simplify_tol=simplify_tol,
+            header_str=header_str,
         )
         f.write(str(output_str))
 
@@ -214,8 +215,9 @@ def write_sde(
                 elif step.ion == "boron":
                     species = "BoronActiveConcentration"
                 f.write(
-                    f'(sdedr:define-gaussian-profile "{step.name}" "{species}" "PeakPos" {step.range} "PeakVal" {step.peak_conc} "Length" {step.vertical_straggle} "Gauss" "StdDev" {step.lateral_straggle})\n'
+                    f'(sdedr:define-gaussian-profile "{step.name}" "{species}" "PeakPos" {step.range} "PeakVal" {step.peak_conc} "ValueAtDepth" 1.0e16 "Depth" 0.5 "Erf" "Factor" 0.7)\n'
                 )
+
                 f.write(f'(sdepe:implant "{step.name}" "flat")\n')
 
             if isinstance(step, Lithography):
@@ -231,9 +233,10 @@ def write_sde(
 
         # Remeshing options
         if device_remesh:
+            f.write(f'(sdesnmesh:iocontrols "numThreads" {num_threads})\n')
             f.write(remesh_str)
             for region in regions:
-                if "silicon" in region:
+                if "Silicon" in region:
                     f.write(
                         f'(sdedr:define-refinement-region "{region}" "RefDef.BG" "{region}")\n'
                     )
@@ -424,11 +427,11 @@ if __name__ == "__main__":
         layer=LAYER.VIAC,
     )
 
-    WAFER_STACK.layers["substrate"].material = "silicon"
+    WAFER_STACK.layers["substrate"].material = "Silicon"
     WAFER_STACK.layers["substrate"].thickness = 1
     WAFER_STACK.layers["substrate"].zmin = WAFER_STACK.layers["box"].zmin - 1
     WAFER_STACK.layers["box"].material = "Oxide"
-    WAFER_STACK.layers["core"].material = "silicon"
+    WAFER_STACK.layers["core"].material = "Silicon"
 
     #  initialize_sde(component=c,
     #                 waferstack=WAFER_STACK,
@@ -455,7 +458,7 @@ if __name__ == "__main__":
                 layers_or=[LAYER.SLAB90],
                 depth=LayerStackParameters.thickness_wg
                 + 0.01,  # slight overetch for numerics
-                material="silicon",
+                material="Silicon",
                 resist_thickness=1.0,
                 positive_tone=False,
             ),
@@ -465,7 +468,7 @@ if __name__ == "__main__":
                 layers_diff=[LAYER.WG],
                 depth=LayerStackParameters.thickness_wg
                 - LayerStackParameters.thickness_slab_deep_etch,
-                material="silicon",
+                material="Silicon",
                 resist_thickness=1.0,
             ),
             # See gplugins.process.implant tables for ballpark numbers
@@ -475,7 +478,7 @@ if __name__ == "__main__":
                 layer=LAYER.N,
                 ion="phosphorus",
                 peak_conc=1e17,
-                range=0.1,
+                range=0.0,
                 vertical_straggle=0.2,
                 lateral_straggle=0.05,
                 resist_thickness=1.0,
@@ -495,7 +498,7 @@ if __name__ == "__main__":
                 layer=LAYER.PP,
                 ion="boron",
                 peak_conc=1e18,
-                range=0.1,
+                range=0.0,
                 vertical_straggle=0.2,
                 lateral_straggle=0.05,
                 resist_thickness=1.0,
@@ -505,7 +508,7 @@ if __name__ == "__main__":
                 layer=LAYER.NP,
                 ion="phosphorus",
                 peak_conc=1e18,
-                range=0.1,
+                range=0.0,
                 vertical_straggle=0.2,
                 lateral_straggle=0.05,
                 resist_thickness=1.0,
@@ -515,7 +518,7 @@ if __name__ == "__main__":
                 layer=LAYER.PPP,
                 ion="boron",
                 peak_conc=1e19,
-                range=0.1,
+                range=0.0,
                 vertical_straggle=0.2,
                 lateral_straggle=0.05,
                 resist_thickness=1.0,
@@ -525,7 +528,7 @@ if __name__ == "__main__":
                 layer=LAYER.NPP,
                 ion="phosphorus",
                 peak_conc=1e19,
-                range=0.1,
+                range=0.0,
                 vertical_straggle=0.2,
                 lateral_straggle=0.05,
                 resist_thickness=1.0,
@@ -538,38 +541,38 @@ if __name__ == "__main__":
                 time=5,
                 temperature=1000,
             ),
-            Grow(
-                name="viac_metallization",
-                layer=None,
-                thickness=LayerStackParameters.zmin_metal1
-                - LayerStackParameters.thickness_slab_deep_etch,
-                material="Aluminum",
-                type="anisotropic",
-            ),
-            Etch(
-                name="viac_etch",
-                layer=LAYER.VIAC,
-                depth=LayerStackParameters.zmin_metal1
-                - LayerStackParameters.thickness_slab_deep_etch
-                + 0.1,
-                material="Aluminum",
-                type="anisotropic",
-                resist_thickness=1.0,
-                positive_tone=False,
-            ),
-            Grow(
-                name="deposit_cladding",
-                layer=None,
-                thickness=LayerStackParameters.thickness_clad
-                + LayerStackParameters.thickness_slab_deep_etch,
-                material="Oxide",
-                type="anisotropic",
-            ),
-            Planarize(
-                name="planarization",
-                height=LayerStackParameters.thickness_clad
-                - LayerStackParameters.thickness_slab_deep_etch,
-            ),
+            # Grow(
+            #     name="viac_metallization",
+            #     layer=None,
+            #     thickness=LayerStackParameters.zmin_metal1
+            #     - LayerStackParameters.thickness_slab_deep_etch,
+            #     material="Aluminum",
+            #     type="anisotropic",
+            # ),
+            # Etch(
+            #     name="viac_etch",
+            #     layer=LAYER.VIAC,
+            #     depth=LayerStackParameters.zmin_metal1
+            #     - LayerStackParameters.thickness_slab_deep_etch
+            #     + 0.1,
+            #     material="Aluminum",
+            #     type="anisotropic",
+            #     resist_thickness=1.0,
+            #     positive_tone=False,
+            # ),
+            # Grow(
+            #     name="deposit_cladding",
+            #     layer=None,
+            #     thickness=LayerStackParameters.thickness_clad
+            #     + LayerStackParameters.thickness_slab_deep_etch,
+            #     material="Oxide",
+            #     type="anisotropic",
+            # ),
+            # Planarize(
+            #     name="planarization",
+            #     height=LayerStackParameters.thickness_clad
+            #     - LayerStackParameters.thickness_slab_deep_etch,
+            # ),
         )
 
     write_sde(
