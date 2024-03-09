@@ -495,7 +495,6 @@ def write_extrude_combine_tdrs(
         # Load and extrude first tdr file
         tdr_file = str(structs_in[0])
         f.write(f"init tdr= {tdr_file}\n")
-        f.write(f"init tdr= {tdr_file}\n")
 
         # Manual for now
         f.write(contact_str)
@@ -503,6 +502,61 @@ def write_extrude_combine_tdrs(
         # Create structure
         f.write("\n")
         f.write(f"struct tdr={str(relative_output_tdr_file)}")
+
+
+def cut_tdr(
+    struct_in: str = "/struct_in_fps.tdr",
+    struct_out: str = "struct_out_fps.tdr",
+    x: float | None = None,
+    y: float | None = None,
+    z: float | None = None,
+    filename: str = "sprocess_cut.cmd",
+    save_directory: Path = None,
+    execution_directory: Path = None,
+    global_device_remeshing_str: str = DEFAULT_DEVICE_REMESHING,
+):
+    # Fix paths
+    save_directory = Path("./") if save_directory is None else Path(save_directory)
+    execution_directory = (
+        Path("./") if execution_directory is None else Path(execution_directory)
+    )
+
+    save_directory.relative_to(execution_directory)
+
+    struct_in.relative_to(execution_directory)
+    relative_output_tdr_file = struct_out.relative_to(execution_directory)
+    # Setup TCL file
+    out_file = pathlib.Path(save_directory / filename)
+    save_directory.mkdir(parents=True, exist_ok=True)
+    if out_file.exists():
+        out_file.unlink()
+
+    with open(out_file, "a") as f:
+        # Load and extrude first tdr file
+        tdr_file = str(struct_in)
+        f.write(f"init tdr= {tdr_file}\n")
+
+        slice_str = f"struct tdr= {str(relative_output_tdr_file)}"
+        # Perform coordinate change too
+        if x is not None:
+            slice_str += " z= {x}"
+        if y is not None:
+            slice_str += " y= {y}"
+        if z is not None:
+            slice_str += " x= -{z}"
+        f.write(slice_str)
+
+        # Remeshing instructions
+        f.write(f"init tdr= {str(relative_output_tdr_file)}\n")
+
+        f.write(global_device_remeshing_str)
+
+        f.write(
+            """refinebox name= Global refine.min.edge= {0.0005 0.0005 0.0005} refine.max.edge= {0.1 0.1 0.1}  refine.fields= {NetActive} def.max.asinhdiff= 0.5 adaptive Silicon
+grid remesh
+struct tdr= pn_test_msh_zcut_remeshed
+"""
+        )
 
 
 if __name__ == "__main__":
