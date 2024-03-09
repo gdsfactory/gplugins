@@ -40,8 +40,8 @@ value="** manual skywater pdks install (with patches applied)
 .param mc_pr_switch=0
 "
 spice_ignore=false}
-C {devices/launcher.sym} -150 -30 0 0 {name=h2 
-descr="Simulate" 
+C {devices/launcher.sym} -150 -30 0 0 {name=h2
+descr="Simulate"
 tclcommand="xschem netlist; xschem simulate"}
 C {devices/vsource.sym} 240 -130 0 0 {name=V2 value=5
 }
