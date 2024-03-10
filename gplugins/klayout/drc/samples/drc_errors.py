@@ -2,21 +2,21 @@
 from __future__ import annotations
 
 import gdsfactory as gf
+import numpy as np
 from gdsfactory.component import Component
-from gdsfactory.typings import Float2, Layer
+from gdsfactory.typings import Layer
 
 layer = (1, 0)
 
 
 @gf.cell
-def width_min(size: Float2 = (0.1, 0.1)) -> Component:
-    return gf.components.rectangle(size=size, layer=layer)
+def width_min(width: float = 0.1) -> Component:
+    return gf.components.rectangle(size=(width, width), layer=layer)
 
 
 @gf.cell
-def area_min() -> Component:
-    size = (0.2, 0.2)
-    return gf.components.rectangle(size=size, layer=layer)
+def area_min(width: float = 0.2) -> Component:
+    return gf.components.rectangle(size=(width, width), layer=layer)
 
 
 @gf.cell
@@ -74,18 +74,17 @@ def snapping_error(gap: float = 1e-3) -> Component:
 
 
 @gf.cell
-def errors() -> Component:
+def errors(n: int = 20) -> Component:
     """Write a GDS with sample errors."""
-    components = [width_min(), gap_min(), separation(), enclosing()]
-    c = gf.pack(components, spacing=1.5)
-    return gf.add_padding_container(c[0], layers=((64, 0),), default=5)
+    wmin = 0.1
+    # components = [width_min(), gap_min(), separation(), enclosing()]
+    cs = []
+    cs += [width_min(wmin * np.random.rand()) for _ in range(n)]
+    cs += [gap_min(gap=0.1 * np.random.rand()) for _ in range(n)]
+    cs += [separation(gap=0.1 * np.random.rand()) for _ in range(n)]
+    cs += [enclosing(enclosing=0.1 * np.random.rand()) for _ in range(n)]
 
-
-@gf.cell
-def errors2() -> Component:
-    """Write a GDS with sample errors."""
-    components = 2 * [width_min(), gap_min(), separation(), enclosing()]
-    c = gf.pack(components, spacing=1.5)
+    c = gf.pack(cs, spacing=1.5)
     return gf.add_padding_container(c[0], layers=((64, 0),), default=5)
 
 
@@ -97,6 +96,6 @@ if __name__ == "__main__":
     # c = snapping_error()
     # c.write_gds("snap.gds")
 
-    c = errors2()
+    c = errors()
     c.write_gds("errors.gds")
     c.show(show_ports=True)
