@@ -1,10 +1,63 @@
 from __future__ import annotations
 
+from functools import cache
+
+import jax
 import jax.numpy as jnp
+import sax
 from sax import SDict
 from sax.utils import reciprocal
 
 nm = 1e-3
+
+################
+# PassThrus
+################
+
+
+@cache
+def _2port(p1, p2):
+    @jax.jit
+    def _2port(wl=1.5):
+        wl = jnp.asarray(wl)
+        return sax.reciprocal({(p1, p2): jnp.ones_like(wl)})
+
+    return _2port
+
+
+@cache
+def _3port(p1, p2, p3):
+    @jax.jit
+    def _3port(wl=1.5):
+        wl = jnp.asarray(wl)
+        thru = jnp.ones_like(wl) / jnp.sqrt(2)
+        return sax.reciprocal(
+            {
+                (p1, p2): thru,
+                (p1, p3): thru,
+            }
+        )
+
+    return _3port
+
+
+@cache
+def _4port(p1, p2, p3, p4):
+    @jax.jit
+    def _4port(wl=1.5):
+        wl = jnp.asarray(wl)
+        thru = jnp.ones_like(wl) / jnp.sqrt(2)
+        cross = 1j * thru
+        return sax.reciprocal(
+            {
+                (p1, p4): thru,
+                (p2, p3): thru,
+                (p1, p3): cross,
+                (p2, p4): cross,
+            }
+        )
+
+    return _4port
 
 
 def straight(
