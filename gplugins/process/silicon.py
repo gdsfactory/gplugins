@@ -4,6 +4,7 @@ TODO:
     Material class
     Pint for units
 """
+
 import numpy as np
 
 kB = 1.380649e-23  # m2 kg s-2 K-1, boltzmann constant

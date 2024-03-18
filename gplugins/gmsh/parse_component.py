@@ -1,4 +1,5 @@
 """Preprocessing involving both the GDS and the LayerStack, or the resulting simulation polygons."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -75,15 +76,15 @@ def process_buffers(layer_polygons_dict: dict, layer_stack: LayerStack):
                         layer_stack.layers[layername].thickness * zs[z_ind + 1]
                         - layer_stack.layers[layername].thickness * z
                     )
-                    extended_layer_stack_layers[
-                        f"{layername}_{poly_ind}_{z}"
-                    ] = LayerLevel(
-                        layer=layer_stack.layers[layername].layer,
-                        thickness=new_thickness,
-                        zmin=new_zmin,
-                        material=layer_stack.layers[layername].material,
-                        info=layer_stack.layers[layername].info,
-                        mesh_order=layer_stack.layers[layername].mesh_order,
+                    extended_layer_stack_layers[f"{layername}_{poly_ind}_{z}"] = (
+                        LayerLevel(
+                            layer=layer_stack.layers[layername].layer,
+                            thickness=new_thickness,
+                            zmin=new_zmin,
+                            material=layer_stack.layers[layername].material,
+                            info=layer_stack.layers[layername].info,
+                            mesh_order=layer_stack.layers[layername].mesh_order,
+                        )
                     )
                     extended_layer_polygons_dict[f"{layername}_{poly_ind}_{z}"] = (
                         f"{layername}",
@@ -91,16 +92,16 @@ def process_buffers(layer_polygons_dict: dict, layer_stack: LayerStack):
                         polygon.buffer(width_buffer),
                         polygon.buffer(width_buffers[z_ind + 1]),
                     )
-                extended_layer_stack_layers[
-                    f"{layername}_{poly_ind}_{zs[-1]}"
-                ] = LayerLevel(
-                    layer=layer_stack.layers[layername].layer,
-                    thickness=0,
-                    zmin=layer_stack.layers[layername].zmin
-                    + layer_stack.layers[layername].thickness,
-                    material=layer_stack.layers[layername].material,
-                    info=layer_stack.layers[layername].info,
-                    mesh_order=layer_stack.layers[layername].mesh_order,
+                extended_layer_stack_layers[f"{layername}_{poly_ind}_{zs[-1]}"] = (
+                    LayerLevel(
+                        layer=layer_stack.layers[layername].layer,
+                        thickness=0,
+                        zmin=layer_stack.layers[layername].zmin
+                        + layer_stack.layers[layername].thickness,
+                        material=layer_stack.layers[layername].material,
+                        info=layer_stack.layers[layername].info,
+                        mesh_order=layer_stack.layers[layername].mesh_order,
+                    )
                 )
     return extended_layer_polygons_dict, LayerStack(layers=extended_layer_stack_layers)
 

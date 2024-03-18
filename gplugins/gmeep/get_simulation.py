@@ -1,4 +1,5 @@
 """Returns simulation from component."""
+
 from __future__ import annotations
 
 import inspect
