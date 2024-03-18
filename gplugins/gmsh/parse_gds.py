@@ -39,7 +39,7 @@ def fuse_polygons(
     ]
 
     return shapely.ops.unary_union(shapely_polygons).simplify(
-        simplify_tol, preserve_topology=True
+        simplify_tol, preserve_topology=False
     )
 
 
