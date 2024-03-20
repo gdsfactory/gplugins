@@ -20,15 +20,14 @@ DEFAULT_HEADER = """(sde:clear)
 (sde:set-process-up-direction "+z")
 """
 
-REMESH_STR = """(sdedr:define-refinement-size \"RefDef.BG\" 1.0 1.0 1.0 0.001 0.001 0.001)
-(sdedr:define-refinement-function \"RefDef.BG\" \"DopingConcentration\" \"MaxTransDiff\" 1)
+REMESH_STR = """(sdedr:define-refinement-size \"RefDef.BG\" 0.5 0.5 0.5 0.01 0.01 0.01)
+(sdedr:define-refinement-function \"RefDef.BG\" \"DopingConcentration\" \"MaxTransDiff\" 0.1)
 """
 
-# CONTACT_STR = """(sdegeo:set-contact (find-face-id (position 0.5 0.5 1.0)) "anode")
-# (sdegeo:set-contact (find-face-id (position 0.5 0.5 1.0)) "cathode")
-# """
-
 CONTACT_STR = ""
+
+
+SLICE_STR = ""
 
 
 def initialize_sde(
@@ -99,6 +98,7 @@ def write_sde(
     layermap,
     process,
     contact_str: str | None = None,
+    slice_str: str | None = None,
     init_tdr: str = None,
     save_directory: Path = None,
     execution_directory: Path = None,
@@ -109,7 +109,7 @@ def write_sde(
     device_remesh: bool = True,
     remesh_str: str = REMESH_STR,
     header_str: str = DEFAULT_HEADER,
-    num_threads: int = 6,
+    num_threads: int = 4,
 ):
     """Writes a Sentaurus Device Editor Scheme file for the component + layermap + initial waferstack + process.
 
@@ -250,6 +250,10 @@ def write_sde(
         # Add contacts
         if contact_str is not None:
             f.write(f"{contact_str}")
+
+        # Slice before meshing
+        if slice_str is not None:
+            f.write(f"{slice_str}")
 
         # Save structure and build mesh
         f.write(f'(sde:save-model "{fileout}")\n')
@@ -449,6 +453,8 @@ if __name__ == "__main__":
         contact_str += f'(define VIA (sdegeo:create-cuboid (position {xmin} {ymin} 0.09) (position {xmax} {ymax} 0.5) "Metal" "{label}"))\n'
         contact_str += f'(sdegeo:set-contact VIA "{label}" "remove")\n'
 
+    slice_str = ""
+
     test_component.name = "pn_test"
     write_sde(
         component=test_component,
@@ -458,4 +464,5 @@ if __name__ == "__main__":
         save_directory="./sde/",
         filename="sde.scm",
         contact_str=contact_str,
+        slice_str=slice_str,
     )
