@@ -50,9 +50,7 @@ def run_fragmented_calculation(
 
     for i, num_ions in enumerate(fragment(step, number_ions)):
         print(
-            "total ions completed: {:06d}\tion: {}\tions in step: {:06d}".format(
-                i * step, ion.symbol, num_ions
-            )
+            f"total ions completed: {i * step:06d}\tion: {ion.symbol}\tions in step: {num_ions:06d}"
         )
         trim_settings = trim_settings or {"calculation": 2}
         trim = TRIM(target, ion, number_ions=num_ions, **trim_settings)

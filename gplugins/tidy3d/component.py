@@ -611,14 +611,14 @@ def write_sparameters(
             for port_out in s.port_out.values:
                 for mode_index_in in s.mode_index_in.values:
                     for mode_index_out in s.mode_index_out.values:
-                        sp[
-                            f"{port_in}@{mode_index_in},{port_out}@{mode_index_out}"
-                        ] = s.sel(
-                            port_in=port_in,
-                            port_out=port_out,
-                            mode_index_in=mode_index_in,
-                            mode_index_out=mode_index_out,
-                        ).values
+                        sp[f"{port_in}@{mode_index_in},{port_out}@{mode_index_out}"] = (
+                            s.sel(
+                                port_in=port_in,
+                                port_out=port_out,
+                                mode_index_in=mode_index_in,
+                                mode_index_out=mode_index_out,
+                            ).values
+                        )
 
         frequency = s.f.values
         sp["wavelengths"] = td.constants.C_0 / frequency

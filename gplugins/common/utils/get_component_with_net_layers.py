@@ -88,9 +88,9 @@ def get_component_with_net_layers(
                             new_layers_init[0] + i,
                             new_layers_init[1] + j,
                         )
-                        layer_stack.layers[
-                            f"{old_layername}{delimiter}{portname}"
-                        ] = new_layer
+                        layer_stack.layers[f"{old_layername}{delimiter}{portname}"] = (
+                            new_layer
+                        )
                     net_component.add_polygon(polygon, layer=new_layer_number)
             # Otherwise put the polygon back on the same layer
             else:

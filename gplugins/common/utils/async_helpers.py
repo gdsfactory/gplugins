@@ -18,9 +18,11 @@ async def handle_return(
     append: bool = False,
 ) -> None:
     """Reads through a :class:`StreamReader` and tees content to ``out_stream`` and ``log_file``."""
-    with open(
-        log_file, "a" if append else "w", encoding="utf-8", buffering=1
-    ) if log_file else nullcontext(None) as f:
+    with (
+        open(log_file, "a" if append else "w", encoding="utf-8", buffering=1)
+        if log_file
+        else nullcontext(None) as f
+    ):
         while True:
             # Without this sleep, the program won't exit
             await asyncio.sleep(0)
