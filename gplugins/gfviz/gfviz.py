@@ -3,15 +3,16 @@ import os
 from copy import deepcopy
 
 import gdsfactory as gf
-from gfviz.b64 import load_schemedit_wasm_b64
-from gfviz.netlist import get_netlist, patch_netlist
 from jinja2 import Environment, PackageLoader, select_autoescape
+
+from .b64 import load_schemedit_wasm_b64
+from .netlist import get_netlist, patch_netlist
 
 TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates")
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
 
 jinja = Environment(
-    loader=PackageLoader("gfviz"),
+    loader=PackageLoader("gplugins.gfviz"),
     autoescape=select_autoescape(),
 )
 

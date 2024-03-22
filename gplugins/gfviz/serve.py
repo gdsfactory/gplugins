@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
-from gfviz.gfviz import load_sample_netlist, schemedit_html
+
+from .gfviz import load_sample_netlist, schemedit_html
 
 app = FastAPI()
 
