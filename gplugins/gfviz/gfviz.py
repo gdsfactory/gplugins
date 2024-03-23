@@ -36,6 +36,9 @@ def load_sample_netlist():
 
 
 def schemedit_html(comp_or_net, height=None, patch=True):
+    if isinstance(comp_or_net, str):
+        comp_or_net = gf.get_component(comp_or_net)
+
     if isinstance(comp_or_net, gf.Component):
         netlist = get_netlist(comp_or_net)
     else:

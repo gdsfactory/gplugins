@@ -6,6 +6,7 @@ temp.msh2
 docs/notebooks/temporary
 docs/notebooks/batch-*
 .virtual_documents/
+notebooks/rib_strip_pathlengths/
 
 
 # C extensions
@@ -18,7 +19,6 @@ docs/notebooks/batch-*
 *.pkl
 *.txt
 *.csv
-*.html
 test-data/
 _autosummary/
 gplugins/path_length_analysis/test_pathlength_reporting/
