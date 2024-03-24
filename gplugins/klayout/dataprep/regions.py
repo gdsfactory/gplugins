@@ -95,6 +95,7 @@ class RegionCollection:
         self.layout = lib.cell_by_name(cell_name) if cell_name else lib.top_cell()
         self.lib = lib
         self.regions = {}
+        self.cell = lib[lib.top_cell().cell_index()]
 
     def __getitem__(self, layer: tuple[int, int]) -> Region:
         _assert_is_layer(layer)
@@ -142,13 +143,9 @@ class RegionCollection:
         else:
             c.write(gdspath)
 
-    def plot(self, **kwargs):
+    def plot(self) -> kf.KCell:
         """Plot regions."""
-        gdspath = GDSDIR_TEMP / "out.gds"
-        self.write_gds(gdspath=gdspath, **kwargs)
-        gf.clear_cache()
-        c = gf.import_gds(gdspath)
-        return c.plot()
+        return self.cell
 
     def get_kcell(
         self, keep_original: bool = True, cellname: str = "Unnamed"
