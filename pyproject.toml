@@ -87,7 +87,7 @@ meow = [
   "tidy3d==2.5.2"
 ]
 sax = [
-  "jax<=0.4.23",
+  "jax<=0.4.25",
   "jaxlib<=0.4.23",
   "sax>=0.12.1,<0.13.0",
   "scikit-learn",
