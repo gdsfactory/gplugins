@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import inspect
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from functools import cache, partial
+from inspect import getmembers
 
 import jax
 import jax.numpy as jnp
@@ -176,6 +177,7 @@ def grating_coupler(
     https://github.com/flaport/photontorch/blob/master/photontorch/components/gratingcouplers.py
 
     Args:
+        wl: wavelength.
         wl0: center wavelength.
         loss: in dB.
         reflection: from waveguide side.
@@ -341,6 +343,15 @@ def mmi2x2(
     loss_dB: Float = 0.3,
     shift: Float = 0.005,
 ) -> sax.SDict:
+    """Returns 2x2 MMI model.
+
+    Args:
+        wl: wavelength.
+        wl0: center wavelength.
+        fwhm: full width half maximum.
+        loss_dB: loss in dB.
+        shift: wavelength shift.
+    """
     thru = _mmi_amp(wl=wl, wl0=wl0, fwhm=fwhm, loss_dB=loss_dB)
     cross = 1j * _mmi_amp(wl=wl, wl0=wl0 + shift, fwhm=fwhm, loss_dB=loss_dB)
     return sax.reciprocal(
@@ -400,29 +411,40 @@ def crossing(wl: Float = 1.5) -> sax.SDict:
 ################
 # Models Dict
 ################
-def get_models() -> dict[str, Callable[..., sax.SDict]]:
+def get_models(modules) -> dict[str, Callable[..., sax.SDict]]:
+    """Returns all models in a module or list of modules."""
     models = {}
-    for name, func in list(globals().items()):
-        if not callable(func):
-            continue
-        _func = func
-        while isinstance(_func, partial):
-            _func = _func.func
-        try:
-            sig = inspect.signature(_func)
-        except ValueError:
-            continue
-        if str(sig.return_annotation) in {"sax.SDict", "SDict"} and not name.startswith(
-            "_"
-        ):
-            models[name] = func
+    modules = modules if isinstance(modules, Iterable) else [modules]
+
+    for module in modules:
+        for t in getmembers(module):
+            name = t[0]
+            func = t[1]
+            if not callable(func):
+                continue
+            _func = func
+            while isinstance(_func, partial):
+                _func = _func.func
+            try:
+                sig = inspect.signature(_func)
+            except ValueError:
+                continue
+            if str(sig.return_annotation) in {
+                "sax.SDict",
+                "SDict",
+            } and not name.startswith("_"):
+                models[name] = func
     return models
 
 
 if __name__ == "__main__":
+    import sys
+
     import gplugins.sax as gs
 
-    models = get_models()
+    models = get_models(sys.modules[__name__])
+    for i in models.keys():
+        print(i)
 
     gs.plot_model(grating_coupler)
     # gs.plot_model(coupler)
