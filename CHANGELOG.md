@@ -1,13 +1,14 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.10.2...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.11.0...main)
 
 <!-- towncrier release notes start -->
 
 ## [0.11.0](https://github.com/gdsfactory/gplugins/releases/tag/v0.11.0) - 2024-03-24
 
-No significant changes.
-
+- add more sax models [#364](https://github.com/gdsfactory/gplugins/pull/364)
+- Add models [#357](https://github.com/gdsfactory/gplugins/pull/357)
+- fix polygon hole not meshing [#362](https://github.com/gdsfactory/gplugins/pull/362)
 
 ## [0.10.2](https://github.com/gdsfactory/gplugins/releases/tag/v0.10.2) - 2024-03-06
 
