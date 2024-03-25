@@ -45,7 +45,14 @@ def fuse_polygons(
 
 
 def cleanup_component(component, layer_stack, round_tol=2, simplify_tol=1e-2):
-    """Process component polygons before meshing."""
+    """Process component polygons before meshing.
+
+    Args:
+        component: gdsfactory component.
+        layer_stack: LayerStack object.
+        round_tol: Number of digits to round coordinates.
+        simplify_tol: Tolerance for simplifying polygons.
+    """
     layer_stack_dict = layer_stack.to_dict()
 
     return {
