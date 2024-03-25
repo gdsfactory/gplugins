@@ -13,8 +13,6 @@ from pydantic import (
 )
 from shapely import MultiPolygon, Polygon
 
-from gplugins.gmsh.parse_gds import cleanup_component
-
 from ..types import AnyShapelyPolygon, GFComponent
 
 
@@ -91,6 +89,8 @@ class LayeredComponentBase(BaseModel):
     @computed_field
     @cached_property
     def polygons(self) -> dict[str, AnyShapelyPolygon]:
+        from gplugins.gmsh.parse_gds import cleanup_component
+
         return cleanup_component(
             self.gds_component, self.layer_stack, round_tol=3, simplify_tol=1e-3
         )
