@@ -9,7 +9,7 @@ import networkx as nx
 from gdsfactory.config import logger
 
 from gplugins.klayout.netlist_spice_reader import NoCommentReader
-from gplugins.klayout.netlist_graph import netlist_to_networkx
+from gplugins.klayout.netlist_graph import netlist_to_networkx, networkx_from_file
 
 
 def plot_nets(
@@ -35,27 +35,8 @@ def plot_nets(
             Helpful for reducing trivial waveguide elements.
     """
 
-    match Path(filepath).suffix:
-        case ".l2n" | ".txt":
-            l2n = kdb.LayoutToNetlist()
-            l2n.read(str(filepath))
-            netlist = l2n.netlist()
-        case ".cir" | ".sp" | ".spi" | ".spice":
-            reader = kdb.NetlistSpiceReader(NoCommentReader())
-            netlist = kdb.Netlist()
-            netlist.read(str(filepath), reader)
-        case _:
-            logger.warning("Assuming file is KLayout native LayoutToNetlist file")
-            l2n = kdb.LayoutToNetlist()
-            l2n.read(str(filepath))
-            netlist = l2n.netlist()
-
-    # Creating a graph for the connectivity
-    G_connectivity = netlist_to_networkx(
-        netlist,
-        fully_connected=fully_connected,
-        include_labels=include_labels,
-        only_most_complex=only_most_complex,
+    G_connectivity = networkx_from_file(
+        **locals()
     )
 
     if nodes_to_reduce:
