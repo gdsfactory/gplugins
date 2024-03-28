@@ -1,15 +1,11 @@
-
 import itertools
-from collections.abc import Collection
-from itertools import combinations
 from pathlib import Path
 
 import klayout.db as kdb
-import matplotlib.pyplot as plt
 import networkx as nx
 from gdsfactory.config import logger
 
-from gplugins.klayout.netlist_spice_reader import NoCommentReader
+from gplugins.klayout.netlist_spice_reader import CalibreSpiceReader
 
 
 def _get_subcircuit_name(subcircuit: kdb.SubCircuit) -> str:
@@ -47,35 +43,65 @@ def netlist_to_networkx(
 
     for circuit in top_circuits:
         # first flatten components that won't be kept
-        for subcircuit in circuit.each_subcircuit():
-            if subcircuit.name in {"TODO"}:
-                circuit.flatten_subcircuit(subcircuit)
+        # for subcircuit in circuit.each_subcircuit():
+        #     if subcircuit.name in {"TODO"}:
+        #         circuit.flatten_subcircuit(subcircuit)
 
-        for net in circuit.each_net():
-            # Get subcircuit pins if they exist (hierarchical export from KLayout)
-            net_pins = [
-                _get_subcircuit_name(subcircuit_pin_ref.subcircuit())
-                for subcircuit_pin_ref in net.each_subcircuit_pin()
+        for device in circuit.each_device():
+            # Gather properties of Device class
+            device_class = device.device_class()
+            parameter_definitions = device_class.parameter_definitions()
+            terminal_definitions = device_class.terminal_definitions()
+
+            # Gather values for specific Device instance
+            parameters = {
+                parameter.name: device.parameter(parameter.name)
+                for parameter in parameter_definitions
+            }
+            nets = [
+                device.net_for_terminal(terminal.name)
+                for terminal in terminal_definitions
             ]
+            device_name = f"{device_class.name}_{device.expanded_name()}"
+
+            # Get subcircuit pins if they exist (hierarchical export from KLayout)
+            # net_pins = [
+            #     _get_subcircuit_name(subcircuit_pin_ref.subcircuit())
+            #     for subcircuit_pin_ref in net.each_subcircuit_pin()
+            # ]
+            # if net_pins:
+            #     breakpoint()
             # or use all pins (flat like from Cadence SPICE)
-            if not net_pins:
-                net_pins.extend(pin_ref.pin().name() for pin_ref in net.each_pin())
+            # if not net_pins:
+            #     net_pins.extend(pin_ref.pin().name() for pin_ref in net.each_pin())
 
             # Assumed lone net with only label info
-            if (
-                include_labels
-                and net.expanded_name()
-                and "," not in net.expanded_name()
-            ):
-                G.add_edges_from(zip(net_pins, [net.name] * len(net_pins)))
+            # if (
+            #     include_labels
+            #     and net.expanded_name()
+            #     and "," not in net.expanded_name()
+            # ):
+            #     G.add_edges_from(zip(net_pins, [net.name] * len(net_pins)))
 
-            if fully_connected:
-                G.add_edges_from(itertools.combinations(net_pins, 2))
-            else:
-                G.add_edges_from(zip(net_pins[:-1], net_pins[1:]))
+            # device_names_connected_to_nets = [
+            #     _get_subcircuit_name(subcircuit_pin_ref.subcircuit())
+            #     for subcircuit_pin_ref in net.each_subcircuit_pin()
+            # ]
+
+            G.add_node(device_name, **parameters)
+            for net in nets:
+                G.add_edge(device_name, net.expanded_name())
+
+            # if fully_connected:
+            #     G.add_edges_from(itertools.combinations(net_pins, 2))
+            # else:
+            #     G.add_edges_from(zip(net_pins[:-1], net_pins[1:]))
+
+    # TODO
+    # for parameter_name, parameter_values in TODO:
+    #     nx.set_node_attributes(G, parameter_values, name=parameter_name)
+
     return G
-
-
 
 
 def networkx_from_file(
@@ -102,7 +128,7 @@ def networkx_from_file(
             l2n.read(str(filepath))
             netlist = l2n.netlist()
         case ".cir" | ".sp" | ".spi" | ".spice":
-            reader = kdb.NetlistSpiceReader(NoCommentReader())
+            reader = kdb.NetlistSpiceReader(CalibreSpiceReader())
             netlist = kdb.Netlist()
             netlist.read(str(filepath), reader)
         case _:

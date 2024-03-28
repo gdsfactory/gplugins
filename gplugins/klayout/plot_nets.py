@@ -1,15 +1,11 @@
-import itertools
 from collections.abc import Collection
 from itertools import combinations
 from pathlib import Path
 
-import klayout.db as kdb
 import matplotlib.pyplot as plt
 import networkx as nx
-from gdsfactory.config import logger
 
-from gplugins.klayout.netlist_spice_reader import NoCommentReader
-from gplugins.klayout.netlist_graph import netlist_to_networkx, networkx_from_file
+from gplugins.klayout.netlist_graph import networkx_from_file
 
 
 def plot_nets(
@@ -35,9 +31,7 @@ def plot_nets(
             Helpful for reducing trivial waveguide elements.
     """
 
-    G_connectivity = networkx_from_file(
-        **locals()
-    )
+    G_connectivity = networkx_from_file(**locals())
 
     if nodes_to_reduce:
 
