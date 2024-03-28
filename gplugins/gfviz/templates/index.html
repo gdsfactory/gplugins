@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+  <head>
+    <title>gfviz</title>
+    <script>
+      var schemeditHeight = {{ height }}
+      var netlist = {{ netlist | safe }};
+      function getThemeFromLocalStorage() {
+        return false;
+      }
+      function postParent(raw) {
+        var data = JSON.parse(raw);
+        if ("Loaded" in data) {
+          postMessage(JSON.stringify({ Netlist: netlist }));
+          resizeSchemedit();
+          postMessage(JSON.stringify({ FitZoom: true }));
+        }
+      }
+      function resizeSchemedit() {
+        var el = document.getElementById("netlist");
+        var width = parseInt(0.8 * el.parentElement.offsetWidth);
+        var height = schemeditHeight>0?schemeditHeight:el.parentElement.offsetHeight;
+        var canvas = document.getElementById("netlist").children[0];
+        if (canvas) {
+          canvas.width = width;
+          canvas.height = height;
+          el.style.width = `${width}px`;
+          el.style.height = `${height}px`;
+          postMessage(JSON.stringify({ Redraw: true }));
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="netlist" style="width: 0px; height: {{ height }}px"></div>
+    <script type="module">
+      window.onresize = resizeSchemedit;
+
+      // prettier-ignore
+      {{ schemedit_js | safe }}
+
+      var schemedit_b64 = "{{ schemedit_b64 }}";
+
+      function decode(encoded) {
+        var binaryString = atob(encoded);
+        var bytes = new Uint8Array(binaryString.length);
+        for (var i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes.buffer;
+      }
+      S(decode(schemedit_b64));
+    </script>
+  </body>
+</html>

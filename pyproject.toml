@@ -65,6 +65,12 @@ femwell = [
   "femwell>=0.1.6,<0.2",
   "meshwell>=1.0.7,<=1.1"
 ]
+gfviz = [
+  "jinja2",
+  "fastapi",
+  "shapely",
+  "natsort"
+]
 gmsh = [
   "gmsh==4.12.2",
   "h5py",
