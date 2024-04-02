@@ -10,7 +10,6 @@ from gplugins.klayout.netlist_graph import networkx_from_file
 
 def plot_nets(
     filepath: str | Path,
-    fully_connected: bool = False,
     interactive: bool = False,
     include_labels: bool = True,
     only_most_complex: bool = False,
@@ -21,10 +20,8 @@ def plot_nets(
     Args:
         filepath: Path to the KLayout LayoutToNetlist file or a SPICE netlist.
             File extensions should be `.l2n` and `.spice`, respectively.
-        fully_connected: Whether to plot the graph as elements fully connected to all other ones (True) or
-            going through other elements (False).
         interactive: Whether to plot an interactive graph with `pyvis` or not.
-        include_labels: Whether to include labels in the graph connected to corresponding cells.
+        include_labels: Whether to include net labels in the graph connected to corresponding cells.
         only_most_complex: Whether to plot only the circuit with most connections or not.
             Helpful for not plotting subcircuits separately.
         nodes_to_reduce: Nodes to reduce to a single edge. Comparison made with Python ``in`` operator.

@@ -8,7 +8,8 @@ import klayout.db as kdb
 class CalibreSpiceReader(kdb.NetlistSpiceReaderDelegate):
     """KLayout Spice reader for Calibre LVS extraction output.
 
-    Considers parameter values for generic `X` devices and ignores comments after $."""
+    Considers parameter values for generic `X` devices that start with `WG`.
+    Ignores comments after $ excluding location given with ``$X=number $Y=number``."""
 
     n_nodes: int = 0
     calibre_location_pattern: str = r"\$X=(-?\d+) \$Y=(-?\d+)"
@@ -27,7 +28,7 @@ class CalibreSpiceReader(kdb.NetlistSpiceReaderDelegate):
             if location_matches := re.search(self.calibre_location_pattern, s):
                 x_value, y_value = (int(e) / 1000 for e in location_matches.group(1, 2))
 
-            # Use default KLayout parser for rest pf the SPICE
+            # Use default KLayout parser for rest of the SPICE
             s, *_ = s.split("$")
 
         parsed = super().parse_element(s, element)
@@ -68,7 +69,7 @@ class CalibreSpiceReader(kdb.NetlistSpiceReaderDelegate):
                     self.string_to_integer_map[value] = hashed_value
                     self.integer_to_string_map[hashed_value] = value
 
-            for i, net in enumerate(nets):
+            for i in range(len(nets)):
                 clx.add_terminal(kdb.DeviceTerminalDefinition(str(i)))
             circuit.netlist().add(clx)
 
