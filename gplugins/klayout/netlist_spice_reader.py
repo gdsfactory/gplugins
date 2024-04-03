@@ -12,7 +12,7 @@ class NetlistSpiceReaderDelegateWithStrings(kdb.NetlistSpiceReaderDelegate, ABC)
 
     @property
     @abstractmethod
-    def integer_to_string_map(self) -> MutableMapping[str, int]:
+    def integer_to_string_map(self) -> MutableMapping[int, str]:
         pass
 
 
