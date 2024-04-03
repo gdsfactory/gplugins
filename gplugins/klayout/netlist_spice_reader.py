@@ -1,11 +1,22 @@
+from abc import ABC, abstractmethod
+import hashlib
 import re
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping, MutableMapping, Sequence
 from typing import Any, override
 
 import klayout.db as kdb
 
 
-class CalibreSpiceReader(kdb.NetlistSpiceReaderDelegate):
+class NetlistSpiceReaderDelegateWithStrings(kdb.NetlistSpiceReaderDelegate, ABC):
+    """A KLayout SPICE reader delegate that supports string variables for ``Device`` through a hash map."""
+
+    @property
+    @abstractmethod
+    def integer_to_string_map(self) -> MutableMapping[str, int]:
+        pass
+
+
+class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
     """KLayout Spice reader for Calibre LVS extraction output.
 
     Considers parameter values for generic `X` devices that start with `WG`.
@@ -13,8 +24,8 @@ class CalibreSpiceReader(kdb.NetlistSpiceReaderDelegate):
 
     n_nodes: int = 0
     calibre_location_pattern: str = r"\$X=(-?\d+) \$Y=(-?\d+)"
-    string_to_integer_map: Mapping[str, int] = dict()
-    integer_to_string_map: Mapping[int, str] = dict()
+    string_to_integer_map: MutableMapping[str, int] = dict()
+    integer_to_string_map: MutableMapping[int, str] = dict()
 
     @override
     def wants_subcircuit(self, name: str):
@@ -35,9 +46,13 @@ class CalibreSpiceReader(kdb.NetlistSpiceReaderDelegate):
         parsed.parameters |= {"x": x_value, "y": y_value}
 
         # ensure uniqueness
-        # parsed.model_name = parsed.model_name + f"_{self.n_nodes}"
+        parsed.model_name = parsed.model_name
         self.n_nodes += 1
         return parsed
+
+    @staticmethod
+    def hash_str_to_int(s: str) -> int:
+        return int(hashlib.shake_128(s.encode()).hexdigest(4), 16)
 
     @override
     def element(
@@ -48,7 +63,7 @@ class CalibreSpiceReader(kdb.NetlistSpiceReaderDelegate):
         model: str,
         value: Any,
         nets: Sequence[kdb.Net],
-        parameters: Mapping[str, int | float | str],
+        parameters: dict[str, int | float | str],
     ):
         if element != "X":
             # Other devices with standard KLayout
@@ -65,8 +80,7 @@ class CalibreSpiceReader(kdb.NetlistSpiceReaderDelegate):
                 clx.add_parameter(kdb.DeviceParameterDefinition(key))
                 # map string variables to integers
                 if isinstance(value, str) and value not in self.string_to_integer_map:
-                    hashed_value = hash(value)
-                    self.string_to_integer_map[value] = hashed_value
+                    hashed_value = CalibreSpiceReader.hash_str_to_int(value)
                     self.integer_to_string_map[hashed_value] = value
 
             for i in range(len(nets)):
@@ -79,5 +93,10 @@ class CalibreSpiceReader(kdb.NetlistSpiceReaderDelegate):
 
         for key, value in parameters.items():
             device.set_parameter(
-                key, value if not isinstance(value, str) else hash(value)
+                key,
+                (
+                    value
+                    if not isinstance(value, str)
+                    else CalibreSpiceReader.hash_str_to_int(value)
+                ),
             )
