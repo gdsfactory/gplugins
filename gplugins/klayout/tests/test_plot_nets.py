@@ -32,7 +32,6 @@ def spice_netlist(tmpdir_factory) -> str:
     return netlist_path
 
 
-@pytest.mark.parametrize("fully_connected", [True, False])
 @pytest.mark.parametrize("interactive", [True, False])
 @pytest.mark.parametrize("include_labels", [True, False])
 @pytest.mark.parametrize("only_most_complex", [True, False])
@@ -41,7 +40,6 @@ def spice_netlist(tmpdir_factory) -> str:
 )
 def test_plot_nets(
     klayout_netlist,
-    fully_connected,
     interactive,
     include_labels,
     only_most_complex,
@@ -49,7 +47,6 @@ def test_plot_nets(
 ):
     plot_nets(
         klayout_netlist,
-        fully_connected=fully_connected,
         interactive=interactive,
         include_labels=include_labels,
         only_most_complex=only_most_complex,
