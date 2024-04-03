@@ -1,7 +1,7 @@
-from abc import ABC, abstractmethod
 import hashlib
 import re
-from collections.abc import Mapping, MutableMapping, Sequence
+from abc import ABC, abstractmethod
+from collections.abc import MutableMapping, Sequence
 from typing import Any, override
 
 import klayout.db as kdb

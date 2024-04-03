@@ -1,10 +1,9 @@
 from collections.abc import Collection
 from itertools import combinations
-from pathlib import Path
-from gdsfactory.typings import PathType
 
 import matplotlib.pyplot as plt
 import networkx as nx
+from gdsfactory.typings import PathType
 
 from gplugins.klayout.netlist_graph import networkx_from_file
 

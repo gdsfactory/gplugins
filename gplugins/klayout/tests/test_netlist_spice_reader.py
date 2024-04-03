@@ -7,7 +7,12 @@ from gplugins.klayout.netlist_spice_reader import CalibreSpiceReader
     "s,element,expected_name,expected_nets",
     [
         ("1 2 POS test_model", "X", "test_model", {"1", "2", "POS"}),
-        ("2 3 NEG test_model2 $ This is a comment", "X", "test_model2", {"2", "3", "NEG"}),
+        (
+            "2 3 NEG test_model2 $ This is a comment",
+            "X",
+            "test_model2",
+            {"2", "3", "NEG"},
+        ),
         (
             "5 4 some_elem some_variable=1 $ This is a comment",
             "X",

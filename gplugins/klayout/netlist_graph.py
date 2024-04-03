@@ -1,11 +1,10 @@
-from collections import Counter
 import itertools
 from pathlib import Path
-from gdsfactory.typings import PathType
 
 import klayout.db as kdb
 import networkx as nx
 from gdsfactory.config import logger
+from gdsfactory.typings import PathType
 
 from gplugins.klayout.netlist_spice_reader import (
     CalibreSpiceReader,
@@ -45,8 +44,9 @@ def netlist_to_networkx(
     )
 
     if top_cell:
-        top_circuits = (next(c for c in top_circuits if c.name.casefold() == top_cell.casefold()),)
-
+        top_circuits = (
+            next(c for c in top_circuits if c.name.casefold() == top_cell.casefold()),
+        )
 
     # unique_net_counter = Counter()
     all_used_nets = set()
@@ -82,9 +82,7 @@ def netlist_to_networkx(
                 # net_name = (
                 #     f"{net.expanded_name()}_{unique_net_counter[net.expanded_name()]}"
                 # )
-                net_name = (
-                    f"{net.expanded_name()}"
-                )
+                net_name = f"{net.expanded_name()}"
                 G.add_edge(device_name, net_name)
                 all_used_nets.add(net_name)
 
