@@ -34,7 +34,6 @@ def spice_netlist(tmpdir_factory) -> str:
 
 @pytest.mark.parametrize("interactive", [True, False])
 @pytest.mark.parametrize("include_labels", [True, False])
-@pytest.mark.parametrize("only_most_complex", [True, False])
 @pytest.mark.parametrize(
     "nodes_to_reduce", [None, {"straight"}, {"straight", "bend_euler"}]
 )
@@ -42,14 +41,12 @@ def test_plot_nets(
     klayout_netlist,
     interactive,
     include_labels,
-    only_most_complex,
     nodes_to_reduce,
 ):
     plot_nets(
         klayout_netlist,
         interactive=interactive,
         include_labels=include_labels,
-        only_most_complex=only_most_complex,
         nodes_to_reduce=nodes_to_reduce,
     )
     if interactive:

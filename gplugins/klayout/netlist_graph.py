@@ -1,12 +1,16 @@
+from collections import Counter
 import itertools
 from pathlib import Path
-from typing import Optional, Type
+from gdsfactory.typings import PathType
 
 import klayout.db as kdb
 import networkx as nx
 from gdsfactory.config import logger
 
-from gplugins.klayout.netlist_spice_reader import CalibreSpiceReader
+from gplugins.klayout.netlist_spice_reader import (
+    CalibreSpiceReader,
+    NetlistSpiceReaderDelegateWithStrings,
+)
 
 
 def _get_device_name(device: kdb.Device) -> str:
@@ -17,16 +21,15 @@ def _get_device_name(device: kdb.Device) -> str:
 def netlist_to_networkx(
     netlist: kdb.Netlist,
     include_labels: bool = True,
-    only_most_complex: bool = False,
-    spice_reader_instance: kdb.NetlistSpiceReaderDelegate | None = None,
+    top_cell: str | None = None,
+    spice_reader_instance: NetlistSpiceReaderDelegateWithStrings | None = None,
 ) -> nx.Graph:
     """Convert a KLayout DB `Netlist` to a networkx graph.
 
     Args:
-        netlist: The KLayout DB `Netlist` to convert to a networkx `Graph`.
+        netlist: The KLayout DB `Netlist` to convert to a NetworkX `Graph`.
         include_labels: Whether to include net labels in the graph connected to corresponding cells.
-        only_most_complex: Whether to plot only the circuit with most connections or not.
-            Helpful for not plotting subcircuits separately.
+        top_cell: The name of the top cell to consider for the NetworkX graph. Defaults to all top cells.
         spice_reader_instance: The KLayout Spice reader that was used for parsing SPICE netlists.
             Used for fetching string parameter values from a stored mapping.
 
@@ -39,9 +42,11 @@ def netlist_to_networkx(
         itertools.islice(netlist.each_circuit_top_down(), netlist.top_circuit_count())
     )
 
-    if only_most_complex:
-        top_circuits = (max(top_circuits, key=lambda x: x.pin_count()),)
+    if top_cell:
+        top_circuits = (next(c for c in top_circuits if c.name.casefold() == top_cell.casefold()),)
 
+
+    unique_net_counter = Counter()
     all_used_nets = set()
     for circuit in top_circuits:
         for device in circuit.each_device():
@@ -56,7 +61,7 @@ def netlist_to_networkx(
                     device.parameter(parameter.name)
                     if not spice_reader_instance
                     else spice_reader_instance.integer_to_string_map.get(
-                        device.parameter(parameter.name),
+                        int(device.parameter(parameter.name)),
                         device.parameter(parameter.name),
                     )
                 )
@@ -71,7 +76,10 @@ def netlist_to_networkx(
             # Create NetworkX representation
             G.add_node(device_name, **parameters)
             for net in nets:
-                net_name = net.expanded_name()
+                unique_net_counter.update([net.expanded_name()])
+                net_name = (
+                    f"{net.expanded_name()}_{unique_net_counter[net.expanded_name()]}"
+                )
                 G.add_edge(device_name, net_name)
                 all_used_nets.add(net_name)
 
@@ -81,14 +89,16 @@ def netlist_to_networkx(
             G.add_edges_from(itertools.combinations(connections, r=2))
             G.remove_node(node)
 
+    breakpoint()
+
     return G
 
 
 def networkx_from_file(
-    filepath: str | Path,
+    filepath: PathType,
     include_labels: bool = True,
-    only_most_complex: bool = False,
-    spice_reader: type[kdb.NetlistSpiceReaderDelegate] = CalibreSpiceReader,
+    top_cell: str | None = None,
+    spice_reader: type[NetlistSpiceReaderDelegateWithStrings] = CalibreSpiceReader,
     **kwargs,
 ) -> nx.Graph:
     """Returns a networkx Graph from a SPICE netlist file or KLayout LayoutToNetlist.
@@ -96,8 +106,7 @@ def networkx_from_file(
         filepath: Path to the KLayout LayoutToNetlist file or a SPICE netlist.
             File extensions should be `.l2n` and `.spice`, respectively.
         include_labels: Whether to include labels in the graph connected to corresponding cells.
-        only_most_complex: Whether to plot only the circuit with most connections or not.
-            Helpful for not plotting subcircuits separately.
+        top_cell: The name of the top cell to consider for the NetworkX graph. Defaults to all top cells.
         spice_reader: The KLayout Spice reader to use for parsing SPICE netlists.
     """
     spice_reader_instance = None
@@ -120,6 +129,6 @@ def networkx_from_file(
     return netlist_to_networkx(
         netlist,
         include_labels=include_labels,
-        only_most_complex=only_most_complex,
+        top_cell=top_cell,
         spice_reader_instance=spice_reader_instance,
     )

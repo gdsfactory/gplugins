@@ -1,6 +1,7 @@
 from collections.abc import Collection
 from itertools import combinations
 from pathlib import Path
+from gdsfactory.typings import PathType
 
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -9,10 +10,10 @@ from gplugins.klayout.netlist_graph import networkx_from_file
 
 
 def plot_nets(
-    filepath: str | Path,
+    filepath: PathType,
     interactive: bool = False,
     include_labels: bool = True,
-    only_most_complex: bool = False,
+    top_cell: str | None = None,
     nodes_to_reduce: Collection[str] | None = None,
 ) -> None:
     """Plots the connectivity between the components in the KLayout LayoutToNetlist file from :func:`~get_l2n`.
@@ -22,8 +23,7 @@ def plot_nets(
             File extensions should be `.l2n` and `.spice`, respectively.
         interactive: Whether to plot an interactive graph with `pyvis` or not.
         include_labels: Whether to include net labels in the graph connected to corresponding cells.
-        only_most_complex: Whether to plot only the circuit with most connections or not.
-            Helpful for not plotting subcircuits separately.
+        top_cell: The name of the top cell to consider for the NetworkX graph. Defaults to all top cells.
         nodes_to_reduce: Nodes to reduce to a single edge. Comparison made with Python ``in`` operator.
             Helpful for reducing trivial waveguide elements.
     """
