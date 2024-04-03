@@ -37,6 +37,8 @@ def netlist_to_networkx(
         A networkx `Graph` representing the connectivity of the `Netlist`.
     """
     G = nx.Graph()
+    # netlist.simplify()
+    netlist.flatten()
 
     top_circuits = list(
         itertools.islice(netlist.each_circuit_top_down(), netlist.top_circuit_count())
@@ -46,7 +48,7 @@ def netlist_to_networkx(
         top_circuits = (next(c for c in top_circuits if c.name.casefold() == top_cell.casefold()),)
 
 
-    unique_net_counter = Counter()
+    # unique_net_counter = Counter()
     all_used_nets = set()
     for circuit in top_circuits:
         for device in circuit.each_device():
@@ -76,9 +78,12 @@ def netlist_to_networkx(
             # Create NetworkX representation
             G.add_node(device_name, **parameters)
             for net in nets:
-                unique_net_counter.update([net.expanded_name()])
+                # unique_net_counter.update([net.expanded_name()])
+                # net_name = (
+                #     f"{net.expanded_name()}_{unique_net_counter[net.expanded_name()]}"
+                # )
                 net_name = (
-                    f"{net.expanded_name()}_{unique_net_counter[net.expanded_name()]}"
+                    f"{net.expanded_name()}"
                 )
                 G.add_edge(device_name, net_name)
                 all_used_nets.add(net_name)
@@ -88,8 +93,6 @@ def netlist_to_networkx(
             connections = list(G.neighbors(node))
             G.add_edges_from(itertools.combinations(connections, r=2))
             G.remove_node(node)
-
-    breakpoint()
 
     return G
 
