@@ -47,7 +47,6 @@ def netlist_to_networkx(
             next(c for c in top_circuits if c.name.casefold() == top_cell.casefold()),
         )
 
-    # unique_net_counter = Counter()
     all_used_nets = set()
     for circuit in top_circuits:
         for device in circuit.each_device():
@@ -77,11 +76,7 @@ def netlist_to_networkx(
             # Create NetworkX representation
             G.add_node(device_name, **parameters)
             for net in nets:
-                # unique_net_counter.update([net.expanded_name()])
-                # net_name = (
-                #     f"{net.expanded_name()}_{unique_net_counter[net.expanded_name()]}"
-                # )
-                net_name = f"{net.expanded_name()}"
+                net_name = net.expanded_name()
                 G.add_edge(device_name, net_name)
                 all_used_nets.add(net_name)
 
@@ -94,7 +89,7 @@ def netlist_to_networkx(
     return G
 
 
-def networkx_from_file(
+def networkx_from_spice(
     filepath: PathType,
     include_labels: bool = True,
     top_cell: str | None = None,

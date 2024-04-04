@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from gdsfactory.typings import PathType
 
-from gplugins.klayout.netlist_graph import networkx_from_file
+from gplugins.klayout.netlist_graph import networkx_from_spice
+from gplugins.klayout.netlist_spice_reader import CalibreSpiceReader
 
 
 def plot_nets(
@@ -27,7 +28,7 @@ def plot_nets(
             Helpful for reducing trivial waveguide elements.
     """
 
-    G_connectivity = networkx_from_file(**locals())
+    G_connectivity = networkx_from_spice(**locals())
 
     if nodes_to_reduce:
 
