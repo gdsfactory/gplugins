@@ -4,6 +4,7 @@ from itertools import combinations
 import matplotlib.pyplot as plt
 import networkx as nx
 from gdsfactory.typings import PathType
+from klayout.db import NetlistSpiceReaderDelegate
 
 from gplugins.klayout.netlist_graph import networkx_from_spice
 from gplugins.klayout.netlist_spice_reader import CalibreSpiceReader
@@ -15,6 +16,7 @@ def plot_nets(
     include_labels: bool = True,
     top_cell: str | None = None,
     nodes_to_reduce: Collection[str] | None = None,
+    spice_reader: type[NetlistSpiceReaderDelegate] = CalibreSpiceReader,
 ) -> None:
     """Plots the connectivity between the components in the KLayout LayoutToNetlist file from :func:`~get_l2n`.
 
@@ -26,6 +28,7 @@ def plot_nets(
         top_cell: The name of the top cell to consider for the NetworkX graph. Defaults to all top cells.
         nodes_to_reduce: Nodes to reduce to a single edge. Comparison made with Python ``in`` operator.
             Helpful for reducing trivial waveguide elements.
+        spice_reader: The KLayout Spice reader to use for parsing SPICE netlists.
     """
 
     G_connectivity = networkx_from_spice(**locals())
