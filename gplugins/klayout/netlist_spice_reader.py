@@ -113,7 +113,8 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
             device.set_parameter(
                 key,
                 (
-                    CalibreSpiceReader.hash_str_to_int(value) if isinstance(value, str) else value
-
+                    CalibreSpiceReader.hash_str_to_int(value)
+                    if isinstance(value, str)
+                    else value
                 ),
             )
