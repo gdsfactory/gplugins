@@ -58,12 +58,11 @@ def netlist_to_networkx(
             # Gather values for specific Device instance
             parameters = {
                 parameter.name: (
-                    device.parameter(parameter.name)
-                    if not spice_reader_instance
-                    else spice_reader_instance.integer_to_string_map.get(
-                        int(device.parameter(parameter.name)),
-                        device.parameter(parameter.name),
-                    )
+                    spice_reader_instance.integer_to_string_map.get(
+                                            int(device.parameter(parameter.name)),
+                                            device.parameter(parameter.name),
+                                        ) if spice_reader_instance else device.parameter(parameter.name)
+
                 )
                 for parameter in parameter_definitions
             }
