@@ -39,7 +39,7 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
 
     n_nodes: int = 0
     calibre_location_pattern: str = r"\$X=(-?\d+) \$Y=(-?\d+)"
-    integer_to_string_map: MutableMapping[int, str] = dict()
+    integer_to_string_map: MutableMapping[int, str] = {}
 
     @override
     def wants_subcircuit(self, name: str):
