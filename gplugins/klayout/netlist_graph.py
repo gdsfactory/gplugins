@@ -36,7 +36,6 @@ def netlist_to_networkx(
         A networkx `Graph` representing the connectivity of the `Netlist`.
     """
     G = nx.Graph()
-    # netlist.simplify()
     netlist.flatten()
 
     top_circuits = list(

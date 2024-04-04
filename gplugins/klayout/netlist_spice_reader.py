@@ -24,7 +24,6 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
 
     n_nodes: int = 0
     calibre_location_pattern: str = r"\$X=(-?\d+) \$Y=(-?\d+)"
-    string_to_integer_map: MutableMapping[str, int] = dict()
     integer_to_string_map: MutableMapping[int, str] = dict()
 
     @override
@@ -79,7 +78,10 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
             for key, value in parameters.items():
                 clx.add_parameter(kdb.DeviceParameterDefinition(key))
                 # map string variables to integers
-                if isinstance(value, str) and value not in self.string_to_integer_map:
+                if (
+                    isinstance(value, str)
+                    and value not in self.integer_to_string_map.values()
+                ):
                     hashed_value = CalibreSpiceReader.hash_str_to_int(value)
                     self.integer_to_string_map[hashed_value] = value
 
