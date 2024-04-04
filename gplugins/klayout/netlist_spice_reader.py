@@ -79,6 +79,7 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
         nets: Sequence[kdb.Net],
         parameters: dict[str, int | float | str],
     ):
+        # Handle non-'X' elements with standard KLayout processing
         if element != "X":
             # Other devices with standard KLayout
             return super().element(
