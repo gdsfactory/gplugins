@@ -2,7 +2,7 @@ import hashlib
 import re
 from abc import ABC, abstractmethod
 from collections.abc import MutableMapping, Sequence
-from typing import Any, override
+from typing import Any
 
 import klayout.db as kdb
 
@@ -41,12 +41,10 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
     calibre_location_pattern: str = r"\$X=(-?\d+) \$Y=(-?\d+)"
     integer_to_string_map: MutableMapping[int, str] = {}
 
-    @override
     def wants_subcircuit(self, name: str):
         """Model all SPICE models that start with `WG` as devices in order to support parameters."""
         return "WG" in name or super().wants_subcircuit(name)
 
-    @override
     def parse_element(self, s: str, element: str) -> kdb.ParseElementData:
         x_value, y_value = None, None
         if "$" in s:
@@ -68,7 +66,6 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
     def hash_str_to_int(s: str) -> int:
         return int(hashlib.shake_128(s.encode()).hexdigest(4), 16)
 
-    @override
     def element(
         self,
         circuit: kdb.Circuit,
