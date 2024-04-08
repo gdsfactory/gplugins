@@ -43,9 +43,17 @@ def netlist_to_networkx(
     )
 
     if top_cell:
-        top_circuits = (
-            next(c for c in top_circuits if c.name.casefold() == top_cell.casefold()),
-        )
+        try:
+            top_circuits = (
+                next(
+                    c for c in top_circuits if c.name.casefold() == top_cell.casefold()
+                ),
+            )
+        except StopIteration as e:
+            available_top_cells = [cell.name for cell in top_circuits]
+            raise ValueError(
+                f"{top_cell=!r} not found in the netlist. Available top cells: {available_top_cells!r}"
+            ) from e
 
     all_used_nets = set()
     for circuit in top_circuits:
