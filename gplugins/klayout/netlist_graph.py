@@ -50,7 +50,10 @@ def netlist_to_networkx(
                 ),
             )
         except StopIteration as e:
-            raise ValueError(f"{top_cell=!r} not found in the netlist.") from e
+            available_top_cells = [cell.name for cell in top_circuits]
+            raise ValueError(
+                f"{top_cell=!r} not found in the netlist. Available top cells: {available_top_cells!r}"
+            ) from e
 
     all_used_nets = set()
     for circuit in top_circuits:
