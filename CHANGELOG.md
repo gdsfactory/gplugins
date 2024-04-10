@@ -4,6 +4,11 @@
 
 <!-- towncrier release notes start -->
 
+## [0.12.0](https://github.com/gdsfactory/gplugins/releases/tag/v0.12.0) - 2024-04-09
+
+No significant changes.
+
+
 ## [0.11.0](https://github.com/gdsfactory/gplugins/releases/tag/v0.11.0) - 2024-03-24
 
 - add more sax models [#364](https://github.com/gdsfactory/gplugins/pull/364)
