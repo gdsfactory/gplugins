@@ -1,12 +1,16 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.11.0...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.12.0...main)
 
 <!-- towncrier release notes start -->
 
 ## [0.12.0](https://github.com/gdsfactory/gplugins/releases/tag/v0.12.0) - 2024-04-09
 
-No significant changes.
+- Better error for wrong `top_cell` in netlist to networkx [#373](https://github.com/gdsfactory/gplugins/pull/373)
+- Improve KLayout-based SPICE handling to support Calibre LVS with generic devices [#371](https://github.com/gdsfactory/gplugins/pull/371)
+- fix autolabeler [#375](https://github.com/gdsfactory/gplugins/pull/375)
+- update jaxlib and flax [#376](https://github.com/gdsfactory/gplugins/pull/376)
+- fix tests [#372](https://github.com/gdsfactory/gplugins/pull/372)
 
 
 ## [0.11.0](https://github.com/gdsfactory/gplugins/releases/tag/v0.11.0) - 2024-03-24
