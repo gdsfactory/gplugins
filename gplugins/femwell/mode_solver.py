@@ -95,8 +95,10 @@ def compute_component_slice_modes(
     wavelength: float = 1.55,
     num_modes: int = 4,
     order: int = 1,
-    radius: float = np.inf,
     wafer_padding: float = 2.0,
+    radius: float = np.inf,
+    metallic_boundaries: bool = False,
+    n_guess: float | None = None,
     solver: str = "scipy",
     **kwargs,
 ) -> Modes:
@@ -109,8 +111,10 @@ def compute_component_slice_modes(
         wavelength: wavelength (um).
         num_modes: number of modes to return.
         order: order of the mesh elements. 1: linear, 2: quadratic.
-        radius: bend radius of the cross-section.
         wafer_padding: padding beyond bbox to add to WAFER layers.
+        radius: bend radius of the cross-section.
+        metallic_boundaries: if True, will set the boundaries to be metallic.
+        n_guess: initial guess for the effective index.
         solver: can be slepc or scipy.
 
     Keyword Args:
@@ -160,6 +164,8 @@ def compute_component_slice_modes(
         order=order,
         radius=radius,
         solver=solver,
+        n_guess=n_guess,
+        metallic_boundaries=metallic_boundaries,
     )
 
 
@@ -167,7 +173,6 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
     start = time.time()
-
     filtered_layer_stack = LayerStack(
         layers={
             k: get_layer_stack().layers[k]
