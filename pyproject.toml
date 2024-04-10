@@ -81,15 +81,15 @@ klayout = [
   "pyvis<=0.3.1"
 ]
 meow = [
-  "jax",
-  "jaxlib",
+  "jax>=0.4.26",
+  "jaxlib>=0.4.26",
   "flax>=0.8.2",
   "meow-sim>=0.9.0,<0.11.0",
   "tidy3d==2.5.2"
 ]
 sax = [
-  "jax",
-  "jaxlib",
+  "jax>=0.4.26",
+  "jaxlib>=0.4.26",
   "flax>=0.8.2",
   "sax>=0.12.1,<0.13.0",
   "scikit-learn",
