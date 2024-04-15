@@ -423,8 +423,8 @@ def get_pathlength_widgets(
         k: node_positions[d["name"]] for k, d in graph_to_viz.nodes(data=True)
     }
     graph_renderer = from_networkx(graph_to_viz, node_positions_by_int_label)
-    graph_renderer.node_renderer.glyph = Circle(size=5, fill_color=Spectral4[0])
-    graph_renderer.node_renderer.hover_glyph = Circle(size=15, fill_color=Spectral4[1])
+    graph_renderer.node_renderer.glyph = Circle(fill_color=Spectral4[0])
+    graph_renderer.node_renderer.hover_glyph = Circle(fill_color=Spectral4[1])
 
     graph_renderer.edge_renderer.glyph = MultiLine(
         line_color="edge_color", line_alpha=0.8, line_width=5

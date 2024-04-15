@@ -20,7 +20,7 @@ parts:
       - file: plugins_process
         sections:
           - file: notebooks/femwell_02_heater
-          - file: notebooks/devsim_01_pin_waveguide
+          # - file: notebooks/devsim_01_pin_waveguide
           - file: notebooks/tcad_02_analytical_process
           - file: notebooks/tcad_03_numerical_implantation
           - file: notebooks/elmer_01_electrostatic
@@ -69,7 +69,5 @@ parts:
       - file: changelog
       - url: https://gdsfactory.github.io/gdsfactory
         title: gdsfactory
-      - url: https://github.com/gdsfactory/gdsfactory-photonics-training
+      - url: https://gdsfactory.github.io/gdsfactory-photonics-training/index.html
         title: gdsfactory-photonics-training
-      - url: https://piel.readthedocs.io/en/latest/index.html
-        title: electronics-integration
