@@ -24,29 +24,32 @@ def count_drc(rdb_path: PathType, threshold: int = 0) -> dict[str, int]:
     if not rdb_path.exists():
         raise FileNotFoundError(f"Cannot find {rdb_path}")
 
-    if rdb_path.is_dir():
-        for rdb_file in rdb_path.glob("*.rdb"):
-            errors_dict[rdb_file.stem] = count_drc(rdb_file)
+    if not rdb_path.is_dir():
+        return _get_errors(rdb_path, threshold, errors_dict)
+    for rdb_file in rdb_path.glob("*.rdb"):
+        errors_dict[rdb_file.stem] = count_drc(rdb_file)
 
-    else:
-        r = rdb.ReportDatabase()
-        r.load(rdb_path)
-
-        categories = {cat.rdb_id(): cat for cat in r.each_category()}
-
-        errors_total = 0
-
-        for category_id, category in categories.items():
-            errors_per_category = r.each_item_per_category(category_id)
-            errors = len(list(errors_per_category))
-            errors_total += errors
-
-            if errors > threshold:
-                errors_dict[category.name()] = errors
-
-        errors_dict["total"] = errors_total
-        return dict(sorted(errors_dict.items(), key=lambda item: item[1], reverse=True))
     return errors_dict
+
+
+def _get_errors(rdb_path, threshold, errors_dict):
+    r = rdb.ReportDatabase()
+    r.load(rdb_path)
+
+    categories = {cat.rdb_id(): cat for cat in r.each_category()}
+
+    errors_total = 0
+
+    for category_id, category in categories.items():
+        errors_per_category = r.each_item_per_category(category_id)
+        errors = len(list(errors_per_category))
+        errors_total += errors
+
+        if errors > threshold:
+            errors_dict[category.name()] = errors
+
+    errors_dict["total"] = errors_total
+    return dict(sorted(errors_dict.items(), key=lambda item: item[1], reverse=True))
 
 
 def write_yaml(rdb_path: PathType, filepath: PathType, threshold: int = 0) -> None:
