@@ -45,7 +45,7 @@ def initialize_sde(
     Arguments:
         component,: gdsfactory component containing polygons defining the mask
         waferstack: gdsfactory layerstack representing the initial wafer
-        layermap: gdsfactory LayerMap object contaning all layers
+        layermap: gdsfactory LayerMap object containing all layers
         process: list of gdsfactory.technology.processes process steps
         xsection_bounds: two in-plane coordinates ((x1,y1), (x2,y2)) defining a line cut for a 2D process cross-section
         u_offset: for the x-axis of the 2D coordinate system, useful to go back to component units if xsection_bounds parallel to x or y
@@ -116,7 +116,7 @@ def write_sde(
     Arguments:
         component,: gdsfactory component containing polygons defining the mask
         waferstack: gdsfactory layerstack representing the initial wafer
-        layermap: gdsfactory LayerMap object contaning all layers
+        layermap: gdsfactory LayerMap object containing all layers
         process: list of gdsfactory.technology.processes process steps
         xsection_bounds: two in-plane coordinates ((x1,y1), (x2,y2)) defining a line cut for a 2D process cross-section. If None, simulate in 3D.
         u_offset: offset for lateral dimension of xsection mesh
