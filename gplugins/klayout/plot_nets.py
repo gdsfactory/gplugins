@@ -1,76 +1,56 @@
-import itertools
-from pathlib import Path
+from collections.abc import Collection
+from itertools import combinations
 
-import klayout.db as kdb
 import matplotlib.pyplot as plt
 import networkx as nx
+from gdsfactory.typings import PathType
+from klayout.db import NetlistSpiceReaderDelegate
 
-
-def _get_subcircuit_name(subcircuit: kdb.SubCircuit) -> str:
-    """Get the _cell name_ of a `SubCircuit` instance"""
-    return f"{subcircuit.circuit_ref().name}{subcircuit.expanded_name()}"
-
-
-def netlist_to_networkx(
-    netlist: kdb.Netlist, fully_connected: bool = False, include_labels: bool = True
-) -> nx.Graph:
-    """Convert a KLayout DB `Netlist` to a networkx graph.
-
-    Args:
-        kdbnet: The KLayout DB `Netlist` to convert to a networkx `Graph`.
-        include_labels: Whether to include labels in the graph connected to corresponding cells.
-    """
-    G = nx.Graph()
-    assert netlist.top_circuit_count() == 1, "Multiple top cells not yet supported"
-
-    circuit, *_ = netlist.each_circuit_top_down()
-
-    # first flatten components that won't be kept
-    for subcircuit in circuit.each_subcircuit():
-        if subcircuit.name in {"TODO"}:
-            circuit.flatten_subcircuit(subcircuit)
-
-    for net in circuit.each_net():
-        net_pins = [
-            _get_subcircuit_name(subcircuit_pin_ref.subcircuit())
-            for subcircuit_pin_ref in net.each_subcircuit_pin()
-        ]
-
-        # Assumed lone net with only label info
-        if include_labels and net.expanded_name() and "," not in net.expanded_name():
-            G.add_edges_from(zip(net_pins, [net.name] * len(net_pins)))
-
-        if fully_connected:
-            G.add_edges_from(itertools.combinations(net_pins, 2))
-        else:
-            G.add_edges_from(zip(net_pins[:-1], net_pins[1:]))
-
-    return G
+from gplugins.klayout.netlist_graph import networkx_from_spice
+from gplugins.klayout.netlist_spice_reader import CalibreSpiceReader
 
 
 def plot_nets(
-    filepath: str | Path,
-    fully_connected: bool = False,
+    filepath: PathType,
     interactive: bool = False,
     include_labels: bool = True,
+    top_cell: str | None = None,
+    nodes_to_reduce: Collection[str] | None = None,
+    spice_reader: type[NetlistSpiceReaderDelegate] = CalibreSpiceReader,
 ) -> None:
     """Plots the connectivity between the components in the KLayout LayoutToNetlist file from :func:`~get_l2n`.
 
     Args:
-        filepath: Path to the KLayout LayoutToNetlist file.
-        fully_connected: Whether to plot the graph as elements fully connected to all other ones (True) or
-
-            going through other elements (False).
+        filepath: Path to the KLayout LayoutToNetlist file or a SPICE netlist.
+            File extensions should be `.l2n` and `.spice`, respectively.
         interactive: Whether to plot an interactive graph with `pyvis` or not.
-        include_labels: Whether to include labels in the graph connected to corresponding cells.
+        include_labels: Whether to include net labels in the graph connected to corresponding cells.
+        top_cell: The name of the top cell to consider for the NetworkX graph. Defaults to all top cells.
+        nodes_to_reduce: Nodes to reduce to a single edge. Comparison made with Python ``in`` operator.
+            Helpful for reducing trivial waveguide elements.
+        spice_reader: The KLayout Spice reader to use for parsing SPICE netlists.
     """
-    l2n = kdb.LayoutToNetlist()
-    l2n.read(str(filepath))
-    netlist = l2n.netlist()
-    # Creating a graph for the connectivity
-    G_connectivity = netlist_to_networkx(
-        netlist, fully_connected=fully_connected, include_labels=include_labels
-    )
+
+    G_connectivity = networkx_from_spice(**locals())
+
+    if nodes_to_reduce:
+
+        def _removal_condition(node: str, degree: int) -> bool:
+            return degree == 2 and any(e in node for e in nodes_to_reduce)
+
+        while any(
+            _removal_condition(node, degree) for node, degree in G_connectivity.degree
+        ):
+            G_connectivity_tmp = G_connectivity.copy()
+            for node, degree in G_connectivity.degree:
+                if _removal_condition(node, degree):
+                    connected_to_node = [e[1] for e in G_connectivity.edges(node)]
+                    node_pairs_to_connect = list(combinations(connected_to_node, r=2))
+                    for pair in node_pairs_to_connect:
+                        G_connectivity_tmp.add_edge(pair[0], pair[1])
+                    G_connectivity_tmp.remove_node(node)
+                    break
+            G_connectivity = G_connectivity_tmp
 
     # Plotting the graph
     if interactive:
@@ -78,7 +58,7 @@ def plot_nets(
             from pyvis.network import Network
         except ModuleNotFoundError as e:
             raise UserWarning(
-                "You need to `pip install pyvis` or `gplugins[klayout]`"
+                "You need to `pip install pyvis<=0.3.1` or `gplugins[klayout]`"
             ) from e
 
         net = Network(

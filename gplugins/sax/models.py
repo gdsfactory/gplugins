@@ -1,10 +1,70 @@
 from __future__ import annotations
 
+import inspect
+from collections.abc import Callable, Iterable
+from functools import cache, partial
+from inspect import getmembers
+
+import jax
 import jax.numpy as jnp
+import sax
+from numpy.typing import NDArray
 from sax import SDict
 from sax.utils import reciprocal
 
 nm = 1e-3
+
+FloatArray = NDArray[jnp.floating]
+Float = float | FloatArray
+
+################
+# PassThrus
+################
+
+
+@cache
+def _2port(p1, p2):
+    @jax.jit
+    def _2port(wl=1.5):
+        wl = jnp.asarray(wl)
+        return sax.reciprocal({(p1, p2): jnp.ones_like(wl)})
+
+    return _2port
+
+
+@cache
+def _3port(p1, p2, p3):
+    @jax.jit
+    def _3port(wl=1.5):
+        wl = jnp.asarray(wl)
+        thru = jnp.ones_like(wl) / jnp.sqrt(2)
+        return sax.reciprocal(
+            {
+                (p1, p2): thru,
+                (p1, p3): thru,
+            }
+        )
+
+    return _3port
+
+
+@cache
+def _4port(p1, p2, p3, p4):
+    @jax.jit
+    def _4port(wl=1.5):
+        wl = jnp.asarray(wl)
+        thru = jnp.ones_like(wl) / jnp.sqrt(2)
+        cross = 1j * thru
+        return sax.reciprocal(
+            {
+                (p1, p4): thru,
+                (p2, p3): thru,
+                (p1, p3): cross,
+                (p2, p4): cross,
+            }
+        )
+
+    return _4port
 
 
 def straight(
@@ -117,6 +177,7 @@ def grating_coupler(
     https://github.com/flaport/photontorch/blob/master/photontorch/components/gratingcouplers.py
 
     Args:
+        wl: wavelength.
         wl0: center wavelength.
         loss: in dB.
         reflection: from waveguide side.
@@ -242,7 +303,68 @@ def coupler_single_wavelength(*, coupling: float = 0.5) -> SDict:
     )
 
 
-def mmi1x2() -> SDict:
+################
+# MMIs
+################
+
+
+def _mmi_amp(
+    wl: Float = 1.55, wl0: Float = 1.55, fwhm: Float = 0.2, loss_dB: Float = 0.3
+):
+    max_power = 10 ** (-abs(loss_dB) / 10)
+    f = 1 / wl
+    f0 = 1 / wl0
+    f1 = 1 / (wl0 + fwhm / 2)
+    f2 = 1 / (wl0 - fwhm / 2)
+    _fwhm = f2 - f1
+
+    sigma = _fwhm / (2 * jnp.sqrt(2 * jnp.log(2)))
+    power = jnp.exp(-((f - f0) ** 2) / (2 * sigma**2))
+    power = max_power * power / power.max() / 2
+    return jnp.sqrt(power)
+
+
+def mmi1x2(
+    wl: Float = 1.55, wl0: Float = 1.55, fwhm: Float = 0.2, loss_dB: Float = 0.3
+) -> sax.SDict:
+    thru = _mmi_amp(wl=wl, wl0=wl0, fwhm=fwhm, loss_dB=loss_dB)
+    return sax.reciprocal(
+        {
+            ("o1", "o2"): thru,
+            ("o1", "o3"): thru,
+        }
+    )
+
+
+def mmi2x2(
+    wl: Float = 1.55,
+    wl0: Float = 1.55,
+    fwhm: Float = 0.2,
+    loss_dB: Float = 0.3,
+    shift: Float = 0.005,
+) -> sax.SDict:
+    """Returns 2x2 MMI model.
+
+    Args:
+        wl: wavelength.
+        wl0: center wavelength.
+        fwhm: full width half maximum.
+        loss_dB: loss in dB.
+        shift: wavelength shift.
+    """
+    thru = _mmi_amp(wl=wl, wl0=wl0, fwhm=fwhm, loss_dB=loss_dB)
+    cross = 1j * _mmi_amp(wl=wl, wl0=wl0 + shift, fwhm=fwhm, loss_dB=loss_dB)
+    return sax.reciprocal(
+        {
+            ("o1", "o3"): thru,
+            ("o1", "o4"): cross,
+            ("o2", "o3"): cross,
+            ("o2", "o4"): thru,
+        }
+    )
+
+
+def mmi1x2_ideal() -> SDict:
     """Returns an ideal 1x2 splitter."""
     return reciprocal(
         {
@@ -252,7 +374,7 @@ def mmi1x2() -> SDict:
     )
 
 
-def mmi2x2(*, coupling: float = 0.5) -> SDict:
+def mmi2x2_ideal(*, coupling: float = 0.5) -> SDict:
     """Returns an ideal 2x2 splitter.
 
     Args:
@@ -270,21 +392,59 @@ def mmi2x2(*, coupling: float = 0.5) -> SDict:
     )
 
 
-models = dict(
-    straight=straight,
-    bend_euler=bend,
-    mmi1x2=mmi1x2,
-    mmi2x2=mmi2x2,
-    attenuator=attenuator,
-    taper=straight,
-    phase_shifter=phase_shifter,
-    grating_coupler=grating_coupler,
-    coupler=coupler,
-)
+################
+# Crossings
+################
+
+
+@jax.jit
+def crossing(wl: Float = 1.5) -> sax.SDict:
+    one = jnp.ones_like(jnp.asarray(wl))
+    return sax.reciprocal(
+        {
+            ("o1", "o3"): one,
+            ("o2", "o4"): one,
+        }
+    )
+
+
+################
+# Models Dict
+################
+def get_models(modules) -> dict[str, Callable[..., sax.SDict]]:
+    """Returns all models in a module or list of modules."""
+    models = {}
+    modules = modules if isinstance(modules, Iterable) else [modules]
+
+    for module in modules:
+        for t in getmembers(module):
+            name = t[0]
+            func = t[1]
+            if not callable(func):
+                continue
+            _func = func
+            while isinstance(_func, partial):
+                _func = _func.func
+            try:
+                sig = inspect.signature(_func)
+            except ValueError:
+                continue
+            if str(sig.return_annotation) in {
+                "sax.SDict",
+                "SDict",
+            } and not name.startswith("_"):
+                models[name] = func
+    return models
 
 
 if __name__ == "__main__":
+    import sys
+
     import gplugins.sax as gs
+
+    models = get_models(sys.modules[__name__])
+    for i in models.keys():
+        print(i)
 
     gs.plot_model(grating_coupler)
     # gs.plot_model(coupler)

@@ -202,10 +202,12 @@ def uz_xsection_mesh(
     xsection_bounds: tuple[tuple[float, float], tuple[float, float]],
     layer_stack: LayerStack,
     layer_physical_map: dict,
+    layer_meshbool_map: dict,
     resolutions: dict | None = None,
     default_characteristic_length: float = 0.5,
     background_tag: str | None = None,
     background_padding: Sequence[float, float, float, float, float, float] = (2.0,) * 6,
+    background_mesh_order: int | float = 2**63 - 1,
     global_scaling: float = 1,
     global_scaling_premesh: float = 1,
     global_2D_algorithm: int = 6,
@@ -218,6 +220,8 @@ def uz_xsection_mesh(
     n_threads: int = get_number_of_cores(),
     gmsh_version: float | None = None,
     interface_delimiter: str = "___",
+    background_remeshing_file=None,
+    optimization_flags: tuple[tuple[str, int]] | None = None,
     **kwargs,
 ):
     """Mesh uz cross-section of component along line u = [[x1,y1] , [x2,y2]].
@@ -226,12 +230,15 @@ def uz_xsection_mesh(
         component (Component): gdsfactory component to mesh
         xsection_bounds (Tuple): Tuple [[x1,y1] , [x2,y2]] parametrizing the line u
         layer_stack (LayerStack): gdsfactory LayerStack to parse
+        layer_physical_map: map layer names to physical names
+        layer_meshbool_map: map layer names to mesh_bool (True: mesh the prisms, False: don't mesh)
         resolutions (Dict): Pairs {"layername": {"resolution": float, "distance": "float}} to roughly control mesh refinement
         mesh_scaling_factor (float): factor multiply mesh geometry by
         default_resolution_min (float): gmsh minimal edge length
         default_resolution_max (float): gmsh maximal edge length
         background_tag (str): name of the background layer to add (default: no background added)
         background_padding (Tuple): [xleft, ydown, xright, yup] distances to add to the components and to fill with background_tag
+        background_mesh_order (int, float): mesh order to assign to the background
         filename (str, path): where to save the .msh file
         global_meshsize_array: np array [x,y,z,lc] to parametrize the mesh
         global_meshsize_interpolant_func: interpolating function for global_meshsize_array
@@ -241,6 +248,7 @@ def uz_xsection_mesh(
         u_offset: quantity to add to the "u" coordinates, useful to convert back to x or y if parallel to those axes
         atol: tolerance used to establish equivalency between vertices
         left_right_periodic_bcs: if True, makes the left and right simulation edge meshes periodic
+        background_remeshing_file: .pos file to use as a remeshing field. Overrides resolutions if not None.
     """
     # Fuse and cleanup polygons of same layer in case user overlapped them
     layer_polygons_dict = cleanup_component(
@@ -287,6 +295,7 @@ def uz_xsection_mesh(
         scale_factor=global_scaling_premesh,
         resolutions=resolutions,
         layer_physical_map=layer_physical_map,
+        layer_meshbool_map=layer_meshbool_map,
     )
 
     # Add background polygon
@@ -313,7 +322,7 @@ def uz_xsection_mesh(
             },
             dimension=2,
             model=model,
-            mesh_order=np.inf,
+            mesh_order=background_mesh_order,
             physical_name=background_tag,
         )
         polysurfaces_list.append(background_box)
@@ -392,6 +401,8 @@ def uz_xsection_mesh(
         filename=filename,
         verbosity=verbosity,
         interface_delimiter=interface_delimiter,
+        background_remeshing_file=background_remeshing_file,
+        optimization_flags=optimization_flags,
     )
 
 

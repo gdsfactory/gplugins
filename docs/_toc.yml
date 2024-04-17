@@ -20,7 +20,7 @@ parts:
       - file: plugins_process
         sections:
           - file: notebooks/femwell_02_heater
-          - file: notebooks/devsim_01_pin_waveguide
+          # - file: notebooks/devsim_01_pin_waveguide
           - file: notebooks/tcad_02_analytical_process
           - file: notebooks/tcad_03_numerical_implantation
           - file: notebooks/elmer_01_electrostatic
@@ -35,7 +35,7 @@ parts:
       - file: plugins_fdtd
         sections:
           - file: notebooks/tidy3d_00_tidy3d
-          - file: notebooks/fdtdz_01.py
+          - file: notebooks/fdtdz_01
           - file: notebooks/meep_01_sparameters
           - file: notebooks/meep_02_gratings
           - file: notebooks/meep_03_fields
@@ -54,7 +54,7 @@ parts:
       - file: notebooks/klayout_drc
       - file: notebooks/11_get_netlist
       - file: notebooks/11_get_netlist_spice
-      - file: notebooks/path_length_analysis.py
+      - file: notebooks/path_length_analysis
   - caption: Workflows
     chapters:
       - file: workflow
@@ -69,7 +69,5 @@ parts:
       - file: changelog
       - url: https://gdsfactory.github.io/gdsfactory
         title: gdsfactory
-      - url: https://github.com/gdsfactory/gdsfactory-photonics-training
+      - url: https://gdsfactory.github.io/gdsfactory-photonics-training/index.html
         title: gdsfactory-photonics-training
-      - url: https://piel.readthedocs.io/en/latest/index.html
-        title: electronics-integration

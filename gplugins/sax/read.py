@@ -1,4 +1,5 @@
 """read Sparameters from CSV file and returns sax model."""
+
 from __future__ import annotations
 
 import pathlib
@@ -36,10 +37,8 @@ def model_from_npz(
 
     Args:
         filepath: CSV Sparameters path or pandas DataFrame.
-        wl: wavelength to interpolate (um).
         xkey: key for wavelengths in file.
         xunits: x units in um from the loaded file (um). 1 means 1um.
-
     """
     sp = np.load(filepath) if isinstance(filepath, pathlib.Path | str) else filepath
     keys = list(sp.keys())
@@ -84,7 +83,6 @@ def model_from_csv(
 
     Args:
         filepath: CSV Sparameters path or pandas DataFrame.
-        wl: wavelength to interpolate (um).
         xkey: key for wavelengths in file.
         xunits: x units in um from the loaded file (um). 1 means 1um.
         prefix: for the sparameters column names in file.

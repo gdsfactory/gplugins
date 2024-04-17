@@ -1,4 +1,5 @@
 """Preprocessing involving only the LayerStack."""
+
 from __future__ import annotations
 
 import numpy as np

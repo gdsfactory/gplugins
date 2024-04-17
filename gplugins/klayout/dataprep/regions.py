@@ -23,6 +23,22 @@ def copy(region: kdb.Region) -> kdb.Region:
     return region.dup()
 
 
+def _is_layer(value: any) -> bool:
+    try:
+        layer, datatype = value
+    except Exception:
+        return False
+    if isinstance(layer, int) and isinstance(datatype, int):
+        return True
+    else:
+        return False
+
+
+def _assert_is_layer(value: any) -> None:
+    if not _is_layer(value):
+        raise ValueError(f"Layer must be a tuple of two integers. Got {value!r}")
+
+
 class Region(kdb.Region):
     def __iadd__(self, offset) -> kdb.Region:
         """Adds an offset to the layer."""
@@ -79,10 +95,10 @@ class RegionCollection:
         self.layout = lib.cell_by_name(cell_name) if cell_name else lib.top_cell()
         self.lib = lib
         self.regions = {}
+        self.cell = lib[lib.top_cell().cell_index()]
 
     def __getitem__(self, layer: tuple[int, int]) -> Region:
-        if len(layer) != 2:
-            raise ValueError(f"Layer must be a tuple of two integers. Got {layer!r}")
+        _assert_is_layer(layer)
 
         if layer in self.regions:
             return self.regions[layer]
@@ -94,30 +110,42 @@ class RegionCollection:
         return region
 
     def __setitem__(self, layer: tuple[int, int], region: Region) -> None:
-        if len(layer) != 2:
-            raise ValueError(f"Layer must be a tuple of two integers. Got {layer!r}")
+        _assert_is_layer(layer)
         self.regions[layer] = region
 
-    def write_gds(self, gdspath: PathType = GDSDIR_TEMP / "out.gds", **kwargs) -> None:
+    def __contains__(self, item):
+        # checks if the layout contains the given layer
+        _assert_is_layer(item)
+        layer, datatype = item
+        return self.lib.find_layer(layer, datatype) is not None
+
+    def write_gds(
+        self,
+        gdspath: PathType = GDSDIR_TEMP / "out.gds",
+        top_cell_name: str | None = None,
+        keep_original: bool = True,
+        save_options: kdb.SaveLayoutOptions | None = None,
+    ) -> None:
         """Write gds.
 
         Args:
-            gdspath: gdspath.
-
-        Keyword Args:
-            keep_original: keep original cell.
-            cellname: for top cell.
+            gdspath: output gds path
+            top_cell_name: name to use for the top cell of the output library
+            keep_original: if True, keeps all original cells (and hierarchy, to the extent possible) in the output. If false, only explicitly defined layers are output.
+            save_options: if provided, specified KLayout SaveLayoutOptions are used when writing the GDS
         """
-        c = self.get_kcell(**kwargs)
-        c.write(gdspath)
+        # use the working top cell name if not provided
+        if top_cell_name is None:
+            top_cell_name = self.layout.name
+        c = self.get_kcell(cellname=top_cell_name, keep_original=keep_original)
+        if save_options:
+            c.write(gdspath, save_options=save_options)
+        else:
+            c.write(gdspath)
 
-    def plot(self, **kwargs):
+    def plot(self) -> kf.KCell:
         """Plot regions."""
-        gdspath = GDSDIR_TEMP / "out.gds"
-        self.write_gds(gdspath=gdspath, **kwargs)
-        gf.clear_cache()
-        c = gf.import_gds(gdspath)
-        return c.plot()
+        return self.cell
 
     def get_kcell(
         self, keep_original: bool = True, cellname: str = "Unnamed"
@@ -131,14 +159,17 @@ class RegionCollection:
         if cellname == "Unnamed":
             uid = str(uuid.uuid4())[:8]
             cellname += f"_{uid}"
-        c = kf.KCell(cellname, self.lib)
+
+        output_lib = kf.kcell.KCLayout("output")
+        c = kf.KCell(cellname, output_lib)
         if keep_original:
             c.copy_tree(self.layout)
-            c.flatten()
+            for layer in self.regions:
+                layer_id = output_lib.layer(layer[0], layer[1])
+                output_lib.layout.clear_layer(layer_id)
 
         for layer, region in self.regions.items():
-            c.shapes(self.lib.layer(layer[0], layer[1])).clear()
-            c.shapes(self.lib.layer(layer[0], layer[1])).insert(region)
+            c.shapes(output_lib.layer(layer[0], layer[1])).insert(region)
         return c
 
     def show(self, gdspath: PathType = GDSDIR_TEMP / "out.gds", **kwargs) -> None:

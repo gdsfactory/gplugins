@@ -1,4 +1,5 @@
 """Preprocessing involving mostly the GDS polygons."""
+
 from __future__ import annotations
 
 import gdsfactory as gf
@@ -39,7 +40,7 @@ def fuse_polygons(
     ]
 
     return shapely.ops.unary_union(shapely_polygons).simplify(
-        simplify_tol, preserve_topology=True
+        simplify_tol, preserve_topology=False
     )
 
 

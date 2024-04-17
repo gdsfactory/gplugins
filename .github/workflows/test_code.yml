@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: "pip"
@@ -23,30 +23,24 @@ jobs:
           pip install pre-commit
           pre-commit run -a
   test_code_pip:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
+    container: ghcr.io/gdsfactory/gdsfactory:main
     strategy:
       fail-fast: false
       max-parallel: 12
       matrix:
-        python-version: ['3.11']
-        os: [ubuntu-latest]
         plugin: [femwell, gmsh, meow, sax, tidy3d, klayout, vlsir]
 
-    name: Test ${{ matrix.plugin }} on ${{ matrix.os }}
+    name: Test ${{ matrix.plugin }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cache/pip
           key: ${{ hashFiles('pyproject.toml') }}
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          make gmsh
           pip install -e .[${{ matrix.plugin }},dev]
       - name: Test with pytest
         env:
@@ -69,34 +63,6 @@ jobs:
           micromamba install -c conda-forge pymeep=*=mpi_mpich_* nlopt -y
           pip install -e .[dev]
           pytest gplugins/gmeep gplugins/modes
-  test_non_pip:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      max-parallel: 2
-      matrix:
-        os: [ubuntu-latest]
-        plugin: [elmer]
-    name: Test ${{ matrix.plugin }} on ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/pip
-          key: ${{ hashFiles('pyproject.toml') }}
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
-      - name: Install dependencies
-        run: |
-          make gmsh
-          make ${{ matrix.plugin }}
-          pip install -e .[dev,gmsh]
-      - name: Test with pytest
-        env:
-          GDSFACTORY_DISPLAY_TYPE: klayout
-        run: pytest gplugins/${{ matrix.plugin }}
   test_code_coverage:
     runs-on: ubuntu-latest
     steps:
@@ -117,7 +83,7 @@ jobs:
           pip freeze > requirements.txt
           pytest --cov=gplugins
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
@@ -125,7 +91,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.gdsfactory/
@@ -143,10 +109,11 @@ jobs:
           eval "$(micromamba shell hook --shell=bash)"
           micromamba activate
           micromamba install -c conda-forge pymeep=*=mpi_mpich_* nlopt -y
+          make test-data
           make dev
           make docs
       - name: Expose docs artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: docs

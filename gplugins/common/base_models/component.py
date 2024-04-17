@@ -36,7 +36,7 @@ class LayeredComponentBase(BaseModel):
     pad_z_inner: float = 0.0
     pad_z_outer: NonNegativeFloat = 0.0
     wafer_layer: tuple[int, int] = (99999, 0)
-    slice_stack: tuple[int, int] = (0, -1)
+    slice_stack: tuple[int, int | None] = (0, None)
 
     def __hash__(self):
         if not hasattr(self, "_hash"):
@@ -80,7 +80,7 @@ class LayeredComponentBase(BaseModel):
         return tuple(map(tuple, bbox))
 
     @cached_property
-    def ports(self) -> dict[str, gf.Port]:
+    def ports(self) -> tuple[gf.Port, ...]:
         return tuple(
             p.move_polar_copy(
                 self.extend_ports + self.pad_xy_inner - self.port_offset, p.orientation
@@ -101,7 +101,11 @@ class LayeredComponentBase(BaseModel):
             k: v
             for k, v in self.layer_stack.layers.items()
             if not self.polygons[k].is_empty
+            and v.zmin is not None
+            and v.thickness is not None
         }
+
+        layers = dict(sorted(layers.items(), key=lambda x: x[1].zmin + x[1].thickness))
         return dict(tuple(layers.items())[slice(*self.slice_stack)])
 
     @property
@@ -183,16 +187,19 @@ class LayeredComponentBase(BaseModel):
         return tuple(self.get_port_center(p) for p in self.ports)
 
     def get_port_center(self, port: gf.Port) -> tuple[float, float, float]:
-        layer_czs = np.array(tuple(self.layer_centers.values()))
+        layers = self.get_layer_names_from_index(port.layer)
         return (
             *port.center,
-            np.mean(
-                [
-                    layer_czs[idx, 2]
-                    for idx, layer in enumerate(self.geometry_layers.values())
-                    if layer.layer == port.layer
-                ]
-            ),
+            np.mean([self.get_layer_center(layer)[2] for layer in layers]),
+        )
+
+    def get_layer_names_from_index(
+        self, layer_index: tuple[int, int]
+    ) -> tuple[str, ...]:
+        return tuple(
+            k
+            for k, v in self.layer_stack.layers.items()
+            if tuple(v.layer) == layer_index
         )
 
     def get_layer_bbox(

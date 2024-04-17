@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 import gdsfactory as gf
@@ -76,6 +77,7 @@ def define_prisms(
     layer_polygons_dict: dict,
     layer_stack: LayerStack,
     layer_physical_map: dict,
+    layer_meshbool_map: dict,
     model: Any,
     resolutions: dict,
     scale_factor: float = 1,
@@ -85,7 +87,6 @@ def define_prisms(
     Args:
         layer_polygons_dict: dictionary of polygons for each layer
         layer_stack: gdsfactory LayerStack to parse
-        layer_physical_map: map layer names to physical names
         model: meshwell Model object
         resolutions: Pairs {"layername": {"resolution": float, "distance": "float}} to roughly control mesh refinement.
         scale_factor: scaling factor to apply to the polygons (default: 1)
@@ -125,6 +126,9 @@ def define_prisms(
                 physical_name=layer_physical_map[layername]
                 if layername in layer_physical_map
                 else layername,
+                mesh_bool=layer_meshbool_map[layername]
+                if layername in layer_meshbool_map
+                else True,
             )
         )
 
@@ -135,10 +139,12 @@ def xyz_mesh(
     component: ComponentOrReference,
     layer_stack: LayerStack,
     layer_physical_map: dict,
+    layer_meshbool_map: dict,
     resolutions: dict | None = None,
     default_characteristic_length: float = 0.5,
     background_tag: str | None = None,
     background_padding: tuple[float, float, float, float, float, float] = (2.0,) * 6,
+    background_mesh_order: int | float = 2**63 - 1,
     global_scaling: float = 1,
     global_scaling_premesh: float = 1,
     global_2D_algorithm: int = 6,
@@ -152,16 +158,21 @@ def xyz_mesh(
     edge_ports: List[str] | None = None,
     gmsh_version: float | None = None,
     layer_port_delimiter: str | None = None,
+    background_remeshing_file: Path = None,
+    optimization_flags: tuple[tuple[str, int]] | None = None,
 ) -> bool:
     """Full 3D mesh of component.
 
     Args:
         component: gdsfactory component to mesh
         layer_stack: gdsfactory LayerStack to parse
+        layer_physical_map: map layer names to physical names
+        layer_meshbool_map: map layer names to mesh_bool (True: mesh the prisms, False: don't mesh)
         resolutions: Pairs {"layername": {"resolution": float, "distance": "float}} to roughly control mesh refinement
             default_characteristic_length: gmsh maximum edge length
         background_tag: name of the background layer to add (default: no background added). This will be used as the material as well.
         background_padding: [-x, -y, -z, +x, +y, +z] distances to add to the components and to fill with ``background_tag``
+        background_mesh_order (int, float): mesh order to assign to the background
         global_scaling: factor to scale all mesh coordinates by (e.g. 1E-6 to go from um to m)
         global_scaling_premesh: factor to scale all mesh coordinates by (e.g. 1E-6 to go from um to m).
             Instead of using a gmsh-option which is only applied to meshes, this parameter can scale cad-exported files, e.g. .step files
@@ -186,6 +197,7 @@ def xyz_mesh(
         gmsh_version: Gmsh mesh format version. For example, Palace requires an older version of 2.2,
             see https://mfem.org/mesh-formats/#gmsh-mesh-formats.
         layer_port_delimiter: Delimiter to use for new layers generated for ports: "layer{delimiter}port_name".
+        background_remeshing_file: .pos file to use as a remeshing field. Overrides resolutions if not None.
     """
     if port_names:
         mesh_component = gf.Component()
@@ -249,7 +261,7 @@ def xyz_mesh(
                     * global_scaling_premesh,
                     zmin=(zmin - background_padding[2]) * global_scaling_premesh,
                     material=background_tag,
-                    mesh_order=2**63 - 1,
+                    mesh_order=background_mesh_order,
                 )
             }
         )
@@ -263,6 +275,7 @@ def xyz_mesh(
         scale_factor=global_scaling_premesh,
         resolutions=resolutions,
         layer_physical_map=layer_physical_map,
+        layer_meshbool_map=layer_meshbool_map,
     )
 
     # Add edgeports
@@ -299,6 +312,8 @@ def xyz_mesh(
         gmsh_version=gmsh_version,
         filename=filename,
         verbosity=verbosity,
+        background_remeshing_file=background_remeshing_file,
+        optimization_flags=optimization_flags,
     )
 
 

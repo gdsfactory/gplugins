@@ -9,6 +9,7 @@ def define_polysurfaces(
     polygons_dict: dict,
     layer_stack: LayerStack,
     layer_physical_map: dict,
+    layer_meshbool_map: dict,
     model: Any,
     resolutions: dict,
     scale_factor: float = 1,
@@ -36,6 +37,9 @@ def define_polysurfaces(
                 physical_name=layer_physical_map[layername]
                 if layername in layer_physical_map
                 else layername,
+                mesh_bool=layer_meshbool_map[layername]
+                if layername in layer_meshbool_map
+                else True,
             )
         )
 

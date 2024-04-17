@@ -1,6 +1,6 @@
-
 install:
-	pip install -e .[dev,docs,devsim,femwell,gmsh,klayout,meow,meshwell,ray,sax,schematic,tidy3d,web,vlsir]
+	pip install -e .[dev,docs,devsim,femwell,gmsh,klayout,meow,meshwell,ray,sax,schematic,tidy3d,vlsir]
+	pip install git+https://github.com/gdsfactory/gdsfactory --force-reinstall
 	pre-commit install
 
 dev: test-data gmsh elmer install
@@ -22,7 +22,7 @@ cov:
 test-data:
 	git clone https://github.com/gdsfactory/gdsfactory-test-data.git -b test-data test-data
 
-test-data-developers:
+test-data-ssh:
 	git clone git@github.com:gdsfactory/gdsfactory-test-data.git -b test-data test-data
 
 git-rm-merged:

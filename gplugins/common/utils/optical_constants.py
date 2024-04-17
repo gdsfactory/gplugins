@@ -1,4 +1,5 @@
 """Useful optical constant manipulations."""
+
 import numpy as np
 
 

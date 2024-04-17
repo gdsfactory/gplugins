@@ -77,7 +77,7 @@ def _get_results(
 def get_results(
     sim: td.Simulation,
     dirpath=PATH.results_tidy3d,
-    overwrite: bool = True,
+    overwrite: bool = False,
     verbose: bool = False,
 ) -> Awaitable[td.SimulationData]:
     """Return a List of SimulationData from a Simulation.

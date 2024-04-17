@@ -4,6 +4,10 @@ __pycache__/
 *$py.class
 temp.msh2
 docs/notebooks/temporary
+docs/notebooks/batch-*
+.virtual_documents/
+notebooks/rib_strip_pathlengths/
+
 
 # C extensions
 *.so
@@ -11,10 +15,10 @@ docs/notebooks/temporary
 *.hdf5
 *.msh
 *.dat
-*.ipynb
 *.gds
 *.pkl
 *.txt
+*.csv
 test-data/
 _autosummary/
 gplugins/path_length_analysis/test_pathlength_reporting/
@@ -50,7 +54,6 @@ share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-*.ipynb
 MANIFEST
 
 # PyInstaller

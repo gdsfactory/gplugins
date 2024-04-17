@@ -210,9 +210,7 @@ def get_simulation_grating_fiber(
     wg_material = mp.Medium(index=nwg)
     top_clad_material = mp.Medium(index=clad_material)
     bottom_clad_material = mp.Medium(index=nbox)
-    fiber_core_material = (
-        fiber_numerical_aperture**2 + fiber_clad_material**2
-    ) ** 0.5
+    fiber_core_material = (fiber_numerical_aperture**2 + fiber_clad_material**2) ** 0.5
     fiber_clad_material = mp.Medium(index=fiber_clad_material)
     fiber_core_material = mp.Medium(index=fiber_core_material)
 

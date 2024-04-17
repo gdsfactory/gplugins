@@ -1,13 +1,18 @@
 """Disable print statements for overly verbose simulators."""
+
 from __future__ import annotations
 
 import os
 import sys
 
 
-def disable_print() -> None:
-    sys.stdout = open(os.devnull, "w")
+class DisablePrint:
+    def __init__(self):
+        self.output = sys.stdout
 
+    def __enter__(self) -> DisablePrint:
+        sys.stdout = open(os.devnull, "w")
+        return self
 
-def enable_print() -> None:
-    sys.stdout = sys.__stdout__
+    def __exit__(self, exc_type, exc_value, exc_tb):
+        sys.stdout = self.output

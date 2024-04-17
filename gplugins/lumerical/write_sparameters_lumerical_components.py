@@ -1,4 +1,5 @@
 """Write Sparameters with for different components."""
+
 from __future__ import annotations
 
 import gdsfactory as gf

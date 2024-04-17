@@ -4,6 +4,14 @@
 build-backend = "flit_core.buildapi"
 requires = ["flit_core >=3.2,<4"]
 
+[lint.per-file-ignores]
+"docs/notebooks/*.py" = ["F821", 'E402', 'F405', 'F403']
+"docs/notebooks/meep_01_sparameters.py" = ["F821", 'E402']
+"docs/notebooks/tcad_02_analytical_process.py" = ["F821", 'E402', 'F405', 'F403']
+
+[lint.pydocstyle]
+convention = "google"
+
 [project]
 authors = [
   {name = "gdsfactory", email = "contact@gdsfactory.com"}
@@ -14,8 +22,9 @@ classifiers = [
   "Operating System :: OS Independent"
 ]
 dependencies = [
-  "gdsfactory[cad]>=7.8.1,<7.9",
-  "pint"
+  "gdsfactory>=7.10.1",
+  "pint",
+  "tqdm"
 ]
 description = "gdsfactory plugins"
 keywords = ["python"]
@@ -23,7 +32,7 @@ license = {file = "LICENSE"}
 name = "gplugins"
 readme = "README.md"
 requires-python = ">=3.10"
-version = "0.8.5"
+version = "0.12.0"
 
 [project.optional-dependencies]
 dagster = ["dagster", "dagit"]
@@ -44,20 +53,26 @@ dev = [
 devsim = [
   "devsim",
   "pyvista<=0.40",
-  "tidy3d>=2.4.0,<2.5.0"
+  "tidy3d==2.5.2"
 ]
 docs = [
   "jupytext",
   "matplotlib",
-  "jupyter-book==0.15.1",
+  "jupyter-book==1.0.0",
   "pyvista[jupyter]<=0.40"
 ]
 femwell = [
-  "femwell>=0.1.6,<0.8.5",
-  "meshwell>=1.0.0,<1.1.0"
+  "femwell>=0.1.6,<0.2",
+  "meshwell>=1.0.7,<=1.1"
+]
+gfviz = [
+  "jinja2",
+  "fastapi",
+  "shapely",
+  "natsort"
 ]
 gmsh = [
-  "gmsh",
+  "gmsh==4.12.2",
   "h5py",
   "mapbox_earcut",
   "meshio",
@@ -65,64 +80,44 @@ gmsh = [
   "pyvista<=0.40",
   "trimesh",
   "shapely",
-  "meshwell>=1.0.0,<1.1.0"
+  "meshwell>=1.0.7,<=1.1"
 ]
 klayout = [
-  "kfactory[git,ipy]>=0.9.3,<0.10",
+  "klayout",
   "pyvis<=0.3.1"
 ]
 meow = [
-  "jaxlib",
-  "jax",
-  "meow-sim>0.8,<0.9",
-  "tidy3d>=2.4.0,<2.5.0"
+  "jax>=0.4.26",
+  "jaxlib>=0.4.26",
+  "flax>=0.8.2",
+  "meow-sim>=0.9.0,<0.12.0",
+  "tidy3d==2.5.2"
 ]
 sax = [
-  "jaxlib",
-  "jax",
-  "sax>=0.10.3,<0.11.0",
-  "scikit-learn"
+  "jax>=0.4.26",
+  "jaxlib>=0.4.26",
+  "flax>=0.8.2",
+  "sax>=0.12.1,<0.13.0",
+  "scikit-learn",
+  "pyvis<=0.3.1"
 ]
 schematic = [
   "bokeh",
   "natsort"
 ]
 tidy3d = [
-  "tidy3d>=2.4.0,<2.5.0"
+  "tidy3d==2.5.2",
+  "meshio",
+  "meshwell>=1.0.7,<=1.1"
 ]
 vlsir = [
-  "vlsir>=4.0.0,<5.0.0",
-  "vlsirtools>=4.0.0,<5.0.0"
+  "vlsir>=4.0.0,<6.0.0",
+  "vlsirtools>=4.0.0,<6.0.0"
 ]
-web = [
-  "jinja2",
-  "python-multipart",
-  "fastapi>=0.102.0,<1",
-  "uvicorn[standard]"
-]
-
-[tool.black]
-exclude = '''  # Specify the files/dirs that should be ignored by the black formatter
-/(
-    \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | env
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
-include = '\.pyi?$'
-line-length = 88
-target-version = ['py310']
 
 [tool.codespell]
-ignore-words-list = "te, te/tm, te, ba, fpr, fpr_spacing, ro, nd, donot, schem"
+ignore-words-list = 'te, te/tm, te, ba, fpr, fpr_spacing, ro, nd, donot, schem, Ue'
+skip = 'notebooks/palace_02_fullwave.ipynb'
 
 [tool.mypy]
 python_version = "3.10"
@@ -133,6 +128,9 @@ enabled = true
 live_mode = true
 strict = true
 
+[tool.pyright]
+reportUnusedExpression = false
+
 [tool.pytest.ini_options]
 addopts = '--tb=short'
 norecursedirs = [
@@ -141,14 +139,15 @@ norecursedirs = [
   'gplugins/devsim',
   'gplugins/sax/integrations',
   'gplugins/tidy3d/tests/tests_sparameters',
-  'gplugins/fdtdz'
+  'gplugins/fdtdz',
+  'gplugins/elmer'
 ]
 python_files = ["gplugins/*.py", "notebooks/*.ipynb", "tests/*.py"]
 testpaths = ["gplugins/", "tests"]
 
 [tool.ruff]
 fix = true
-ignore = [
+lint.ignore = [
   "E501",  # line too long, handled by black
   "B008",  # do not perform function calls in argument defaults
   "C901",  # too complex
@@ -158,22 +157,16 @@ ignore = [
   "B018",  # found useless expression
   "B028"  # no explicit stacklevel
 ]
-select = [
+lint.select = [
   "E",  # pycodestyle errors
   "W",  # pycodestyle warnings
   "F",  # pyflakes
   "I",  # isort
   "C",  # flake8-comprehensions
   "B",  # flake8-bugbear
+  "T10",  # flake8-debugger
   "UP"
 ]
-
-[tool.ruff.per-file-ignores]
-"docs/notebooks/meep_01_sparameters.py" = ["F821", 'E402']
-"docs/notebooks/tcad_02_analytical_process.py" = ["F821", 'E402', 'F405', 'F403']
-
-[tool.ruff.pydocstyle]
-convention = "google"
 
 [tool.setuptools.package-data]
 mypkg = ["*.csv", "*.yaml"]
@@ -209,7 +202,7 @@ message_template = "Bump to {new_version}"
 tag_template = "v{new_version}"
 
 [tool.tbump.version]
-current = "0.8.5"
+current = "0.12.0"
 regex = '''
   (?P<major>\d+)
   \.

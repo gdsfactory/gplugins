@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import meshio
 from gdsfactory import Component
 from gdsfactory.typings import ComponentSpec, Layer, LayerStack
@@ -29,6 +31,7 @@ def get_mesh(
     wafer_padding: float = 0.0,
     wafer_layer: Layer = (99999, 0),
     default_characteristic_length=0.5,
+    background_remeshing_file: Path | None = None,
     **kwargs,
 ):
     """Returns a gmsh mesh of the component for finite element simulation.
@@ -43,6 +46,7 @@ def get_mesh(
         xsection_bounds: used to define in-plane line for uz meshing.
         wafer_padding: padding beyond bbox to add to WAFER layers.
         wafer_layer: layer to use for WAFER padding.
+        background_remeshing_file: .pos file to use as a remeshing field. Overrides resolutions if not None.
 
     Keyword Args:
         Arguments for the target meshing function in gplugins.gmsh
@@ -79,9 +83,9 @@ def get_mesh(
 
     # Default layer labels
     if layer_physical_map is None:
-        layer_physical_map = {}
-        for layer_name in layer_stack.layers.keys():
-            layer_physical_map[layer_name] = layer_name
+        layer_physical_map = {
+            layer_name: layer_name for layer_name in layer_stack.layers.keys()
+        }
     else:
         for layer_name in layer_stack.layers.keys():
             if layer_name not in layer_physical_map.keys():
@@ -89,27 +93,23 @@ def get_mesh(
 
     # Default meshing flags (all True)
     if layer_meshbool_map is None:
-        layer_meshbool_map = {}
-        for layer_name in layer_stack.layers.keys():
-            layer_meshbool_map[layer_name] = True
+        layer_meshbool_map = {
+            layer_name: True for layer_name in layer_stack.layers.keys()
+        }
     else:
         for layer_name in layer_stack.layers.keys():
             if layer_name not in layer_physical_map.keys():
                 layer_meshbool_map[layer_name] = True
 
-    if type == "xy":
-        if z is None:
-            raise ValueError(
-                'For xy-meshing, a z-value must be provided via the float argument "z".'
-            )
-
-        return xy_xsection_mesh(
+    if type == "3D":
+        return xyz_mesh(
             component=padded_component,
-            z=z,
             layer_stack=layer_stack,
             default_characteristic_length=default_characteristic_length,
             resolutions=new_resolutions,
             layer_physical_map=layer_physical_map,
+            layer_meshbool_map=layer_meshbool_map,
+            background_remeshing_file=background_remeshing_file,
             **kwargs,
         )
     elif type == "uz":
@@ -126,15 +126,25 @@ def get_mesh(
             default_characteristic_length=default_characteristic_length,
             resolutions=new_resolutions,
             layer_physical_map=layer_physical_map,
+            layer_meshbool_map=layer_meshbool_map,
+            background_remeshing_file=background_remeshing_file,
             **kwargs,
         )
-    elif type == "3D":
-        return xyz_mesh(
+    elif type == "xy":
+        if z is None:
+            raise ValueError(
+                'For xy-meshing, a z-value must be provided via the float argument "z".'
+            )
+
+        return xy_xsection_mesh(
             component=padded_component,
+            z=z,
             layer_stack=layer_stack,
             default_characteristic_length=default_characteristic_length,
             resolutions=new_resolutions,
             layer_physical_map=layer_physical_map,
+            layer_meshbool_map=layer_meshbool_map,
+            background_remeshing_file=background_remeshing_file,
             **kwargs,
         )
     else:

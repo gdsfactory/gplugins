@@ -8,7 +8,6 @@ From Chrostowski, L., & Hochberg, M. (2015). Silicon Photonics Design: From Devi
 
 """
 
-
 from __future__ import annotations
 
 import warnings
@@ -23,7 +22,7 @@ from devsim.python_packages import model_create, simple_physics
 from pydantic import BaseModel, ConfigDict
 from scipy.interpolate import griddata
 
-from gplugins.common.utils.disable_print import disable_print, enable_print
+from gplugins.common.utils.disable_print import DisablePrint
 from gplugins.tidy3d.materials import get_nk
 from gplugins.tidy3d.modes import Precision, Waveguide
 
@@ -57,8 +56,8 @@ def dn_carriers(wavelength: float, dN: float, dP: float) -> float:
     else:
         wavelength *= 1e-6
         return (
-            -3.64 * 1e-10 * wavelength**2 * dN
-            - 3.51 * 1e-6 * wavelength**2 * np.power(dP, 0.8)
+            -3.64 * 1e-10 * wavelength** 2 * dN
+            - 3.51 * 1e-6 * wavelength** 2 * np.power(dP, 0.8)
         )
 
 
@@ -471,9 +470,8 @@ class PINWaveguide(BaseModel):
         )  # , scalar_bar_args=sargs)
         _ = plotter.show_grid()
         _ = plotter.camera_position = "xy"
-        disable_print()
-        _ = plotter.show(jupyter_backend=jupyter_backend)
-        enable_print()
+        with DisablePrint():
+            _ = plotter.show(jupyter_backend=jupyter_backend)
 
     def list_fields(self, tempfile="temp.dat"):
         """Returns the header of the mesh, which lists all possible fields."""
