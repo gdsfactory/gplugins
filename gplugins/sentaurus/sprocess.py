@@ -267,7 +267,7 @@ def write_sprocess(
                     f"struct tdr={str(relative_save_directory)}/{struct_prefix}0_wafer.tdr\n"
                 )
 
-        # Global remeshing strat
+        # Global remeshing strategy
         f.write(global_process_remeshing_str)
 
         # Process
