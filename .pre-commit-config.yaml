@@ -56,5 +56,6 @@ repos:
     rev: v2.2.6
     hooks:
       - id: codespell
+        args: ["--skip=*svisual.py"]
         additional_dependencies:
           - tomli

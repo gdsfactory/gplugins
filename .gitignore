@@ -171,3 +171,12 @@ cython_debug/
 *.DS_Store
 .DS_Store
 *Thumbs.db
+
+# Possible generated files
+*.cmd
+*.tcl
+*.tdr
+*.log
+*.BAK
+*.sav
+*.plt
