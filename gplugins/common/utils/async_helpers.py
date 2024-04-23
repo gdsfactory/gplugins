@@ -44,9 +44,11 @@ async def execute_and_stream_output(
     append: bool = False,
     log_file_dir: Path | None = None,
     log_file_str: str | None = None,
+    stream_stdout: io.TextIOWrapper | None = sys.stdout,
+    stream_stderr: io.TextIOWrapper | None = sys.stderr,
     **kwargs,
 ) -> asyncio.subprocess.Process:
-    """Run a command asynchronously and stream *stdout* and *stderr* to main and a log file
+    """Run a command asynchronously and stream *stdout* and *stderr* to given IO and a log file
     in ``log_file_dir / log_file_str``. Uses ``shell=True`` as default unlike ``subprocess.Popen``. Returns an asyncio process.
 
     Args:
@@ -55,6 +57,8 @@ async def execute_and_stream_output(
         append: Whether to use append to log file instead of writing.
         log_file_dir: Directory for log files.
         log_file_str: Log file name. Will be expanded to ``f'{log_file_str}_out.log'`` and ``f'{log_file_str}_err.log'``.
+        stream_stdout: Stream to write stdout to. Defaults to ``sys.stdout``.
+        stream_stderr: Stream to write stderr to. Defaults to ``sys.stderr``.
 
     ``*args`` and ``**kwargs`` are passed to :func:`~create_subprocess_shell` or :func:`create_subprocess_exec`,
     which in turn passes them to :class:`subprocess.Popen`.
@@ -78,7 +82,7 @@ async def execute_and_stream_output(
     asyncio.create_task(
         handle_return(
             proc.stdout,
-            out_stream=sys.stdout,
+            out_stream=stream_stdout,
             log_file=log_file_dir / f"{log_file_str}_out.log",
             append=append,
         )
@@ -86,7 +90,7 @@ async def execute_and_stream_output(
     asyncio.create_task(
         handle_return(
             proc.stderr,
-            out_stream=sys.stderr,
+            out_stream=stream_stderr,
             log_file=log_file_dir / f"{log_file_str}_err.log",
             append=append,
         )
