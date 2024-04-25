@@ -141,7 +141,7 @@ norecursedirs = [
   'gplugins/tidy3d/tests/tests_sparameters',
   'gplugins/fdtdz',
   'gplugins/elmer',
-  'gplugins/sentaurus/',
+  'gplugins/sentaurus',
   'gplugins/gfviz'
 ]
 python_files = ["gplugins/*.py", "notebooks/*.ipynb", "tests/*.py"]
