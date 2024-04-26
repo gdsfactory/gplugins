@@ -61,6 +61,25 @@ def cleanup_component(component, layer_stack, round_tol=2, simplify_tol=1e-2):
     }
 
 
+def cleanup_component_layermap(component, layermap, round_tol=2, simplify_tol=1e-2):
+    """Process component polygons before processing.
+
+    Uses layermap (design layers) names.
+    """
+    layer_dict = vars(layermap)
+
+    return {
+        layer: fuse_polygons(
+            component,
+            layername,
+            layer,
+            round_tol=round_tol,
+            simplify_tol=simplify_tol,
+        )
+        for layername, layer in layer_dict.items()
+    }
+
+
 def to_polygons(geometries):
     for geometry in geometries:
         if isinstance(geometry, Polygon):

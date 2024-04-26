@@ -311,6 +311,14 @@ def coupler_single_wavelength(*, coupling: float = 0.5) -> SDict:
 def _mmi_amp(
     wl: Float = 1.55, wl0: Float = 1.55, fwhm: Float = 0.2, loss_dB: Float = 0.3
 ):
+    """Amplitude of the MMI transfer function.
+
+    Args:
+        wl: wavelength.
+        wl0: center wavelength.
+        fwhm: full width at half maximum.
+        loss_dB: loss in dB.
+    """
     max_power = 10 ** (-abs(loss_dB) / 10)
     f = 1 / wl
     f0 = 1 / wl0
@@ -320,14 +328,55 @@ def _mmi_amp(
 
     sigma = _fwhm / (2 * jnp.sqrt(2 * jnp.log(2)))
     power = jnp.exp(-((f - f0) ** 2) / (2 * sigma**2))
-    power = max_power * power / power.max() / 2
+    power = max_power * power / power.max()
     return jnp.sqrt(power)
+
+
+def _mmi_nxn(
+    n,
+    wl=1.55,
+    wl0=1.55,
+    fwhm=0.2,
+    loss_dB=None,
+    shift=None,
+    splitting_matrix=None,
+) -> sax.SDict:
+    """
+    General n x n MMI model.
+
+    Args:
+        n (int): Number of input and output ports.
+        wl (float): Operating wavelength.
+        wl0 (float): Center wavelength of the MMI.
+        fwhm (float): Full width at half maximum.
+        loss_dB (np.array): Array of loss values in dB for each port.
+        shift (np.array): Array of wavelength shifts for each port.
+        splitting_matrix (np.array): nxn matrix defining the power splitting ratios between ports.
+    """
+    if loss_dB is None:
+        loss_dB = jnp.zeros(n)
+    if shift is None:
+        shift = jnp.zeros(n)
+    if splitting_matrix is None:
+        splitting_matrix = jnp.full((n, n), 1 / n)  # Uniform splitting as default
+
+    S = {}
+    for i in range(n):
+        for j in range(n):
+            amplitude = _mmi_amp(wl, wl0 + shift[j], fwhm, loss_dB[j])
+            amplitude *= jnp.sqrt(
+                splitting_matrix[i][j]
+            )  # Convert power ratio to amplitude
+            loss_factor = 10 ** (-loss_dB[j] / 20)
+            S[(f"o{i+1}", f"o{j+1}")] = amplitude * loss_factor
+
+    return sax.reciprocal(S)
 
 
 def mmi1x2(
     wl: Float = 1.55, wl0: Float = 1.55, fwhm: Float = 0.2, loss_dB: Float = 0.3
 ) -> sax.SDict:
-    thru = _mmi_amp(wl=wl, wl0=wl0, fwhm=fwhm, loss_dB=loss_dB)
+    thru = _mmi_amp(wl=wl, wl0=wl0, fwhm=fwhm, loss_dB=loss_dB) / 2**0.5
     return sax.reciprocal(
         {
             ("o1", "o2"): thru,
@@ -342,18 +391,47 @@ def mmi2x2(
     fwhm: Float = 0.2,
     loss_dB: Float = 0.3,
     shift: Float = 0.005,
+    loss_dB_cross: Float | None = None,
+    loss_dB_thru: Float | None = None,
+    splitting_ratio_cross: Float = 0.5,
+    splitting_ratio_thru: Float = 0.5,
 ) -> sax.SDict:
-    """Returns 2x2 MMI model.
+    """2x2 MMI model.
 
     Args:
         wl: wavelength.
         wl0: center wavelength.
-        fwhm: full width half maximum.
+        fwhm: full width at half maximum.
         loss_dB: loss in dB.
-        shift: wavelength shift.
+        shift: shift in wavelength for both cross and thru ports.
+        loss_dB_cross: loss in dB for the cross port.
+        loss_dB_bar: loss in dB for the bar port.
+        splitting_ratio_cross: splitting ratio for the cross port.
+        splitting_ratio_thru: splitting ratio for the bar port.
+
     """
-    thru = _mmi_amp(wl=wl, wl0=wl0, fwhm=fwhm, loss_dB=loss_dB)
-    cross = 1j * _mmi_amp(wl=wl, wl0=wl0 + shift, fwhm=fwhm, loss_dB=loss_dB)
+    loss_dB_cross = loss_dB_cross or loss_dB
+    loss_dB_thru = loss_dB_thru or loss_dB
+
+    # Convert splitting ratios from power to amplitude by taking the square root
+    amplitude_ratio_thru = splitting_ratio_thru**0.5
+    amplitude_ratio_cross = splitting_ratio_cross**0.5
+
+    loss_factor_thru = 10 ** (-loss_dB_thru / 20)
+    loss_factor_cross = 10 ** (-loss_dB_cross / 20)
+
+    thru = (
+        _mmi_amp(wl=wl, wl0=wl0 + shift, fwhm=fwhm, loss_dB=loss_dB_thru)
+        * amplitude_ratio_thru
+        * loss_factor_thru
+    )
+    cross = (
+        1j
+        * _mmi_amp(wl=wl, wl0=wl0 + shift, fwhm=fwhm, loss_dB=loss_dB_cross)
+        * amplitude_ratio_cross
+        * loss_factor_cross
+    )
+
     return sax.reciprocal(
         {
             ("o1", "o3"): thru,

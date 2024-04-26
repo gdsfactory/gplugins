@@ -120,15 +120,15 @@ def compute_component_slice_modes(
     Keyword Args:
         resolutions (Dict): Pairs {"layername": {"resolution": float, "distance": "float}}
             to roughly control mesh refinement within and away from entity, respectively.
-        mesh_scaling_factor (float): factor multiply mesh geometry by.
-        default_resolution_min (float): gmsh minimal edge length.
-        default_resolution_max (float): gmsh maximal edge length.
+        default_characteristic_length (float): gmsh characteristic length.
         background_tag (str): name of the background layer to add (default: no background added).
         background_padding (Tuple): [xleft, ydown, xright, yup] distances to add to the components and to fill with background_tag.
+        background_remeshing_file (str): filename to load background remeshing from.
         global_meshsize_array: np array [x,y,z,lc] to parametrize the mesh.
         global_meshsize_interpolant_func: interpolating function for global_meshsize_array.
         extra_shapes_dict: Optional[OrderedDict] of {key: geo} with key a label and geo a shapely (Multi)Polygon or (Multi)LineString of extra shapes to override component.
         merge_by_material: boolean, if True will merge polygons from layers with the same layer.material. Physical keys will be material in this case.
+        wafer_layer: layer to use for WAFER padding.
     """
 
     # Mesh
