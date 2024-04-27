@@ -271,8 +271,10 @@ def get_simulation_grating_coupler(
     )
 
     component_padding = layer_stack.get_component_with_derived_layers(
-        component, decorator=add_padding_custom
+        component,
     )
+
+    component_padding = add_padding_custom(component_padding)
 
     component_extended = (
         gf.components.extend_ports(
