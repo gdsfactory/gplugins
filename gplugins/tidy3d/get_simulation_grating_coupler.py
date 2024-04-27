@@ -62,6 +62,7 @@ def get_simulation_grating_coupler(
     grid_spec: td.GridSpec | None = None,
     sidewall_angle_deg: float = 0,
     dilation: float = 0.0,
+    padding_layer: tuple[int, int] = (67, 0),
     cross_section: CrossSectionSpec | None = None,
     **kwargs,
 ) -> td.Simulation:
@@ -262,6 +263,7 @@ def get_simulation_grating_coupler(
     add_padding_custom = partial(
         add_padding,
         default=0,
+        layers=(padding_layer,),
         top=ymargin or ymargin_top,
         bottom=ymargin or ymargin_bot,
         left=xmargin or xmargin_left,
@@ -273,7 +275,7 @@ def get_simulation_grating_coupler(
     )
 
     component_extended = (
-        gf.components.extension.extend_ports(
+        gf.components.extend_ports(
             component=component_padding,
             length=port_extension,
             centered=True,
