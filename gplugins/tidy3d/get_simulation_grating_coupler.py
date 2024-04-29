@@ -9,7 +9,7 @@ import gdsfactory as gf
 import matplotlib.pyplot as plt
 import numpy as np
 import tidy3d as td
-from gdsfactory.add_padding import add_padding
+from gdsfactory.add_padding import add_padding_container
 from gdsfactory.component import Component
 from gdsfactory.components.extension import move_polar_rad_copy
 from gdsfactory.config import logger
@@ -261,7 +261,7 @@ def get_simulation_grating_coupler(
             f"No port named {fiber_port_prefix!r} in {component.ports.keys()}"
         )
     add_padding_custom = partial(
-        add_padding,
+        add_padding_container,
         default=0,
         layers=(padding_layer,),
         top=ymargin or ymargin_top,
