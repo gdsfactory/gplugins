@@ -1,13 +1,20 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.12.0...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.13.0...main)
 
 <!-- towncrier release notes start -->
 
 ## [0.13.0](https://github.com/gdsfactory/gplugins/releases/tag/v0.13.0) - 2024-04-28
 
-No significant changes.
-
+- Add padding layer to gplugins [#387](https://github.com/gdsfactory/gplugins/pull/387)
+- allow mmi imbalance [#386](https://github.com/gdsfactory/gplugins/pull/386)
+- Support custom IO streams in `execute_and_stream_output` [#385](https://github.com/gdsfactory/gplugins/pull/385)
+- tcad scripts [#382](https://github.com/gdsfactory/gplugins/pull/382)
+- add gfviz [#363](https://github.com/gdsfactory/gplugins/pull/363)
+- small doc fixes [#380](https://github.com/gdsfactory/gplugins/pull/380)
+- improve femwell plugin [#377](https://github.com/gdsfactory/gplugins/pull/377)
+- retire devsim doc [#296](https://github.com/gdsfactory/gplugins/pull/296)
+- update tidy3d [#378](https://github.com/gdsfactory/gplugins/pull/378)
 
 ## [0.12.0](https://github.com/gdsfactory/gplugins/releases/tag/v0.12.0) - 2024-04-09
 
