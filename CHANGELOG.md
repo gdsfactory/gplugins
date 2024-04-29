@@ -4,6 +4,11 @@
 
 <!-- towncrier release notes start -->
 
+## [0.13.0](https://github.com/gdsfactory/gplugins/releases/tag/v0.13.0) - 2024-04-28
+
+No significant changes.
+
+
 ## [0.12.0](https://github.com/gdsfactory/gplugins/releases/tag/v0.12.0) - 2024-04-09
 
 - Better error for wrong `top_cell` in netlist to networkx [#373](https://github.com/gdsfactory/gplugins/pull/373)
