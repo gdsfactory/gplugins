@@ -9,7 +9,7 @@ import gdsfactory as gf
 import matplotlib.pyplot as plt
 import numpy as np
 import tidy3d as td
-from gdsfactory.add_padding import add_padding
+from gdsfactory.add_padding import add_padding_container
 from gdsfactory.component import Component
 from gdsfactory.components.extension import move_polar_rad_copy
 from gdsfactory.config import logger
@@ -62,6 +62,7 @@ def get_simulation_grating_coupler(
     grid_spec: td.GridSpec | None = None,
     sidewall_angle_deg: float = 0,
     dilation: float = 0.0,
+    padding_layer: tuple[int, int] = (67, 0),
     cross_section: CrossSectionSpec | None = None,
     **kwargs,
 ) -> td.Simulation:
@@ -260,8 +261,9 @@ def get_simulation_grating_coupler(
             f"No port named {fiber_port_prefix!r} in {component.ports.keys()}"
         )
     add_padding_custom = partial(
-        add_padding,
+        add_padding_container,
         default=0,
+        layers=(padding_layer,),
         top=ymargin or ymargin_top,
         bottom=ymargin or ymargin_bot,
         left=xmargin or xmargin_left,
@@ -269,11 +271,13 @@ def get_simulation_grating_coupler(
     )
 
     component_padding = layer_stack.get_component_with_derived_layers(
-        component, decorator=add_padding_custom
+        component,
     )
 
+    component_padding = add_padding_custom(component_padding)
+
     component_extended = (
-        gf.components.extension.extend_ports(
+        gf.components.extend_ports(
             component=component_padding,
             length=port_extension,
             centered=True,
