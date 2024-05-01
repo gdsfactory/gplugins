@@ -24,6 +24,7 @@ from bokeh.models import (
 from bokeh.palettes import Category10, Spectral4
 from bokeh.plotting import figure, from_networkx
 from gdsfactory.component import Component, ComponentReference
+from gdsfactory.get_netlist import get_netlist, get_netlist_recursive
 
 DEFAULT_CS_COLORS = {
     "xs_rc": "red",
@@ -346,7 +347,6 @@ def get_edge_based_route_attr_graph(
     Returns:
         A NetworkX Graph
     """
-    from gdsfactory.get_netlist import get_netlist, get_netlist_recursive
 
     if recursive:
         netlists = get_netlist_recursive(pic, component_suffix="")
