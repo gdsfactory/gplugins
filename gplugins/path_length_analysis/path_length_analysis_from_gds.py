@@ -1,15 +1,18 @@
+from functools import partial
+
 import gdsfactory as gf
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal import savgol_filter
+
+filter_savgol_filter = partial(savgol_filter, window_length=11, polyorder=3, axis=0)
 
 
 def extract_path(
     component,
     layer=(1, 0),
     plot: bool = False,
-    window_length: int | None = 41,
-    polyorder: int | None = 3,
+    filter_function=None,
 ) -> gf.Path:
     """Extracts the centerline of a component from a GDS file.
 
@@ -17,9 +20,7 @@ def extract_path(
         component: GDS component.
         layer: GDS layer to extract the centerline from.
         plot: Plot the centerline.
-        window_length: Window length for Savitzky-Golay filter.
-            Improves the smoothness of the centerline to reduce noise from grid discretization.
-        polyorder: Polynomial order for Savitzky-Golay filter.
+        filter_function: optional Function to filter the centerline.
     """
     points = component.get_polygons(by_spec=layer)[0]
 
@@ -31,11 +32,12 @@ def extract_path(
     inner_points = inner_points[::-1]
     centerline = np.mean([outer_points, inner_points], axis=0)
 
-    if window_length and polyorder:
-        centerline = savgol_filter(centerline, window_length, polyorder, axis=0)
+    if filter_function is not None:
+        centerline = filter_function(centerline)
 
     p = gf.Path(centerline)
     if plot:
+        plt.figure()
         plt.plot(outer_points[:, 0], outer_points[:, 1], "o", label="Outer Points")
         plt.plot(inner_points[:, 0], inner_points[:, 1], "o", label="Inner Points")
         plt.plot(centerline[:, 0], centerline[:, 1], "k--", label="Centerline")
@@ -141,6 +143,7 @@ if __name__ == "__main__":
     c0 = _demo_routes()
 
     gdspath = c0.write_gds()
+    n = c0.get_netlist()
     c0.show()
 
     c = gf.import_gds(gdspath)

@@ -102,7 +102,6 @@ def networkx_from_spice(
     include_labels: bool = True,
     top_cell: str | None = None,
     spice_reader: type[NetlistSpiceReaderDelegateWithStrings] = CalibreSpiceReader,
-    **kwargs,
 ) -> nx.Graph:
     """Returns a networkx Graph from a SPICE netlist file or KLayout LayoutToNetlist.
     Args:
