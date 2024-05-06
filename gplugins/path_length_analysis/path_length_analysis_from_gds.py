@@ -13,6 +13,7 @@ def extract_path(
     layer=(1, 0),
     plot: bool = False,
     filter_function=None,
+    under_sampling: int = 1,
 ) -> gf.Path:
     """Extracts the centerline of a component from a GDS file.
 
@@ -21,6 +22,7 @@ def extract_path(
         layer: GDS layer to extract the centerline from.
         plot: Plot the centerline.
         filter_function: optional Function to filter the centerline.
+        under_sampling: under sampling factor.
     """
     points = component.get_polygons(by_spec=layer)[0]
 
@@ -30,6 +32,10 @@ def extract_path(
     outer_points = points[:mid_index]
     inner_points = points[mid_index:]
     inner_points = inner_points[::-1]
+
+    inner_points = inner_points[::under_sampling]
+    outer_points = outer_points[::under_sampling]
+
     centerline = np.mean([outer_points, inner_points], axis=0)
 
     if filter_function is not None:
@@ -78,7 +84,7 @@ def plot_curvature(path, rmax=200) -> None:
     plt.show()
 
 
-def plot_radius(path, rmax=200) -> None:
+def plot_radius(path, rmax: float = 200) -> plt.Figure:
     """Plot the radius of curvature of a path.
 
     Args:
@@ -91,11 +97,12 @@ def plot_radius(path, rmax=200) -> None:
     radius2 = radius[valid_indices]
     s2 = s[valid_indices]
 
-    plt.figure(figsize=(10, 5))
-    plt.plot(s2, radius2, ".-")
-    plt.xlabel("Position along curve (arc length)")
-    plt.ylabel("Radius of curvature")
-    plt.show()
+    fig, ax = plt.subplots(1, 1, figsize=(15, 5))
+    ax.plot(s2, radius2, ".-")
+    ax.set_xlabel("Position along curve (arc length)")
+    ax.set_ylabel("Radius of curvature")
+    ax.grid(True)
+    return fig
 
 
 def _demo_routes():
@@ -148,7 +155,7 @@ if __name__ == "__main__":
 
     c = gf.import_gds(gdspath)
     # p = extract_path(c, plot=False, window_length=None, polyorder=None)
-    p = extract_path(c, plot=True)
+    p = extract_path(c, plot=True, under_sampling=5)
     min_radius, length = get_min_radius_and_length(p)
     print(f"Minimum radius of curvature: {min_radius:.2f}")
     print(f"Length: {length:.2f}")
