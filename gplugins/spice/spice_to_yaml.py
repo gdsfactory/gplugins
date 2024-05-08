@@ -1068,178 +1068,64 @@ def get_connections(instances: list, mapping: dict) -> dict:
     return connections
 
 
-def get_routes(
-    instances: list, mapping: dict, layers: dict, ignore_electrical: bool
-) -> dict:
+def create_bundle(connections, layer_params, bundle_type):
     """
-    Get routes in GDSFactory YAML ready format
+    Creates a routing bundle dictionary with appropriate settings based on layer parameters.
+    """
+    routes = {}
+    sides = set()
+    for side_pair in connections.items():
+        side1, side2 = side_pair
+        if side1 not in sides and side2 not in sides:
+            sides.update([side1, side2])
+            index = len(routes)
+            key = f"{bundle_type}_bundle_{index:02d}"
+            routes[key] = {"links": {side1: side2}, "settings": layer_params}
+    return routes
+
+
+def get_routes(instances, mapping, layers, ignore_electrical):
+    """
+    Extract routing information from instances using provided mapping and layers.
 
     Args:
-        instances: Instances with model params, nets, ports, names, and models
-                    {
-                        'name': 'X_dc_0' instance_name (str),
-                        'model': 'ebeam_dc_te1550' compact model name (str),
-                        'ports': ['port 1', 'port 2', port 3'] name of ports ordered in a list (list of str),
-                        'port_types': ['optical', 'electrical', 'optical']type of port i.e. electrical or optical, ordered in a list (list of str),
-                        'expandable': True if instance is compound element, else False (bool)
-                        'nets': ['PORT 1', 'N$1', 'N$2'] nets connected to ports in this order (list of str)
-                        'params':
-                        {
-                            'param_name_0': param_val (any type),
-                            'param_name_1': param_val (any type)
-                            .
-                            .
-                        }
-                    }
-        mapping: Mapping between models and layout cells
-                    {
-                        'pdk': 'name_of_pdk',
-                        'models':
-                        {
-                            'compact_model_name_0':
-                            {
-                                'layout_cell': 'layout_cell_name_0',
-                                'ports':
-                                {
-                                    'compact_model_port_0': 'layout_cell_port_0',
-                                    'compact_model_port_1': 'layout_cell_port_1',
-                                    .
-                                    .
-                                },
-                                'params'
-                                {
-                                    'compact_model_param_name_0': 'layout_cell_param_name_0',
-                                    'compact_model_param_name_1': 'layout_cell_param_name_1',
-                                    .
-                                    .
-                                }
-                            },
-                            .
-                            .
-                        }
-                    }
+        - instances: list of instance dictionaries with port and net information.
+        - mapping: dictionary mapping model names to layout cells and their properties.
+        - layers: dictionary defining parameters for different routing layers.
+        - ignore_electrical: boolean indicating whether to ignore electrical routes.
 
     Returns:
-        routes: Routes in GDSFactory YAML ready format. Ex.
-                        {
-                            'electrical_bundle_0':
-                            {
-                                'links':
-                                {
-                                    'instance_name_0,port1': 'instance_name_1,port1',
-                                    'instance_name_0,port2': 'instance_name_1,port2',
-                                    .
-                                    .
-                                }
-                            },
-                            'optical_bundle_0':
-                            {
-                                'links':
-                                {
-                                    'instance_name_2,port1': 'instance_name_3,port1',
-                                    'instance_name_2,port2': 'instance_name_3,port2',
-                                    .
-                                    .
-                                }
-                            },
-                            .
-                            .
-                        }
+        - A dictionary of routes organized by bundle types.
     """
-    all_connections = get_connections(instances, mapping)
-    sides = []
+    all_connections = get_connections(instances, mapping)  # Stub, needs implementation
+
     routes = {}
-    count = 0
-    count2 = 0
-    # Optical routing params
-    optical = layers["optical_route"]["layer"]
-    radius = layers["optical_route"]["params"]["radius"]
-    # Electrical routing params
-    electrical = layers["electrical_route"]["layer"]
-    width = layers["electrical_route"]["params"]["width"]
-    separation = layers["electrical_route"]["params"]["separation"]
-    bend = layers["electrical_route"]["params"]["bend"]
+    optical_params = {
+        "layer": layers["optical_route"]["layer"],
+        "radius": float(layers["optical_route"]["params"]["radius"]),
+        "waypoints": [],
+    }
+    electrical_params = {
+        "layer": layers["electrical_route"]["layer"],
+        "separation": float(layers["electrical_route"]["params"]["separation"]),
+        "width": float(layers["electrical_route"]["params"]["width"]),
+        "bend": layers["electrical_route"]["params"]["bend"],
+        "waypoints": [],
+    }
 
     for connection_type, connections in all_connections.items():
-        if (ignore_electrical is True) and (connection_type == "electrical"):
-            count += 1
-            pass
-        elif (ignore_electrical is False) and (connection_type == "electrical"):
-            for side1, side2 in connections.items():
-                if side1 not in sides:
-                    sides.append(side1)
-                if side2 not in sides:
-                    sides.append(side2)
-            for i in range(len(sides)):
-                pin = sides[i].split(",")[1]
-                if i < 10:
-                    routes[f"{connection_type}_bundle_0{i}"] = {"links": {}}
-                    side2 = "X_PAD_0" + str(i) + "_" + pin + ",e1"
-                    bundle = {sides[i]: side2}
-                    routes[f"{connection_type}_bundle_0{i}"]["links"] = bundle
-                    routes[f"{connection_type}_bundle_0{i}"]["settings"] = {
-                        "layer": electrical,
-                        "separation": float(separation),
-                        "width": float(width),
-                        "bend": bend,
-                        "waypoints": [],
-                    }
-                else:
-                    routes[f"{connection_type}_bundle_{i}"] = {"links": {}}
-                    side2 = "X_PAD_" + str(i) + "_" + pin + ",e1"
-                    bundle = {sides[i]: side2}
-                    routes[f"{connection_type}_bundle_{i}"]["links"] = bundle
-                    routes[f"{connection_type}_bundle_{i}"]["settings"] = {
-                        "layer": electrical,
-                        "separation": float(separation),
-                        "width": float(width),
-                        "bend": bend,
-                        "waypoints": [],
-                    }
-                count2 += 1
+        if connection_type == "electrical" and ignore_electrical:
+            print("LOG: Electrical bundles were removed from the netlist.")
+            continue
+
+        if connection_type == "electrical":
+            routes.update(
+                create_bundle(connections, electrical_params, connection_type)
+            )
+            print(f"LOG: {len(routes)} electrical pads were added.")
         else:
-            i = 0
-            for side1, side2 in connections.items():
-                if side1 not in sides and side2 not in sides:
-                    sides.append(side1)
-                    sides.append(side2)
-                    bundle = {side1: side2}
-                    # Get candidate connections that have the same components on side1 and side2
-                    component1 = side1.split(",")[0]
-                    component2 = side2.split(",")[0]
-                    i = i + 1
-                    for s1, s2 in connections.items():
-                        if s1 not in sides and s2 not in sides:
-                            c1 = s1.split(",")[0]
-                            c2 = s2.split(",")[0]
-                            if component1 == c1 and component2 == c2:
-                                bundle[s1] = s2
-                                sides.append(s1)
-                                sides.append(s2)
-                            elif component2 == c1 and component1 == c2:
-                                bundle[s2] = s1
-                                sides.append(s1)
-                                sides.append(s2)
-                    if i < 10:
-                        routes[f"{connection_type}_bundle_0{i}"] = {"links": {}}
-                        routes[f"{connection_type}_bundle_0{i}"]["links"] = bundle
-                        routes[f"{connection_type}_bundle_0{i}"]["settings"] = {
-                            "layer": optical,
-                            "radius": float(radius),
-                            "waypoints": [],
-                        }
-                    else:
-                        routes[f"{connection_type}_bundle_{i}"] = {"links": {}}
-                        routes[f"{connection_type}_bundle_{i}"]["links"] = bundle
-                        routes[f"{connection_type}_bundle_{i}"]["settings"] = {
-                            "layer": optical,
-                            "radius": float(radius),
-                            "waypoints": [],
-                        }
-    if count > 0:
-        print("LOG: Electrical bundles were removed from the netlist.")
-    if count2 > 0:
-        print("LOG: " + str(count2) + " electrical pads were added.")
+            routes.update(create_bundle(connections, optical_params, connection_type))
+
     return routes
 
 
