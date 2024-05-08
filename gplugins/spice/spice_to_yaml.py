@@ -753,10 +753,10 @@ def get_instances_info(
                 else:
                     try:
                         supported_params = mapping[inst["model"]].get("params", {})
-                    except KeyError:
+                    except KeyError as e:
                         raise KeyError(
                             f'Instance model "{inst["model"]}" not found in mapping file. Please check/update mapping file with model.'
-                        )
+                        ) from e
                     if param_name in supported_params:
                         instances_info[inst["name"]]["settings"][
                             supported_params[param_name]
@@ -886,7 +886,7 @@ def get_placements(instances: list, mapping: dict, ignore_electrical: bool) -> d
     all_connections = get_connections(instances, mapping)
 
     for connection_type, connections in all_connections.items():
-        if (ignore_electrical == False) and (connection_type == "electrical"):
+        if (ignore_electrical is False) and (connection_type == "electrical"):
             for side1, side2 in connections.items():
                 if side1 not in sides:
                     sides.append(side1)
@@ -1238,10 +1238,10 @@ def get_routes(
     bend = layers["electrical_route"]["params"]["bend"]
 
     for connection_type, connections in all_connections.items():
-        if (ignore_electrical == True) and (connection_type == "electrical"):
+        if (ignore_electrical is True) and (connection_type == "electrical"):
             count += 1
             pass
-        elif (ignore_electrical == False) and (connection_type == "electrical"):
+        elif (ignore_electrical is False) and (connection_type == "electrical"):
             for side1, side2 in connections.items():
                 if side1 not in sides:
                     sides.append(side1)
@@ -1320,7 +1320,7 @@ def get_routes(
     return routes
 
 
-def get_models(netlist_path: str, ignored_info: list = []) -> dict:
+def get_models(netlist_path: str, ignored_info: list | None = None) -> dict:
     """
     Get models from SPICE netlist
 
@@ -1342,6 +1342,7 @@ def get_models(netlist_path: str, ignored_info: list = []) -> dict:
                     }
     """
     # Get port names in order
+    ignored_info = ignored_info or []
     with open(netlist_path) as f:
         lines = f.readlines()
     models = []
@@ -1440,8 +1441,8 @@ def get_models(netlist_path: str, ignored_info: list = []) -> dict:
             while i < len(lines) and lines[i].startswith("+"):
                 model_directive = model_directive + lines[i]
                 i = i + 1
-            for model_name in names:
-                if "library=" in model_directive:
+            for model_name in model_directive:
+                if "library=" in model_name:
                     model_directives.append(model_directive)
                     break
     # Extract model params
@@ -1469,7 +1470,7 @@ def get_models(netlist_path: str, ignored_info: list = []) -> dict:
             else:
                 try:
                     model_params[param] = float(value)
-                except:
+                except Exception:
                     model_params[param] = value
 
         # Add model params
@@ -1512,10 +1513,10 @@ def get_topctk(netlist_path: str):
         if lines[i].strip().startswith(".subckt"):
             # Skip this line and the following lines until .ends is encountered
             while not lines[i].strip().startswith(".ends"):
-                line = lines.pop(i)
+                lines.pop(i)
                 if not lines:
                     break
-            line = lines.pop(i)
+            lines.pop(i)
         elif lines[i].strip().startswith("*") or lines[i].strip().startswith(".end"):
             i = i + 1
             continue
