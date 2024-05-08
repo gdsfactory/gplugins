@@ -443,7 +443,7 @@ def get_netlists(
 
     # Get top circuit
     topctk = {}
-    instances = get_instances(get_topctk(netlist_path), models)
+    instances = get_instances(get_top_circuit(netlist_path), models)
     topctk["name"] = "TOP"
     topctk["instances"] = get_instances_info(
         instances, mapping["models"], ignore_electrical, ignored_info
@@ -1021,127 +1021,50 @@ def get_ports(netlist: str, instances: list, model: dict, mapping: dict) -> dict
 
 def get_connections(instances: list, mapping: dict) -> dict:
     """
-    Get connections between instances
+    Get connections between instances based on their ports and nets.
 
     Args:
-        instances: Instances with model params, nets, ports, names, and models
-                    {
-                        'name': 'X_dc_0' instance_name (str),
-                        'model': 'ebeam_dc_te1550' compact model name (str),
-                        'ports': ['port 1', 'port 2', port 3'] name of ports ordered in a list (list of str),
-                        'port_types': ['optical', 'electrical', 'optical']type of port i.e. electrical or optical, ordered in a list (list of str),
-                        'expandable': True if instance is compound element, else False (bool)
-                        'nets': ['PORT 1', 'N$1', 'N$2'] nets connected to ports in this order (list of str)
-                        'params':
-                        {
-                            'param_name_0': param_val (any type),
-                            'param_name_1': param_val (any type)
-                            .
-                            .
-                        }
-                    }
-        mapping: Mapping between models and layout cells
-                    {
-                        'pdk': 'name_of_pdk',
-                        'models':
-                        {
-                            'compact_model_name_0':
-                            {
-                                'layout_cell': 'layout_cell_name_0',
-                                'ports':
-                                {
-                                    'compact_model_port_0': 'layout_cell_port_0',
-                                    'compact_model_port_1': 'layout_cell_port_1',
-                                    .
-                                    .
-                                },
-                                'params'
-                                {
-                                    'compact_model_param_name_0': 'layout_cell_param_name_0',
-                                    'compact_model_param_name_1': 'layout_cell_param_name_1',
-                                    .
-                                    .
-                                }
-                            },
-                            .
-                            .
-                        }
-                    }
+        instances (list): List of dictionaries where each dictionary describes an instance with model params, nets, ports, names, and models.
+        mapping (dict): Mapping between models and layout cells, including port and parameter mappings.
 
     Returns:
-        connections: Connectivity information between instances. Ex.
-                        {
-                            'electrical':
-                            {
-                                'instance_name_0,port1': 'instance_name_1,port1',
-                                'instance_name_0,port2': 'instance_name_1,port2',
-                                .
-                                .
-                            },
-                            'optical':
-                            {
-                                'instance_name_2,port1': 'instance_name_3,port1',
-                                'instance_name_2,port2': 'instance_name_3,port2',
-                                .
-                                .
-                            }
-                        }
+        dict: Connectivity information categorized by 'electrical' and 'optical' connections.
     """
     connections = {"electrical": {}, "optical": {}}
-    sides = []
+    net_to_instance_port = {}
 
-    for port_type in connections:
-        for inst1 in instances:
-            try:
-                for i in range(0, len(inst1["nets"])):
-                    if ("N$" not in inst1["nets"][i]) and (
-                        "PORT" not in inst1["nets"][i]
-                    ):
-                        print(
-                            "LOG: "
-                            + inst1["nets"][i]
-                            + " is not a net name. Please check the netlist and make sure no whitespaces exist in the instance names. i.e. "
-                            + inst1["name"]
-                            + "_"
-                            + inst1["nets"][i]
-                        )
-                        inst1["nets"].remove(inst1["nets"][i])
-                    if (
-                        "$" in inst1["nets"][i]
-                        and f'{inst1["name"]},{inst1["ports"][i]}' not in sides
-                        and port_type == inst1["port_types"][i]
-                    ):
-                        side1 = f'{inst1["name"]},{inst1["ports"][i]}'
-                        sides.append(side1)
-                        # Map port on instance 1
-                        try:
-                            ## Map instance port name to layout port name
-                            side1 = f'{inst1["name"]},{mapping[inst1["model"]]["ports"][inst1["ports"][i]]}'
-                        except KeyError:
-                            side1 = f'{inst1["name"]},{inst1["ports"][i]}'
-                        for inst2 in instances:
-                            found = False
-                            for j in range(0, len(inst2["nets"])):
-                                if inst2["nets"][j] == inst1["nets"][i] and (
-                                    not inst1["name"] == inst2["name"] or not i == j
-                                ):
-                                    side2 = f'{inst2["name"]},{inst2["ports"][j]}'
-                                    sides.append(side2)
-                                    # Map port on instance 2
-                                    try:
-                                        side2 = f'{inst2["name"]},{mapping[inst2["model"]]["ports"][inst2["ports"][j]]}'
-                                    except KeyError:
-                                        side2 = f'{inst2["name"]},{inst2["ports"][j]}'
-                                    found = True
-                                    break
-                            if found:
-                                break
-                        try:
-                            connections[port_type][side1] = side2
-                        except UnboundLocalError:
-                            connections[port_type][side1] = side1
-            except IndexError:
-                pass
+    # Create a mapping of nets to instances and ports
+    for inst in instances:
+        for port_index, net in enumerate(inst["nets"]):
+            if "N$" in net or "PORT" in net:
+                continue  # Skip internal nets and ports
+            net_key = (net, inst["port_types"][port_index])
+            if net_key not in net_to_instance_port:
+                net_to_instance_port[net_key] = []
+            net_to_instance_port[net_key].append(
+                (inst["name"], inst["ports"][port_index])
+            )
+
+    # Build connections based on the net_to_instance_port mapping
+    for (_, port_type), instance_ports in net_to_instance_port.items():
+        if len(instance_ports) < 2:
+            continue  # Skip if less than two instances are connected to the same net
+        for i in range(len(instance_ports) - 1):
+            inst1_name, inst1_port = instance_ports[i]
+            inst2_name, inst2_port = instance_ports[i + 1]
+
+            # Map instance ports to layout ports if possible
+            port1 = (
+                mapping.get(inst1_name, {}).get("ports", {}).get(inst1_port, inst1_port)
+            )
+            port2 = (
+                mapping.get(inst2_name, {}).get("ports", {}).get(inst2_port, inst2_port)
+            )
+
+            side1 = f"{inst1_name},{port1}"
+            side2 = f"{inst2_name},{port2}"
+            connections[port_type][side1] = side2
+
     return connections
 
 
@@ -1320,211 +1243,113 @@ def get_routes(
     return routes
 
 
+def parse_parameters(line):
+    # Helper function to parse parameters from a line using regex
+    pattern = r'(\w+|"[^"]*")\s*=\s*({.*?}|-[0-9.]+|[0-9.]+|f+|y+|x+|"[^"]*")'
+    return {
+        param: float(val) if val.replace(".", "", 1).isdigit() else val
+        for param, val in re.findall(pattern, line)
+        if param not in ignored_info
+    }
+
+
 def get_models(netlist_path: str, ignored_info: list | None = None) -> dict:
     """
-    Get models from SPICE netlist
+    Extracts models and their information from a SPICE netlist file.
 
     Args:
         netlist_path: Path to SPICE netlist (.spi)
-        ignored_info: Ignored param names that will not be put into the 'settings' or 'info' fields
+        ignored_info: List of parameter names to ignore in the output.
 
     Returns:
-        models: Models with associated model info
-                Ex. {'model_name1':
-                        {
-                            'params': {'param_name1': param_val1, 'param_name2': param_val2, ...},
-                            'ports': ['port1', 'port2', ...],
-                            'port_types: ['optical', 'electrical', ...],
-                            'expandable': True or False,
-                        }
-                        .
-                        .
-                    }
+        Dictionary of models with their parameters, ports, port types, and expandability.
     """
-    # Get port names in order
     ignored_info = ignored_info or []
-    with open(netlist_path) as f:
-        lines = f.readlines()
-    models = []
-    subcircuits = []
-    names = []
-    for j in range(0, len(lines)):
-        if lines[j].strip().startswith(".subckt"):
-            models.append(lines[j].strip()[8:])
-        if lines[j].strip().startswith("* Component pathname :"):
-            subcircuits.append((lines[j].strip()[23:]).upper())
-        if lines[j].strip().startswith("*#"):
-            models.append(lines[j].strip()[3:])
-    data = []
-    for i in range(0, len(models)):
-        net_model = {}
-        a = models[i].find('"') + 1
-        b = models[i].find('"', a)
-        name = models[i][a - 1 : b + 1]
-        if a == 0:
-            model = models[i].split(" ")
-            name = model.pop(0)
-        names.append(name)
-        ports = models[i].replace(name, "")
-        if name in subcircuits:
-            net_model.update({"expandable": 1})
-        else:
-            net_model.update({"expandable": 0})
-        net_model.update({"name": name})
-        model = ports.split(" ")
-        model.pop(0)
 
-        ports = []
-        port_types = []
-        for j in range(0, len(model)):
-            port = model[j]
-            if "(opt)" in port:
-                port_types.append("optical")
-                ports.append(port[:-5])
-            elif "(ele)" in port:
-                port_types.append("electrical")
-                ports.append(port[:-5])
-            else:
-                port_types.append("optical")
-                ports.append(port)
-        net_model.update({"ports": ports})
-        net_model.update({"port_types": port_types})
-        data.append(net_model)
+    # Reading the netlist file
+    with open(netlist_path) as file:
+        lines = file.readlines()
+
     models = {}
-    for i in range(0, len(data)):
-        models[data[i]["name"]] = {
-            "ports": data[i]["ports"],
-            "port_types": data[i]["port_types"],
-            "expandable": data[i]["expandable"],
-        }
+    current_model = None
 
-        # If compound elements have parameters, get their parameter value and save it to its model
-        if data[i]["expandable"]:
-            # Get compound element info
-            with open(netlist_path) as f:
-                lines = f.readlines()
-            for j in range(0, len(lines)):
-                if (
-                    f' {data[i]["name"]} ' in lines[j]
-                    and not lines[j].strip().startswith(".subckt")
-                    and not lines[j].strip().startswith(".ends")
-                ):
-                    k = 1
-                    compound_line = lines[j].strip()
-                    while lines[j + k].strip().startswith("+"):
-                        compound_line = compound_line + lines[j + k].strip()[1:-1]
-                        k = k + 1
-                    break
+    for line in lines:
+        stripped_line = line.strip()
 
-            # Get params from compound element info
-            pattern = r'(\w+|"[^"]*")\s*=\s*({.*?}|-[0-9.]+|[0-9.]+|f+|y+|x+|"[^"]*")'
-            matches = re.findall(pattern, compound_line)
-            params = {}
-            for param_name, param_val in matches:
-                # Ignore specified params
-                if param_name not in ignored_info:
-                    try:
-                        params[param_name] = float(param_val)
-                    except ValueError:
-                        params[param_name] = param_val
+        # Start of a new model
+        if stripped_line.startswith(".subckt"):
+            parts = stripped_line.split()
+            name = parts[1]
+            ports = parts[2:]
+            models[name] = {
+                "ports": ports,
+                "port_types": [],
+                "expandable": True,
+                "params": {},
+            }
+            current_model = name
 
-            models[data[i]["name"]]["params"] = params
+        elif stripped_line.startswith("* Component pathname :"):
+            if current_model:
+                models[current_model]["expandable"] = (
+                    stripped_line[23:].upper() in models
+                )
 
-    # Get additional model info from .MODEL directive
-    top_ctk_netlist = get_topctk(netlist_path)
-    lines = top_ctk_netlist.split("\n")
-    model_directives = []
-    for i in range(0, len(lines)):
-        if (lines[i].startswith(".MODEL")) or (lines[i].startswith("X_")):
-            model_directive = lines[i]
-            i = i + 1
-            while i < len(lines) and lines[i].startswith("+"):
-                model_directive = model_directive + lines[i]
-                i = i + 1
-            for model_name in model_directive:
-                if "library=" in model_name:
-                    model_directives.append(model_directive)
-                    break
-    # Extract model params
-    for model_directive in model_directives:
-        # Get model name
-        a = model_directive.find('"') + 1
-        b = model_directive.find('"', a)
-        model_name = model_directive[a - 1 : b + 1]
-        if model_name not in names:
-            model = model_directive.split(" ")
-            for m in model:
-                model_name = m
-                if model_name in names:
-                    break
-        f = model_directive.replace(model_name, "")
-
-        # Get params using regular expressions
-        pattern = r'(\w+|"[^"]*")\s*=\s*([0-9.]+|"[^"]*")'
-        matches = re.findall(pattern, model_directive)
-        model_params = {}
-        for param, value in matches:
-            match = re.match(r"([\d.]+)([un])", value)
-            if match:
-                model_params[param] = float(match.group(1)) * CONVERSION[match.group(2)]
+        elif current_model and not stripped_line.startswith(".ends"):
+            if stripped_line.startswith("+"):
+                # Continuation of the previous line (parameters)
+                models[current_model]["params"].update(
+                    parse_parameters(stripped_line[1:])
+                )
             else:
-                try:
-                    model_params[param] = float(value)
-                except Exception:
-                    model_params[param] = value
+                # Regular line, possibly defining parameters or additional info
+                models[current_model]["params"].update(parse_parameters(stripped_line))
 
-        # Add model params
-        models[model_name]["params"] = model_params
-    pdk = []
-    models_f = {}
-    # Filtering the non-PDK models
-    for model_name in models:
-        try:
-            if "library" in models[model_name]["params"]:
-                pdk.append(model_name)
-                models_f[model_name] = models[model_name]
-            elif model_name in subcircuits:
-                pdk.append(model_name)
-                models_f[model_name] = models[model_name]
-        except KeyError:
-            pass
-    if len(pdk) > 0:
-        print(
-            "LOG: PDK elements {" + ", ".join(x for x in pdk) + "} used in the netlist."
-        )
-    return models_f
+        # Process model directives for additional parameters
+        if stripped_line.startswith(".MODEL"):
+            model_info = stripped_line.split(maxsplit=1)
+            if len(model_info) > 1:
+                model_name = model_info[0][7:]  # Remove '.MODEL ' prefix
+                if model_name in models:
+                    models[model_name]["params"].update(parse_parameters(model_info[1]))
+
+    # Optionally filter out non-expandable models, or perform other final adjustments
+    return models
 
 
-def get_topctk(netlist_path: str):
-    """Get top circuit information from SPICE netlist.
+def get_top_circuit(netlist_path: str) -> str:
+    """
+    Get top circuit information from a SPICE netlist by filtering out subcircuit definitions.
 
     Args:
         netlist_path: Path to SPICE netlist (.spi).
 
     Returns:
-        cleaned_netlist (str): Cleaned netlist with only top level instances
+        cleaned_netlist (str): Cleaned netlist with only top level instances.
     """
-    with open(netlist_path) as f:
-        lines = f.readlines()
+    with open(netlist_path) as file:
+        lines = file.readlines()
+
     cleaned_lines = []
+    skip = False
 
-    i = 0
-    while i < len(lines):
-        if lines[i].strip().startswith(".subckt"):
-            # Skip this line and the following lines until .ends is encountered
-            while not lines[i].strip().startswith(".ends"):
-                lines.pop(i)
-                if not lines:
-                    break
-            lines.pop(i)
-        elif lines[i].strip().startswith("*") or lines[i].strip().startswith(".end"):
-            i = i + 1
-            continue
-        else:
-            cleaned_lines.append(lines[i].strip())
-        i = i + 1
+    for line in lines:
+        stripped_line = line.strip()
 
-    cleaned_netlist = "\n".join(cleaned_lines).strip()
+        if stripped_line.startswith(".subckt"):
+            skip = True
+        elif stripped_line.startswith(".ends"):
+            skip = False
+            continue  # Skip the ".ends" line as well
+
+        if (
+            not skip
+            and not stripped_line.startswith("*")
+            and not stripped_line.startswith(".end")
+        ):
+            cleaned_lines.append(stripped_line)
+
+    cleaned_netlist = "\n".join(cleaned_lines)
     return cleaned_netlist
 
 
