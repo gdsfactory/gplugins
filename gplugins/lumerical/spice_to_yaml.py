@@ -1,8 +1,7 @@
-import argparse
 import os
 import re
-from pathlib import Path
 
+import typer
 import yaml
 
 # DEFINITIONS
@@ -27,203 +26,63 @@ ignored_info = (
     "MC_uniformity_width",
 )
 
+app = typer.Typer()
 
-def main():
-    # Turn this Python script into a command line tool that requires certain arguments
-    parser = argparse.ArgumentParser(
-        description="Lumerical INTERCONNECT to GDSFactory YAML netlist generator."
+
+def process_netlists(
+    netlist_path: str, mapping_path, picyaml_path, mode: str, pdks: list
+):
+    """Handle the export of netlists based on the selected mode.
+
+    Args:
+        netlist_path: Path to SPICE netlist (.spi).
+        mapping_path: Path to YAML mapping file (.yml).
+        picyaml_path: Path to save the YAML netlist.
+        mode: Mode for netlist export (overwrite or update).
+    """
+
+    netlists = get_netlists(
+        netlist_path, mapping_path, pdks[0], ignore_electrical=False, map_flag=False
     )
 
-    parser.add_argument(
-        "working_directory",
-        type=str,
-        help="Working directory where YAML netlist will be saved.",
-    )
-    parser.add_argument(
-        "mapping_file_name",
-        type=str,
-        help="Mapping file that maps models to layout cells [.yml].",
-        default="mapping",
-    )
-    parser.add_argument(
-        "mode",
-        type=str,
-        help="Mode for netlist export (overwrite or update), where overwrite is the [default]",
-        nargs="?",
-        default="overwrite",
-    )
-    parser.add_argument(
-        "netlist_file_name",
-        type=str,
-        help="Netlist file name exported from INTC [.spi].",
-        nargs="?",
-        default="netlist",
-    )
-    args = parser.parse_args()
-
-    ignore_electrical = False  # This flag ignores electrical routes and bundles
-
-    # Error Handling for the python arguments
-    map_flag = False
-    try:
-        netlist_path = os.path.join(
-            args.working_directory, args.netlist_file_name + ".spi"
-        )
-        my_file = Path(netlist_path)
-        if my_file.is_file():
-            print(
-                "LOG: "
-                + args.netlist_file_name
-                + ".spi file exists in the provided working directory."
-            )
-        else:
-            raise Exception()
-    except Exception:
-        print(
-            "LOG: Netlist file "
-            + args.netlist_file_name
-            + ".spi does not exist in the provided working directory. Flow will exit."
-        )
-        quit()
-    try:
-        mapping_path = os.path.join(
-            args.working_directory, args.mapping_file_name + ".yml"
-        )
-        my_file = Path(mapping_path)
-        if my_file.is_file():
-            print(
-                "LOG: "
-                + args.mapping_file_name
-                + ".yml file exists in the provided working directory."
-            )
-        else:
-            raise Exception()
-    except Exception:
-        print(
-            "LOG: YAML mapping file "
-            + args.mapping_file_name
-            + " does not exist in the provided path. Flow will use netlist to create mapping."
-        )
-        map_flag = True
-        mapping_path = None
-    try:
-        mode = args.mode
-        if (mode == "update") or (mode == "overwrite"):
-            print("LOG: Mode is " + mode + ".")
-        else:
-            raise Exception()
-    except Exception:
-        print(
-            "LOG: Mode should be either overwrite (default) or update. Flow will use default."
-        )
-        mode = "overwrite"
-
-    if map_flag:
-        libraries = []
-        with open(netlist_path) as f:
-            lines = f.readlines()
-        for j in range(0, len(lines)):
-            cmds = lines[j].strip().split(" ")
-            for cmd in cmds:
-                if cmd.startswith("library="):
-                    libraries.append(cmd)
-        libraries = list(dict.fromkeys(libraries))
-        pdks = []
-        if len(libraries) > 1:
-            for libs in libraries:
-                d_pdk = libs.strip()[11:-1]
-                pdk = d_pdk.split("/")[1]
-                pdks.append(pdk)
-        else:
-            d_pdk = libraries[0].strip()[11:-1]
-            pdk = d_pdk.split("/")[1]
-            pdks.append(pdk)
-        print("LOG: PDKs are: " + ", ".join(str(x) for x in pdks))
-
-        # Get netlists
-        netlists = get_netlists(
-            netlist_path, mapping_path, pdks[0], ignore_electrical, map_flag
-        )
-    else:
-        # Get PDK from mapping file
-        with open(mapping_path) as f:
-            data = yaml.safe_load(f)
-            try:
-                pdk = data.get("pdk", "")
-                print("LOG: PDKs are: " + pdk)
-
-                # Get netlists
-                netlists = get_netlists(
-                    netlist_path, mapping_path, pdk, ignore_electrical, map_flag
-                )
-            except AttributeError:
-                print("LOG: No PDKs available in mapping file. Checking the netlist.")
-                libraries = []
-                with open(netlist_path) as f:
-                    lines = f.readlines()
-                for j in range(0, len(lines)):
-                    cmds = lines[j].strip().split(" ")
-                    for cmd in cmds:
-                        if cmd.startswith("library="):
-                            libraries.append(cmd)
-                libraries = list(dict.fromkeys(libraries))
-                pdks = []
-                if len(libraries) > 1:
-                    for libs in libraries:
-                        d_pdk = libs.strip()[11:-1]
-                        pdk = d_pdk.split("/")[1]
-                        pdks.append(pdk)
-                else:
-                    d_pdk = libraries[0].strip()[11:-1]
-                    pdk = d_pdk.split("/")[1]
-                    pdks.append(pdk)
-                print("LOG: PDKs are: " + ", ".join(str(x) for x in pdks))
-
-                # Get netlists
-                netlists = get_netlists(
-                    netlist_path, mapping_path, pdks[0], ignore_electrical, map_flag
-                )
-    # Export netlists
-    if mode == "overwrite":
-        # This mode overwrites all YAML files in working directory
-        for netlist in netlists:
-            if pdk:
-                netlist["pdk"] = pdk
-            with open(
-                os.path.join(os.path.dirname(__file__), f'{netlist["name"]}.pic.yml'),
-                "w",
-            ) as f:
+    for netlist in netlists:
+        if mode == "overwrite" or not os.path.exists(picyaml_path):
+            with open(picyaml_path, "w") as f:
+                if pdks:
+                    netlist["pdk"] = pdks[0]
                 yaml.dump(netlist, f)
-        print("LOG: overwrite done.")
-    elif mode == "update":
-        # This mode updates YAML files in working directory and leaves the placement of the cells intact
-        for netlist in netlists:
-            filename = os.path.join(
-                args.working_directory, f'{netlist["name"]}.pic.yml'
+            print(
+                f"LOG: {'Overwrote' if mode == 'overwrite' else 'Created'} {picyaml_path}."
             )
-            if os.path.exists(filename):
-                with open(filename, "w") as f:
-                    # Get existing netlist
-                    file_netlist = yaml.safe_load(f)
-                    # Overwrite pdk, name, instances, routes, default settings, and info
-                    if pdk:
-                        file_netlist["pdk"] = pdk
-                    file_netlist["name"] = netlist["name"]
-                    if netlist.get("default_settings", {}):
-                        file_netlist["default_settings"] = netlist["default_settings"]
-                    if netlist.get("info", {}):
-                        file_netlist["info"] = netlist["info"]
-                    file_netlist["instances"] = netlist["instances"]
-                    file_netlist["routes"] = netlist["routes"]
-                    if "ports" in netlist:
-                        file_netlist["ports"] = netlist["ports"]
-                    # Overwrite part of placements if new instance(s) are created
-                    for inst, placement in netlist["placements"].items():
-                        if inst not in file_netlist["placements"]:
-                            file_netlist["placements"][inst] = placement
-                    # Write to file
-                    yaml.dump(file_netlist, f)
-        print("LOG: update done.")
+        elif mode == "update":
+            with open(picyaml_path, "r+") as f:
+                existing_data = yaml.safe_load(f)
+                existing_data.update(netlist)
+                f.seek(0)
+                f.truncate()
+                yaml.dump(existing_data, f)
+            print(f"LOG: Updated {picyaml_path}.")
+
+
+@app.command()
+def cli(
+    working_directory: str = typer.Argument(
+        ..., help="Directory where YAML netlist will be saved."
+    ),
+    mapping_file_name: str = typer.Option(
+        "mapping", help="Mapping file name, defaults to 'mapping'."
+    ),
+    mode: str = typer.Option(
+        "overwrite", help="Mode for netlist export (overwrite or update)."
+    ),
+    netlist_file_name: str = typer.Option(
+        "netlist", help="Netlist file name, defaults to 'netlist'."
+    ),
+):
+    """
+    Command Line Interface for processing netlists using Typer.
+    """
+    process_netlists(working_directory, mapping_file_name, mode, netlist_file_name)
 
 
 def get_netlists(
@@ -243,6 +102,7 @@ def get_netlists(
         pdk: Process design kit name.
         ignore_electrical: Flag to ignore electrical routes and bundles.
         map_flag: Flag to create mapping from netlist.
+        ignored_info: Ignored param names that will not be put into the 'settings' or 'info' fields (list of str).
 
     Returns:
         ctks: YAML ready netlists. Example of data structure:
@@ -1240,4 +1100,4 @@ def get_top_circuit(netlist_path: str) -> str:
 
 
 if __name__ == "__main__":
-    main()
+    app()

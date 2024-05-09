@@ -1,30 +1,23 @@
-# Lumerical INTERCONNECT-GDSFactory Schematic Driven Layout Flow
+# Lumerical plugins
 
-## Package overview:
+## FDTD
 
- This repo contains the plugins designed for Lumerical INTERCONNECT-GDSFactory Schematic Driven Layout (SDL) flow.
- This is a circuit design flow that takes a SPICE netlist exported from an INTERCONNECT schematic and generates a GDS layout from the netlist using GDSFactory.
- Essentially this script takes care of parsing a INTC netlist to a YAML netlist such that gdsfactory can take care of the placement and routing.
- A YAML mapping file should be provided for each pdk used in the circuit, to map the layout PDK as well as the corresponding layout cells to be used for each circuit element.
+Allows you to write Sparameters using FDTD.
 
 
-### Package includes:
+## Lumerical INTERCONNECT-GDSFactory Schematic Driven Layout Flow
 
-Inputs are:
-- gdsfactoryexportnetlist.py
-- mapping/mapping.yml
-- netlists/netlist.spi
+This is a circuit design flow that takes a SPICE netlist exported from an INTERCONNECT schematic and generates a GDS layout from the netlist using GDSFactory.
+This plugin parases an interconnect netlist to a YAML netlist such that gdsfactory can take care of the placement and routing.
 
-Outputs are:
-- TOP.pic.yml
-- COMPOUND.pic.yml [if circuit has subcircuits]
+Each PDK requires a mapping file to map the cell names and port names from the Interconnect CML models to the GDSFactory layout objects.
 
 ## Commands:
 
 The following arguments are required to run this script:
 
 ```bash
-python gdsfactoryexportnetlist.py working_directory –mapping_file_name –mode -netlist_file_name
+python .py working_directory –mapping_file_name –mode -netlist_file_name
 ```
 
 - `working_dir` : working directory where YAML netlist will be saved
