@@ -353,7 +353,7 @@ def create_mapping_from_netlist(netlist_path: str, pdk: str) -> list:
     with open(netlist_path) as f:
         lines = f.readlines()
     models = {}
-    for j in range(0, len(lines)):
+    for j in range(len(lines)):
         count = 0
         model = {}
         ports = {}
