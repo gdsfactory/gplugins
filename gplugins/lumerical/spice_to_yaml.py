@@ -1095,8 +1095,7 @@ def get_top_circuit(netlist_path: str) -> str:
         ):
             cleaned_lines.append(stripped_line)
 
-    cleaned_netlist = "\n".join(cleaned_lines)
-    return cleaned_netlist
+    return "\n".join(cleaned_lines)
 
 
 if __name__ == "__main__":
