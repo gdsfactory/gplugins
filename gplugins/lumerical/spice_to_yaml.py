@@ -860,7 +860,7 @@ def get_ports(netlist: str, instances: list, model: dict, mapping: dict) -> dict
     ports = {}
     connections = []
     for inst1 in instances:
-        for i in range(0, len(inst1["nets"])):
+        for i in range(len(inst1["nets"])):
             # A net that only connects to other instances internally is detected when it has the '$' character.
             # 'connections' contains all sides that have a connection; this is used to prevent copies of a connection in different permutations
             # Ex. [a,o1: b,o1] is same as [b,o1: a,o1]; remove this permutation
