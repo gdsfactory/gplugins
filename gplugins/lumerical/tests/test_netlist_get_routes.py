@@ -48,8 +48,8 @@ def test_ignore_electrical_routes(setup_routing_data):
 
     routes = get_routes(instances, mapping, layers, True)
     assert "electrical_bundle_00" not in routes
-    assert not any(
-        "electrical" in key for key in routes.keys()
+    assert all(
+        "electrical" not in key for key in routes.keys()
     ), "Electrical routes should be ignored"
 
 
