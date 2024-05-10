@@ -7,7 +7,9 @@ from gdsfactory.typings import PathType
 from klayout.db import NetlistSpiceReaderDelegate
 
 from gplugins.klayout.netlist_graph import networkx_from_spice
-from gplugins.klayout.netlist_spice_reader import CalibreSpiceReader
+from gplugins.klayout.netlist_spice_reader import (
+    GdsfactorySpiceReader,
+)
 
 
 def plot_nets(
@@ -16,8 +18,8 @@ def plot_nets(
     include_labels: bool = True,
     top_cell: str | None = None,
     nodes_to_reduce: Collection[str] | None = None,
-    spice_reader: type[NetlistSpiceReaderDelegate] = CalibreSpiceReader,
-) -> None:
+    spice_reader: type[NetlistSpiceReaderDelegate] = GdsfactorySpiceReader,
+) -> None | plt.Figure:
     """Plots the connectivity between the components in the KLayout LayoutToNetlist file from :func:`~get_l2n`.
 
     Args:
@@ -78,7 +80,7 @@ def plot_nets(
             font_size=12,
         )
         plt.title("Connectivity")
-        plt.show()
+        return plt
 
 
 if __name__ == "__main__":
