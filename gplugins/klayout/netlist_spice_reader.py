@@ -4,7 +4,9 @@ from abc import ABC, abstractmethod
 from collections.abc import MutableMapping, Sequence
 from typing import Any
 
+import gdsfactory as gf
 import klayout.db as kdb
+from typing_extensions import override
 
 
 class NetlistSpiceReaderDelegateWithStrings(kdb.NetlistSpiceReaderDelegate, ABC):
@@ -21,6 +23,7 @@ class NoCommentReader(kdb.NetlistSpiceReaderDelegate):
 
     n_nodes: int = 0
 
+    @override
     def parse_element(self, s: str, element: str) -> kdb.ParseElementData:
         if "$" in s:
             s, *_ = s.split("$")  # Don't take comments into account
@@ -35,16 +38,19 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
     """KLayout Spice reader for Calibre LVS extraction output.
 
     Considers parameter values for generic `X` devices that start with `WG`.
-    Ignores comments after $ excluding location given with ``$X=number $Y=number``."""
+    Ignores comments after $ excluding location given with ``$X=number $Y=number``.
+    """
 
     n_nodes: int = 0
     calibre_location_pattern: str = r"\$X=(-?\d+) \$Y=(-?\d+)"
     integer_to_string_map: MutableMapping[int, str] = {}
 
+    @override
     def wants_subcircuit(self, name: str):
         """Model all SPICE models that start with `WG` as devices in order to support parameters."""
         return "WG" in name or super().wants_subcircuit(name)
 
+    @override
     def parse_element(self, s: str, element: str) -> kdb.ParseElementData:
         x_value, y_value = None, None
         if "$" in s:
@@ -66,6 +72,7 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
     def hash_str_to_int(s: str) -> int:
         return int(hashlib.shake_128(s.encode()).hexdigest(4), 16)
 
+    @override
     def element(
         self,
         circuit: kdb.Circuit,
@@ -113,5 +120,39 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
                     CalibreSpiceReader.hash_str_to_int(value)
                     if isinstance(value, str)
                     else value
+                    or 0  # default to 0 for None in order to still have the parameter field
                 ),
             )
+
+
+class GdsfactorySpiceReader(CalibreSpiceReader):
+    """KLayout Spice reader for Gdsfactory-extracted KLayout LayoutToNetlist.
+
+    By default, all netlist elements are treated as devices if a corresponding component name is found in `gdsfactory.components.__all__`.
+    You should specify the components to not to be considered as devices but as subcircuits
+    with the `components_as_subcircuits` argument upon initialization.
+    """
+
+    def __init__(
+        self,
+        components_as_subcircuits: Sequence[str] | None = None,
+        components_as_devices: Sequence[str] | None = None,
+    ) -> None:
+        super().__init__()
+        # Define default components to not treat as their own devices but look into the internal subcircuits
+        self.components_as_subcircuits = [
+            cell.casefold() for cell in (components_as_subcircuits or [])
+        ]
+        self.components_as_devices = [
+            cell.casefold() for cell in (components_as_devices or gf.components.__all__)
+        ]
+
+    @override
+    def wants_subcircuit(self, name: str):
+        """Model all basic gdsfactory components as devices in order to support parameters."""
+        return all(
+            cell not in name.casefold() for cell in self.components_as_subcircuits
+        ) and (
+            any(cell in name.casefold() for cell in self.components_as_devices)
+            or super().wants_subcircuit(name)
+        )

@@ -1,13 +1,16 @@
 import itertools
+from collections.abc import Callable
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 import klayout.db as kdb
 import networkx as nx
 from gdsfactory.config import logger
 from gdsfactory.typings import PathType
 
+import gplugins.vlsir
 from gplugins.klayout.netlist_spice_reader import (
-    CalibreSpiceReader,
+    GdsfactorySpiceReader,
     NetlistSpiceReaderDelegateWithStrings,
 )
 
@@ -101,7 +104,9 @@ def networkx_from_spice(
     filepath: PathType,
     include_labels: bool = True,
     top_cell: str | None = None,
-    spice_reader: type[NetlistSpiceReaderDelegateWithStrings] = CalibreSpiceReader,
+    spice_reader: type[NetlistSpiceReaderDelegateWithStrings]
+    | NetlistSpiceReaderDelegateWithStrings = GdsfactorySpiceReader,
+    **kwargs,
 ) -> nx.Graph:
     """Returns a networkx Graph from a SPICE netlist file or KLayout LayoutToNetlist.
     Args:
@@ -117,8 +122,25 @@ def networkx_from_spice(
             l2n = kdb.LayoutToNetlist()
             l2n.read(str(filepath))
             netlist = l2n.netlist()
+
+            # Parsing is done for SPICE so first we export to SPICE with VLSIR
+            pkg = gplugins.vlsir.kdb_vlsir(netlist, domain="gplugins.klayout.example")
+            with NamedTemporaryFile("w+", suffix=".sp") as fp:
+                gplugins.vlsir.export_netlist(pkg, dest=fp, fmt="spice")
+                return networkx_from_spice(
+                    fp.name,
+                    include_labels=include_labels,
+                    top_cell=top_cell,
+                    spice_reader=spice_reader,
+                    **kwargs,
+                )
+
         case ".cir" | ".sp" | ".spi" | ".spice":
-            reader = kdb.NetlistSpiceReader(spice_reader_instance := spice_reader())
+            reader = kdb.NetlistSpiceReader(
+                spice_reader_instance := spice_reader()
+                if isinstance(spice_reader, Callable)
+                else spice_reader
+            )
             netlist = kdb.Netlist()
             netlist.read(str(filepath), reader)
         case _:

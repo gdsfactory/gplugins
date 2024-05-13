@@ -1,0 +1,43 @@
+pdk: ubcpdk
+layers:
+  optical_route:
+    layer: WG
+    params:
+      radius: 15
+  electrical_route:
+    layer: M2_ROUTER
+    params:
+      width: 15
+      separation: 10
+      bend: wire_corner
+models:
+  PAD:
+    layout_cell: pad
+  ebeam_dc_te1550:
+    layout_cell: coupler
+    ports:
+      opt_1: o2
+      opt_2: o1
+      opt_3: o3
+      opt_4: o4
+    params:
+      coupling_length: length
+      gap: gap
+  ebeam_y_1550:
+    layout_cell: ebeam_y_1550
+    ports:
+      opt_a1: o1
+      opt_b1: o2
+      opt_b2: o3
+  ebeam_gc_te1550:
+    layout_cell: gc_te1550
+    ports:
+      opt_wg: o1
+      opt_fiber: opt_in_TE_1550_device_JoaquinMatres
+  wg_heater:
+    layout_cell: thermal_phase_shifter0
+    ports:
+      opt_1: o1
+      opt_2: o2
+      ele_1: e1
+      ele_2: e2
