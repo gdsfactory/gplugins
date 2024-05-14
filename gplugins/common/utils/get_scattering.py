@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Any
 
 import gdsfactory as gf
-from gdsfactory.pdk import get_sparameters_path
 from gdsfactory.typings import ComponentSpec
 
 from gplugins.common.base_models.simulation import DrivenFullWaveResults
@@ -30,7 +29,7 @@ def get_scattering(
         **kwargs: Simulation settings propagated to inner :func:`~run_capacitive_simulation_elmer` or
             :func:`~run_capacitive_simulation_palace` implementation.
     """
-    simulation_folder = Path(simulation_folder or get_sparameters_path())
+    simulation_folder = Path(simulation_folder)
     component = gf.get_component(component)
 
     simulation_folder = (

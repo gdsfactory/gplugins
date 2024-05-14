@@ -1,4 +1,5 @@
 from gdsfactory.config import GDSDIR_TEMP
+from omegaconf import OmegaConf
 
 from gplugins import PATH
 from gplugins.spice.spice_to_yaml import spice_to_yaml
@@ -48,6 +49,24 @@ spice_netlist_interconnect = """
 *# wg_heater ele_1(ele) ele_2(ele) opt_1(opt) opt_2(opt)
 """
 
+
+def test_interconnect():
+    netlist_path = GDSDIR_TEMP / "test_interconnect.sp"
+    netlist_path.write_text(spice_netlist_interconnect)
+    picyaml_path = GDSDIR_TEMP / "test_interconnect.sp"
+    mapping_path = PATH.module / "lumerical" / "mapping_ubcpdk.yml"
+    spice_to_yaml(
+        netlist_path=netlist_path,
+        picyaml_path=picyaml_path,
+        mapping_path=mapping_path,
+        pdk="ubcpdk",
+    )
+    s = OmegaConf.load(picyaml_path)
+    # print(s)
+    # print(len(s.instances))
+    assert len(s.instances) == 1
+
+
 if __name__ == "__main__":
     netlist_path = GDSDIR_TEMP / "test_interconnect.sp"
     netlist_path.write_text(spice_netlist_interconnect)
@@ -59,3 +78,7 @@ if __name__ == "__main__":
         mapping_path=mapping_path,
         pdk="ubcpdk",
     )
+    s = OmegaConf.load(picyaml_path)
+    # print(s)
+    # print(len(s.instances))
+    assert len(s.instances) == 1
