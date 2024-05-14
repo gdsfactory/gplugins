@@ -6,6 +6,7 @@ install:
 dev: test-data gmsh elmer install
 
 gmsh:
+	sudo apt-get update
 	sudo apt-get install -y python3-gmsh gmsh libglu1-mesa libxi-dev libxmu-dev libglu1-mesa-dev
 
 elmer:

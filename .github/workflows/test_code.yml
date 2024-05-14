@@ -63,6 +63,34 @@ jobs:
           micromamba install -c conda-forge pymeep=*=mpi_mpich_* nlopt -y
           pip install -e .[dev]
           pytest gplugins/gmeep gplugins/modes
+  test_non_pip:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        os: [ubuntu-latest]
+        plugin: [elmer]
+    name: Test ${{ matrix.plugin }} on ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+          key: ${{ hashFiles('pyproject.toml') }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+      - name: Install dependencies
+        run: |
+          make gmsh
+          make ${{ matrix.plugin }}
+          pip install -e .[dev,gmsh]
+      - name: Test with pytest
+        env:
+          GDSFACTORY_DISPLAY_TYPE: klayout
+        run: pytest gplugins/${{ matrix.plugin }}
   test_code_coverage:
     runs-on: ubuntu-latest
     steps:
