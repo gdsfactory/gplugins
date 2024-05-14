@@ -623,7 +623,8 @@ def get_instances_info(
             del instances_info[inst["name"]]["settings"]
         if instances_info[inst["name"]]["info"] == {}:
             del instances_info[inst["name"]]["info"]
-        sides = []
+
+    sides = []
 
     # Add electrical routing information
     try:
@@ -641,13 +642,8 @@ def get_instances_info(
                     sides.append(side2)
             for i in range(len(sides)):
                 pin = sides[i].split(",")[1]
-                if i < 10:
-                    name = "X_PAD_0" + str(i) + "_" + pin
-                else:
-                    name = "X_PAD_" + str(i) + "_" + pin
+                name = f"X_PAD_0{str(i)}_{pin}" if i < 10 else f"X_PAD_{str(i)}_{pin}"
                 instances_info[name] = {"component": cell_name}
-        else:
-            pass
     return instances_info
 
 
@@ -665,8 +661,7 @@ def get_var_name(string: str):
 
 
 def group_instance_str(netlist: str) -> list:
-    """
-    Group instance SPICE strings if they are extended by '+' and filter away lines that do not have params
+    """Group instance SPICE strings if they are extended by '+' and filter away lines that do not have params
 
     Args:
         netlist: SPICE netlist
@@ -740,7 +735,7 @@ def get_placements(instances: list, mapping: dict, ignore_electrical: bool) -> d
     all_connections = get_connections(instances, mapping)
 
     for connection_type, connections in all_connections.items():
-        if (ignore_electrical is False) and (connection_type == "electrical"):
+        if not ignore_electrical and connection_type == "electrical":
             for side1, side2 in connections.items():
                 if side1 not in sides:
                     sides.append(side1)
@@ -748,10 +743,7 @@ def get_placements(instances: list, mapping: dict, ignore_electrical: bool) -> d
                     sides.append(side2)
             for i in range(len(sides)):
                 pin = sides[i].split(",")[1]
-                if i < 10:
-                    name = "X_PAD_0" + str(i) + "_" + pin
-                else:
-                    name = "X_PAD_" + str(i) + "_" + pin
+                name = f"X_PAD_0{str(i)}_{pin}" if i < 10 else f"X_PAD_{str(i)}_{pin}"
                 x += 1.20 * scale
                 placements[name] = {
                     "x": x,
@@ -759,8 +751,6 @@ def get_placements(instances: list, mapping: dict, ignore_electrical: bool) -> d
                     "rotation": 0.0,
                     "mirror": False,
                 }
-        else:
-            pass
     for inst in instances:
         rotation = float(inst["params"]["sch_r"])
         if inst["params"]["sch_f"] == "f":
