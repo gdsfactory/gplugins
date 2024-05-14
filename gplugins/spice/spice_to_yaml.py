@@ -1,4 +1,5 @@
 import os
+import pathlib
 import re
 
 import typer
@@ -29,8 +30,12 @@ ignored_info = (
 app = typer.Typer()
 
 
-def process_netlists(
-    netlist_path: str, mapping_path, picyaml_path, mode: str, pdks: list
+def spice_to_yaml(
+    netlist_path: str,
+    mapping_path: str,
+    picyaml_path: str,
+    pdk: str,
+    mode: str = "overwrite",
 ):
     """Handle the export of netlists based on the selected mode.
 
@@ -38,18 +43,18 @@ def process_netlists(
         netlist_path: Path to SPICE netlist (.spi).
         mapping_path: Path to YAML mapping file (.yml).
         picyaml_path: Path to save the YAML netlist.
+        pdk: Process design kit name.
         mode: Mode for netlist export (overwrite or update).
     """
 
     netlists = get_netlists(
-        netlist_path, mapping_path, pdks[0], ignore_electrical=False, map_flag=False
+        netlist_path, mapping_path, pdk=pdk, ignore_electrical=False, map_flag=False
     )
 
     for netlist in netlists:
         if mode == "overwrite" or not os.path.exists(picyaml_path):
             with open(picyaml_path, "w") as f:
-                if pdks:
-                    netlist["pdk"] = pdks[0]
+                netlist["pdk"] = pdk
                 yaml.dump(netlist, f)
             print(
                 f"LOG: {'Overwrote' if mode == 'overwrite' else 'Created'} {picyaml_path}."
@@ -66,23 +71,21 @@ def process_netlists(
 
 @app.command()
 def cli(
-    working_directory: str = typer.Argument(
-        ..., help="Directory where YAML netlist will be saved."
-    ),
     mapping_file_name: str = typer.Option(
         "mapping", help="Mapping file name, defaults to 'mapping'."
     ),
     mode: str = typer.Option(
         "overwrite", help="Mode for netlist export (overwrite or update)."
     ),
-    netlist_file_name: str = typer.Option(
+    netlist_path: str = typer.Option(
         "netlist", help="Netlist file name, defaults to 'netlist'."
     ),
+    picyaml_path: str = typer.Option("netlist", help="pic.yml path"),
 ):
     """
     Command Line Interface for processing netlists using Typer.
     """
-    process_netlists(working_directory, mapping_file_name, mode, netlist_file_name)
+    spice_to_yaml(netlist_path=netlist_path, mode=mode, picyaml_path=picyaml_path)
 
 
 def get_netlists(
@@ -251,16 +254,12 @@ def get_netlists(
             mapping = yaml.safe_load(f)
             try:
                 mapping["models"]
-            except KeyError:
-                mapping = create_mapping_from_netlist(netlist_path, pdk)
-            except TypeError:
+            except (KeyError, TypeError):
                 mapping = create_mapping_from_netlist(netlist_path, pdk)
     else:
         mapping = create_mapping_from_netlist(netlist_path, pdk)
 
-    with open(netlist_path) as f:
-        lines = f.read()
-
+    lines = pathlib.Path(netlist_path).read_text()
     # Get models
     models = get_models(netlist_path, ignored_info)
 
@@ -271,10 +270,8 @@ def get_netlists(
     # Extract the strings between ".subckt" and ".ends"
     ctks = []
     for match in matches:
-        # Build subcircuit dicts
-        ctk = {}
         instances = get_instances(match[1], models)
-        ctk["name"] = match[0]
+        ctk = {"name": match[0]}
         if ctk["name"] in models and models[ctk["name"]]["expandable"]:
             ctk["default_settings"] = {
                 param_name: {"value": param_val}
@@ -301,13 +298,13 @@ def get_netlists(
         )
         ctks.append(ctk)
 
-    # Get top circuit
-    topctk = {}
     instances = get_instances(get_top_circuit(netlist_path), models)
-    topctk["name"] = "TOP"
-    topctk["instances"] = get_instances_info(
-        instances, mapping["models"], ignore_electrical, ignored_info
-    )
+    topctk = {
+        "name": "TOP",
+        "instances": get_instances_info(
+            instances, mapping["models"], ignore_electrical, ignored_info
+        ),
+    }
     topctk["placements"] = get_placements(
         instances, mapping["models"], ignore_electrical
     )
@@ -319,8 +316,7 @@ def get_netlists(
 
 
 def create_mapping_from_netlist(netlist_path: str, pdk: str) -> list:
-    """
-    Create the mapping dictionary from the netlist file
+    """Create the mapping dictionary from the netlist file.
 
     Args:
         netlist_path: Path to SPICE netlist (.spi).
@@ -354,27 +350,24 @@ def create_mapping_from_netlist(netlist_path: str, pdk: str) -> list:
         lines = f.readlines()
     models = {}
     for j in range(len(lines)):
-        count = 0
-        model = {}
-        ports = {}
         if lines[j].strip().startswith("*#"):
             instance = lines[j].strip()[3:].split(" ")
-            for port in instance[1:]:
-                if ("opt_" in port) or ("port" in port):
-                    count += 1
+            count = sum(
+                1 for port in instance[1:] if ("opt_" in port) or ("port" in port)
+            )
             if count > 0:
                 name = instance[0]
                 layout_cell = name
+                ports = {}
                 for port in instance[1:]:
                     pt = port[0:-5]
                     ports[pt] = pt
-                model["layout_cell"] = layout_cell
-                model["ports"] = ports
+                model = {"layout_cell": layout_cell, "ports": ports}
                 models[name] = model
     mapping["models"] = models
 
     ### REMOVE hardcode
-    if pdk == "ctpdk" or pdk == "compoundtek_pdk_v3":
+    if pdk in {"ctpdk", "compoundtek_pdk_v3"}:
         mapping["layers"] = {
             "optical_route": {"layer": "HMWG", "params": {"radius": 15}},
             "electrical_route": {
@@ -382,7 +375,7 @@ def create_mapping_from_netlist(netlist_path: str, pdk: str) -> list:
                 "params": {"width": 50, "separation": 20, "bend": "wire_corner"},
             },
         }
-    if pdk == "ubcpdk" or pdk == "ebeam":
+    if pdk in {"ubcpdk", "ebeam"}:
         mapping["layers"] = {
             "optical_route": {"layer": "Waveguide", "params": {"radius": 15}},
             "electrical_route": {
@@ -394,8 +387,7 @@ def create_mapping_from_netlist(netlist_path: str, pdk: str) -> list:
 
 
 def get_instances(netlist: str, models: dict) -> list:
-    """
-    Get instances with all info on instance
+    """Get instances with all info on instance
 
     Args:
         netlist: SPICE netlist
@@ -586,9 +578,11 @@ def get_instances_info(
             cell_name = inst["model"]
 
         # Add instance and map model to component and params
-        instances_info[inst["name"]] = {"component": cell_name}
-        instances_info[inst["name"]]["info"] = {}
-        instances_info[inst["name"]]["settings"] = {}
+        instances_info[inst["name"]] = {
+            "component": cell_name,
+            "info": {},
+            "settings": {},
+        }
         for param_name, param_val in inst["params"].items():
             # Ignore specified params
             if param_name not in ignored_info:
@@ -629,7 +623,8 @@ def get_instances_info(
             del instances_info[inst["name"]]["settings"]
         if instances_info[inst["name"]]["info"] == {}:
             del instances_info[inst["name"]]["info"]
-        sides = []
+
+    sides = []
 
     # Add electrical routing information
     try:
@@ -647,13 +642,8 @@ def get_instances_info(
                     sides.append(side2)
             for i in range(len(sides)):
                 pin = sides[i].split(",")[1]
-                if i < 10:
-                    name = "X_PAD_0" + str(i) + "_" + pin
-                else:
-                    name = "X_PAD_" + str(i) + "_" + pin
+                name = f"X_PAD_0{str(i)}_{pin}" if i < 10 else f"X_PAD_{str(i)}_{pin}"
                 instances_info[name] = {"component": cell_name}
-        else:
-            pass
     return instances_info
 
 
@@ -671,8 +661,7 @@ def get_var_name(string: str):
 
 
 def group_instance_str(netlist: str) -> list:
-    """
-    Group instance SPICE strings if they are extended by '+' and filter away lines that do not have params
+    """Group instance SPICE strings if they are extended by '+' and filter away lines that do not have params
 
     Args:
         netlist: SPICE netlist
@@ -746,7 +735,7 @@ def get_placements(instances: list, mapping: dict, ignore_electrical: bool) -> d
     all_connections = get_connections(instances, mapping)
 
     for connection_type, connections in all_connections.items():
-        if (ignore_electrical is False) and (connection_type == "electrical"):
+        if not ignore_electrical and connection_type == "electrical":
             for side1, side2 in connections.items():
                 if side1 not in sides:
                     sides.append(side1)
@@ -754,10 +743,7 @@ def get_placements(instances: list, mapping: dict, ignore_electrical: bool) -> d
                     sides.append(side2)
             for i in range(len(sides)):
                 pin = sides[i].split(",")[1]
-                if i < 10:
-                    name = "X_PAD_0" + str(i) + "_" + pin
-                else:
-                    name = "X_PAD_" + str(i) + "_" + pin
+                name = f"X_PAD_0{str(i)}_{pin}" if i < 10 else f"X_PAD_{str(i)}_{pin}"
                 x += 1.20 * scale
                 placements[name] = {
                     "x": x,
@@ -765,8 +751,6 @@ def get_placements(instances: list, mapping: dict, ignore_electrical: bool) -> d
                     "rotation": 0.0,
                     "mirror": False,
                 }
-        else:
-            pass
     for inst in instances:
         rotation = float(inst["params"]["sch_r"])
         if inst["params"]["sch_f"] == "f":
