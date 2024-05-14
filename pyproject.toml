@@ -142,7 +142,9 @@ norecursedirs = [
   'gplugins/fdtdz',
   'gplugins/elmer',
   'gplugins/sentaurus',
-  'gplugins/gfviz'
+  'gplugins/gfviz',
+  'gplugins/gmeep',
+  'gplugins/modes'
 ]
 python_files = ["gplugins/*.py", "notebooks/*.ipynb", "tests/*.py"]
 testpaths = ["gplugins/", "tests"]
