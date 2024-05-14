@@ -50,6 +50,7 @@ parts:
       - file: sdl
         sections:
         - file: notebooks/20_schematic_driven_layout
+        - file: notebooks/21_schematic_driven_layout_lumerical
   - caption: Verification
     chapters:
       - file: notebooks/klayout_dataprep
