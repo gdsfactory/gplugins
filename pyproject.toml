@@ -59,7 +59,7 @@ docs = [
   "jupytext",
   "matplotlib",
   "jupyter-book==1.0.0",
-  "pyvista[all,trame]<=0.43"
+  "pyvista[all,trame]<=0.43.8"
 ]
 femwell = [
   "femwell>=0.1.6,<0.2",
