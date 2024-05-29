@@ -455,6 +455,7 @@ def viz_netlist(netlist, instances, instance_size=20):
 
     for net in netlist.nets:
         p_in, p_out = net
+        print(port_coords)
         point1 = port_coords[p_in]
         point2 = port_coords[p_out]
         els += viz_connection(netlist, p_in, p_out, instance_size, point1, point2)
@@ -466,6 +467,7 @@ def show_netlist(
 ) -> None:
     global data
     data["netlist"] = schematic
+    print(schematic)
     fig = bp.figure(width=800, height=500)
     app = viz_bk(
         schematic,
@@ -474,6 +476,7 @@ def show_netlist(
         instance_size=50,
         netlist_filename=netlist_filename,
     )
+    print(app)
     bio.show(app)
 
 
