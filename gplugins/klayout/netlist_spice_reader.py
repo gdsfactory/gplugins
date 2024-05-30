@@ -58,7 +58,7 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
                 x_value, y_value = (int(e) / 1000 for e in location_matches.group(1, 2))
 
             # Use default KLayout parser for rest of the SPICE
-            s, *_ = s.split("$")
+            s, *_ = s.split(" $")
 
         parsed = super().parse_element(s, element)
         parsed.parameters |= {"x": x_value, "y": y_value}
