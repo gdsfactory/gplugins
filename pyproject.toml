@@ -22,7 +22,7 @@ classifiers = [
   "Operating System :: OS Independent"
 ]
 dependencies = [
-  "gdsfactory>=7.10.1",
+  "gdsfactory>=7.27.1",
   "pint",
   "tqdm"
 ]
@@ -72,7 +72,7 @@ gfviz = [
   "natsort"
 ]
 gmsh = [
-  "gmsh==4.13.0",
+  "gmsh==4.13.1",
   "h5py",
   "mapbox_earcut",
   "meshio",
