@@ -23,7 +23,7 @@ import tidy3d as td
 import xarray
 from gdsfactory.config import PATH, logger
 from gdsfactory.typings import PathType
-from pydantic.v1 import BaseModel, ConfigDict
+from pydantic.v1 import BaseModel
 from tidy3d.plugins import waveguide
 from tqdm.auto import tqdm
 
@@ -58,7 +58,7 @@ def custom_serializer(data: str | float | BaseModel) -> str:
     raise ValueError(f"Unsupported data type: {type(data)}")
 
 
-class Waveguide(BaseModel):
+class Waveguide(BaseModel, extra="forbid"):
     """Waveguide Model.
 
     All dimensions must be specified in μm (1e-6 m).
@@ -155,7 +155,6 @@ class Waveguide(BaseModel):
 
     _cached_data = pydantic.PrivateAttr()
     _waveguide = pydantic.PrivateAttr()
-    model_config = ConfigDict(extra="forbid")
 
     @pydantic.validator("wavelength")
     def _fix_wavelength_type(cls, v):

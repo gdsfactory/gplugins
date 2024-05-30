@@ -401,7 +401,7 @@ def get_simulation_grating_coupler(
     fwidth = freq0 / 10
 
     # Add input waveguide port
-    port = component_ref.ports[port_waveguide_name]
+    port = component_ref[port_waveguide_name]
     angle = port.orientation
     width = port.width + 2 * port_margin
     size_x = width * abs(np.sin(angle * np.pi / 180))

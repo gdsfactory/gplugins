@@ -52,14 +52,14 @@ dev = [
 ]
 devsim = [
   "devsim",
-  "pyvista<=0.43.7",
+  "pyvista<=0.43.8",
   "tidy3d>=2.5.2,<2.7"
 ]
 docs = [
   "jupytext",
   "matplotlib",
   "jupyter-book==1.0.0",
-  "pyvista[all,trame]<=0.43"
+  "pyvista[all,trame]<=0.43.8"
 ]
 femwell = [
   "femwell>=0.1.6,<0.2",
@@ -72,12 +72,12 @@ gfviz = [
   "natsort"
 ]
 gmsh = [
-  "gmsh==4.13.0",
+  "gmsh==4.13.1",
   "h5py",
   "mapbox_earcut",
   "meshio",
   "pygmsh",
-  "pyvista<=0.43.7",
+  "pyvista<=0.43.8",
   "trimesh",
   "shapely",
   "meshwell>=1.0.7,<=1.1"
@@ -142,7 +142,9 @@ norecursedirs = [
   'gplugins/fdtdz',
   'gplugins/elmer',
   'gplugins/sentaurus',
-  'gplugins/gfviz'
+  'gplugins/gfviz',
+  'gplugins/gmeep',
+  'gplugins/modes'
 ]
 python_files = ["gplugins/*.py", "notebooks/*.ipynb", "tests/*.py"]
 testpaths = ["gplugins/", "tests"]

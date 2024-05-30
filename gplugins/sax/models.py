@@ -376,7 +376,16 @@ def _mmi_nxn(
 def mmi1x2(
     wl: Float = 1.55, wl0: Float = 1.55, fwhm: Float = 0.2, loss_dB: Float = 0.3
 ) -> sax.SDict:
+    """1x2 MMI model.
+
+    Args:
+        wl: wavelength.
+        wl0: center wavelength.
+        fwhm: full width at half maximum 3dB.
+        loss_dB: loss in dB.
+    """
     thru = _mmi_amp(wl=wl, wl0=wl0, fwhm=fwhm, loss_dB=loss_dB) / 2**0.5
+
     return sax.reciprocal(
         {
             ("o1", "o2"): thru,
