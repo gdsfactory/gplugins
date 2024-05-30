@@ -16,7 +16,7 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.4.1"
+    rev: "v0.4.5"
     hooks:
       - id: ruff
       - id: ruff-format
@@ -53,7 +53,7 @@ repos:
       - id: nbstripout
         files: ".ipynb"
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.6
+    rev: v2.3.0
     hooks:
       - id: codespell
         args: ["--skip=*svisual.py"]
