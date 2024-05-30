@@ -72,7 +72,7 @@ gfviz = [
   "natsort"
 ]
 gmsh = [
-  "gmsh==4.13.1",
+  "gmsh==4.13.0",
   "h5py",
   "mapbox_earcut",
   "meshio",
