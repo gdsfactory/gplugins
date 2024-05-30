@@ -100,7 +100,7 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
         if not clx:
             clx = kdb.DeviceClass()
             clx.name = model
-            for key in parameters.keys():
+            for key in parameters:
                 clx.add_parameter(kdb.DeviceParameterDefinition(key))
 
             for i in range(len(nets)):
