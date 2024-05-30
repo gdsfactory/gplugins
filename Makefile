@@ -1,6 +1,5 @@
 install:
 	pip install -e .[dev,docs,devsim,femwell,gmsh,klayout,meow,meshwell,ray,sax,schematic,tidy3d,vlsir]
-	pip install git+https://github.com/gdsfactory/gdsfactory --force-reinstall
 	pre-commit install
 
 dev: test-data gmsh elmer install
