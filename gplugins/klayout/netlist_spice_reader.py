@@ -71,6 +71,12 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
     def hash_str_to_int(s: str) -> int:
         return int(hashlib.shake_128(s.encode()).hexdigest(4), 16)
 
+    def write_str_property_as_int(self, value: str) -> int:
+        """Store string property in hash map and return integer hash value."""
+        hashed_value = CalibreSpiceReader.hash_str_to_int(value)
+        self.integer_to_string_map[hashed_value] = value
+        return hashed_value
+
     @override
     def element(
         self,
@@ -94,15 +100,8 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
         if not clx:
             clx = kdb.DeviceClass()
             clx.name = model
-            for key, value in parameters.items():
+            for key in parameters.keys():
                 clx.add_parameter(kdb.DeviceParameterDefinition(key))
-                # map string variables to integers
-                if (
-                    isinstance(value, str)
-                    and value not in self.integer_to_string_map.values()
-                ):
-                    hashed_value = CalibreSpiceReader.hash_str_to_int(value)
-                    self.integer_to_string_map[hashed_value] = value
 
             for i in range(len(nets)):
                 clx.add_terminal(kdb.DeviceTerminalDefinition(str(i)))
@@ -113,12 +112,17 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
             device.connect_terminal(i, net)
 
         for key, value in parameters.items():
+            # map string variables to integers
+            possibly_hashed_value = (
+                self.write_str_property_as_int(value)
+                if isinstance(value, str)
+                else value
+            )
+
             device.set_parameter(
                 key,
                 (
-                    CalibreSpiceReader.hash_str_to_int(value)
-                    if isinstance(value, str)
-                    else value
+                    possibly_hashed_value
                     or 0  # default to 0 for None in order to still have the parameter field
                 ),
             )
