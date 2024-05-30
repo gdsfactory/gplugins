@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from functools import partial
 
 import gdsfactory as gf
@@ -9,10 +10,10 @@ filter_savgol_filter = partial(savgol_filter, window_length=11, polyorder=3, axi
 
 
 def extract_path(
-    component,
-    layer=(1, 0),
+    component: gf.Component,
+    layer: gf.typings.LayerSpec = (1, 0),
     plot: bool = False,
-    filter_function=None,
+    filter_function: Callable = None,
     under_sampling: int = 1,
 ) -> gf.Path:
     """Extracts the centerline of a component from a GDS file.
@@ -56,7 +57,7 @@ def extract_path(
     return p
 
 
-def get_min_radius_and_length(path) -> tuple[float, float]:
+def get_min_radius_and_length(path: gf.Path) -> tuple[float, float]:
     """Get the minimum radius of curvature and the length of a path."""
     _, K = path.curvature()
     radius = 1 / K
@@ -64,7 +65,7 @@ def get_min_radius_and_length(path) -> tuple[float, float]:
     return min_radius, path.length()
 
 
-def plot_curvature(path, rmax=200) -> None:
+def plot_curvature(path: gf.Path, rmax: int | float = 200) -> None:
     """Plot the curvature of a path.
 
     Args:
@@ -84,7 +85,7 @@ def plot_curvature(path, rmax=200) -> None:
     plt.show()
 
 
-def plot_radius(path, rmax: float = 200) -> plt.Figure:
+def plot_radius(path: gf.Path, rmax: float = 200) -> plt.Figure:
     """Plot the radius of curvature of a path.
 
     Args:
