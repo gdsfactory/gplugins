@@ -33,7 +33,12 @@ def plot_nets(
         spice_reader: The KLayout Spice reader to use for parsing SPICE netlists.
     """
 
-    G_connectivity = networkx_from_spice(**locals())
+    G_connectivity = networkx_from_spice(
+        filepath=filepath,
+        include_labels=include_labels,
+        top_cell=top_cell,
+        spice_reader=spice_reader,
+    )
 
     if nodes_to_reduce:
 

@@ -24,6 +24,7 @@ from bokeh.models import (
 from bokeh.palettes import Category10, Spectral4
 from bokeh.plotting import figure, from_networkx
 from gdsfactory.component import Component, ComponentReference
+from gdsfactory.get_netlist import get_netlist, get_netlist_recursive
 
 DEFAULT_CS_COLORS = {
     "xs_rc": "red",
@@ -95,6 +96,7 @@ def report_pathlengths(
     result_dir: str | Path,
     visualize: bool = False,
     component_connectivity=None,
+    netlist=None,
 ) -> None:
     """Reports pathlengths for a given PIC.
 
@@ -103,11 +105,15 @@ def report_pathlengths(
         result_dir: the directory to write the pathlength table to.
         visualize: whether to visualize the pathlength graph.
         component_connectivity: a dictionary of component connectivity information.
+        netlist: a netlist dictionary. If None, will be generated from the pic.
     """
 
     print(f"Reporting pathlengths for {pic.name}...")
     pathlength_graph = get_edge_based_route_attr_graph(
-        pic, recursive=True, component_connectivity=component_connectivity
+        pic,
+        recursive=True,
+        component_connectivity=component_connectivity,
+        netlist=netlist,
     )
     route_records = get_paths(pathlength_graph)
 
@@ -332,7 +338,10 @@ def _get_edge_based_route_attr_graph(
 
 
 def get_edge_based_route_attr_graph(
-    pic: Component, recursive=False, component_connectivity=None
+    pic: Component,
+    recursive=False,
+    component_connectivity=None,
+    netlist: dict[str, Any] | None = None,
 ) -> nx.Graph:
     """
     Gets a connectivity graph for the circuit, with all path attributes on edges and ports as nodes.
@@ -342,17 +351,19 @@ def get_edge_based_route_attr_graph(
         recursive: True to expand all hierarchy. False to only report top-level connectivity.
         component_connectivity: a function to report connectivity for base components.\
                 None to treat as black boxes with no internal connectivity.
+        netlist: a netlist dictionary. If None, will be generated from the pic.
 
     Returns:
         A NetworkX Graph
     """
-    from gdsfactory.get_netlist import get_netlist, get_netlist_recursive
-
-    if recursive:
-        netlists = get_netlist_recursive(pic, component_suffix="")
-        netlist = netlists[pic.name]
+    if netlist is None:
+        if recursive:
+            netlists = get_netlist_recursive(pic, component_suffix="")
+            netlist = netlists[pic.name]
+        else:
+            netlist = get_netlist(pic)
+            netlists = None
     else:
-        netlist = get_netlist(pic)
         netlists = None
 
     return _get_edge_based_route_attr_graph(

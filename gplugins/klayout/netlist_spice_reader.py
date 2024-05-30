@@ -58,19 +58,24 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
                 x_value, y_value = (int(e) / 1000 for e in location_matches.group(1, 2))
 
             # Use default KLayout parser for rest of the SPICE
-            s, *_ = s.split("$")
+            s, *_ = s.split(" $")
 
         parsed = super().parse_element(s, element)
         parsed.parameters |= {"x": x_value, "y": y_value}
 
         # ensure uniqueness
-        parsed.model_name = parsed.model_name
         self.n_nodes += 1
         return parsed
 
     @staticmethod
     def hash_str_to_int(s: str) -> int:
         return int(hashlib.shake_128(s.encode()).hexdigest(4), 16)
+
+    def write_str_property_as_int(self, value: str) -> int:
+        """Store string property in hash map and return integer hash value."""
+        hashed_value = CalibreSpiceReader.hash_str_to_int(value)
+        self.integer_to_string_map[hashed_value] = value
+        return hashed_value
 
     @override
     def element(
@@ -95,15 +100,8 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
         if not clx:
             clx = kdb.DeviceClass()
             clx.name = model
-            for key, value in parameters.items():
+            for key in parameters:
                 clx.add_parameter(kdb.DeviceParameterDefinition(key))
-                # map string variables to integers
-                if (
-                    isinstance(value, str)
-                    and value not in self.integer_to_string_map.values()
-                ):
-                    hashed_value = CalibreSpiceReader.hash_str_to_int(value)
-                    self.integer_to_string_map[hashed_value] = value
 
             for i in range(len(nets)):
                 clx.add_terminal(kdb.DeviceTerminalDefinition(str(i)))
@@ -114,12 +112,17 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
             device.connect_terminal(i, net)
 
         for key, value in parameters.items():
+            # map string variables to integers
+            possibly_hashed_value = (
+                self.write_str_property_as_int(value)
+                if isinstance(value, str)
+                else value
+            )
+
             device.set_parameter(
                 key,
                 (
-                    CalibreSpiceReader.hash_str_to_int(value)
-                    if isinstance(value, str)
-                    else value
+                    possibly_hashed_value
                     or 0  # default to 0 for None in order to still have the parameter field
                 ),
             )
