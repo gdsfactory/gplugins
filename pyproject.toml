@@ -22,7 +22,7 @@ classifiers = [
   "Operating System :: OS Independent"
 ]
 dependencies = [
-  "gdsfactory>=7.10.1",
+  "gdsfactory>=7.27.1",
   "pint",
   "tqdm"
 ]
