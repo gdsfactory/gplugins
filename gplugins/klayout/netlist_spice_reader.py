@@ -64,7 +64,6 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
         parsed.parameters |= {"x": x_value, "y": y_value}
 
         # ensure uniqueness
-        parsed.model_name = parsed.model_name
         self.n_nodes += 1
         return parsed
 
