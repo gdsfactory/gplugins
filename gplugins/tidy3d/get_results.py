@@ -9,7 +9,8 @@ from collections.abc import Awaitable
 
 import gdsfactory as gf
 import tidy3d as td
-from gdsfactory.config import PATH, logger
+from gdsfactory import logger
+from gdsfactory.config import PATH
 from gdsfactory.typings import PathType
 from tidy3d import web
 from tidy3d.exceptions import WebError

@@ -9,7 +9,8 @@ import numpy as np
 import pandas as pd
 import sax
 import yaml
-from gdsfactory.config import PATH, logger
+from gdsfactory import logger
+from gdsfactory.config import PATH
 from gdsfactory.generic_tech import LAYER
 from gdsfactory.pdk import get_active_pdk, get_layer_stack
 from gdsfactory.technology import LayerStack
