@@ -6,7 +6,7 @@ except ModuleNotFoundError as e:
     print("You need to 'conda install -c conda-forge pymeep=*=mpi_mpich_* nlopt -y'")
     raise e
 
-from gdsfactory.config import logger
+from gdsfactory import logger
 
 from gplugins.common.utils import plot, port_symmetries
 from gplugins.common.utils.get_sparameters_path import get_sparameters_data_meep

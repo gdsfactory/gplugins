@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tidy3d as td
 import yaml
-from gdsfactory.config import logger
+from gdsfactory import logger
 from gdsfactory.serialization import clean_value_json
 from gdsfactory.typings import (
     Any,

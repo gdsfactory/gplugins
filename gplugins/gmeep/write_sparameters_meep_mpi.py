@@ -14,8 +14,8 @@ from pathlib import Path
 
 import gdsfactory as gf
 import pydantic
+from gdsfactory import logger, sparameters_path
 from gdsfactory.component import Component
-from gdsfactory.config import logger, sparameters_path
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 from gdsfactory.typings import ComponentSpec, PathType

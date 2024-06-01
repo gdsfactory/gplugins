@@ -12,7 +12,7 @@ def test_gmsh_xyz_mesh() -> None:
     # Choose some component
     c = gf.component.Component()
     waveguide = c << gf.get_component(gf.components.straight_heater_metal(length=40))
-    c.add_ports(waveguide.get_ports_list())
+    c.add_ports(waveguide.ports)
 
     # Add wafer / vacuum (could be automated)
     _ = c << gf.components.bbox(bbox=waveguide.bbox, layer=LAYER.WAFER)

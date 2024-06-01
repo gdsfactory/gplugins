@@ -9,10 +9,10 @@ import gdsfactory as gf
 import matplotlib.pyplot as plt
 import numpy as np
 import tidy3d as td
+from gdsfactory import logger
 from gdsfactory.add_padding import add_padding_container
 from gdsfactory.component import Component
 from gdsfactory.components.extension import move_polar_rad_copy
-from gdsfactory.config import logger
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 from gdsfactory.typings import CrossSectionSpec
@@ -247,7 +247,7 @@ def get_simulation_grating_coupler(
         warnings.warn(
             f"port_waveguide_name={port_waveguide_name!r} not in {component.ports.keys()}"
         )
-        port_waveguide = component.get_ports_list()[0]
+        port_waveguide = component.ports[0]
         port_waveguide_name = port_waveguide.name
         warnings.warn(f"Selecting port_waveguide_name={port_waveguide_name!r} instead.")
 

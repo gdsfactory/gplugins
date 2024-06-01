@@ -6,7 +6,6 @@ from typing import Any
 import gdsfactory as gf
 import numpy as np
 from gdsfactory.config import get_number_of_cores
-from gdsfactory.geometry.union import union
 from gdsfactory.technology import LayerLevel, LayerStack
 from gdsfactory.typings import ComponentOrReference, List
 from meshwell.gmsh_entity import GMSH_entity
@@ -126,9 +125,7 @@ def define_prisms(
                 physical_name=layer_physical_map[layername]
                 if layername in layer_physical_map
                 else layername,
-                mesh_bool=layer_meshbool_map[layername]
-                if layername in layer_meshbool_map
-                else True,
+                mesh_bool=layer_meshbool_map.get(layername, True),
             )
         )
 
@@ -200,9 +197,8 @@ def xyz_mesh(
         background_remeshing_file: .pos file to use as a remeshing field. Overrides resolutions if not None.
     """
     if port_names:
-        mesh_component = gf.Component()
-        _ = mesh_component << union(component, by_layer=True)
-        mesh_component.add_ports(component.get_ports_list())
+        mesh_component = component
+        mesh_component.add_ports(component.ports)
         component = get_component_with_net_layers(
             component=mesh_component,
             port_names=port_names,
@@ -280,9 +276,9 @@ def xyz_mesh(
 
     # Add edgeports
     if edge_ports is not None:
-        ports = component.get_ports_dict()
+        ports = component.ports
         port_layernames = layer_stack.get_layer_to_layername()
-        for portname, edge_ports_dict in edge_ports.items():
+        for portname, edge_ports_dict in edge_ports:
             port = ports[portname]
             prisms_list.append(
                 define_edgeport(
@@ -324,11 +320,11 @@ if __name__ == "__main__":
     # Choose some component
     c = gf.component.Component()
     waveguide = c << gf.get_component(gf.components.straight(length=40))
-    c.add_ports(waveguide.get_ports_list())
+    c.add_ports(waveguide.ports)
 
     # Add wafer / vacuum (could be automated)
     wafer = c << gf.components.bbox(
-        bbox=waveguide.bbox,
+        waveguide,
         layer=LAYER.WAFER,
         top=3,
         bottom=3,

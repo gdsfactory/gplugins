@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import meep as mp
 import numpy as np
 import yaml
-from gdsfactory.config import logger, sparameters_path
+from gdsfactory import logger, sparameters_path
 from gdsfactory.serialization import clean_value_json, clean_value_name
 from gdsfactory.typings import PathType
 

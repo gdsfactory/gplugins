@@ -66,7 +66,7 @@ def get_mesh(
         [xmin - wafer_padding, ymax + wafer_padding],
     ]
     padded_component.add_polygon(points, layer=wafer_layer)
-    padded_component.add_ports(component.get_ports_list())
+    padded_component.add_ports(component.ports)
 
     # Parse the resolutions dict to set default size_max
     if "resolutions" in kwargs:

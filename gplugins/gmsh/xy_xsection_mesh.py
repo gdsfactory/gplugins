@@ -4,7 +4,6 @@ from collections import OrderedDict
 
 import numpy as np
 from gdsfactory.config import get_number_of_cores
-from gdsfactory.geometry.union import union
 from gdsfactory.technology import LayerLevel, LayerStack
 from gdsfactory.typings import ComponentOrReference
 from meshwell.model import Model
@@ -106,9 +105,8 @@ def xy_xsection_mesh(
         layer_port_delimiter: Delimiter to use for new layers generated for ports: "layer{delimiter}port_name".
     """
     if port_names:
-        mesh_component = gf.Component()
-        _ = mesh_component << union(component, by_layer=True)
-        mesh_component.add_ports(component.get_ports_list())
+        mesh_component = component
+        mesh_component.add_ports(component.ports)
         component = get_component_with_net_layers(
             component=mesh_component,
             port_names=port_names,

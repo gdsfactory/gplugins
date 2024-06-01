@@ -152,7 +152,7 @@ def get_simulation(
 
     if port_source_name not in port_names:
         warnings.warn(f"port_source_name={port_source_name!r} not in {port_names}")
-        port_source = component_ref.get_ports_list()[0]
+        port_source = component_ref.ports[0]
         port_source_name = port_source.name
         warnings.warn(f"Selecting port_source_name={port_source_name!r} instead.")
 

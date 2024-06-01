@@ -89,7 +89,7 @@ def add_simulation_markers(
 
     if port_source_name not in port_names:
         warnings.warn(f"port_source_name={port_source_name!r} not in {port_names}")
-        port_source = ref.get_ports_list()[0]
+        port_source = ref.ports[0]
         port_source_name = port_source.name
         warnings.warn(f"Selecting port_source_name={port_source_name!r} instead.")
 

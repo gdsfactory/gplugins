@@ -15,8 +15,8 @@ import meep as mp
 import numpy as np
 import pydantic
 import yaml
+from gdsfactory import logger
 from gdsfactory.component import Component
-from gdsfactory.config import logger
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.serialization import clean_value_json
 from gdsfactory.technology import LayerStack

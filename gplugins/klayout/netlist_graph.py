@@ -5,7 +5,7 @@ from tempfile import NamedTemporaryFile
 
 import klayout.db as kdb
 import networkx as nx
-from gdsfactory.config import logger
+from gdsfactory import logger
 from gdsfactory.typings import PathType
 
 import gplugins.vlsir
