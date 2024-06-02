@@ -5,12 +5,6 @@ This module provides functions to generate a raw netlist semi-compatible with gd
 import hdl21 as h
 import yaml
 
-__all__ = [
-    'ParsedProtoVLSIR',
-    'generate_raw_netlist_dict_from_module',
-    'generate_raw_yaml_from_module'
-]
-
 ParsedProtoVLSIR = dict
 
 
@@ -72,16 +66,18 @@ def _parse_connections(proto_dict: ParsedProtoVLSIR) -> dict:
                 target_signal = connection["target"][0]["sig"]
                 connection_key = f"{instance_name},{portname}"
                 # Find the target instance and port
-                target_instance_port = _find_target_instance_port(proto_dict, target_signal, instance_name)
+                target_instance_port = _find_target_instance_port(
+                    proto_dict, target_signal, instance_name
+                )
                 if target_instance_port:
                     connections[connection_key] = target_instance_port
 
     return connections
 
 
-def _find_target_instance_port(proto_dict: ParsedProtoVLSIR,
-                               target_signal,
-                               current_instance_name):
+def _find_target_instance_port(
+    proto_dict: ParsedProtoVLSIR, target_signal, current_instance_name
+):
     """
     Find the target instance and port of the target signal in the proto_dict.
     """
@@ -114,9 +110,9 @@ def _generate_top_level_connections(proto_dict: ParsedProtoVLSIR):
     top_level_connections = {}
 
     # Iterate over the top-level module ports
-    for module in proto_dict.get('modules', []):
-        for port in module.get('ports', []):
-            port_signal = port['signal']
+    for module in proto_dict.get("modules", []):
+        for port in module.get("ports", []):
+            port_signal = port["signal"]
             connection = _find_port_connection(proto_dict, port_signal)
             if connection:
                 top_level_connections[port_signal] = connection
@@ -148,17 +144,16 @@ def _extract_instance_parameters(proto_dict: ParsedProtoVLSIR):
         for instance in module.get("instances", []):
             instance_name = instance["name"]
             instance_info = {
-
-                'component': _extract_component_name(instance),
-                'info': {},
-                'settings': {}
+                "component": _extract_component_name(instance),
+                "info": {},
+                "settings": {},
             }
 
             # Extract parameters into the settings
-            for parameter in instance.get('parameters', []):
-                param_name = parameter['name']
-                param_value = _extract_parameter_value(parameter['value'])
-                instance_info['settings'][param_name] = param_value
+            for parameter in instance.get("parameters", []):
+                param_name = parameter["name"]
+                param_value = _extract_parameter_value(parameter["value"])
+                instance_info["settings"][param_name] = param_value
 
             # Extract connections and add to settings
             instance_info["settings"]["ports"] = {}
@@ -178,10 +173,9 @@ def _extract_component_name(instance):
     """
     external_modules = instance.get("module", [])
     if external_modules:
-        domain = external_modules[0].get('external', [{}])[0].get('domain', '')
-        name = external_modules[0].get('external', [{}])[0].get('name', '')
+        name = external_modules[0].get("external", [{}])[0].get("name", "")
         return f"{name}"
-    return 'unknown_component'
+    return "unknown_component"
 
 
 def _extract_parameter_value(value):
@@ -208,13 +202,13 @@ def _generate_raw_netlist_dict_from_proto_dict(proto_dict: ParsedProtoVLSIR):
         raw_netlist_dict["name"] = proto_dict["modules"][0].get("name", "")
 
     # Generate instances information
-    raw_netlist_dict['instances'] = _extract_instance_parameters(proto_dict)
+    raw_netlist_dict["instances"] = _extract_instance_parameters(proto_dict)
 
     # Generate connections
     raw_netlist_dict["connections"] = _parse_connections(proto_dict)
 
     # Generate top-level connections
-    raw_netlist_dict['ports'] = _generate_top_level_connections(proto_dict)
+    raw_netlist_dict["ports"] = _generate_top_level_connections(proto_dict)
 
     return raw_netlist_dict
 

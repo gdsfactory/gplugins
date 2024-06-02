@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from difflib import get_close_matches
 
 import hdl21 as h
 import sky130
@@ -8,10 +9,6 @@ from .netlist import (
     _generate_raw_netlist_dict_from_proto_dict,
     _parse_module_to_proto_dict,
 )
-
-__all__ = ["hdl21_module_to_schematic_editor", "find_most_relevant_gds", "filter_port"]
-
-from difflib import get_close_matches
 
 custom_mapping_dict = {
     "sky130_fd_pr__nfet_01v8": "sky130_fd_pr__rf_nfet_01v8_aM02W1p65L0p15",
