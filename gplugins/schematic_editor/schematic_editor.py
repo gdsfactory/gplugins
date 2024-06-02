@@ -270,12 +270,6 @@ class SchematicEditor:
         return self._port_grid
 
     def visualize(self) -> None:
-        print("self.schematic")
-        print(self.schematic)
-        print("self.symbols")
-        print(self.symbols)
-        print("self.path")
-        print(self.path)
         circuitviz.show_netlist(self.schematic, self.symbols, self.path)
 
         self.on_instance_added.append(self._update_schematic_plot)

@@ -6,35 +6,15 @@ import hdl21 as h
 import yaml
 
 __all__ = [
-<<<<<<< HEAD
-<<<<<<< HEAD
     'ParsedProtoVLSIR',
     'generate_raw_netlist_dict_from_module',
     'generate_raw_yaml_from_module'
-=======
-    "ParsedProtoVLSIR",
-    "parse_module_to_proto_dict",
-    "generate_raw_netlist_from_module",
-    "generate_raw_yaml_from_module",
->>>>>>> 75a4e37 ([pre-commit.ci] auto fixes from pre-commit.com hooks)
-=======
-    "ParsedProtoVLSIR",
-    "generate_raw_netlist_dict_from_module",
-    "generate_raw_yaml_from_module",
->>>>>>> a705eac ([pre-commit.ci] auto fixes from pre-commit.com hooks)
 ]
 
 ParsedProtoVLSIR = dict
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> a705eac ([pre-commit.ci] auto fixes from pre-commit.com hooks)
 def _parse_module_to_proto_dict(module: h.module) -> ParsedProtoVLSIR:
-=======
-def parse_module_to_proto_dict(module: h.module) -> ParsedProtoVLSIR:
->>>>>>> 75a4e37 ([pre-commit.ci] auto fixes from pre-commit.com hooks)
     """
     Parse a hdl21 module object into a dictionary with the same structure as the proto VLSIR format.
     """
@@ -92,40 +72,16 @@ def _parse_connections(proto_dict: ParsedProtoVLSIR) -> dict:
                 target_signal = connection["target"][0]["sig"]
                 connection_key = f"{instance_name},{portname}"
                 # Find the target instance and port
-<<<<<<< HEAD
-<<<<<<< HEAD
                 target_instance_port = _find_target_instance_port(proto_dict, target_signal, instance_name)
-=======
-                target_instance_port = find_target_instance_port(
-                    proto_dict, target_signal, instance_name
-                )
->>>>>>> 75a4e37 ([pre-commit.ci] auto fixes from pre-commit.com hooks)
-=======
-                target_instance_port = _find_target_instance_port(
-                    proto_dict, target_signal, instance_name
-                )
->>>>>>> a705eac ([pre-commit.ci] auto fixes from pre-commit.com hooks)
                 if target_instance_port:
                     connections[connection_key] = target_instance_port
 
     return connections
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 def _find_target_instance_port(proto_dict: ParsedProtoVLSIR,
                                target_signal,
                                current_instance_name):
-=======
-def find_target_instance_port(
-    proto_dict: ParsedProtoVLSIR, target_signal, current_instance_name
-):
->>>>>>> 75a4e37 ([pre-commit.ci] auto fixes from pre-commit.com hooks)
-=======
-def _find_target_instance_port(
-    proto_dict: ParsedProtoVLSIR, target_signal, current_instance_name
-):
->>>>>>> a705eac ([pre-commit.ci] auto fixes from pre-commit.com hooks)
     """
     Find the target instance and port of the target signal in the proto_dict.
     """
@@ -158,23 +114,10 @@ def _generate_top_level_connections(proto_dict: ParsedProtoVLSIR):
     top_level_connections = {}
 
     # Iterate over the top-level module ports
-<<<<<<< HEAD
-<<<<<<< HEAD
     for module in proto_dict.get('modules', []):
         for port in module.get('ports', []):
             port_signal = port['signal']
-=======
-    for module in proto_dict.get("modules", []):
-        for port in module.get("ports", []):
-            port_signal = port["signal"]
->>>>>>> a705eac ([pre-commit.ci] auto fixes from pre-commit.com hooks)
             connection = _find_port_connection(proto_dict, port_signal)
-=======
-    for module in proto_dict.get("modules", []):
-        for port in module.get("ports", []):
-            port_signal = port["signal"]
-            connection = find_port_connection(proto_dict, port_signal)
->>>>>>> 75a4e37 ([pre-commit.ci] auto fixes from pre-commit.com hooks)
             if connection:
                 top_level_connections[port_signal] = connection
 
@@ -205,8 +148,7 @@ def _extract_instance_parameters(proto_dict: ParsedProtoVLSIR):
         for instance in module.get("instances", []):
             instance_name = instance["name"]
             instance_info = {
-<<<<<<< HEAD
-<<<<<<< HEAD
+
                 'component': _extract_component_name(instance),
                 'info': {},
                 'settings': {}
@@ -217,30 +159,6 @@ def _extract_instance_parameters(proto_dict: ParsedProtoVLSIR):
                 param_name = parameter['name']
                 param_value = _extract_parameter_value(parameter['value'])
                 instance_info['settings'][param_name] = param_value
-=======
-                "component": extract_component_name(instance),
-                "info": {},
-                "settings": {},
-            }
-
-            # Extract parameters into the settings
-            for parameter in instance.get("parameters", []):
-                param_name = parameter["name"]
-                param_value = extract_parameter_value(parameter["value"])
-                instance_info["settings"][param_name] = param_value
->>>>>>> 75a4e37 ([pre-commit.ci] auto fixes from pre-commit.com hooks)
-=======
-                "component": _extract_component_name(instance),
-                "info": {},
-                "settings": {},
-            }
-
-            # Extract parameters into the settings
-            for parameter in instance.get("parameters", []):
-                param_name = parameter["name"]
-                param_value = _extract_parameter_value(parameter["value"])
-                instance_info["settings"][param_name] = param_value
->>>>>>> a705eac ([pre-commit.ci] auto fixes from pre-commit.com hooks)
 
             # Extract connections and add to settings
             instance_info["settings"]["ports"] = {}
@@ -260,24 +178,10 @@ def _extract_component_name(instance):
     """
     external_modules = instance.get("module", [])
     if external_modules:
-<<<<<<< HEAD
-<<<<<<< HEAD
         domain = external_modules[0].get('external', [{}])[0].get('domain', '')
         name = external_modules[0].get('external', [{}])[0].get('name', '')
         return f"{name}"
     return 'unknown_component'
-=======
-        domain = external_modules[0].get("external", [{}])[0].get("domain", "")
-        name = external_modules[0].get("external", [{}])[0].get("name", "")
-        return f"{domain}_{name}"
-    return "unknown_component"
->>>>>>> 75a4e37 ([pre-commit.ci] auto fixes from pre-commit.com hooks)
-=======
-        domain = external_modules[0].get("external", [{}])[0].get("domain", "")
-        name = external_modules[0].get("external", [{}])[0].get("name", "")
-        return f"{name}"
-    return "unknown_component"
->>>>>>> a705eac ([pre-commit.ci] auto fixes from pre-commit.com hooks)
 
 
 def _extract_parameter_value(value):
@@ -304,31 +208,13 @@ def _generate_raw_netlist_dict_from_proto_dict(proto_dict: ParsedProtoVLSIR):
         raw_netlist_dict["name"] = proto_dict["modules"][0].get("name", "")
 
     # Generate instances information
-<<<<<<< HEAD
-<<<<<<< HEAD
     raw_netlist_dict['instances'] = _extract_instance_parameters(proto_dict)
-=======
-    raw_netlist_dict["instances"] = _extract_instance_parameters(proto_dict)
->>>>>>> a705eac ([pre-commit.ci] auto fixes from pre-commit.com hooks)
 
     # Generate connections
     raw_netlist_dict["connections"] = _parse_connections(proto_dict)
 
     # Generate top-level connections
-<<<<<<< HEAD
     raw_netlist_dict['ports'] = _generate_top_level_connections(proto_dict)
-=======
-    raw_netlist_dict["instances"] = extract_instance_parameters(proto_dict)
-
-    # Generate connections
-    raw_netlist_dict["connections"] = parse_connections(proto_dict)
-
-    # Generate top-level connections
-    raw_netlist_dict["ports"] = generate_top_level_connections(proto_dict)
->>>>>>> 75a4e37 ([pre-commit.ci] auto fixes from pre-commit.com hooks)
-=======
-    raw_netlist_dict["ports"] = _generate_top_level_connections(proto_dict)
->>>>>>> a705eac ([pre-commit.ci] auto fixes from pre-commit.com hooks)
 
     return raw_netlist_dict
 
@@ -347,9 +233,6 @@ def generate_raw_yaml_from_module(module: h.module):
     Generate a raw netlist yaml from a hdl21 module object which could be manually edited for specific instances
     related to the corresponding SPICE.
     """
-<<<<<<< HEAD
+
     raw_netlist = generate_raw_netlist_dict_from_module(module)
-=======
-    raw_netlist = generate_raw_netlist_from_module(module)
->>>>>>> 75a4e37 ([pre-commit.ci] auto fixes from pre-commit.com hooks)
     return yaml.dump(raw_netlist, default_flow_style=False)
