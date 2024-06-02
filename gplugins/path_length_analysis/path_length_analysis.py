@@ -571,5 +571,6 @@ def visualize_graph(
     layout = row(plot, table, sizing_mode="stretch_both")
     curdoc().add_root(layout)
     result_dir = Path(result_dir)
+    result_dir.mkdir(exist_ok=True, parents=True)
     output_file(result_dir / f"{pic.name}.html")
     show(layout)
