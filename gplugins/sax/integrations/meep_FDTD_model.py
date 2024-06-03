@@ -109,7 +109,7 @@ if __name__ == "__main__":
     c = gf.components.coupler_full(
         coupling_length=0.1, dx=10.0, dy=5.0, gap=0.5, dw=0.0, cross_section="xs_sc"
     )
-    c.show(show_ports=True)
+    c.show()
 
     filtered_layer_stack = LayerStack(
         layers={

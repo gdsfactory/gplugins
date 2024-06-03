@@ -29,8 +29,8 @@ def component_test_density1(
     small_rect2 = c << gf.components.rectangle(
         size=small_rect2_size, layer=(2, 0), centered=True
     )
-    small_rect1.move(small_rect1_offset)
-    small_rect2.move(small_rect2_offset)
+    small_rect1.dmove(small_rect1_offset)
+    small_rect2.dmove(small_rect2_offset)
     return c
 
 

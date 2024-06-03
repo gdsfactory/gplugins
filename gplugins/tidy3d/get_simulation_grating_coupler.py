@@ -289,7 +289,7 @@ def get_simulation_grating_coupler(
 
     component_extended = component_extended.flatten()
     component_extended.name = component.name
-    component_extended.show(show_ports=True)
+    component_extended.show()
 
     component_ref = component_padding.ref()
     component_ref.center = (0, 0)
@@ -428,7 +428,7 @@ def get_simulation_grating_coupler(
 
     # Add fiber monitor
     fiber_port = component_ref.ports[fiber_port_name]
-    fiber_port_x = fiber_port.x + fiber_xoffset
+    fiber_port_x = fiber_port.dx + fiber_xoffset
 
     if fiber_port_x < -sim_size[0] / 2 or fiber_port_x > sim_size[0] / 2:
         raise ValueError(

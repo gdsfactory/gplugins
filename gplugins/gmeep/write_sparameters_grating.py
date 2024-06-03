@@ -200,7 +200,7 @@ def write_sparameters_grating(
         [1],
         direction=mp.NO_DIRECTION,
         eig_parity=mp.ODD_Z,
-        kpoint_func=lambda f, n: mp.Vector3(0, fcen * 1.45, 0).rotate(
+        kpoint_func=lambda f, n: mp.Vector3(0, fcen * 1.45, 0).drotate(
             mp.Vector3(z=1), -1 * np.radians(fiber_angle_deg)
         ),  # Hardcoded index for now, pull from simulation eventually
     )
@@ -211,7 +211,7 @@ def write_sparameters_grating(
 
     # Since waveguide port is oblique, figure out forward and backward direction
     kdom_fiber = fiber_mode.kdom[0]
-    idx = 1 - (kdom_fiber.y > 0) * 1
+    idx = 1 - (kdom_fiber.dy > 0) * 1
 
     a2 = fiber_mode.alpha[:, :, idx].flatten()  # forward wave
     # b2 = fiber_mode.alpha[:, :, 1 - idx].flatten()  # backward wave

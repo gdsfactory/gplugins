@@ -73,10 +73,10 @@ if __name__ == "__main__":
     c = gf.Component()
     r1 = c << gf.components.rectangle(size=(w1, w1), layer=(1, 0))
     r2 = c << gf.components.rectangle(size=(w2, w2), layer=(2, 0))
-    r1.x = 0
-    r1.y = 0
-    r2.x = 0
-    r2.y = 0
+    r1.dx = 0
+    r1.dy = 0
+    r2.dx = 0
+    r2.dy = 0
     gdspath = c
     gf.show(gdspath)
     print(check_inclusion(c, min_inclusion=min_inclusion))

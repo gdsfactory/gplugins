@@ -147,7 +147,7 @@ def test_transformed_hierarchical_pathlength_extraction() -> None:
     iend = c.add_ref(
         gf.get_component("straight", cross_section=cross_section, length=100), "iend"
     )
-    istart = istart.rotate(37)
+    istart = istart.drotate(37)
     imid.connect("o1", istart.ports["o2"])
     iend.connect("o1", imid.ports["o2"])
 

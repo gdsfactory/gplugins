@@ -162,4 +162,4 @@ if __name__ == "__main__":
         c, run=False, ymargin_top=3, ymargin_bot=3, is_3d=True
     )
     plt.show()
-    # c.show(show_ports=True)
+    # c.show()

@@ -96,10 +96,10 @@ def initialize_sprocess(
         ymin = 0
         ymax = 0
     else:
-        xmin = component.xmin
-        xmax = component.xmax
+        xmin = component.dxmin
+        xmax = component.dxmax
         ymin = component.ymin
-        ymax = component.ymax
+        ymax = component.dymax
 
     # Initial z-mesh from waferstack and resolutions
     z_map = {}
@@ -587,8 +587,8 @@ if __name__ == "__main__":
         component=test_straight, domain=[[0, -4], [0, 4], [length, 4], [length, -4]]
     )
 
-    yp = (test_component.ymax + test_component.ymin) / 2 + test_component.ysize / 2
-    ym = (test_component.ymax + test_component.ymin) / 2 - test_component.ysize / 2
+    yp = (test_component.dymax + test_component.ymin) / 2 + test_component.ysize / 2
+    ym = (test_component.dymax + test_component.ymin) / 2 - test_component.ysize / 2
     c.add_port(
         name="e1",
         center=(length / 2, yp),
@@ -634,8 +634,8 @@ contact name=substrate box silicon xlo=4.2 xhi=4.3 ylo=0.0 yhi={c.ysize:1.3f} zl
         layermap=LAYER,
         process=get_process(),
         xsection_bounds=(
-            ((test_component.xmin + test_component.xmax) / 2, test_component.ymin),
-            ((test_component.xmin + test_component.xmax) / 2, test_component.ymax),
+            ((test_component.dxmin + test_component.dxmax) / 2, test_component.ymin),
+            ((test_component.dxmin + test_component.dxmax) / 2, test_component.dymax),
         ),
         save_directory="./sprocess/",
         filename="sprocess_2D_fps.cmd",

@@ -110,8 +110,8 @@ def _get_sources(objs):
         elif isinstance(obj, Rect):
             src = srcs["Rect"]
             src["tag"].append(obj.tag)
-            src["x"].append(obj.x + obj.w / 2)
-            src["y"].append(obj.y + obj.h / 2)
+            src["x"].append(obj.dx + obj.w / 2)
+            src["y"].append(obj.dy + obj.h / 2)
             src["width"].append(obj.w)
             src["height"].append(obj.h)
             src["fill_color"].append(obj.c)
@@ -245,10 +245,10 @@ def viz_bk(
             return
         df = pd.DataFrame(data["dss"]["Rect"].data)
         mask = np.ones_like(df.x, dtype=bool)
-        mask &= df.x - df.width / 2 < event.x
-        mask &= event.x < df.x + df.width / 2
-        mask &= df.y - df.height / 2 < event.y
-        mask &= event.y < df.y + df.width / 2
+        mask &= df.dx - df.width / 2 < event.x
+        mask &= event.dx < df.dx + df.width / 2
+        mask &= df.dy - df.height / 2 < event.y
+        mask &= event.dy < df.dy + df.width / 2
         df = df[mask]
 
         tags = df.tag.values
@@ -412,7 +412,7 @@ def viz_instance(
     ports: list[gf.Port] = inst_ref.ports.values()
     ports = [p.copy() for p in ports]
     for p in ports:
-        # p.move((x, y))
+        # p.dmove((x, y))
         p.tag = instance_name
     c = "#000000"
 

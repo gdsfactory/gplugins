@@ -142,8 +142,8 @@ def get_simulation(
     layer_to_thickness = layer_stack.get_layer_to_thickness()
 
     component_ref = component.ref()
-    component_ref.x = 0
-    component_ref.y = 0
+    component_ref.dx = 0
+    component_ref.dy = 0
 
     wavelength = (wavelength_start + wavelength_stop) / 2
 
@@ -250,7 +250,7 @@ def get_simulation(
             eig_band=port_source_mode + 1,
             eig_parity=mp.NO_PARITY if is_3d else mp.EVEN_Y + mp.ODD_Z,
             eig_match_freq=True,
-            eig_kpoint=-1 * mp.Vector3(x=1).rotate(mp.Vector3(z=1), angle_rad),
+            eig_kpoint=-1 * mp.Vector3(x=1).drotate(mp.Vector3(z=1), angle_rad),
             direction=direction,
         )
     ]

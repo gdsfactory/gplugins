@@ -18,8 +18,8 @@ def exclusion(
     c = gf.Component()
     r1 = c << gf.components.rectangle(size=(width, width), layer=layer1)
     r2 = c << gf.components.rectangle(size=(width, width), layer=layer2)
-    r1.xmax = 0
-    r2.xmin = space
+    r1.dxmax = 0
+    r2.dxmin = space
     return c
 
 

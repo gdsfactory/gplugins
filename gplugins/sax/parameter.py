@@ -330,24 +330,24 @@ if __name__ == "__main__":
     )
     c.add_port(name="o1", center=(0, 1), width=1, orientation=0, layer=1)
     c.add_port(name="o2", center=(3, -2), width=1, orientation=90, layer=1)
-    c.show(show_ports=True)
+    c.show()
 
     param = LithoParameter(layername="core")
     eroded_c = param.layer_dilation_erosion(c, 0.2)
-    eroded_c.show(show_ports=True)
+    eroded_c.show()
 
     param = LithoParameter(layername="core")
     eroded_c = param.layer_dilation_erosion(c, -0.2)
-    eroded_c.show(show_ports=True)
+    eroded_c.show()
 
     param = LithoParameter(layername="core")
     eroded_c = param.layer_x_offset(c, 0.5)
-    eroded_c.show(show_ports=True)
+    eroded_c.show()
 
     param = LithoParameter(layername="core")
     eroded_c = param.layer_y_offset(c, 0.5)
-    eroded_c.show(show_ports=True)
+    eroded_c.show()
 
     param = LithoParameter(layername="core")
     eroded_c = param.layer_round_corners(c, 0.2)
-    eroded_c.show(show_ports=True)
+    eroded_c.show()

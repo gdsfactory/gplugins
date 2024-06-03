@@ -44,7 +44,7 @@ if __name__ == "__main__":
     import numpy as np
 
     c = gf.components.mzi()
-    c.show(show_ports=True)
+    c.show()
     netlist = c.get_netlist()
     circuit, _ = sax.circuit(netlist=netlist, models=models)
     wl = np.linspace(1.5, 1.6)

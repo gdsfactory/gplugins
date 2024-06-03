@@ -454,7 +454,7 @@ if __name__ == "__main__":
         output_layer("TRENCH", (2, 33)),
     ]
 
-    layers = dict(LAYER)
+    layers = LAYER
     layers["WG_PIN"] = (1, 10)
     drc_check_deck = write_drc_deck_macro(rules=rules, layers=layers, mode="tiled")
     script = get_drc_script(rules=rules, layers=layers, mode="tiled")

@@ -419,7 +419,7 @@ if __name__ == "__main__":
             centered=True,
         )
     )
-    undercut.move(destination=[4, 0])
+    undercut.dmove(destination=[4, 0])
     c.show()
 
     filtered_layer_stack = LayerStack(
