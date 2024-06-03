@@ -148,7 +148,7 @@ def get_simulation(
     wavelength = (wavelength_start + wavelength_stop) / 2
 
     wavelengths = np.linspace(wavelength_start, wavelength_stop, wavelength_points)
-    port_names = list(component_ref.ports.keys())
+    port_names = [port.name for port in component_ref.ports]
 
     if port_source_name not in port_names:
         warnings.warn(f"port_source_name={port_source_name!r} not in {port_names}")

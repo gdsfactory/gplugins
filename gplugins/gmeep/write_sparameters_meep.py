@@ -65,7 +65,8 @@ def parse_port_eigenmode_coeff(
 
     """
     if port_name not in ports:
-        raise ValueError(f"port = {port_name!r} not in {list(ports.keys())}.")
+        port_names = [port.name for port in ports]
+        raise ValueError(f"port = {port_name!r} not in {port_names}.")
 
     orientation = ports[port_name].orientation
 

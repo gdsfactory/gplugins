@@ -29,14 +29,11 @@ def fuse_polygons(
 
     layer_component = component.extract([layer])
 
-    # gdstk union before shapely conversion helps with ill-formed polygons
-    offset_tol = offset_tol or gf.get_active_pdk().grid_size
-    layer_component = gf.geometry.offset(
-        layer_component, distance=offset_tol, precision=1e-6, layer=layer
-    )
+    # merge polygons before shapely conversion helps with ill-formed polygons
+    offset_tol = offset_tol or component.kcl.dbu
     shapely_polygons = [
         round_coordinates(shapely.geometry.Polygon(polygon), round_tol)
-        for polygon in layer_component.get_polygons()
+        for polygon in layer_component.get_polygons_points(merge=True).values()
     ]
 
     return shapely.ops.unary_union(shapely_polygons).simplify(
@@ -137,5 +134,4 @@ if __name__ == "__main__":
     from gplugins.gmsh.get_mesh import get_mesh
 
     c = gf.components.straight_heater_doped_rib()
-    get_mesh(component=c, type="xy", layer_stack=LAYER_STACK, z=0)
     get_mesh(component=c, type="xy", layer_stack=LAYER_STACK, z=0)

@@ -49,7 +49,7 @@ def get_internal_netlist_attributes(
 
 
 def _get_link_name(component: Component) -> str:
-    ports = sorted(component.ports.keys())
+    ports = component.ports
     if len(ports) != 2:
         raise ValueError("routing components must have two ports")
     return ":".join(ports)

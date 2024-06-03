@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import gdsfactory as gf
 import meshio
 from gdsfactory import Component
 from gdsfactory.typings import ComponentSpec, Layer, LayerStack
@@ -57,8 +58,10 @@ def get_mesh(
 
     # Add WAFER layer:
     padded_component = Component()
+    component = gf.get_component(component)
     _ = padded_component << component
-    (xmin, ymin), (xmax, ymax) = component.bbox
+    bbox = component.dbbox()
+    xmin, ymin, xmax, ymax = bbox.left, bbox.bottom, bbox.right, bbox.top
     points = [
         [xmin - wafer_padding, ymin - wafer_padding],
         [xmax + wafer_padding, ymin - wafer_padding],

@@ -244,22 +244,22 @@ def get_simulation_grating_coupler(
         raise ValueError(f"component should be a gdsfactory.Component not {component}")
 
     if port_waveguide_name not in component.ports:
+        port_names = [port.name for port in component.ports]
         warnings.warn(
-            f"port_waveguide_name={port_waveguide_name!r} not in {component.ports.keys()}"
+            f"port_waveguide_name={port_waveguide_name!r} not in {port_names}"
         )
         port_waveguide = component.ports[0]
         port_waveguide_name = port_waveguide.name
         warnings.warn(f"Selecting port_waveguide_name={port_waveguide_name!r} instead.")
 
     fiber_port_name = None
-    for port_name in component.ports.keys():
+    port_names = [port.name for port in component.ports]
+    for port_name in port_names:
         if port_name.startswith(fiber_port_prefix):
             fiber_port_name = port_name
 
     if fiber_port_name is None:
-        raise ValueError(
-            f"No port named {fiber_port_prefix!r} in {component.ports.keys()}"
-        )
+        raise ValueError(f"No port named {fiber_port_prefix!r} in {port_names}")
     add_padding_custom = partial(
         add_padding_container,
         default=0,
