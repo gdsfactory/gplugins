@@ -130,7 +130,7 @@ def _demo_routes():
     left_ports.reverse()
 
     c = gf.Component(name="connect_bundle_v2")
-    routes = gf.routing.get_bundle(
+    routes = gf.routing.route_bundle(
         left_ports,
         right_ports,
         sort_ports=True,

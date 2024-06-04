@@ -85,7 +85,7 @@ class LayeredComponentBase(BaseModel):
             p.move_polar_copy(
                 self.extend_ports + self.pad_xy_inner - self.port_offset, p.orientation
             )
-            for p in self.component.ports.values()
+            for p in self.component.ports
         )
 
     @computed_field

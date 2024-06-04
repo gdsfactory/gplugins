@@ -410,7 +410,7 @@ def viz_instance(
             )
             layer_polys.append(lp)
 
-    ports: list[gf.Port] = inst_ref.ports.values()
+    ports: list[gf.Port] = inst_ref.ports
     ports = [p.copy() for p in ports]
     for p in ports:
         # p.dmove((x, y))

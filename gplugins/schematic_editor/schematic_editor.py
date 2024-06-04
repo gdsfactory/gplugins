@@ -416,7 +416,7 @@ class SchematicEditor:
     def instantiate_layout(
         self,
         output_filename,
-        default_router="get_bundle",
+        default_router="route_bundle",
         default_cross_section="xs_sc",
     ):
         schematic = self._schematic
