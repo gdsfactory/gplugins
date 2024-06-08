@@ -124,8 +124,8 @@ vlsir = [
 ]
 
 [tool.codespell]
-ignore-words-list = 'te, te/tm, te, ba, fpr, fpr_spacing, ro, nd, donot, schem, Ue'
-skip = 'notebooks/palace_02_fullwave.ipynb'
+ignore-words-list = 'te, te/tm, te, ba, fpr, fpr_spacing, ro, nd, donot, schem, Ue, Inout'
+skip = 'notebooks/palace_02_fullwave.ipynb, notebooks/22_sky130nm_inverter_schematic_to_layout.ipynb'
 
 [tool.mypy]
 python_version = "3.10"

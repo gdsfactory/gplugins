@@ -8,9 +8,8 @@ instances:
     component: sky130_fd_pr__rf_nfet_01v8_aM02W1p65L0p15
     settings: {}
 placements:
-  ps: {x: null, y: null, port: null, rotation: 0.0, dx: -1.4737477228631808, dy: -8.228251743803634,
-    mirror: null}
-  ns: {x: null, y: null, port: null, rotation: 0.0, dx: null, dy: null, mirror: null}
+  ps: {x: null, y: null, port: null, rotation: 0, dx: null, dy: null, mirror: null}
+  ns: {x: null, y: null, port: null, rotation: 0, dx: null, dy: null, mirror: null}
 routes:
   r0:
     routing_strategy: get_bundle
