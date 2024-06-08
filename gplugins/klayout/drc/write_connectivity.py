@@ -98,9 +98,9 @@ if __name__ == "__main__":
     nm = 1e-3
 
     connectivity_checks = [
-        # ConnectivyCheck(cross_section="xs_sc", pin_length=1 * nm, pin_layer=(1, 10))
+        # ConnectivyCheck(cross_section="strip", pin_length=1 * nm, pin_layer=(1, 10))
         ConnectivyCheck(
-            cross_section="xs_sc_auto_widen", pin_length=1 * nm, pin_layer=(1, 10)
+            cross_section="strip_auto_widen", pin_length=1 * nm, pin_layer=(1, 10)
         )
     ]
     rules = [

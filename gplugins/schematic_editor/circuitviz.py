@@ -7,7 +7,12 @@ import gdsfactory as gf
 import numpy as np
 import pandas as pd
 import yaml
-from gdsfactory.picmodel import PicYamlConfiguration, Placement, SchematicConfiguration
+
+from gplugins.schematic_editor.picmodel import (
+    PicYamlConfiguration,
+    Placement,
+    SchematicConfiguration,
+)
 
 try:
     import bokeh.events as be

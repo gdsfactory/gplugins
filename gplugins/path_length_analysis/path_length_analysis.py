@@ -27,8 +27,8 @@ from gdsfactory.component import Component, ComponentReference
 from gdsfactory.get_netlist import get_netlist, get_netlist_recursive
 
 DEFAULT_CS_COLORS = {
-    "xs_rc": "red",
-    "xs_sc": "blue",
+    "rib": "red",
+    "strip": "blue",
     "r2s": "purple",
     "xs_m1": "#00FF92",
     "xs_m2": "gold",
@@ -454,9 +454,9 @@ def get_pathlength_widgets(
         "dst_port": [],
         "xs": [],
         "ys": [],
-        "route_info_xs_rc_length": [],
+        "route_info_rib_length": [],
         "route_info_length": [],
-        "route_info_xs_sc_length": [],
+        "route_info_strip_length": [],
         "route_info_r2s_length": [],
         "route_info_m2_length": [],
         "color": [],

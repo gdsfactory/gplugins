@@ -107,7 +107,7 @@ if __name__ == "__main__":
     from gplugins.sax.parameter import LithoParameter, NamedParameter
 
     c = gf.components.coupler_full(
-        coupling_length=0.1, dx=10.0, dy=5.0, gap=0.5, dw=0.0, cross_section="xs_sc"
+        coupling_length=0.1, dx=10.0, dy=5.0, gap=0.5, dw=0.0, cross_section="strip"
     )
     c.show()
 

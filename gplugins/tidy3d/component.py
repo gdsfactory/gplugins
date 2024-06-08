@@ -691,7 +691,7 @@ if __name__ == "__main__":
     # layer_stack.layers.pop("substrate", None)
 
     # width = 0.45
-    # cross_section = pdk.get_cross_section("xs_sc", width=width)
+    # cross_section = pdk.get_cross_section("strip", width=width)
     # coupler_sc = partial(
     #     gf.components.coupler,
     #     dx=4,

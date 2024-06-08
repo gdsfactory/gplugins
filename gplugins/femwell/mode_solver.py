@@ -66,12 +66,12 @@ def compute_cross_section_modes(
     """
     # Get meshable component from cross-section
     c = gf.components.straight(length=10, cross_section=cross_section)
-    bounds = c.bbox
-    dx = np.diff(bounds[:, 0])[0]
+    dx = c.dxsize
+    dy = c.dysize
 
     xsection_bounds = [
-        [dx / 2, bounds[0, 1] - wafer_padding],
-        [dx / 2, bounds[1, 1] + wafer_padding],
+        [dx / 2, dy - wafer_padding],
+        [dx / 2, dy + wafer_padding],
     ]
 
     # Mesh as component
@@ -199,7 +199,7 @@ if __name__ == "__main__":
 
     if cross_section:
         modes = compute_cross_section_modes(
-            cross_section="xs_rc",
+            cross_section="rib",
             layer_stack=filtered_layer_stack,
             wavelength=1.55,
             num_modes=4,

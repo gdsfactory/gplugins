@@ -144,7 +144,7 @@ def _demo_routes():
 
 if __name__ == "__main__":
     # c0 = gf.components.bend_euler(npoints=20)
-    # c0 = gf.components.bend_euler(cross_section="xs_sc", with_arc_floorplan=True)
+    # c0 = gf.components.bend_euler(cross_section="strip", with_arc_floorplan=True)
     # c0 = gf.components.bend_circular()
     # c0 = gf.components.bend_s(npoints=7)
     # c0 = gf.components.coupler()

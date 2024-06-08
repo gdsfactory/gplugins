@@ -4,77 +4,77 @@
   "instances": {
     "bend_sc_1": {
       "component": "bend_sc",
-      "settings": { "radius": 10, "angle": 90, "cross_section": "xs_sc" }
+      "settings": { "radius": 10, "angle": 90, "cross_section": "strip" }
     },
     "bend_sc_2": {
       "component": "bend_sc",
-      "settings": { "radius": 10, "angle": 90, "cross_section": "xs_sc" }
+      "settings": { "radius": 10, "angle": 90, "cross_section": "strip" }
     },
     "bend_sc_3": {
       "component": "bend_sc",
-      "settings": { "radius": 10, "angle": 90, "cross_section": "xs_sc" }
+      "settings": { "radius": 10, "angle": 90, "cross_section": "strip" }
     },
     "bend_sc_4": {
       "component": "bend_sc",
-      "settings": { "radius": 10, "angle": 90, "cross_section": "xs_sc" }
+      "settings": { "radius": 10, "angle": 90, "cross_section": "strip" }
     },
     "bend_sc_5": {
       "component": "bend_sc",
-      "settings": { "radius": 10, "angle": 90, "cross_section": "xs_sc" }
+      "settings": { "radius": 10, "angle": 90, "cross_section": "strip" }
     },
     "bend_sc_6": {
       "component": "bend_sc",
-      "settings": { "radius": 10, "angle": 90, "cross_section": "xs_sc" }
+      "settings": { "radius": 10, "angle": 90, "cross_section": "strip" }
     },
     "bend_sc_7": {
       "component": "bend_sc",
-      "settings": { "radius": 10, "angle": 90, "cross_section": "xs_sc" }
+      "settings": { "radius": 10, "angle": 90, "cross_section": "strip" }
     },
     "bend_sc_8": {
       "component": "bend_sc",
-      "settings": { "radius": 10, "angle": 90, "cross_section": "xs_sc" }
+      "settings": { "radius": 10, "angle": 90, "cross_section": "strip" }
     },
     "cp1": { "component": "mmi1x2_sc", "settings": {} },
     "cp2": { "component": "mmi1x2_sc", "settings": {} },
     "straight_sc_10": {
       "component": "straight_sc",
-      "settings": { "length": 0.01, "cross_section": "xs_sc" }
+      "settings": { "length": 0.01, "cross_section": "strip" }
     },
     "straight_sc_5": {
       "component": "straight_sc",
-      "settings": { "length": 0.01, "cross_section": "xs_sc" }
+      "settings": { "length": 0.01, "cross_section": "strip" }
     },
     "straight_sc_6": {
       "component": "straight_sc",
-      "settings": { "length": 2, "cross_section": "xs_sc" }
+      "settings": { "length": 2, "cross_section": "strip" }
     },
     "straight_sc_7": {
       "component": "straight_sc",
-      "settings": { "length": 0.01, "cross_section": "xs_sc" }
+      "settings": { "length": 0.01, "cross_section": "strip" }
     },
     "straight_sc_8": {
       "component": "straight_sc",
-      "settings": { "length": 0.01, "cross_section": "xs_sc" }
+      "settings": { "length": 0.01, "cross_section": "strip" }
     },
     "straight_sc_9": {
       "component": "straight_sc",
-      "settings": { "length": 7, "cross_section": "xs_sc" }
+      "settings": { "length": 7, "cross_section": "strip" }
     },
     "sxb": {
       "component": "straight_sc",
-      "settings": { "length": 0.1, "cross_section": "xs_sc" }
+      "settings": { "length": 0.1, "cross_section": "strip" }
     },
     "sxt": {
       "component": "straight_sc",
-      "settings": { "length": 0.1, "cross_section": "xs_sc" }
+      "settings": { "length": 0.1, "cross_section": "strip" }
     },
     "syl": {
       "component": "straight_sc",
-      "settings": { "length": 7, "cross_section": "xs_sc" }
+      "settings": { "length": 7, "cross_section": "strip" }
     },
     "sytl": {
       "component": "straight_sc",
-      "settings": { "length": 2, "cross_section": "xs_sc" }
+      "settings": { "length": 2, "cross_section": "strip" }
     }
   },
   "connections": {

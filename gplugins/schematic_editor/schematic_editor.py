@@ -4,14 +4,14 @@ import bokeh.io
 import gdsfactory as gf
 import ipywidgets as widgets
 import yaml
-from gdsfactory.picmodel import (
+
+from gplugins.schematic_editor import circuitviz
+from gplugins.schematic_editor.picmodel import (
     PicYamlConfiguration,
     Route,
     RouteSettings,
     SchematicConfiguration,
 )
-
-from gplugins.schematic_editor import circuitviz
 
 
 class SchematicEditor:
@@ -417,7 +417,7 @@ class SchematicEditor:
         self,
         output_filename,
         default_router="route_bundle",
-        default_cross_section="xs_sc",
+        default_cross_section="strip",
     ):
         schematic = self._schematic
         routes = {}
