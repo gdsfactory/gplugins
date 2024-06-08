@@ -140,7 +140,7 @@ class LithoParameter(Parameter):
 
     def layer_dilation_erosion(self, component, dilation_value):
         temp_component = gf.Component()
-        for layer, layer_polygons in component.get_polygons(by_spec=True).items():
+        for layer, layer_polygons in component.get_polygons_points().items():
             if layer == self.layer:
                 # Make sure all layer polygons are fused properly
                 shapely_polygons = [
@@ -161,9 +161,8 @@ class LithoParameter(Parameter):
                         if hasattr(buffered_polygons, "geoms")
                         else [buffered_polygons]
                     ):
-                        temp_component.add_polygon(
-                            buffered_polygon.exterior.coords, layer=layer
-                        )
+                        for poly in np.array(buffered_polygon.exterior.coords.xy):
+                            temp_component.add_polygon(poly, layer=layer)
             else:
                 for layer_polygon in layer_polygons:
                     temp_component.add_polygon(layer_polygon, layer=layer)
@@ -186,7 +185,7 @@ class LithoParameter(Parameter):
 
     def layer_x_offset(self, component, offset_value):
         temp_component = gf.Component()
-        for layer, layer_polygons in component.get_polygons(by_spec=True).items():
+        for layer, layer_polygons in component.get_polygons_points().items():
             for layer_polygon in layer_polygons:
                 if layer == self.layer:
                     shapely_polygon = shapely.geometry.Polygon(layer_polygon)
@@ -211,7 +210,7 @@ class LithoParameter(Parameter):
 
     def layer_y_offset(self, component, offset_value):
         temp_component = gf.Component()
-        for layer, layer_polygons in component.get_polygons(by_spec=True).items():
+        for layer, layer_polygons in component.get_polygons_points().items():
             for layer_polygon in layer_polygons:
                 if layer == self.layer:
                     shapely_polygon = shapely.geometry.Polygon(layer_polygon)
@@ -236,7 +235,7 @@ class LithoParameter(Parameter):
 
     def layer_round_corners(self, component, round_value):
         temp_component = gf.Component()
-        for layer, layer_polygons in component.get_polygons(by_spec=True).items():
+        for layer, layer_polygons in component.get_polygons_points().items():
             if layer == self.layer:
                 # Make sure all layer polygons are fused properly
                 shapely_polygons = [
