@@ -103,6 +103,7 @@ sax = [
 ]
 schematic = [
   "bokeh",
+  "ipywidgets",
   "natsort"
 ]
 tidy3d = [
