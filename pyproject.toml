@@ -48,7 +48,7 @@ dev = [
   "hyperopt",
   "tbump",
   "towncrier",
-  "ray",
+  "ray"
 ]
 devsim = [
   "devsim",
