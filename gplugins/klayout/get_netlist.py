@@ -32,7 +32,7 @@ def get_l2n(
         klayout_tech_path = tech_dir
 
     # klayout tech path is now assumed to contain a `tech.lyt`` file to use
-    technology = Tech.load(str(klayout_tech_path / "tech.lyt"))
+    technology = Tech.load(str(klayout_tech_path))
 
     lib.read(filename=str(gdspath))
     c = lib[0]
@@ -41,7 +41,8 @@ def get_l2n(
     l2n.threads = kf.config.n_threads
 
     reversed_layer_map = dict()
-    for k, v in gf.get_active_pdk().layers.items():
+    layers = gf.get_active_pdk().layers
+    for k, v in layers:
         reversed_layer_map[v] = reversed_layer_map.get(v, set()) | {k}
 
     # define stack connections through vias

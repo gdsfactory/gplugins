@@ -127,7 +127,7 @@ def get_gds_bbox(
     component = gf.import_gds(gdspath, cellname=cellname)
     if layer is not None:
         component = component.extract(layers=[layer])
-    return component.bbox
+    return (component.dxmin, component.dymin), (component.dxmax, component.dymax)
 
 
 def extend_grid_and_density_to_bbox(

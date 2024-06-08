@@ -89,6 +89,7 @@ def plot_nets(
 
 
 if __name__ == "__main__":
+    from gdsfactory.config import PATH as GPATH
     from gdsfactory.samples.demo.lvs import pads_correct, pads_shorted
 
     from gplugins.common.config import PATH
@@ -100,7 +101,7 @@ if __name__ == "__main__":
 
     gdspath = c.write_gds(PATH.extra / "pads.gds")
 
-    l2n = get_l2n(gdspath)
+    l2n = get_l2n(gdspath, klayout_tech_path=GPATH.klayout_lyt)
     path = PATH.extra / f"{c.name}.txt"
     l2n.write_l2n(str(path))
 
