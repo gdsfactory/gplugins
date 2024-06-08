@@ -85,7 +85,8 @@ gmsh = [
 hdl21 = [
   "hdl21>=6.0.0,<7.0.0",
   "vlsir>=6.0.0",
-  "sky130-hdl21>=6.0.0"
+  "sky130-hdl21>=6.0.0",
+  "sky130 @ git+https://github.com/gdsfactory/skywater130.git@main"
 ]
 klayout = [
   "klayout",
@@ -109,9 +110,6 @@ sax = [
 schematic = [
   "bokeh",
   "natsort"
-]
-sky130 = [
-  "sky130 @ git+https://github.com/daquintero/skywater130.git@latest_pdk"
 ]
 tidy3d = [
   "tidy3d>=2.5.2,<2.7",
