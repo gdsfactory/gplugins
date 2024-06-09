@@ -6,7 +6,7 @@ from typing import Any
 import gdsfactory as gf
 import numpy as np
 from gdsfactory.config import get_number_of_cores
-from gdsfactory.technology import LayerLevel, LayerStack
+from gdsfactory.technology import LayerLevel, LayerStack, LogicalLayer
 from gdsfactory.typings import ComponentOrReference, List
 from meshwell.gmsh_entity import GMSH_entity
 from meshwell.model import Model
@@ -197,9 +197,6 @@ def xyz_mesh(
         background_remeshing_file: .pos file to use as a remeshing field. Overrides resolutions if not None.
     """
     if port_names:
-        return NotImplementedError(
-            "Meshing component with net layers not implemented in gdsfactory8 yet. "
-        )
         mesh_component = component.copy()
         mesh_component.add_ports(component.ports)
         component = get_component_with_net_layers(
@@ -253,7 +250,9 @@ def xyz_mesh(
             layers=layer_stack.layers
             | {
                 background_tag: LayerLevel(
-                    layer=(9999, 0),  # TODO something like LAYERS.BACKGROUND?
+                    layer=LogicalLayer(
+                        layer=(9999, 0)
+                    ),  # TODO something like LAYERS.BACKGROUND?
                     thickness=(
                         (zmax + background_padding[5]) - (zmin - background_padding[2])
                     )

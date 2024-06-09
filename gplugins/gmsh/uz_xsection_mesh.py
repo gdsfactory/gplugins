@@ -456,6 +456,8 @@ if __name__ == "__main__":
         [(4, -15), (4, 15)],
         filtered_layer_stack,
         resolutions=resolutions,
+        layer_physical_map={},
+        layer_meshbool_map={},
         background_tag="Oxide",
         background_padding=(0, 0, 0, 0),
         filename="mesh.msh",

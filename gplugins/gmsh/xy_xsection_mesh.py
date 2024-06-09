@@ -217,8 +217,10 @@ if __name__ == "__main__":
         component=c,
         z=0.11,
         layer_stack=filtered_layer_stack,
+        layer_physical_map={},
+        layer_meshbool_map={},
         resolutions=resolutions,
-        # background_tag="Oxide",
+        background_tag="Oxide",
         filename="mesh.msh",
     )
     # print(geometry)
