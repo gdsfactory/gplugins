@@ -33,7 +33,7 @@ license = {file = "LICENSE"}
 name = "gplugins"
 readme = "README.md"
 requires-python = ">=3.10"
-version = "0.13.0"
+version = "0.14.0"
 
 [project.optional-dependencies]
 dagster = ["dagster", "dagit"]
@@ -91,14 +91,14 @@ meow = [
   "jax>=0.4.26",
   "jaxlib>=0.4.26",
   "flax>=0.8.2",
-  "meow-sim>=0.9.0,<0.13.0",
+  "meow-sim~=0.9.0",
   "tidy3d>=2.5.2,<2.7"
 ]
 sax = [
   "jax>=0.4.26",
   "jaxlib>=0.4.26",
   "flax>=0.8.2",
-  "sax>=0.12.1,<0.13.0",
+  "sax~=0.12.2",
   "scikit-learn",
   "pyvis<=0.3.1"
 ]
@@ -208,7 +208,7 @@ message_template = "Bump to {new_version}"
 tag_template = "v{new_version}"
 
 [tool.tbump.version]
-current = "0.13.0"
+current = "0.14.0"
 regex = '''
   (?P<major>\d+)
   \.
