@@ -11,6 +11,7 @@ notebooks/rib_strip_pathlengths/
 
 # C extensions
 *.so
+*.stl
 *.fsp
 *.hdf5
 *.msh

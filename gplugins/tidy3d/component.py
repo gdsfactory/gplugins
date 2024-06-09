@@ -397,7 +397,7 @@ class Tidy3DComponent(LayeredComponentBase):
                     ax.add_artist(patch)
 
         size = list(self.size)
-        cmin = list(self.bbox[0])
+        cmin = list(self.bbox_np()[0])
         size.pop(axis)
         cmin.pop(axis)
 

@@ -382,11 +382,10 @@ def viz_instance(
 ):
     # inst_spec = netlist.instances[instance_name].dict()
     inst_ref = component.named_references[instance_name]
-    bbox = inst_ref.bbox
-    w = bbox[1][0] - bbox[0][0]
-    h = bbox[1][1] - bbox[0][1]
-    x0 = bbox[0][0]
-    y0 = bbox[0][1]
+    w = inst_ref.dxsize
+    h = inst_ref.dysize
+    x0 = inst_ref.dxmin
+    y0 = inst_ref.dymin
     # pl = w / 10
     # input_ports = get_input_ports(component)
     # output_ports = get_output_ports(component)
@@ -394,7 +393,7 @@ def viz_instance(
     # y_outputs = ports_ys(output_ports, h)
     # x, y = get_placements(netlist).get(instance_name, (0, 0))
     x, y = x0, y0
-    polys_by_layer = inst_ref.get_polygons(by_spec=True, as_array=False)
+    polys_by_layer = inst_ref.parent_cell.get_polygons()
     layer_polys = []
     layer_views = gf.pdk.get_layer_views()
 

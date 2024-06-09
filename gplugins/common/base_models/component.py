@@ -54,12 +54,12 @@ class LayeredComponentBase(BaseModel):
 
     @cached_property
     def gds_component(self) -> GFComponent:
-        c = Component(name=f"sim_component_{self.component.name}")
+        c = Component()
         c << gf.components.extend_ports(
             self.component, length=self.extend_ports + self.pad_xy
         )
         c << gf.components.bbox(
-            self._gds_bbox,
+            self,
             layer=self.wafer_layer,
             top=self.pad_xy_outer,
             bottom=self.pad_xy_outer,
@@ -74,9 +74,11 @@ class LayeredComponentBase(BaseModel):
     def _gds_bbox(self) -> tuple[tuple[float, float], tuple[float, float]]:
         c = gf.components.extend_ports(
             self.component, length=self.extend_ports + self.pad_xy_inner
-        ).ref()
+        )
         unchanged = np.isclose(np.abs(np.round(c.bbox - self.component.bbox, 3)), 0)
-        bbox = c.bbox + unchanged * np.array([[-1, -1], [1, 1]]) * self.pad_xy_inner
+        bbox = (
+            c.get_bbox() + unchanged * np.array([[-1, -1], [1, 1]]) * self.pad_xy_inner
+        )
         return tuple(map(tuple, bbox))
 
     @cached_property

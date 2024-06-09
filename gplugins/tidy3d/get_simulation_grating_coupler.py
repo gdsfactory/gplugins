@@ -287,22 +287,20 @@ def get_simulation_grating_coupler(
         else component
     )
 
-    component_extended = component_extended.flatten()
-    component_extended.name = component.name
-    component_extended.show()
-
-    component_ref = component_padding.ref()
-    component_ref.center = (0, 0)
+    c = gf.Component()
+    component_ref = c << component_padding
+    component_ref.dx = 0
+    component_ref.dy = 0
 
     if len(layer_to_thickness) < 1:
-        raise ValueError(f"{component.get_layers()} not in {layer_to_thickness.keys()}")
+        raise ValueError(f"{component.layers} not in {layer_to_thickness.keys()}")
 
     core_thickness = max(layer_to_thickness.values())
-    sim_xsize = component_ref.xsize + 2 * thickness_pml
+    sim_xsize = component_ref.dxsize + 2 * thickness_pml
     sim_zsize = (
         thickness_pml + box_thickness + core_thickness + thickness_pml + 2 * zmargin
     )
-    sim_ysize = component_ref.ysize + 2 * thickness_pml if is_3d else 0
+    sim_ysize = component_ref.dysize + 2 * thickness_pml if is_3d else 0
     sim_size = [
         sim_xsize,
         sim_ysize,
@@ -353,7 +351,7 @@ def get_simulation_grating_coupler(
 
     structures = [substrate, box, clad]
 
-    component_layers = component_padding.get_layers()
+    component_layers = component_padding.layers
 
     for layer, thickness in layer_to_thickness.items():
         if layer in layer_to_material and layer in component_layers:
