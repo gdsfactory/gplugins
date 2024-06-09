@@ -22,19 +22,31 @@ def round_coordinates(geom, ndigits=4):
     return shapely.ops.transform(_round_coords, geom)
 
 
-def fuse_polygons(
-    component, layername, layer, round_tol=4, simplify_tol=1e-4, offset_tol=None
-):
+def fuse_polygons(component, layer, round_tol=4, simplify_tol=1e-4, offset_tol=None):
     """Take all polygons from a layer, and returns a single (Multi)Polygon shapely object."""
 
-    layer_component = component.extract([layer])
+    layer_region = layer.get_shapes(component)
 
-    # merge polygons before shapely conversion helps with ill-formed polygons
-    offset_tol = offset_tol or component.kcl.dbu
-    shapely_polygons = [
-        round_coordinates(shapely.geometry.Polygon(polygon), round_tol)
-        for polygon in layer_component.get_polygons_points(merge=True).values()
-    ]
+    # Convert polygons to shapely
+    # TODO: do all polygon processing in KLayout at the gplugins level for speed
+    shapely_polygons = []
+    for klayout_polygon in layer_region.each_merged():
+        exterior_points = []
+        interior_points = []
+        for point in klayout_polygon.each_point_hull():
+            exterior_points.append((point.x, point.y))
+        for hole_index in range(klayout_polygon.holes()):
+            holes_points = []
+            for point in layer_region.each_polygon_hole(hole_index):
+                holes_points.append((point.x, point.y))
+            interior_points.append(holes_points)
+
+        shapely_polygons.append(
+            round_coordinates(
+                shapely.geometry.Polygon(shell=exterior_points, holes=interior_points),
+                round_tol,
+            )
+        )
 
     return shapely.ops.unary_union(shapely_polygons).simplify(
         simplify_tol, preserve_topology=False
@@ -48,7 +60,6 @@ def cleanup_component(component, layer_stack, round_tol=2, simplify_tol=1e-2):
     return {
         layername: fuse_polygons(
             component,
-            layername,
             layer["layer"],
             round_tol=round_tol,
             simplify_tol=simplify_tol,
