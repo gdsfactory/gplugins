@@ -5,7 +5,7 @@ from collections import OrderedDict
 import gdsfactory as gf
 import numpy as np
 from gdsfactory.config import get_number_of_cores
-from gdsfactory.technology import LayerLevel, LayerStack
+from gdsfactory.technology import LayerLevel, LayerStack, LogicalLayer
 from gdsfactory.typings import ComponentOrReference
 from meshwell.model import Model
 from shapely.geometry import Polygon
@@ -143,7 +143,9 @@ def xy_xsection_mesh(
             layers=layer_stack.layers
             | {
                 background_tag: LayerLevel(
-                    layer=(9999, 0),  # TODO something like LAYERS.BACKGROUND?
+                    layer=LogicalLayer(
+                        layer=(9999, 0)
+                    ),  # TODO something like LAYERS.BACKGROUND?
                     thickness=(
                         (zmax + background_padding[5]) - (zmin - background_padding[2])
                     )
