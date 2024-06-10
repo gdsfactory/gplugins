@@ -168,7 +168,7 @@ class LithoParameter(Parameter):
                     temp_component.add_polygon(layer_polygon, layer=layer)
         # Transform ports
         ports = []
-        for port in component.get_ports():
+        for port in component.ports:
             if port.layer == self.layer:
                 port.width += 2 * dilation_value
                 old_center_x, old_center_y = port.center
@@ -199,7 +199,7 @@ class LithoParameter(Parameter):
                     temp_component.add_polygon(layer_polygon, layer=layer)
         # Transform ports
         ports = []
-        for port in component.get_ports():
+        for port in component.ports:
             if port.layer == self.layer:
                 old_center_x, old_center_y = port.center
                 new_center_x = old_center_x + offset_value
@@ -224,7 +224,7 @@ class LithoParameter(Parameter):
                     temp_component.add_polygon(layer_polygon, layer=layer)
         # Transform ports
         ports = []
-        for port in component.get_ports():
+        for port in component.ports:
             if port.layer == self.layer:
                 old_center_x, old_center_y = port.center
                 new_center_y = old_center_y + offset_value
@@ -261,7 +261,7 @@ class LithoParameter(Parameter):
                     temp_component.add_polygon(layer_polygon, layer=layer)
         # Transform ports
         ports = []
-        for port in component.get_ports():
+        for port in component.ports:
             if port.layer == self.layer:
                 # Patch port
                 patch_polygon_x1, patch_polygon_y1 = port.center
