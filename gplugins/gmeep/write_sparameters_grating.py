@@ -20,7 +20,8 @@ import matplotlib.pyplot as plt
 import meep as mp
 import numpy as np
 import yaml
-from gdsfactory import logger, sparameters_path
+from gdsfactory import logger
+from gdsfactory.config import PATH
 from gdsfactory.serialization import clean_value_json, clean_value_name
 from gdsfactory.typings import PathType
 
@@ -45,11 +46,11 @@ def write_sparameters_grating(
     plot_contour: bool = False,
     animate: bool = False,
     overwrite: bool = False,
-    dirpath: PathType | None = sparameters_path,
+    dirpath: PathType | None = PATH.sparameters,
     decay_by: float = 1e-3,
     verbosity: int = 0,
     **settings,
-) -> np.ndarray:
+) -> dict[str, np.ndarray]:
     """Write grating coupler with fiber Sparameters.
 
     Args:
@@ -200,7 +201,7 @@ def write_sparameters_grating(
         [1],
         direction=mp.NO_DIRECTION,
         eig_parity=mp.ODD_Z,
-        kpoint_func=lambda f, n: mp.Vector3(0, fcen * 1.45, 0).drotate(
+        kpoint_func=lambda f, n: mp.Vector3(0, fcen * 1.45, 0).rotate(
             mp.Vector3(z=1), -1 * np.radians(fiber_angle_deg)
         ),  # Hardcoded index for now, pull from simulation eventually
     )
@@ -211,7 +212,7 @@ def write_sparameters_grating(
 
     # Since waveguide port is oblique, figure out forward and backward direction
     kdom_fiber = fiber_mode.kdom[0]
-    idx = 1 - (kdom_fiber.dy > 0) * 1
+    idx = 1 - (kdom_fiber.y > 0) * 1
 
     a2 = fiber_mode.alpha[:, :, idx].flatten()  # forward wave
     # b2 = fiber_mode.alpha[:, :, 1 - idx].flatten()  # backward wave
