@@ -11,10 +11,9 @@ import sax
 import yaml
 from gdsfactory import logger
 from gdsfactory.config import PATH
-from gdsfactory.generic_tech import LAYER
 from gdsfactory.pdk import get_active_pdk, get_layer_stack
 from gdsfactory.technology import LayerStack
-from gdsfactory.typings import Component, PathType
+from gdsfactory.typings import Component, LayerSpec, PathType
 from meow.base_model import _array as mw_array
 from tqdm.auto import tqdm
 
@@ -147,7 +146,12 @@ class MEOW:
         self.material_to_color = material_to_color
 
         # Process simulation bounds
-        z_min, x_min, z_max, x_max = component.bbox.ravel()
+        z_min, x_min, z_max, x_max = (
+            component.dxmin,
+            component.dymin,
+            component.dxmax,
+            component.dymax,
+        )
         z_min, z_max = min(z_min, z_max) + 1e-10, max(z_min, z_max) - 1e-10
         x_min, x_max = min(x_min, x_max) + 1e-10, max(x_min, x_max) - 1e-10
         layer_stack = layer_stack.model_copy()
@@ -242,6 +246,7 @@ class MEOW:
         layer_stack,
         buffer_y: float = 1,
         global_layer_index: int = 10000,
+        layer_wafer: LayerSpec = "WAFER",
     ) -> tuple[Component, LayerStack]:
         """Adds bbox polygons for global layers.
 
@@ -257,15 +262,15 @@ class MEOW:
         """
         c = gf.Component()
         c.add_ref(component)
-        bbox = component.bbox
+        layer_wafer = gf.get_layer(layer_wafer)
+
         for _layername, layer in layer_stack.layers.items():
-            if layer.layer == LAYER.WAFER:
+            layer = layer.layer.layer if hasattr(layer.layer, "layer") else layer.layer
+            layer = gf.get_layer(layer)
+            if layer == layer_wafer:
                 c.add_ref(
                     gf.components.bbox(
-                        bbox=(
-                            (bbox[0, 0], bbox[0, 1] - buffer_y),
-                            (bbox[1, 0], bbox[1, 1] + buffer_y),
-                        ),
+                        component,
                         layer=(global_layer_index, 0),
                     )
                 )
@@ -377,9 +382,7 @@ class MEOW:
 
     def validate_component(self, component):
         optical_ports = [
-            port
-            for portname, port in component.ports.items()
-            if port.port_type == "optical"
+            port for port in component.ports if port.port_type == "optical"
         ]
         if len(optical_ports) != 2:
             raise ValueError(
