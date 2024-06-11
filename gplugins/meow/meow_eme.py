@@ -12,7 +12,7 @@ import yaml
 from gdsfactory import logger
 from gdsfactory.config import PATH
 from gdsfactory.pdk import get_active_pdk, get_layer_stack
-from gdsfactory.technology import LayerStack
+from gdsfactory.technology import DerivedLayer, LayerStack
 from gdsfactory.typings import Component, LayerSpec, PathType
 from meow.base_model import _array as mw_array
 from tqdm.auto import tqdm
@@ -255,18 +255,21 @@ class MEOW:
         Arguments:
             component: gdsfactory component.
             layer_stack: gdsfactory LayerStack.
+            buffer_y: float, y-buffer to add to box.
             xspan: from eme setup.
             global_layer_index: int, layer index at which to starting adding the global layers.
                     Default 10000 with +1 increments to avoid clashing with physical layers.
+            layer_wafer: LayerSpec, layer to represent the wafer.
 
         """
         c = gf.Component()
         c.add_ref(component)
         layer_wafer = gf.get_layer(layer_wafer)
 
-        for _layername, layer in layer_stack.layers.items():
-            layer = layer.layer.layer if hasattr(layer.layer, "layer") else layer.layer
-            layer = gf.get_layer(layer)
+        for level in layer_stack.layers.values():
+            if isinstance(level.layer, DerivedLayer):
+                continue
+            layer = gf.get_layer(level.layer.layer)
             if layer == layer_wafer:
                 c.add_ref(
                     gf.components.bbox(
@@ -274,7 +277,7 @@ class MEOW:
                         layer=(global_layer_index, 0),
                     )
                 )
-                layer.layer = (global_layer_index, 0)
+                layer = (global_layer_index, 0)
                 global_layer_index += 1
 
         return c, layer_stack
