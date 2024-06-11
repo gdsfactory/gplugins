@@ -76,7 +76,7 @@ def plot_nets(
         net.from_nx(G_connectivity)
         net.show("connectivity.html")
     else:
-        plt.figure(figsize=(8, 6))
+        fig = plt.figure(figsize=(8, 6))
         nx.draw(
             G_connectivity,
             with_labels=True,
@@ -85,7 +85,7 @@ def plot_nets(
             font_size=12,
         )
         plt.title("Connectivity")
-        return plt
+        return fig
 
 
 if __name__ == "__main__":
