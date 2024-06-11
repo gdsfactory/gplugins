@@ -27,6 +27,7 @@ class NoCommentReader(kdb.NetlistSpiceReaderDelegate):
     def parse_element(self, s: str, element: str) -> kdb.ParseElementData:
         if "$" in s:
             s, *_ = s.split("$")  # Don't take comments into account
+
         parsed = super().parse_element(s, element)
         # ensure uniqueness
         parsed.model_name = parsed.model_name + f"_{self.n_nodes}"
@@ -52,6 +53,9 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
 
     @override
     def parse_element(self, s: str, element: str) -> kdb.ParseElementData:
+        # Allow Calibre-style model name given as `$[model_name]` by removing the brackets
+        s = re.sub(r"\$\[([^\]]+)\]", r"\1", s)
+
         x_value, y_value = None, None
         if "$" in s:
             if location_matches := re.search(self.calibre_location_pattern, s):
