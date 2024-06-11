@@ -6,6 +6,7 @@ import warnings
 from functools import partial
 
 import gdsfactory as gf
+import gdstk
 import matplotlib.pyplot as plt
 import numpy as np
 import tidy3d as td
@@ -287,6 +288,9 @@ def get_simulation_grating_coupler(
         else component
     )
 
+    gdspath = component_extended.write_gds()
+    component_exteded_name = component_extended.name
+
     c = gf.Component()
     component_ref = c << component_padding
     component_ref.dx = 0
@@ -353,11 +357,18 @@ def get_simulation_grating_coupler(
 
     component_layers = component_padding.layers
 
+    zmax_simulation = 0
+
     for layer, thickness in layer_to_thickness.items():
-        if layer in layer_to_material and layer in component_layers:
+        if not hasattr(layer, "layer"):
+            print(f"Skipping {layer}")
+            continue
+        layer_tuple = tuple(layer.layer)
+        if layer in layer_to_material and layer_tuple in component_layers:
             zmin = layer_to_zmin[layer]
             zmax = zmin + thickness
             material_name = layer_to_material[layer]
+            zmax_simulation = max(zmax_simulation, zmax)
 
             if material_name in material_name_to_tidy3d:
                 spec = material_name_to_tidy3d[material_name]
@@ -376,10 +387,16 @@ def get_simulation_grating_coupler(
                 )
                 medium = get_medium(material_index)
 
+            lib_loaded = gdstk.read_gds(gdspath)
+            # Create a cell dictionary with all the cells in the file
+            all_cells = {c.name: c for c in lib_loaded.cells}
+            component_extended_cell = all_cells[component_exteded_name]
+
+            print(f"Adding {layer=}, {layer_tuple=} {zmin=}, {zmax=} {material_name=}")
             polygons = td.PolySlab.from_gds(
-                gds_cell=component_extended._cell,
-                gds_layer=layer[0],
-                gds_dtype=layer[1],
+                gds_cell=component_extended_cell,
+                gds_layer=layer_tuple[0],
+                gds_dtype=layer_tuple[1],
                 axis=2,
                 slab_bounds=(zmin, zmax),
                 sidewall_angle=np.deg2rad(sidewall_angle_deg),
@@ -393,6 +410,10 @@ def get_simulation_grating_coupler(
                 )
                 structures.append(geometry)
 
+    if zmax_simulation == 0:
+        raise ValueError("No layers found in component")
+
+    zmax = zmax_simulation
     wavelengths = np.linspace(wavelength_start, wavelength_stop, wavelength_points)
     freqs = td.constants.C_0 / wavelengths
     freq0 = td.constants.C_0 / np.mean(wavelengths)
