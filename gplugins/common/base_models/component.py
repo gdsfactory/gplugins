@@ -58,14 +58,15 @@ class LayeredComponentBase(BaseModel):
         c << gf.components.extend_ports(
             self.component, length=self.extend_ports + self.pad_xy
         )
-        c << gf.components.bbox(
-            self,
-            layer=self.wafer_layer,
-            top=self.pad_xy_outer,
-            bottom=self.pad_xy_outer,
-            left=self.pad_xy_outer,
-            right=self.pad_xy_outer,
-        )
+        (xmin, ymin), (xmax, ymax) = self._gds_bbox
+        delta = self.pad_xy_outer
+        points = [
+            [xmin - delta, ymin - delta],
+            [xmax + delta, ymin - delta],
+            [xmax + delta, ymax + delta],
+            [xmin - delta, ymax + delta],
+        ]
+        c.add_polygon(points, layer=self.wafer_layer)
         c.add_ports(self.ports)
         c.copy_child_info(self.component)
         return c
@@ -75,20 +76,26 @@ class LayeredComponentBase(BaseModel):
         c = gf.components.extend_ports(
             self.component, length=self.extend_ports + self.pad_xy_inner
         )
-        unchanged = np.isclose(np.abs(np.round(c.bbox - self.component.bbox, 3)), 0)
+        unchanged = np.isclose(
+            np.abs(np.round(c.bbox_np() - self.component.bbox_np(), 3)), 0
+        )
         bbox = (
-            c.get_bbox() + unchanged * np.array([[-1, -1], [1, 1]]) * self.pad_xy_inner
+            c.bbox_np() + unchanged * np.array([[-1, -1], [1, 1]]) * self.pad_xy_inner
         )
         return tuple(map(tuple, bbox))
 
     @cached_property
     def ports(self) -> tuple[gf.Port, ...]:
-        return tuple(
-            p.move_polar_copy(
-                self.extend_ports + self.pad_xy_inner - self.port_offset, p.orientation
+        p = tuple(
+            p.copy_polar(
+                p.kcl.to_dbu(self.extend_ports + self.pad_xy_inner - self.port_offset),
+                angle=p.angle,
             )
             for p in self.component.ports
         )
+        for pi, po in zip(self.component.ports, p):
+            po.angle = pi.angle
+        return p
 
     @computed_field
     @cached_property
@@ -189,19 +196,19 @@ class LayeredComponentBase(BaseModel):
         return tuple(self.get_port_center(p) for p in self.ports)
 
     def get_port_center(self, port: gf.Port) -> tuple[float, float, float]:
-        layers = self.get_layer_names_from_index(port.layer)
+        layers = self.get_port_layers(port)
         return (
-            *port.center,
+            *port.dcenter,
             np.mean([self.get_layer_center(layer)[2] for layer in layers]),
         )
 
-    def get_layer_names_from_index(
-        self, layer_index: tuple[int, int]
-    ) -> tuple[str, ...]:
+    def get_port_layers(self, port: gf.Port) -> tuple[str, ...]:
+        # FIXME: extract actual layer
+        # this needs to be a list of all layers and derived layers that are
+        # associated with the port layer enum
+        return ("core",)
         return tuple(
-            k
-            for k, v in self.layer_stack.layers.items()
-            if tuple(v.layer) == layer_index
+            k for k, v in self.layer_stack.layers.items() if port.layer in v.layer
         )
 
     def get_layer_bbox(
