@@ -160,10 +160,10 @@ class Tidy3DComponent(LayeredComponentBase):
 
             match size_mult:
                 case float():
-                    size = np.full(3, size_mult * port.width)
+                    size = np.full(3, size_mult * port.dwidth)
                 case tuple():
-                    size = np.full(3, size_mult[0] * port.width)
-                    size[2] = size_mult[1] * port.width
+                    size = np.full(3, size_mult[0] * port.dwidth)
+                    size[2] = size_mult[1] * port.dwidth
             size[axis] = 0
 
             if grid_eps is not None:
@@ -397,7 +397,7 @@ class Tidy3DComponent(LayeredComponentBase):
                     ax.add_artist(patch)
 
         size = list(self.size)
-        cmin = list(self.bbox_np()[0])
+        cmin = list(self.bbox[0])
         size.pop(axis)
         cmin.pop(axis)
 
