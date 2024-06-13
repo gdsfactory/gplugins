@@ -422,7 +422,7 @@ def get_simulation_grating_coupler(
     # Add input waveguide port
     port = component_ref[port_waveguide_name]
     angle = port.orientation
-    width = port.width + 2 * port_margin
+    width = port.dwidth + 2 * port_margin
     size_x = width * abs(np.sin(angle * np.pi / 180))
     size_y = width * abs(np.cos(angle * np.pi / 180))
     size_x = 0 if size_x < 0.001 else size_x
@@ -431,7 +431,7 @@ def get_simulation_grating_coupler(
     size_z = core_thickness + zmargin + box_thickness
     waveguide_port_size = [size_x, size_y, size_z]
     xy_shifted = move_polar_rad_copy(
-        np.array(port.center), angle=angle * np.pi / 180, length=port_waveguide_offset
+        np.array(port.dcenter), angle=angle * np.pi / 180, length=port_waveguide_offset
     )
     waveguide_port_center = xy_shifted.tolist() + [
         (core_thickness + zmargin - box_thickness) / 2
@@ -551,6 +551,8 @@ def get_simulation_grating_coupler(
 
 
 if __name__ == "__main__":
+    import gplugins.tidy3d as gt
+
     c = gf.components.grating_coupler_elliptical_trenches()
 
     # c = gf.components.grating_coupler_elliptical_arbitrary(
@@ -562,7 +564,7 @@ if __name__ == "__main__":
         is_3d=False,
         fiber_angle_deg=20,
     )
-    # gt.plot_simulation(sim)  # make sure simulations looks good
+    gt.plot_simulation(sim)  # make sure simulations looks good
 
     # c = gf.components.grating_coupler_elliptical_lumerical()  # inverse design grating
     # sim = get_simulation_grating_coupler(c, plot_modes=False, fiber_angle_deg=-5)

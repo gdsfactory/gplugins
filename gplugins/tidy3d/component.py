@@ -556,7 +556,7 @@ def write_sparameters(
                 "You need to specify plot_simulation_z or plot_simulation_layer_name"
             )
         z = plot_simulation_z or c.get_layer_center(plot_simulation_layer_name)[2]
-        x = plot_simulation_x or c.ports[plot_simulation_port_index].center[0]
+        x = plot_simulation_x or c.ports[plot_simulation_port_index].dcenter[0]
 
         modeler = c.get_component_modeler(
             center_z=plot_simulation_layer_name,
