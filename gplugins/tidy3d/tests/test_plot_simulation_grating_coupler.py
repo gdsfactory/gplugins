@@ -11,7 +11,7 @@ fiber_port_name = "o2"
 def test_plot_simulation_grating_coupler() -> None:
     """Checks simulation for a grating_coupler_elliptical_arbitrary in 2D."""
     c = gf.components.grating_coupler_elliptical_arbitrary(
-        widths=[0.343] * 25, gaps=[0.345] * 25
+        widths=(0.343,) * 25, gaps=(0.345,) * 25
     )
     gt.write_sparameters_grating_coupler(
         component=c,
@@ -25,7 +25,7 @@ def test_plot_simulation_grating_coupler() -> None:
 
 if __name__ == "__main__":
     c = gf.components.grating_coupler_elliptical_arbitrary(
-        widths=[0.343] * 25, gaps=[0.345] * 25
+        widths=(0.343,) * 25, gaps=(0.345,) * 25
     )
     gt.write_sparameters_grating_coupler(
         component=c,
