@@ -159,7 +159,8 @@ lint.ignore = [
   "C408",  # C408 Unnecessary `dict` call (rewrite as a literal)
   "E402",  # module level import not at top of file
   "B018",  # found useless expression
-  "B028"  # no explicit stacklevel
+  "B028",  # no explicit stacklevel
+  "D301"  # allow escape sequences in docstrings
 ]
 lint.select = [
   "E",  # pycodestyle errors
