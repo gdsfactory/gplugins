@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import gdsfactory as gf
 import klayout.db as pya
 from gdsfactory.component import Component
 
@@ -20,12 +21,11 @@ def check_width(
         min_width: in um.
         dbu: database units (1000 um/nm).
     """
-    if isinstance(gdspath, Component):
-        gdspath.flatten()
-        gdspath = gdspath.write_gds()
-    layout = pya.Layout()
-    layout.read(str(gdspath))
-    cell = layout.top_cell()
+    if isinstance(gdspath, str | Path):
+        gdspath = gf.import_gds(gdspath)
+
+    layout = gdspath.kcl
+    cell = gdspath._kdb_cell
     region = pya.Region(cell.begin_shapes_rec(layout.layer(layer[0], layer[1])))
     # print(region)
     # print(min_width*1e3)

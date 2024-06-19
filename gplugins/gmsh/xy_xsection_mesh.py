@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from collections import OrderedDict
 
+import gdsfactory as gf
 import numpy as np
 from gdsfactory.config import get_number_of_cores
-from gdsfactory.geometry.union import union
-from gdsfactory.technology import LayerLevel, LayerStack
+from gdsfactory.technology import LayerLevel, LayerStack, LogicalLayer
 from gdsfactory.typings import ComponentOrReference
 from meshwell.model import Model
 from shapely.geometry import Polygon
@@ -107,8 +107,8 @@ def xy_xsection_mesh(
     """
     if port_names:
         mesh_component = gf.Component()
-        _ = mesh_component << union(component, by_layer=True)
-        mesh_component.add_ports(component.get_ports_list())
+        ref = mesh_component << component
+        mesh_component.add_ports(ref.ports)
         component = get_component_with_net_layers(
             component=mesh_component,
             port_names=port_names,
@@ -143,7 +143,9 @@ def xy_xsection_mesh(
             layers=layer_stack.layers
             | {
                 background_tag: LayerLevel(
-                    layer=(9999, 0),  # TODO something like LAYERS.BACKGROUND?
+                    layer=LogicalLayer(
+                        layer=(9999, 0)
+                    ),  # TODO something like LAYERS.BACKGROUND?
                     thickness=(
                         (zmax + background_padding[5]) - (zmin - background_padding[2])
                     )
@@ -215,8 +217,10 @@ if __name__ == "__main__":
         component=c,
         z=0.11,
         layer_stack=filtered_layer_stack,
+        layer_physical_map={},
+        layer_meshbool_map={},
         resolutions=resolutions,
-        # background_tag="Oxide",
+        background_tag="Oxide",
         filename="mesh.msh",
     )
     # print(geometry)

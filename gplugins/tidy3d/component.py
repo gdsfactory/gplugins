@@ -160,10 +160,10 @@ class Tidy3DComponent(LayeredComponentBase):
 
             match size_mult:
                 case float():
-                    size = np.full(3, size_mult * port.width)
+                    size = np.full(3, size_mult * port.dwidth)
                 case tuple():
-                    size = np.full(3, size_mult[0] * port.width)
-                    size[2] = size_mult[1] * port.width
+                    size = np.full(3, size_mult[0] * port.dwidth)
+                    size[2] = size_mult[1] * port.dwidth
             size[axis] = 0
 
             if grid_eps is not None:
@@ -556,7 +556,7 @@ def write_sparameters(
                 "You need to specify plot_simulation_z or plot_simulation_layer_name"
             )
         z = plot_simulation_z or c.get_layer_center(plot_simulation_layer_name)[2]
-        x = plot_simulation_x or c.ports[plot_simulation_port_index].center[0]
+        x = plot_simulation_x or c.ports[plot_simulation_port_index].dcenter[0]
 
         modeler = c.get_component_modeler(
             center_z=plot_simulation_layer_name,
@@ -691,7 +691,7 @@ if __name__ == "__main__":
     # layer_stack.layers.pop("substrate", None)
 
     # width = 0.45
-    # cross_section = pdk.get_cross_section("xs_sc", width=width)
+    # cross_section = pdk.get_cross_section("strip", width=width)
     # coupler_sc = partial(
     #     gf.components.coupler,
     #     dx=4,

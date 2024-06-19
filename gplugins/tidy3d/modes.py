@@ -21,7 +21,8 @@ import numpy as np
 import pydantic.v1 as pydantic
 import tidy3d as td
 import xarray
-from gdsfactory.config import PATH, logger
+from gdsfactory import logger
+from gdsfactory.config import PATH
 from gdsfactory.typings import PathType
 from pydantic.v1 import BaseModel
 from tidy3d.plugins import waveguide

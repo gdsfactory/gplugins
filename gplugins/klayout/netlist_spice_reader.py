@@ -30,7 +30,7 @@ class NoCommentReader(kdb.NetlistSpiceReaderDelegate):
 
         parsed = super().parse_element(s, element)
         # ensure uniqueness
-        parsed.model_name = parsed.model_name + f"_{self.n_nodes}"
+        parsed.model_name = f"{parsed.model_name}_{self.n_nodes}"
         self.n_nodes += 1
         return parsed
 

@@ -7,10 +7,13 @@ docs/notebooks/temporary
 docs/notebooks/batch-*
 .virtual_documents/
 notebooks/rib_strip_pathlengths/
-
+gplugins/klayout/d25/
+gplugins/klayout/layers.lyp
+gplugins/klayout/tech.lyt
 
 # C extensions
 *.so
+*.stl
 *.fsp
 *.hdf5
 *.msh

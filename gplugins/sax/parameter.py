@@ -140,7 +140,7 @@ class LithoParameter(Parameter):
 
     def layer_dilation_erosion(self, component, dilation_value):
         temp_component = gf.Component()
-        for layer, layer_polygons in component.get_polygons(by_spec=True).items():
+        for layer, layer_polygons in component.get_polygons_points().items():
             if layer == self.layer:
                 # Make sure all layer polygons are fused properly
                 shapely_polygons = [
@@ -161,15 +161,14 @@ class LithoParameter(Parameter):
                         if hasattr(buffered_polygons, "geoms")
                         else [buffered_polygons]
                     ):
-                        temp_component.add_polygon(
-                            buffered_polygon.exterior.coords, layer=layer
-                        )
+                        for poly in np.array(buffered_polygon.exterior.coords.xy):
+                            temp_component.add_polygon(poly, layer=layer)
             else:
                 for layer_polygon in layer_polygons:
                     temp_component.add_polygon(layer_polygon, layer=layer)
         # Transform ports
         ports = []
-        for port in component.get_ports():
+        for port in component.ports:
             if port.layer == self.layer:
                 port.width += 2 * dilation_value
                 old_center_x, old_center_y = port.center
@@ -186,7 +185,7 @@ class LithoParameter(Parameter):
 
     def layer_x_offset(self, component, offset_value):
         temp_component = gf.Component()
-        for layer, layer_polygons in component.get_polygons(by_spec=True).items():
+        for layer, layer_polygons in component.get_polygons_points().items():
             for layer_polygon in layer_polygons:
                 if layer == self.layer:
                     shapely_polygon = shapely.geometry.Polygon(layer_polygon)
@@ -200,7 +199,7 @@ class LithoParameter(Parameter):
                     temp_component.add_polygon(layer_polygon, layer=layer)
         # Transform ports
         ports = []
-        for port in component.get_ports():
+        for port in component.ports:
             if port.layer == self.layer:
                 old_center_x, old_center_y = port.center
                 new_center_x = old_center_x + offset_value
@@ -211,7 +210,7 @@ class LithoParameter(Parameter):
 
     def layer_y_offset(self, component, offset_value):
         temp_component = gf.Component()
-        for layer, layer_polygons in component.get_polygons(by_spec=True).items():
+        for layer, layer_polygons in component.get_polygons_points().items():
             for layer_polygon in layer_polygons:
                 if layer == self.layer:
                     shapely_polygon = shapely.geometry.Polygon(layer_polygon)
@@ -225,7 +224,7 @@ class LithoParameter(Parameter):
                     temp_component.add_polygon(layer_polygon, layer=layer)
         # Transform ports
         ports = []
-        for port in component.get_ports():
+        for port in component.ports:
             if port.layer == self.layer:
                 old_center_x, old_center_y = port.center
                 new_center_y = old_center_y + offset_value
@@ -236,7 +235,7 @@ class LithoParameter(Parameter):
 
     def layer_round_corners(self, component, round_value):
         temp_component = gf.Component()
-        for layer, layer_polygons in component.get_polygons(by_spec=True).items():
+        for layer, layer_polygons in component.get_polygons_points().items():
             if layer == self.layer:
                 # Make sure all layer polygons are fused properly
                 shapely_polygons = [
@@ -262,7 +261,7 @@ class LithoParameter(Parameter):
                     temp_component.add_polygon(layer_polygon, layer=layer)
         # Transform ports
         ports = []
-        for port in component.get_ports():
+        for port in component.ports:
             if port.layer == self.layer:
                 # Patch port
                 patch_polygon_x1, patch_polygon_y1 = port.center
@@ -330,24 +329,24 @@ if __name__ == "__main__":
     )
     c.add_port(name="o1", center=(0, 1), width=1, orientation=0, layer=1)
     c.add_port(name="o2", center=(3, -2), width=1, orientation=90, layer=1)
-    c.show(show_ports=True)
+    c.show()
 
     param = LithoParameter(layername="core")
     eroded_c = param.layer_dilation_erosion(c, 0.2)
-    eroded_c.show(show_ports=True)
+    eroded_c.show()
 
     param = LithoParameter(layername="core")
     eroded_c = param.layer_dilation_erosion(c, -0.2)
-    eroded_c.show(show_ports=True)
+    eroded_c.show()
 
     param = LithoParameter(layername="core")
     eroded_c = param.layer_x_offset(c, 0.5)
-    eroded_c.show(show_ports=True)
+    eroded_c.show()
 
     param = LithoParameter(layername="core")
     eroded_c = param.layer_y_offset(c, 0.5)
-    eroded_c.show(show_ports=True)
+    eroded_c.show()
 
     param = LithoParameter(layername="core")
     eroded_c = param.layer_round_corners(c, 0.2)
-    eroded_c.show(show_ports=True)
+    eroded_c.show()

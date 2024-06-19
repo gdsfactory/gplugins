@@ -20,10 +20,10 @@ def component_min_inclusion(
     r2 = c << gf.components.rectangle(
         size=(width - 2 * inclusion, width - 2 * inclusion), layer=layer2
     )
-    r1.x = 0
-    r1.y = 0
-    r2.x = 0
-    r2.y = 0
+    r1.dx = 0
+    r1.dy = 0
+    r2.dx = 0
+    r2.dy = 0
     return c
 
 

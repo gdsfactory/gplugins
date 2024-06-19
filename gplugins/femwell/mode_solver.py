@@ -3,7 +3,7 @@ import time
 import gdsfactory as gf
 import numpy as np
 from femwell.maxwell.waveguide import Modes, compute_modes
-from gdsfactory.pdk import get_layer_stack, get_material_index
+from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 from gdsfactory.typings import ComponentSpec, CrossSectionSpec, PathType
 from skfem import (
@@ -66,12 +66,12 @@ def compute_cross_section_modes(
     """
     # Get meshable component from cross-section
     c = gf.components.straight(length=10, cross_section=cross_section)
-    bounds = c.bbox
-    dx = np.diff(bounds[:, 0])[0]
+    dx = c.dxsize
+    dy = c.dysize
 
     xsection_bounds = [
-        [dx / 2, bounds[0, 1] - wafer_padding],
-        [dx / 2, bounds[1, 1] + wafer_padding],
+        [dx / 2, dy - wafer_padding],
+        [dx / 2, dy + wafer_padding],
     ]
 
     # Mesh as component
@@ -88,6 +88,13 @@ def compute_cross_section_modes(
     )
 
 
+_material_name_to_index = {
+    "si": 3.48,
+    "sio2": 1.44,
+    "sin": 2.0,
+}
+
+
 def compute_component_slice_modes(
     component: ComponentSpec,
     xsection_bounds: tuple[tuple[float, float], tuple[float, float]],
@@ -100,6 +107,7 @@ def compute_component_slice_modes(
     metallic_boundaries: bool = False,
     n_guess: float | None = None,
     solver: str = "scipy",
+    material_name_to_index: dict[str, float] | None = None,
     **kwargs,
 ) -> Modes:
     """Calculate effective index of component slice.
@@ -130,8 +138,10 @@ def compute_component_slice_modes(
         merge_by_material: boolean, if True will merge polygons from layers with the same layer.material. Physical keys will be material in this case.
         wafer_layer: layer to use for WAFER padding.
     """
+    material_name_to_index = material_name_to_index or _material_name_to_index
 
     # Mesh
+
     mesh = get_mesh(
         component=component,
         type="uz",
@@ -148,11 +158,11 @@ def compute_component_slice_modes(
     for layername, layer in layer_stack.layers.items():
         if layername in mesh.subdomains.keys():
             epsilon[basis0.get_dofs(elements=layername)] = (
-                get_material_index(layer.material, wavelength) ** 2
+                material_name_to_index[layer.material] ** 2
             )
         if "background_tag" in kwargs:
             epsilon[basis0.get_dofs(elements=kwargs["background_tag"])] = (
-                get_material_index(kwargs["background_tag"], wavelength) ** 2
+                material_name_to_index[kwargs["background_tag"]] ** 2
             )
 
     return compute_modes(
@@ -199,7 +209,7 @@ if __name__ == "__main__":
 
     if cross_section:
         modes = compute_cross_section_modes(
-            cross_section="xs_rc",
+            cross_section="rib",
             layer_stack=filtered_layer_stack,
             wavelength=1.55,
             num_modes=4,

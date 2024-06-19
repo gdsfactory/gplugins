@@ -19,10 +19,10 @@ def get_domain_measurements(sim, output_plane, frequency, resolution=0):
     # Get domain measurements
     sim_center, sim_size = get_2D_dimensions(sim, output_plane)
 
-    xmin = sim_center.x - sim_size.x / 2
-    xmax = sim_center.x + sim_size.x / 2
-    ymin = sim_center.y - sim_size.y / 2
-    ymax = sim_center.y + sim_size.y / 2
+    xmin = sim_center.dx- sim_size.dx/ 2
+    xmax = sim_center.dx+ sim_size.dx/ 2
+    ymin = sim_center.dy- sim_size.dy/ 2
+    ymax = sim_center.dy+ sim_size.dy/ 2
     zmin = sim_center.z - sim_size.z / 2
     zmax = sim_center.z + sim_size.z / 2
 
@@ -31,12 +31,12 @@ def get_domain_measurements(sim, output_plane, frequency, resolution=0):
     Ny = int((ymax - ymin) * grid_resolution + 1)
     Nz = int((zmax - zmin) * grid_resolution + 1)
 
-    if sim_size.x == 0:
+    if sim_size.dx== 0:
         # Plot y on x axis, z on y axis (YZ plane)
         xtics = np.array([sim_center.x])
         ytics = np.linspace(ymin, ymax, Ny)
         ztics = np.linspace(zmin, zmax, Nz)
-    elif sim_size.y == 0:
+    elif sim_size.dy== 0:
         # Plot x on x axis, z on y axis (XZ plane)
         xtics = np.linspace(xmin, xmax, Nx)
         ytics = np.array([sim_center.y])
@@ -117,10 +117,10 @@ def get_port_2Dx_eigenmode(
     # The output of this function is slightly different then MPB (there is no mode_solver object)
     # Format like the Mode objects in gdsfactory/simulation/modes to reuse modes' functions
     if not choose_yz:
-        ny = int(size.y * sim.resolution)
+        ny = int(size.dy * sim.resolution)
         nz = int(size.z * sim.resolution)
         y = np.linspace(
-            center.y - size.y / 2, center.y + size.y / 2, ny
+            center.dy - size.dy / 2, center.dy + size.dy / 2, ny
         )  # eigenmode solver and sim res are technically different
         z = np.linspace(center.z - size.z / 2, center.z + size.z / 2, nz)
     yy, zz = np.meshgrid(y, z, indexing="ij")

@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tidy3d as td
 import yaml
-from gdsfactory.config import logger
+from gdsfactory import logger
 from gdsfactory.serialization import clean_value_json
 from gdsfactory.typings import (
     Any,
@@ -197,14 +197,13 @@ def write_sparameters_grating_coupler(
     t = monitor_exiting
 
     fiber_port_name = None
-    for port_name in component.ports.keys():
+    port_names = [port.name for port in component.ports]
+    for port_name in port_names:
         if port_name.startswith(fiber_port_prefix):
             fiber_port_name = port_name
 
     if fiber_port_name is None:
-        raise ValueError(
-            f"No port named {fiber_port_prefix!r} in {component.ports.keys()}"
-        )
+        raise ValueError(f"No port named {fiber_port_prefix!r} in {port_names}")
 
     freqs = sim_data.monitor_data["waveguide"].amps.sel(direction="+").f
     port_name_input = port_waveguide_name

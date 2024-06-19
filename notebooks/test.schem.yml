@@ -8,10 +8,10 @@ instances:
     settings: {gap_mmi: 0.7}
   s1:
     component: straight
-    settings: {length: 20, npoints: 2, cross_section: xs_sc}
+    settings: {length: 20, npoints: 2, cross_section: strip}
   s2:
     component: straight
-    settings: {length: 40, npoints: 2, cross_section: xs_sc}
+    settings: {length: 40, npoints: 2, cross_section: strip}
 schematic_placements:
   mmi1: {x: null, y: null, port: null, rotation: 0.0, dx: -22.832156230736544, dy: -0.9358105716724547,
     mirror: null}

@@ -206,7 +206,7 @@ if __name__ == "__main__":
     padding = c << gf.components.bbox(
         waveguide.bbox, top=2, bottom=2, layer=LAYER.WAFER
     )
-    c.add_ports(gf.components.straight(length=length).get_ports_list())
+    c.add_ports(gf.components.straight(length=length).ports)
 
     filtered_layer_stack = LayerStack(
         layers={k: LAYER_STACK.layers[k] for k in ["clad", "box", "core"]}
@@ -227,7 +227,7 @@ if __name__ == "__main__":
         omega=omega,
         port=c.ports["o1"],
         epsilon=epsilon,
-        xmin=c.xmin,
+        xmin=c.dxmin,
         ymin=c.ymin,
         nm_per_pixel=nm_per_pixel,
         port_extent_xy=1,
@@ -237,7 +237,7 @@ if __name__ == "__main__":
         port=c.ports["o1"],
         epsilon_port=epsilon_port,
         excitation=excitation,
-        xmin=c.xmin,
+        xmin=c.dxmin,
         ymin=c.ymin,
         zmin=zmin,
         nm_per_pixel=1000,

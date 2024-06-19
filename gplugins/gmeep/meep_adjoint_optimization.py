@@ -262,10 +262,10 @@ def get_component_from_sim(
     """
     grid_resolution = upscale_factor * sim.resolution
     sim_center, sim_size = get_2D_dimensions(sim, output_plane=None)
-    xmin = sim_center.x - sim_size.x / 2
-    xmax = sim_center.x + sim_size.x / 2
-    ymin = sim_center.y - sim_size.y / 2
-    ymax = sim_center.y + sim_size.y / 2
+    xmin = sim_center.dx - sim_size.dx / 2
+    xmax = sim_center.dx + sim_size.dx / 2
+    ymin = sim_center.dy - sim_size.dy / 2
+    ymax = sim_center.dy + sim_size.dy / 2
     Nx = int((xmax - xmin) * grid_resolution + 1)
     Ny = int((ymax - ymin) * grid_resolution + 1)
     xtics = np.linspace(xmin, xmax, Nx)
@@ -313,13 +313,13 @@ def _example_optim_geometry() -> Component:
 
     arm_separation = 1.0
     straight1 = c << gf.components.straight(Sx / 2 + 1)
-    straight1.move(straight1.ports["o2"], (-design_region_width / 2.0, 0))
+    straight1.dmove(straight1.ports["o2"], (-design_region_width / 2.0, 0))
     straight2 = c << gf.components.straight(Sx / 2 + 1)
-    straight2.move(
+    straight2.dmove(
         straight2.ports["o1"], (design_region_width / 2.0, (arm_separation + 1.0) / 2.0)
     )
     straight3 = c << gf.components.straight(Sx / 2 + 1)
-    straight3.move(
+    straight3.dmove(
         straight3.ports["o1"],
         (design_region_width / 2.0, (-arm_separation - 1.0) / 2.0),
     )

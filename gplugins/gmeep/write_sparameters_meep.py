@@ -15,8 +15,8 @@ import meep as mp
 import numpy as np
 import pydantic
 import yaml
+from gdsfactory import logger
 from gdsfactory.component import Component
-from gdsfactory.config import logger
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.serialization import clean_value_json
 from gdsfactory.technology import LayerStack
@@ -65,7 +65,8 @@ def parse_port_eigenmode_coeff(
 
     """
     if port_name not in ports:
-        raise ValueError(f"port = {port_name!r} not in {list(ports.keys())}.")
+        port_names = [port.name for port in ports]
+        raise ValueError(f"port = {port_name!r} not in {port_names}.")
 
     orientation = ports[port_name].orientation
 

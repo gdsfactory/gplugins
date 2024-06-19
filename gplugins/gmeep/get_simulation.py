@@ -142,17 +142,17 @@ def get_simulation(
     layer_to_thickness = layer_stack.get_layer_to_thickness()
 
     component_ref = component.ref()
-    component_ref.x = 0
-    component_ref.y = 0
+    component_ref.dx = 0
+    component_ref.dy = 0
 
     wavelength = (wavelength_start + wavelength_stop) / 2
 
     wavelengths = np.linspace(wavelength_start, wavelength_stop, wavelength_points)
-    port_names = list(component_ref.ports.keys())
+    port_names = [port.name for port in component_ref.ports]
 
     if port_source_name not in port_names:
         warnings.warn(f"port_source_name={port_source_name!r} not in {port_names}")
-        port_source = component_ref.get_ports_list()[0]
+        port_source = component_ref.ports[0]
         port_source_name = port_source.name
         warnings.warn(f"Selecting port_source_name={port_source_name!r} instead.")
 
@@ -250,7 +250,7 @@ def get_simulation(
             eig_band=port_source_mode + 1,
             eig_parity=mp.NO_PARITY if is_3d else mp.EVEN_Y + mp.ODD_Z,
             eig_match_freq=True,
-            eig_kpoint=-1 * mp.Vector3(x=1).rotate(mp.Vector3(z=1), angle_rad),
+            eig_kpoint=-1 * mp.Vector3(x=1).drotate(mp.Vector3(z=1), angle_rad),
             direction=direction,
         )
     ]

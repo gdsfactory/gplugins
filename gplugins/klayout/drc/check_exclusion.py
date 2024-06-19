@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import klayout.db as pya
-from gdsfactory.component import Component
 from gdsfactory.typings import ComponentOrPath
 
 
@@ -34,12 +35,11 @@ def check_exclusion(
 
     """
 
-    if isinstance(gdspath, Component):
-        gdspath.flatten()
-        gdspath = gdspath.write_gds()
-    layout = pya.Layout()
-    layout.read(str(gdspath))
-    cell = layout.top_cell()
+    if isinstance(gdspath, str | Path):
+        gdspath = gf.import_gds(gdspath)
+
+    layout = gdspath.kcl
+    cell = gdspath._kdb_cell
     a = pya.Region(cell.begin_shapes_rec(layout.layer(layer1[0], layer1[1])))
     b = pya.Region(cell.begin_shapes_rec(layout.layer(layer2[0], layer2[1])))
 
@@ -72,8 +72,8 @@ if __name__ == "__main__":
     c = gf.Component()
     r1 = c << gf.components.rectangle(size=(w, w), layer=(1, 0))
     r2 = c << gf.components.rectangle(size=(w, w), layer=(2, 0))
-    r1.xmax = 0
-    r2.xmin = space
+    r1.dxmax = 0
+    r2.dxmin = space
     gdspath = c
     gf.show(gdspath)
     print(check_exclusion(c))

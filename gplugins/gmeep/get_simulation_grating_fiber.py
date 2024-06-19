@@ -235,7 +235,7 @@ def get_simulation_grating_fiber(
     fiber_port_center = mp.Vector3(fiber_port_x_offset_from_angle, fiber_port_y)
     fiber_port_x_size = fiber_port_x_size or 3.5 * fiber_core_diameter
     fiber_port_size = mp.Vector3(fiber_port_x_size, 0, 0)
-    # fiber_port_direction = mp.Vector3(y=-1).rotate(mp.Vector3(z=1), -1 * fiber_angle)
+    # fiber_port_direction = mp.Vector3(y=-1).drotate(mp.Vector3(z=1), -1 * fiber_angle)
 
     waveguide_port_y = -sz / 2 + (
         +pml_thickness
@@ -262,8 +262,8 @@ def get_simulation_grating_fiber(
             material=fiber_clad_material,
             center=mp.Vector3(0, waveguide_port_y - core_thickness / 2),
             size=mp.Vector3(fiber_clad, hfiber_geom),
-            e1=mp.Vector3(x=1).rotate(mp.Vector3(z=1), -1 * fiber_angle),
-            e2=mp.Vector3(y=1).rotate(mp.Vector3(z=1), -1 * fiber_angle),
+            e1=mp.Vector3(x=1).drotate(mp.Vector3(z=1), -1 * fiber_angle),
+            e2=mp.Vector3(y=1).drotate(mp.Vector3(z=1), -1 * fiber_angle),
         )
     ]
 
@@ -272,8 +272,8 @@ def get_simulation_grating_fiber(
             material=fiber_core_material,
             center=mp.Vector3(x=0),
             size=mp.Vector3(fiber_core_diameter, hfiber_geom),
-            e1=mp.Vector3(x=1).rotate(mp.Vector3(z=1), -1 * fiber_angle),
-            e2=mp.Vector3(y=1).rotate(mp.Vector3(z=1), -1 * fiber_angle),
+            e1=mp.Vector3(x=1).drotate(mp.Vector3(z=1), -1 * fiber_angle),
+            e2=mp.Vector3(y=1).drotate(mp.Vector3(z=1), -1 * fiber_angle),
         )
     )
 
@@ -501,8 +501,8 @@ def get_port_1D_eigenmode(
         frequency=fsrc,
     )
     ys_waveguide = np.linspace(
-        center_waveguide.y - size_waveguide.y / 2,
-        center_waveguide.y + size_waveguide.y / 2,
+        center_waveguide.dy - size_waveguide.dy / 2,
+        center_waveguide.dy + size_waveguide.dy / 2,
         int(sim.resolution * size_waveguide.y),
     )
     x_waveguide = center_waveguide.x
@@ -512,14 +512,14 @@ def get_port_1D_eigenmode(
         direction=mp.NO_DIRECTION,
         where=mp.Volume(center=center_fiber, size=size_fiber),
         band_num=band_num,
-        kpoint=mp.Vector3(0, fsrc * 1.45, 0).rotate(
+        kpoint=mp.Vector3(0, fsrc * 1.45, 0).drotate(
             mp.Vector3(z=1), -1 * np.radians(fiber_angle_deg)
         ),  # Hardcoded index for now, pull from simulation eventually
         frequency=fsrc,
     )
     xs_fiber = np.linspace(
-        center_fiber.x - size_fiber.x / 2,
-        center_fiber.x + size_fiber.x / 2,
+        center_fiber.dx - size_fiber.dx / 2,
+        center_fiber.dx + size_fiber.dx / 2,
         int(sim.resolution * size_fiber.x),
     )
     y_fiber = center_fiber.y

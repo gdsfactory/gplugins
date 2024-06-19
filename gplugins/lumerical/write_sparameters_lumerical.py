@@ -9,7 +9,8 @@ from typing import TYPE_CHECKING
 import gdsfactory as gf
 import numpy as np
 import yaml
-from gdsfactory.config import __version__, logger
+from gdsfactory import logger
+from gdsfactory.config import __version__
 from gdsfactory.generic_tech.simulation_settings import (
     SIMULATION_SETTINGS_LUMERICAL_FDTD,
     SimulationSettingsLumericalFdtd,
@@ -233,7 +234,7 @@ def write_sparameters_lumerical(
         component_with_padding, length=ss.distance_monitors_to_pml
     )
 
-    ports = component.get_ports_list(port_type="optical")
+    ports = component.ports.filter(port_type="optical")
     if not ports:
         raise ValueError(f"{component.name!r} does not have any optical ports")
 
@@ -262,10 +263,10 @@ def write_sparameters_lumerical(
         print(run_false_warning)
 
     logger.info(f"Writing Sparameters to {filepath_npz.absolute()!r}")
-    x_min = (component_extended.xmin - xmargin) * 1e-6
-    x_max = (component_extended.xmax + xmargin) * 1e-6
+    x_min = (component_extended.dxmin - xmargin) * 1e-6
+    x_max = (component_extended.dxmax + xmargin) * 1e-6
     y_min = (component_extended.ymin - ymargin) * 1e-6
-    y_max = (component_extended.ymax + ymargin) * 1e-6
+    y_max = (component_extended.dymax + ymargin) * 1e-6
 
     layers_thickness = [
         layer_to_thickness[layer]
@@ -394,8 +395,8 @@ def write_sparameters_lumerical(
 
         s.addport()
         p = f"FDTD::ports::port {i+1}"
-        s.setnamed(p, "x", port.x * 1e-6)
-        s.setnamed(p, "y", port.y * 1e-6)
+        s.setnamed(p, "x", port.dx * 1e-6)
+        s.setnamed(p, "y", port.dy * 1e-6)
         s.setnamed(p, "z", z * 1e-6)
         s.setnamed(p, "z span", zspan * 1e-6)
         s.setnamed(p, "frequency dependent profile", ss.frequency_dependent_profile)

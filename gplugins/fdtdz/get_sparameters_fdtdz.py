@@ -94,8 +94,8 @@ def get_sparameters_fdtdz(
 
     # Checks from gmeep
     component_ref = component.ref()
-    component_ref.x = 0
-    component_ref.y = 0
+    component_ref.dx = 0
+    component_ref.dy = 0
 
     optical_port_names = list(component_ref.get_ports_dict(port_type="optical").keys())
 
@@ -130,7 +130,7 @@ def get_sparameters_fdtdz(
             omega=omega,
             port=component.ports[portname],
             epsilon=epsilon,
-            xmin=component_extended.xmin,
+            xmin=component_extended.dxmin,
             ymin=component_extended.ymin,
             nm_per_pixel=nm_per_pixel,
             port_extent_xy=port_margin,
@@ -159,7 +159,7 @@ if __name__ == "__main__":
     padding = c << gf.components.bbox(
         waveguide.bbox, top=2, bottom=2, layer=LAYER.WAFER
     )
-    c.add_ports(gf.components.straight(length=length).get_ports_list())
+    c.add_ports(gf.components.straight(length=length).ports)
 
     filtered_layer_stack = LayerStack(
         layers={k: LAYER_STACK.layers[k] for k in ["clad", "box", "core"]}

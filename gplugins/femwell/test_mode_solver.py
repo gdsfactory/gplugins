@@ -31,7 +31,7 @@ def compute_modes(
         "slab90": {"resolution": 0.05, "distance": 1},
     }
     return compute_cross_section_modes(
-        cross_section="xs_rc",
+        cross_section="rib",
         layer_stack=filtered_layer_stack,
         wavelength=1.55,
         num_modes=num_modes,

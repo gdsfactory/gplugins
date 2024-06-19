@@ -19,10 +19,11 @@ authors = [
 classifiers = [
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
   "Operating System :: OS Independent"
 ]
 dependencies = [
-  "gdsfactory>=7.27.1,<8.0",
+  "gdsfactory>=8",
   "pint",
   "tqdm"
 ]
@@ -97,12 +98,13 @@ sax = [
   "jax>=0.4.26",
   "jaxlib>=0.4.26",
   "flax>=0.8.2",
-  "sax~=0.12.2",
+  "sax~=0.13.1",
   "scikit-learn",
   "pyvis<=0.3.1"
 ]
 schematic = [
   "bokeh",
+  "ipywidgets",
   "natsort"
 ]
 tidy3d = [

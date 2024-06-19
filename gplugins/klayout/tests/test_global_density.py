@@ -29,8 +29,8 @@ def component_test_density1(
     small_rect2 = c << gf.components.rectangle(
         size=small_rect2_size, layer=(2, 0), centered=True
     )
-    small_rect1.move(small_rect1_offset)
-    small_rect2.move(small_rect2_offset)
+    small_rect1.dmove(small_rect1_offset)
+    small_rect2.dmove(small_rect2_offset)
     return c
 
 
@@ -58,7 +58,7 @@ expected_global_densities = [
         small_rect1_size=small_rect1_sizes[0],
         small_rect2_size=small_rect2_sizes[0],
     ),
-] * 3 + [0.125]
+] * 3 + [0.5]
 
 
 @pytest.mark.parametrize(
@@ -105,5 +105,6 @@ def test_estimate_weighted_global_density(
     estimated_density = estimate_weighted_global_density(
         Xi=Xi, Yi=Yi, Zi=Zi, bbox=get_gds_bbox(gdspath)
     )
-    print(estimated_density, expected_global_density)
-    assert np.isclose(estimated_density, expected_global_density)
+    assert np.isclose(
+        estimated_density, expected_global_density
+    ), f"{estimated_density=}, {expected_global_density=}"

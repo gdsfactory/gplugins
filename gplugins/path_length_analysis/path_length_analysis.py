@@ -27,8 +27,8 @@ from gdsfactory.component import Component, ComponentReference
 from gdsfactory.get_netlist import get_netlist, get_netlist_recursive
 
 DEFAULT_CS_COLORS = {
-    "xs_rc": "red",
-    "xs_sc": "blue",
+    "rib": "red",
+    "strip": "blue",
     "r2s": "purple",
     "xs_m1": "#00FF92",
     "xs_m2": "gold",
@@ -49,7 +49,7 @@ def get_internal_netlist_attributes(
 
 
 def _get_link_name(component: Component) -> str:
-    ports = sorted(component.ports.keys())
+    ports = component.ports
     if len(ports) != 2:
         raise ValueError("routing components must have two ports")
     return ":".join(ports)
@@ -218,14 +218,14 @@ def idealized_mxn_connectivity(
     Returns:
         None (graph is modified in-place)
     """
-    warnings.warn(f"using idealized links for {inst_name} ({ref.parent.name})")
+    warnings.warn(f"using idealized links for {inst_name} ({ref.parent_cell.name})")
     in_ports = [p for p in ref.ports if p.startswith("in")]
     out_ports = [p for p in ref.ports if p.startswith("out")]
     for in_port in in_ports:
         for out_port in out_ports:
             inst_in = f"{inst_name},{in_port}"
             inst_out = f"{inst_name},{out_port}"
-            g.add_edge(inst_in, inst_out, weight=0.0001, component=ref.parent.name)
+            g.add_edge(inst_in, inst_out, weight=0.0001, component=ref.parent_cell.name)
 
 
 def _get_edge_based_route_attr_graph(
@@ -245,15 +245,16 @@ def _get_edge_based_route_attr_graph(
     inst_refs = {}
 
     for inst_name in netlist["instances"]:
-        ref = component.named_references[inst_name]
+        ref = component.insts[inst_name]
         inst_refs[inst_name] = ref
-        info = ref.parent.info.model_dump()
+        info = ref.parent_cell.info.model_dump()
         if "route_info_length" in info:
-            inst_route_attrs[inst_name] = dict()
+            inst_route_attrs[inst_name] = {}
             for key, value in info.items():
                 if key.startswith("route_info"):
                     inst_route_attrs[inst_name].update({key: value})
-        for port_name, port in ref.ports.items():
+        for port in ref.ports:
+            port_name = port.name
             ploc = port.center
             pname = f"{inst_name},{port_name}"
             n_attrs = {
@@ -269,7 +270,7 @@ def _get_edge_based_route_attr_graph(
     # currently we only do this for routing components, but could do it more generally in the future
     for inst_name, inst_dict in netlist["instances"].items():
         route_info = inst_route_attrs.get(inst_name)
-        inst_component = component.named_references[inst_name]
+        inst_component = component.insts[inst_name]
         route_attrs = get_internal_netlist_attributes(
             inst_dict, route_info, inst_component
         )
@@ -281,10 +282,10 @@ def _get_edge_based_route_attr_graph(
                 g.add_edge(inst_in, inst_out, **attrs)
         elif recursive:
             sub_inst = inst_refs[inst_name]
-            if sub_inst.parent.name in netlists:
-                sub_netlist = netlists[sub_inst.parent.name]
+            if sub_inst.parent_cell.name in netlists:
+                sub_netlist = netlists[sub_inst.parent_cell.name]
                 sub_graph = _get_edge_based_route_attr_graph(
-                    sub_inst.parent,
+                    sub_inst.parent_cell,
                     recursive=True,
                     component_connectivity=component_connectivity,
                     netlist=sub_netlist,
@@ -321,13 +322,14 @@ def _get_edge_based_route_attr_graph(
                 component_connectivity(inst_name, sub_inst, g)
             else:
                 warnings.warn(
-                    f"ignoring any links in {inst_name} ({sub_inst.parent.name})"
+                    f"ignoring any links in {inst_name} ({sub_inst.parent_cell.name})"
                 )
 
     # connect all top level ports
     if top_level_ports:
         edges = []
-        for port, sub_port in top_level_ports.items():
+        for sub_port in top_level_ports:
+            port = sub_port.name
             p_attrs = dict(node_attrs[sub_port])
             e_attrs = {"weight": 0.0001}
             edge = [port, sub_port, e_attrs]
@@ -401,13 +403,14 @@ def get_pathlength_widgets(
         cs_colors = DEFAULT_CS_COLORS
     for node, data in G.nodes(data=True):
         node_positions[node] = (data["x"], data["y"])
-    instances = pic.named_references
-    for inst_name, ref in instances.items():
-        ref: ComponentReference
+    instances = pic.insts.get_inst_names()
+    for inst_name in instances:
+        ref = pic.insts[inst_name]
         inst_info = {"bbox": ref.bbox}
         inst_infos[inst_name] = inst_info
     pic_bbox = pic.bbox
-    for port_name, port in pic.ports.items():
+    for port in pic.ports:
+        port_name = port.name
         p = port.center
         node_positions[port_name] = (p[0], p[1])
 
@@ -451,9 +454,9 @@ def get_pathlength_widgets(
         "dst_port": [],
         "xs": [],
         "ys": [],
-        "route_info_xs_rc_length": [],
+        "route_info_rib_length": [],
         "route_info_length": [],
-        "route_info_xs_sc_length": [],
+        "route_info_strip_length": [],
         "route_info_r2s_length": [],
         "route_info_m2_length": [],
         "color": [],

@@ -130,7 +130,7 @@ def _demo_routes():
     left_ports.reverse()
 
     c = gf.Component(name="connect_bundle_v2")
-    routes = gf.routing.get_bundle(
+    routes = gf.routing.route_bundle(
         left_ports,
         right_ports,
         sort_ports=True,
@@ -144,7 +144,7 @@ def _demo_routes():
 
 if __name__ == "__main__":
     # c0 = gf.components.bend_euler(npoints=20)
-    # c0 = gf.components.bend_euler(cross_section="xs_sc", with_arc_floorplan=True)
+    # c0 = gf.components.bend_euler(cross_section="strip", with_arc_floorplan=True)
     # c0 = gf.components.bend_circular()
     # c0 = gf.components.bend_s(npoints=7)
     # c0 = gf.components.coupler()

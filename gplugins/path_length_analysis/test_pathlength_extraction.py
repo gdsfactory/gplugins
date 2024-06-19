@@ -7,7 +7,7 @@ import pytest
 from gplugins.path_length_analysis.path_length_analysis import report_pathlengths
 
 primitive_components = ["straight", "bend_euler", "bend_circular"]
-supported_cross_sections = ["xs_rc", "xs_sc"]
+supported_cross_sections = ["rib", "strip"]
 
 _this_dir = pathlib.Path(__file__).parent
 
@@ -64,11 +64,11 @@ def test_multi_path_extraction() -> None:
     expected_total_length2 = sum(lengths2)
     insts = []
     for i, length in enumerate(lengths1):
-        inst = c << gf.get_component("straight", cross_section="xs_sc", length=length)
+        inst = c << gf.get_component("straight", cross_section="strip", length=length)
         append_instances("s1-", i, inst, insts)
     insts = []
     for i, length in enumerate(lengths2):
-        inst = c << gf.get_component("straight", cross_section="xs_sc", length=length)
+        inst = c << gf.get_component("straight", cross_section="strip", length=length)
         inst.movey(-100)
         append_instances("s2-", i, inst, insts)
     report_pathlengths(c, result_dir=results_dir)
@@ -86,7 +86,7 @@ def append_instances(arg0, i, inst, insts) -> None:
 
 
 @gf.cell
-def pathlength_test_subckt(lengths, cross_section: str = "xs_sc"):
+def pathlength_test_subckt(lengths, cross_section: str = "strip"):
     c1 = gf.Component()
 
     insts = []
@@ -105,7 +105,7 @@ def pathlength_test_subckt(lengths, cross_section: str = "xs_sc"):
 
 def test_hierarchical_pathlength_extraction() -> None:
     component_name = f"{test_hierarchical_pathlength_extraction.__name__}"
-    cross_section = "xs_sc"
+    cross_section = "strip"
     c = gf.Component(component_name)
     lengths = [10, 20, 45, 30]
     expected_total_length_c1 = sum(lengths)
@@ -137,7 +137,7 @@ def test_hierarchical_pathlength_extraction() -> None:
 
 def test_transformed_hierarchical_pathlength_extraction() -> None:
     component_name = f"{test_transformed_hierarchical_pathlength_extraction.__name__}"
-    cross_section = "xs_sc"
+    cross_section = "strip"
     c = gf.Component(component_name)
     lengths = [10, 20, 45, 30]
     expected_total_length_c1 = sum(lengths)
@@ -147,7 +147,7 @@ def test_transformed_hierarchical_pathlength_extraction() -> None:
     iend = c.add_ref(
         gf.get_component("straight", cross_section=cross_section, length=100), "iend"
     )
-    istart = istart.rotate(37)
+    istart = istart.drotate(37)
     imid.connect("o1", istart.ports["o2"])
     iend.connect("o1", imid.ports["o2"])
 

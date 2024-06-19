@@ -127,7 +127,7 @@ def get_gds_bbox(
     component = gf.import_gds(gdspath, cellname=cellname)
     if layer is not None:
         component = component.extract(layers=[layer])
-    return component.bbox
+    return (component.dxmin, component.dymin), (component.dxmax, component.dymax)
 
 
 def extend_grid_and_density_to_bbox(
@@ -383,11 +383,11 @@ if __name__ == "__main__":
         c = gf.Component("density_test1")
         large_rect = c << gf.components.rectangle(size=(100, 150), layer=(1, 0))
         small_rect = c << gf.components.rectangle(size=(50, 50), layer=(2, 0))
-        small_rect.x += 10
-        small_rect.y += 10
+        small_rect.dx += 10
+        small_rect.dy += 10
         small_rect2 = c << gf.components.rectangle(size=(25, 25), layer=(2, 0))
-        small_rect2.ymax = 100 - small_rect2.ysize
-        small_rect2.xmax = large_rect.xmax - small_rect2.xsize
+        small_rect2.dymax = 100 - small_rect2.ysize
+        small_rect2.dxmax = large_rect.dxmax - small_rect2.xsize
         # c.write_gds(PATH.test_data / "test_gds_density1.gds")
         return c
 

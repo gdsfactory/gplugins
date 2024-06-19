@@ -13,8 +13,8 @@ from pprint import pprint
 import gdsfactory as gf
 import numpy as np
 import pydantic
+from gdsfactory import logger, sparameters_path
 from gdsfactory.component import Component
-from gdsfactory.config import logger, sparameters_path
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 from tqdm.auto import tqdm
