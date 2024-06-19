@@ -76,15 +76,21 @@ def plot_nets(
         net.from_nx(G_connectivity)
         net.show("connectivity.html")
     else:
+        color_nets = [
+            "lightblue"
+            if G_connectivity.nodes[node].get("is_net", False)
+            else "lightpink"
+            for node in G_connectivity.nodes()
+        ]
+
         fig = plt.figure(figsize=(8, 6))
         nx.draw(
             G_connectivity,
             with_labels=True,
             node_size=2000,
-            node_color="lightpink",
+            node_color=color_nets,
             font_size=12,
         )
-        plt.title("Connectivity")
         return fig
 
 
