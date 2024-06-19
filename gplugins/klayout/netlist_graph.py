@@ -91,6 +91,10 @@ def netlist_to_networkx(
                 G.add_edge(device_name, net_name)
                 all_used_nets.add(net_name)
 
+    # Easier to set different colors for nets
+    for net in all_used_nets:
+        G.nodes[net]["is_net"] = True
+
     if not include_labels:
         for node in all_used_nets:
             connections = list(G.neighbors(node))
