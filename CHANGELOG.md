@@ -1,13 +1,12 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.0.0...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.0.1...main)
 
 <!-- towncrier release notes start -->
 
 ## [1.0.1](https://github.com/gdsfactory/gplugins/releases/tag/v1.0.1) - 2024-06-20
 
-No significant changes.
-
+- fix write_drc [#428](https://github.com/gdsfactory/gplugins/pull/428)
 
 ## [1.0.0](https://github.com/gdsfactory/gplugins/releases/tag/v1.0.0) - 2024-06-20
 
