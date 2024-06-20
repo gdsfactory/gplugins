@@ -25,6 +25,7 @@ classifiers = [
 dependencies = [
   "gdsfactory>=8",
   "pint",
+  "gdstk",
   "tqdm"
 ]
 description = "gdsfactory plugins"
