@@ -114,8 +114,8 @@ tidy3d = [
   "meshwell>=1.0.7,<=1.1"
 ]
 vlsir = [
-  "vlsir>=4.0.0,<6.0.0",
-  "vlsirtools>=4.0.0,<6.0.0"
+  "vlsir>=4.0.0,<=6.0.0",
+  "vlsirtools>=4.0.0,<=6.0.0"
 ]
 
 [tool.codespell]
