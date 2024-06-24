@@ -327,16 +327,19 @@ class SchematicEditor:
                 instance_name=instance, settings=settings, old_settings=old_settings
             )
 
-    def add_net(self, inst1, port1, inst2, port2):
+    def add_net(self, inst1, port1, inst2, port2, allow_multiple: bool = False) -> None:
         p1 = f"{inst1},{port1}"
         p2 = f"{inst2},{port2}"
         if p1 in self._connected_ports:
-            if self._connected_ports[p1] == p2:
-                return
-            current_port = self._connected_ports[p1]
-            raise ValueError(
-                f"{p1} is already connected to {current_port}. Can't connect to {p2}"
-            )
+            if allow_multiple:
+                pass
+            else:
+                if self._connected_ports[p1] == p2:
+                    return
+                current_port = self._connected_ports[p1]
+                raise ValueError(
+                    f"{p1} is already connected to {current_port}. Can't connect to {p2}"
+                )
         self._connected_ports[p1] = p2
         self._connected_ports[p2] = p1
         old_nets = self._schematic.nets.copy()

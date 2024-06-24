@@ -175,6 +175,7 @@ cython_debug/
 .DS_Store
 *Thumbs.db
 
+
 # Possible generated files
 *.cmd
 *.tcl
@@ -183,3 +184,5 @@ cython_debug/
 *.BAK
 *.sav
 *.plt
+.virtual_documents
+.idea
