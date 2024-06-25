@@ -69,7 +69,7 @@ def test_multi_path_extraction() -> None:
     insts = []
     for i, length in enumerate(lengths2):
         inst = c << gf.get_component("straight", cross_section="strip", length=length)
-        inst.movey(-100)
+        inst.dmovey(-100)
         append_instances("s2-", i, inst, insts)
     report_pathlengths(c, result_dir=results_dir)
     data = pd.read_csv(results_dir / f"{component_name}.pathlengths.csv")
