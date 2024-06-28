@@ -115,7 +115,7 @@ tidy3d = [
 ]
 vlsir = [
   "vlsir>=4.0.0,<=6.0.0",
-  "vlsirtools>=4.0.0,<=6.0.0"
+  "vlsirtools>=3.0.1,<=6.0.0"
 ]
 
 [tool.codespell]
