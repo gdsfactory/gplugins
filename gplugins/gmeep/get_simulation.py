@@ -193,8 +193,8 @@ def get_simulation(
     cell_thickness = tpml + zmargin_bot + t_core + zmargin_top + tpml if is_3d else 0
 
     cell_size = mp.Vector3(
-        component.xsize + 2 * tpml,
-        component.ysize + 2 * tpml,
+        component.dxsize + 2 * tpml,
+        component.dysize + 2 * tpml,
         cell_thickness,
     )
 

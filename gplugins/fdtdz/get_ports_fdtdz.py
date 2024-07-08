@@ -228,7 +228,7 @@ if __name__ == "__main__":
         port=c.ports["o1"],
         epsilon=epsilon,
         xmin=c.dxmin,
-        ymin=c.ymin,
+        ymin=c.dymin,
         nm_per_pixel=nm_per_pixel,
         port_extent_xy=1,
     )
@@ -238,7 +238,7 @@ if __name__ == "__main__":
         epsilon_port=epsilon_port,
         excitation=excitation,
         xmin=c.dxmin,
-        ymin=c.ymin,
+        ymin=c.dymin,
         zmin=zmin,
         nm_per_pixel=1000,
         figsize=(11, 4),
