@@ -35,8 +35,14 @@ def extract_path(
     points = polygons_by_layer[layer]
     points = np.concatenate(points)
 
-    # Assume the points are ordered and the first half is the outer curve, the second half is the inner curve
-    # This assumption might need to be adjusted based on your specific geometry
+    # Ensure the points are ordered in a way that makes sense for extracting the centerline
+    # This is a simplified approach and might need adjustments for specific geometries
+    if len(points) % 2 != 0:
+        raise ValueError(
+            "The number of points should be even to separate into outer and inner points"
+        )
+
+    # Assume the points are roughly ordered and split them into outer and inner points
     mid_index = len(points) // 2
     outer_points = points[:mid_index]
     inner_points = points[mid_index:]
@@ -46,6 +52,10 @@ def extract_path(
     min_length = min(len(outer_points), len(inner_points))
     outer_points = outer_points[:min_length]
     inner_points = inner_points[:min_length]
+
+    # Remove the first and last points
+    outer_points = outer_points[1:-1]
+    inner_points = inner_points[1:-1]
 
     # Apply under-sampling
     outer_points = np.array(outer_points[::under_sampling])
@@ -159,9 +169,9 @@ if __name__ == "__main__":
     # c0 = gf.components.bend_euler(npoints=20)
     # c0 = gf.components.bend_euler(cross_section="strip", with_arc_floorplan=True)
     # c0 = gf.components.bend_circular()
-    # c0 = gf.components.bend_s(npoints=7)
-    # c0 = gf.components.coupler()
-    c0 = _demo_routes()
+    # c0 = gf.components.bend_s()
+    c0 = gf.components.coupler()
+    # c0 = _demo_routes()
 
     gdspath = c0.write_gds()
     n = c0.get_netlist()
@@ -169,9 +179,10 @@ if __name__ == "__main__":
 
     c = gf.import_gds(gdspath)
     # p = extract_path(c, plot=False, window_length=None, polyorder=None)
-    p = extract_path(c, plot=True, under_sampling=5)
+    p = extract_path(c, plot=True, under_sampling=1)
     min_radius, length = get_min_radius_and_length(p)
     print(f"Minimum radius of curvature: {min_radius:.2f}")
     print(f"Length: {length:.2f}")
     print(c0.info)
-    plot_radius(p)
+    # plot_radius(p)
+    # plt.show()
