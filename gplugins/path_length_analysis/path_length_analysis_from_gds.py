@@ -25,7 +25,15 @@ def extract_path(
         filter_function: optional Function to filter the centerline.
         under_sampling: under sampling factor.
     """
-    points = component.get_polygons(by_spec=layer)[0]
+    layer = gf.get_layer(layer)
+
+    polygons_by_layer = component.get_polygons_points(merge=True)
+
+    if layer not in polygons_by_layer:
+        raise ValueError(f"Layer {layer} not found in component")
+
+    points = polygons_by_layer[layer]
+    points = np.concatenate(points)
 
     # Assume the points are ordered and the first half is the outer curve, the second half is the inner curve
     # This assumption might need to be adjusted based on your specific geometry
@@ -34,9 +42,16 @@ def extract_path(
     inner_points = points[mid_index:]
     inner_points = inner_points[::-1]
 
-    inner_points = inner_points[::under_sampling]
-    outer_points = outer_points[::under_sampling]
+    # Ensure outer_points and inner_points have the same length
+    min_length = min(len(outer_points), len(inner_points))
+    outer_points = outer_points[:min_length]
+    inner_points = inner_points[:min_length]
 
+    # Apply under-sampling
+    outer_points = np.array(outer_points[::under_sampling])
+    inner_points = np.array(inner_points[::under_sampling])
+
+    # Calculate the centerline
     centerline = np.mean([outer_points, inner_points], axis=0)
 
     if filter_function is not None:
@@ -130,15 +145,13 @@ def _demo_routes():
     left_ports.reverse()
 
     c = gf.Component(name="connect_bundle_v2")
-    routes = gf.routing.route_bundle(
+    gf.routing.route_bundle(
+        c,
         left_ports,
         right_ports,
         sort_ports=True,
         start_straight_length=100,
-        enforce_port_ordering=False,
     )
-    for route in routes:
-        c.add(route.references)
     return c
 
 

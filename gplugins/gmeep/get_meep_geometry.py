@@ -41,12 +41,14 @@ def get_meep_geometry_from_component(
     component_with_booleans = layer_stack.get_component_with_derived_layers(component)
 
     geometry = []
-    layer_to_polygons = component_with_booleans.get_polygons(by_spec=True)
+    layer_to_polygons = component_with_booleans.get_polygons_points()
 
     ordered_layer_stack_keys = order_layer_stack(layer_stack)[::-1]
     for layername in ordered_layer_stack_keys:
         layer = layer_stack.layers[layername].layer
-        polygons = layer_to_polygons[layer_stack.layers[layername].layer]
+        if layer not in layer_to_polygons:
+            continue
+        polygons = layer_to_polygons[layer]
         if layer in layer_to_thickness and layer in layer_to_material:
             height = layer_to_thickness[layer] if is_3d else mp.inf
             zmin_um = layer_to_zmin[layer] if is_3d else 0
