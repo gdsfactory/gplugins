@@ -1,3 +1,4 @@
+# type: ignore
 from collections.abc import Callable
 from functools import partial
 
@@ -9,14 +10,14 @@ from scipy.signal import savgol_filter
 filter_savgol_filter = partial(savgol_filter, window_length=11, polyorder=3, axis=0)
 
 
-def extract_path(
+def extract_paths(
     component: gf.Component,
     layer: gf.typings.LayerSpec = (1, 0),
     plot: bool = False,
     filter_function: Callable = None,
     under_sampling: int = 1,
-) -> gf.Path:
-    """Extracts the centerline of a component from a GDS file.
+) -> list[gf.Path]:
+    """Extracts the centerlines of a component from a GDS file.
 
     Args:
         component: GDS component.
@@ -24,6 +25,9 @@ def extract_path(
         plot: Plot the centerline.
         filter_function: optional Function to filter the centerline.
         under_sampling: under sampling factor.
+
+    Returns:
+        List of gf.Path: Centerlines of the paths.
     """
     layer = gf.get_layer(layer)
 
@@ -32,44 +36,57 @@ def extract_path(
     if layer not in polygons_by_layer:
         raise ValueError(f"Layer {layer} not found in component")
 
-    points = polygons_by_layer[layer]
-    points = np.concatenate(points)
+    points_list = polygons_by_layer[layer]
 
-    # Assume the points are ordered and the first half is the outer curve, the second half is the inner curve
-    # This assumption might need to be adjusted based on your specific geometry
-    mid_index = len(points) // 2
-    outer_points = points[:mid_index]
-    inner_points = points[mid_index:]
-    inner_points = inner_points[::-1]
+    paths = []
+    for points in points_list:
+        points = np.array(points)
 
-    # Ensure outer_points and inner_points have the same length
-    min_length = min(len(outer_points), len(inner_points))
-    outer_points = outer_points[:min_length]
-    inner_points = inner_points[:min_length]
+        # Ensure the points are ordered and split them into outer and inner points
+        if len(points) % 2 != 0:
+            raise ValueError(
+                "The number of points should be even to separate into outer and inner points"
+            )
 
-    # Apply under-sampling
-    outer_points = np.array(outer_points[::under_sampling])
-    inner_points = np.array(inner_points[::under_sampling])
+        mid_index = len(points) // 2
+        outer_points = points[:mid_index]
+        inner_points = points[mid_index:]
+        inner_points = inner_points[::-1]
 
-    # Calculate the centerline
-    centerline = np.mean([outer_points, inner_points], axis=0)
+        # Ensure outer_points and inner_points have the same length
+        min_length = min(len(outer_points), len(inner_points))
+        outer_points = outer_points[:min_length]
+        inner_points = inner_points[:min_length]
 
-    if filter_function is not None:
-        centerline = filter_function(centerline)
+        # Remove the first and last points
+        outer_points = outer_points[1:-1]
+        inner_points = inner_points[1:-1]
 
-    p = gf.Path(centerline)
-    if plot:
-        plt.figure()
-        plt.plot(outer_points[:, 0], outer_points[:, 1], "o", label="Outer Points")
-        plt.plot(inner_points[:, 0], inner_points[:, 1], "o", label="Inner Points")
-        plt.plot(centerline[:, 0], centerline[:, 1], "k--", label="Centerline")
-        plt.legend()
-        plt.title("Curve with Spline Interpolation for Inner and Outer Edges")
-        plt.xlabel("X-coordinate")
-        plt.ylabel("Y-coordinate")
-        plt.grid(True)
-        plt.show()
-    return p
+        # Apply under-sampling
+        outer_points = np.array(outer_points[::under_sampling])
+        inner_points = np.array(inner_points[::under_sampling])
+
+        # Calculate the centerline
+        centerline = np.mean([outer_points, inner_points], axis=0)
+
+        if filter_function is not None:
+            centerline = filter_function(centerline)
+
+        path = gf.Path(centerline)
+        paths.append(path)
+
+        if plot:
+            plt.figure()
+            plt.plot(outer_points[:, 0], outer_points[:, 1], "o", label="Outer Points")
+            plt.plot(inner_points[:, 0], inner_points[:, 1], "o", label="Inner Points")
+            plt.plot(centerline[:, 0], centerline[:, 1], "k--", label="Centerline")
+            plt.legend()
+            plt.title("Curve with Spline Interpolation for Inner and Outer Edges")
+            plt.xlabel("X-coordinate")
+            plt.ylabel("Y-coordinate")
+            plt.grid(True)
+
+    return paths
 
 
 def get_min_radius_and_length(path: gf.Path) -> tuple[float, float]:
@@ -159,19 +176,23 @@ if __name__ == "__main__":
     # c0 = gf.components.bend_euler(npoints=20)
     # c0 = gf.components.bend_euler(cross_section="strip", with_arc_floorplan=True)
     # c0 = gf.components.bend_circular()
-    # c0 = gf.components.bend_s(npoints=7)
-    # c0 = gf.components.coupler()
-    c0 = _demo_routes()
+    # c0 = gf.components.bend_s()
+    c0 = gf.components.coupler()
+    # c0 = _demo_routes()
 
     gdspath = c0.write_gds()
     n = c0.get_netlist()
     c0.show()
 
     c = gf.import_gds(gdspath)
-    # p = extract_path(c, plot=False, window_length=None, polyorder=None)
-    p = extract_path(c, plot=True, under_sampling=5)
-    min_radius, length = get_min_radius_and_length(p)
-    print(f"Minimum radius of curvature: {min_radius:.2f}")
-    print(f"Length: {length:.2f}")
-    print(c0.info)
-    plot_radius(p)
+    paths = extract_paths(c, plot=True, under_sampling=1)
+    for path in paths:
+        min_radius, length = get_min_radius_and_length(path)
+        print(f"Minimum radius of curvature: {min_radius:.2f}")
+        print(f"Length: {length:.2f}")
+    # min_radius, length = get_min_radius_and_length(p)
+    # print(f"Minimum radius of curvature: {min_radius:.2f}")
+    # print(f"Length: {length:.2f}")
+    # print(c0.info)
+    # plot_radius(p)
+    plt.show()
