@@ -12,9 +12,9 @@ from pprint import pprint
 
 import gdsfactory as gf
 import numpy as np
-import pydantic
-from gdsfactory import logger, sparameters_path
+from gdsfactory import logger
 from gdsfactory.component import Component
+from gdsfactory.config import sparameters_path
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 from tqdm.auto import tqdm
@@ -33,7 +33,6 @@ core_materials = multiprocessing.cpu_count()
 temp_dir_default = Path(sparameters_path) / "temp"
 
 
-@pydantic.validate_arguments
 def write_sparameters_meep_batch(
     jobs: list[dict],
     cores_per_run: int = 2,
