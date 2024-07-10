@@ -18,8 +18,8 @@ def component_test_density1():
     large_rect = c << gf.components.rectangle(size=(100, 150), layer=(1, 0))
     _small_rect = c << gf.components.rectangle(size=(50, 50), layer=(2, 0))
     small_rect2 = c << gf.components.rectangle(size=(25, 25), layer=(2, 0))
-    small_rect2.dymax = 100 - small_rect2.ysize
-    small_rect2.dxmax = large_rect.dxmax - small_rect2.xsize
+    small_rect2.dymax = 100 - small_rect2.dysize
+    small_rect2.dxmax = large_rect.dxmax - small_rect2.dxsize
     return c
 
 

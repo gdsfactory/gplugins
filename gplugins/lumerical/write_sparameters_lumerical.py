@@ -265,7 +265,7 @@ def write_sparameters_lumerical(
     logger.info(f"Writing Sparameters to {filepath_npz.absolute()!r}")
     x_min = (component_extended.dxmin - xmargin) * 1e-6
     x_max = (component_extended.dxmax + xmargin) * 1e-6
-    y_min = (component_extended.ymin - ymargin) * 1e-6
+    y_min = (component_extended.dymin - ymargin) * 1e-6
     y_max = (component_extended.dymax + ymargin) * 1e-6
 
     layers_thickness = [
