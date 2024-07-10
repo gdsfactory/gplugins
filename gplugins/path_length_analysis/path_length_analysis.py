@@ -235,7 +235,17 @@ def _get_edge_based_route_attr_graph(
     netlist=None,
     netlists=None,
 ) -> nx.Graph:
-    connections = netlist["connections"]
+    """ Gets a connectivity graph for the circuit, with all path attributes on edges and ports as nodes.
+
+    Args:
+        component: the component to generate a graph from.
+        recursive: True to expand all hierarchy. False to only report top-level connectivity.
+        component_connectivity: a function to report connectivity for base components.\
+                None to treat as black boxes with no internal connectivity.
+        netlist: a netlist dictionary. If None, will be generated from the component.
+        netlists: a dictionary of netlists for each subcomponent.
+    """
+    connections = netlist["nets"]
     top_level_ports = netlist["ports"]
     g = nx.Graph()
     inst_route_attrs = {}
@@ -264,7 +274,7 @@ def _get_edge_based_route_attr_graph(
             node_attrs[pname] = n_attrs
             g.add_node(pname, **n_attrs)
     # nx.set_node_attributes(g, node_attrs)
-    g.add_edges_from(connections.items(), weight=0.0001)
+    g.add_edges_from(connections, weight=0.0001)
 
     # connect all internal ports for devices with connectivity defined
     # currently we only do this for routing components, but could do it more generally in the future
@@ -577,3 +587,42 @@ def visualize_graph(
     result_dir.mkdir(exist_ok=True, parents=True)
     output_file(result_dir / f"{pic.name}.html")
     show(layout)
+
+
+if __name__ == "__main__":
+    import gdsfactory as gf
+
+    xs_top = [0, 10, 20, 40, 50, 80]
+    pitch = 127.0
+    N = len(xs_top)
+    xs_bottom = [(i - N / 2) * pitch for i in range(N)]
+    layer = (1, 0)
+
+    top_ports = [
+        gf.Port(
+            f"top_{i}", center=(xs_top[i], 0), width=0.5, orientation=270, layer=layer
+        )
+        for i in range(N)
+    ]
+
+    bot_ports = [
+        gf.Port(
+            f"bot_{i}",
+            center=(xs_bottom[i], -300),
+            width=0.5,
+            orientation=90,
+            layer=layer,
+        )
+        for i in range(N)
+    ]
+
+    c = gf.Component()
+    routes = gf.routing.route_bundle(
+        c, top_ports, bot_ports, separation=5.0, end_straight_length=100
+    )
+
+    report_pathlengths(
+        pic=c,
+        result_dir=Path("rib_strip_pathlengths"),
+        visualize=True,
+    )
