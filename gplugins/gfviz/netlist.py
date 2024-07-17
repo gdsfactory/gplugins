@@ -8,7 +8,7 @@ from natsort import natsorted
 
 
 def patch_netlist(netlist):
-    if not netlist["connections"] and not netlist["ports"] and not netlist["instances"]:
+    if not netlist.get("nets") and not netlist["ports"] and not netlist["instances"]:
         netlist = wrap_component_in_netlist(netlist.get("name", ""))
     netlist = patch_netlist_with_port_info(netlist)
     netlist = patch_netlist_with_icon_info(netlist)
@@ -51,10 +51,8 @@ def patch_netlist_with_connection_info(netlist):
     i = netlist["info"] = netlist.get("info", {})
     s = i["schematic"] = i.get("schematic", {})
     ic = s["implicit_connections"] = s.get("implicit_connections", {})
-    for ip1, ip2 in netlist["connections"].items():
-        if _is_implicit_connection(
-            ip1, ip2, netlist["instances"], netlist["connections"]
-        ):
+    for ip1, ip2 in netlist["nets"].items():
+        if _is_implicit_connection(ip1, ip2, netlist["instances"], netlist["nets"]):
             ic["ip1"] = ip2
     return netlist
 
@@ -156,7 +154,7 @@ def get_ports(child, parent=None):
         p = gf.get_component(parent)
         c = [r.parent for r in p.references if r.parent.name.startswith(child)][0]
 
-    ports1 = natsorted(c.ports)
+    ports1 = sort_ports(c.ports)
 
     try:
         netlist = get_netlist(c)
@@ -165,14 +163,14 @@ def get_ports(child, parent=None):
 
     if netlist:
         ports2 = natsorted(netlist["ports"])
-        if len(ports1) > len(ports2):
-            ports = ports1
-        else:
-            ports = ports2
+        ports = ports1 if len(ports1) > len(ports2) else ports2
     else:
         ports = ports1
 
-    [(x0, y0), (x1, y1)] = c.bbox  # type: ignore
+    x0 = c.dxmin
+    x1 = c.dxmax
+    y0 = c.dymin
+    y1 = c.dymax
     x0, x1 = min(x0, x1), max(x0, x1)
     y0, y1 = min(y0, y1), max(y0, y1)
 
@@ -214,10 +212,10 @@ def get_icon_poly(name):
     if "taper" in name or "trans" in name:
         return taper
     c = gf.get_component(name)
+    c.flatten()
     layer_priority = {lay: i for i, lay in enumerate(most_common_layers())}
     polys = {}
-    for p in c.flatten().polygons:
-        layer = (p.layer, p.datatype)
+    for layer, p in c.get_polygons_points().items():
         if layer not in polys:
             polys[layer] = []
         polys[layer].append(p)
@@ -234,8 +232,8 @@ def get_icon_poly(name):
     poly = rdp(polys[0].points)
     if (poly.shape[0] < 3) or (poly.shape[0] > 100):
         return default
-    poly = (poly - c.bbox[0:1]) / (c.bbox[1:2] - c.bbox[0:1])
-    poly = [(x, y) for (x, y) in poly]  # noqa: C416
+    poly = (poly - c.bbox_np()[0:1]) / (c.bbox_np()[1:2] - c.bbox_np()[0:1])
+    poly = list(poly)
     if "coupler" in name:
         ymin = min(poly, key=lambda xy: xy[1])[1]
         poly = [
@@ -257,14 +255,12 @@ def rdp(poly, eps=0.1):
     index = np.argmax(dists)
     dmax = dists[index]
 
-    if dmax > eps:
-        result1 = rdp(poly[: index + 1], eps=eps)
-        result2 = rdp(poly[index:], eps=eps)
-        result = np.vstack((result1[:-1], result2))
-    else:
-        result = np.array([start, end])
+    if dmax <= eps:
+        return np.array([start, end])
 
-    return result
+    result1 = rdp(poly[: index + 1], eps=eps)
+    result2 = rdp(poly[index:], eps=eps)
+    return np.vstack((result1[:-1], result2))
 
 
 def _line_dists(points, start, end):
@@ -275,6 +271,10 @@ def _line_dists(points, start, end):
     return np.divide(abs(cross), np.linalg.norm(vec))
 
 
+def sort_ports(ports) -> list[gf.Port]:
+    return natsorted(ports, key=lambda port: port.dx)
+
+
 def wrap_component_in_netlist(name):
     if not name:
         return {}
@@ -282,17 +282,16 @@ def wrap_component_in_netlist(name):
     _ = c << gf.get_component(name)
     c.name = name
     ports = {p: f"{name},{p}" for p in c.references[0].ports}
-    netlist = {
+    return {
         "instances": {
             f"{name}": {
                 "component": name,
                 "settings": {},
             },
         },
-        "connections": {},
-        "ports": {p: ports[p] for p in natsorted(ports)},
+        "nets": {},
+        "ports": {p: ports[p] for p in sort_ports(ports)},
     }
-    return netlist
 
 
 def _bad_instance(_):
@@ -316,17 +315,16 @@ def get_component_name(component_dict: dict | str, default="") -> str:
 
 def ensure_netlist_order(netlist):
     netlist = {**netlist}
-    new_netlist = {
+    return {
         "pdk": netlist.pop("pdk", ""),
         "instances": netlist.pop("instances", {}),
-        "connections": netlist.pop("connections", {}),
+        "nets": netlist.pop("nets", {}),
         "routes": netlist.pop("routes", {}),
         "ports": netlist.pop("ports", {}),
         "placements": netlist.pop("placements", {}),
         "info": netlist.pop("info", {}),
         **netlist,
     }
-    return new_netlist
 
 
 def replace_cross_sections_recursive(obj):
@@ -336,9 +334,7 @@ def replace_cross_sections_recursive(obj):
                 obj[k] = check_cross_section(obj[k])
             else:
                 obj[k] = replace_cross_sections_recursive(obj[k])
-        return obj
-    else:
-        return obj
+    return obj
 
 
 def remove_instance_info(netlist):
@@ -394,13 +390,9 @@ def _is_implicit_connection(ip1, ip2, instances, connections):
         return False
     if i2 not in instances:
         return False
-    if (connections[ip1] == ip2) or (connections[ip2] == ip1):
-        return False
-    return True
+    return connections[ip1] != ip2 and connections[ip2] != ip1
 
 
 def _is_hierarchical_pic(name):
     c = gf.get_component(name)
-    if c.references:
-        return True
-    return False
+    return bool(c.insts)
