@@ -1,3 +1,4 @@
+# type: ignore
 import gdsfactory as gf
 import kfactory as kf
 import klayout.db as kdb
@@ -40,7 +41,7 @@ def get_l2n(
     l2n = kf.kdb.LayoutToNetlist(c.begin_shapes_rec(0))
     l2n.threads = kf.config.n_threads
 
-    reversed_layer_map = dict()
+    reversed_layer_map = {}
     layers = gf.get_active_pdk().layers
 
     for layer in layers:
@@ -61,7 +62,7 @@ def get_l2n(
     labels = kdb.Texts(c.begin_shapes_rec(0))
     # define the layers to be extracted
     for l_idx in c.kcl.layer_indexes():
-        names = reversed_layer_map[l_idx]
+        names = {reversed_layer_map[l_idx]}
         try:
             same_name_as_in_connections = next(iter(correct_layer_names & names))
         except StopIteration:
