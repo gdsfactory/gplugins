@@ -47,3 +47,9 @@ def test_export_netlist(pkg, spice_format) -> None:
             export_netlist(pkg, fmt=spice_format, dest=f)
         with open(outpath) as f:
             assert f.read() is not None
+
+
+if __name__ == "__main__":
+    c = pads_correct()
+    gdspath = c.write_gds()
+    kdbnet = get_netlist(gdspath)
