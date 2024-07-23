@@ -59,9 +59,10 @@ def extract_paths(
         outer_points = outer_points[:min_length]
         inner_points = inner_points[:min_length]
 
-        # Remove the first and last points
-        outer_points = outer_points[1:-1]
-        inner_points = inner_points[1:-1]
+        # Remove the first and last points if these are not the only points
+        if len(outer_points) > 2:
+            outer_points = outer_points[1:-1]
+            inner_points = inner_points[1:-1]
 
         # Apply under-sampling
         outer_points = np.array(outer_points[::under_sampling])
