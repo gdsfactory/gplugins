@@ -3,6 +3,7 @@ from collections.abc import Callable
 from functools import partial
 
 import gdsfactory as gf
+import kfactory as kf
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal import savgol_filter
@@ -11,17 +12,17 @@ filter_savgol_filter = partial(savgol_filter, window_length=11, polyorder=3, axi
 
 
 def extract_paths(
-    component: gf.Component,
+    component: gf.typings.Component | kf.Instance,
     layer: gf.typings.LayerSpec = (1, 0),
     plot: bool = False,
     filter_function: Callable = None,
     under_sampling: int = 1,
 ) -> list[gf.Path]:
-    """Extracts the centerlines of a component from a GDS file.
+    """Extracts the centerlines of a component or instance from a GDS file.
 
     Args:
-        component: GDS component.
-        layer: GDS layer to extract the centerline from.
+        component: gdsfactory component or instance to extract from.
+        layer: layer to extract the centerline from.
         plot: Plot the centerline.
         filter_function: optional Function to filter the centerline.
         under_sampling: under sampling factor.
@@ -31,7 +32,7 @@ def extract_paths(
     """
     layer = gf.get_layer(layer)
 
-    polygons_by_layer = component.get_polygons_points(merge=True)
+    polygons_by_layer = gf.functions.get_polygons_points(component, merge=True)
 
     if layer not in polygons_by_layer:
         raise ValueError(f"Layer {layer} not found in component")
@@ -58,9 +59,10 @@ def extract_paths(
         outer_points = outer_points[:min_length]
         inner_points = inner_points[:min_length]
 
-        # Remove the first and last points
-        outer_points = outer_points[1:-1]
-        inner_points = inner_points[1:-1]
+        # Remove the first and last points if these are not the only points
+        if len(outer_points) > 2:
+            outer_points = outer_points[1:-1]
+            inner_points = inner_points[1:-1]
 
         # Apply under-sampling
         outer_points = np.array(outer_points[::under_sampling])
