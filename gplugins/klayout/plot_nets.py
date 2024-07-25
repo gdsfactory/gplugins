@@ -112,3 +112,4 @@ if __name__ == "__main__":
     l2n.write_l2n(str(path))
 
     plot_nets(path)
+    plt.show()

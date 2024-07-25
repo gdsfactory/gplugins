@@ -1,5 +1,5 @@
+import yaml
 from gdsfactory.config import GDSDIR_TEMP
-from omegaconf import OmegaConf
 
 from gplugins import PATH
 from gplugins.spice.spice_to_yaml import spice_to_yaml
@@ -61,10 +61,10 @@ def test_interconnect():
         mapping_path=mapping_path,
         pdk="ubcpdk",
     )
-    s = OmegaConf.load(picyaml_path)
+    s = yaml.safe_load(picyaml_path.read_text())
     # print(s)
     # print(len(s.instances))
-    assert len(s.instances) == 1
+    assert len(s["instances"]) == 1
 
 
 if __name__ == "__main__":
@@ -78,7 +78,7 @@ if __name__ == "__main__":
         mapping_path=mapping_path,
         pdk="ubcpdk",
     )
-    s = OmegaConf.load(picyaml_path)
+    s = yaml.safe_load(picyaml_path.read_text())
     # print(s)
     # print(len(s.instances))
-    assert len(s.instances) == 1
+    assert len(s["instances"]) == 1
