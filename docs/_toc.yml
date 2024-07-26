@@ -49,7 +49,6 @@ parts:
           - file: notebooks/vlsir_netlist
       - file: sdl
         sections:
-        - file: notebooks/20_schematic_driven_layout
         - file: notebooks/21_schematic_driven_layout_lumerical
   - caption: Verification
     chapters:
