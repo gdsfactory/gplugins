@@ -1,0 +1,422 @@
+instances:
+  runits_0:
+    component: p_n_poly
+    settings:
+      p_poly_width: 0.35
+      p_poly_length: 0.5
+      poly_res_layer: [66, 13]
+      poly_layer: [66, 20]
+      psdm_layer: [94, 20]
+      sdm_enclosure: [0.125, 0.125]
+      contact_size: [0.17, 0.17]
+      contact_spacing: [0.17, 0.17]
+      licon_slots_size: [0.19, 2]
+      licon_slots_spacing: [0.51, 0.51]
+      contact_layer: [66, 44]
+      contact_enclosure: [0.06, 0.06]
+      li_layer: [67, 20]
+      li_enclosure: 0.08
+      mcon_layer: [67, 44]
+      mcon_enclosure: [0.09, 0.09]
+      m1_layer: [68, 20]
+      urpm_layer: [79, 20]
+      urpm_min_width: 1.27
+      urpm_enclosure: [0.2, 0.2]
+      npc_layer: [95, 20]
+      npc_enclosure: [0.095, 0.095]
+  runits_1:
+    component: p_n_poly
+    settings:
+      p_poly_width: 0.35
+      p_poly_length: 0.5
+      poly_res_layer: [66, 13]
+      poly_layer: [66, 20]
+      psdm_layer: [94, 20]
+      sdm_enclosure: [0.125, 0.125]
+      contact_size: [0.17, 0.17]
+      contact_spacing: [0.17, 0.17]
+      licon_slots_size: [0.19, 2]
+      licon_slots_spacing: [0.51, 0.51]
+      contact_layer: [66, 44]
+      contact_enclosure: [0.06, 0.06]
+      li_layer: [67, 20]
+      li_enclosure: 0.08
+      mcon_layer: [67, 44]
+      mcon_enclosure: [0.09, 0.09]
+      m1_layer: [68, 20]
+      urpm_layer: [79, 20]
+      urpm_min_width: 1.27
+      urpm_enclosure: [0.2, 0.2]
+      npc_layer: [95, 20]
+      npc_enclosure: [0.095, 0.095]
+  runits_2:
+    component: p_n_poly
+    settings:
+      p_poly_width: 0.35
+      p_poly_length: 0.5
+      poly_res_layer: [66, 13]
+      poly_layer: [66, 20]
+      psdm_layer: [94, 20]
+      sdm_enclosure: [0.125, 0.125]
+      contact_size: [0.17, 0.17]
+      contact_spacing: [0.17, 0.17]
+      licon_slots_size: [0.19, 2]
+      licon_slots_spacing: [0.51, 0.51]
+      contact_layer: [66, 44]
+      contact_enclosure: [0.06, 0.06]
+      li_layer: [67, 20]
+      li_enclosure: 0.08
+      mcon_layer: [67, 44]
+      mcon_enclosure: [0.09, 0.09]
+      m1_layer: [68, 20]
+      urpm_layer: [79, 20]
+      urpm_min_width: 1.27
+      urpm_enclosure: [0.2, 0.2]
+      npc_layer: [95, 20]
+      npc_enclosure: [0.095, 0.095]
+  runits_3:
+    component: p_n_poly
+    settings:
+      p_poly_width: 0.35
+      p_poly_length: 0.5
+      poly_res_layer: [66, 13]
+      poly_layer: [66, 20]
+      psdm_layer: [94, 20]
+      sdm_enclosure: [0.125, 0.125]
+      contact_size: [0.17, 0.17]
+      contact_spacing: [0.17, 0.17]
+      licon_slots_size: [0.19, 2]
+      licon_slots_spacing: [0.51, 0.51]
+      contact_layer: [66, 44]
+      contact_enclosure: [0.06, 0.06]
+      li_layer: [67, 20]
+      li_enclosure: 0.08
+      mcon_layer: [67, 44]
+      mcon_enclosure: [0.09, 0.09]
+      m1_layer: [68, 20]
+      urpm_layer: [79, 20]
+      urpm_min_width: 1.27
+      urpm_enclosure: [0.2, 0.2]
+      npc_layer: [95, 20]
+      npc_enclosure: [0.095, 0.095]
+  runits_4:
+    component: p_n_poly
+    settings:
+      p_poly_width: 0.35
+      p_poly_length: 0.5
+      poly_res_layer: [66, 13]
+      poly_layer: [66, 20]
+      psdm_layer: [94, 20]
+      sdm_enclosure: [0.125, 0.125]
+      contact_size: [0.17, 0.17]
+      contact_spacing: [0.17, 0.17]
+      licon_slots_size: [0.19, 2]
+      licon_slots_spacing: [0.51, 0.51]
+      contact_layer: [66, 44]
+      contact_enclosure: [0.06, 0.06]
+      li_layer: [67, 20]
+      li_enclosure: 0.08
+      mcon_layer: [67, 44]
+      mcon_enclosure: [0.09, 0.09]
+      m1_layer: [68, 20]
+      urpm_layer: [79, 20]
+      urpm_min_width: 1.27
+      urpm_enclosure: [0.2, 0.2]
+      npc_layer: [95, 20]
+      npc_enclosure: [0.095, 0.095]
+  runits_5:
+    component: p_n_poly
+    settings:
+      p_poly_width: 0.35
+      p_poly_length: 0.5
+      poly_res_layer: [66, 13]
+      poly_layer: [66, 20]
+      psdm_layer: [94, 20]
+      sdm_enclosure: [0.125, 0.125]
+      contact_size: [0.17, 0.17]
+      contact_spacing: [0.17, 0.17]
+      licon_slots_size: [0.19, 2]
+      licon_slots_spacing: [0.51, 0.51]
+      contact_layer: [66, 44]
+      contact_enclosure: [0.06, 0.06]
+      li_layer: [67, 20]
+      li_enclosure: 0.08
+      mcon_layer: [67, 44]
+      mcon_enclosure: [0.09, 0.09]
+      m1_layer: [68, 20]
+      urpm_layer: [79, 20]
+      urpm_min_width: 1.27
+      urpm_enclosure: [0.2, 0.2]
+      npc_layer: [95, 20]
+      npc_enclosure: [0.095, 0.095]
+  runits_6:
+    component: p_n_poly
+    settings:
+      p_poly_width: 0.35
+      p_poly_length: 0.5
+      poly_res_layer: [66, 13]
+      poly_layer: [66, 20]
+      psdm_layer: [94, 20]
+      sdm_enclosure: [0.125, 0.125]
+      contact_size: [0.17, 0.17]
+      contact_spacing: [0.17, 0.17]
+      licon_slots_size: [0.19, 2]
+      licon_slots_spacing: [0.51, 0.51]
+      contact_layer: [66, 44]
+      contact_enclosure: [0.06, 0.06]
+      li_layer: [67, 20]
+      li_enclosure: 0.08
+      mcon_layer: [67, 44]
+      mcon_enclosure: [0.09, 0.09]
+      m1_layer: [68, 20]
+      urpm_layer: [79, 20]
+      urpm_min_width: 1.27
+      urpm_enclosure: [0.2, 0.2]
+      npc_layer: [95, 20]
+      npc_enclosure: [0.095, 0.095]
+  runits_7:
+    component: p_n_poly
+    settings:
+      p_poly_width: 0.35
+      p_poly_length: 0.5
+      poly_res_layer: [66, 13]
+      poly_layer: [66, 20]
+      psdm_layer: [94, 20]
+      sdm_enclosure: [0.125, 0.125]
+      contact_size: [0.17, 0.17]
+      contact_spacing: [0.17, 0.17]
+      licon_slots_size: [0.19, 2]
+      licon_slots_spacing: [0.51, 0.51]
+      contact_layer: [66, 44]
+      contact_enclosure: [0.06, 0.06]
+      li_layer: [67, 20]
+      li_enclosure: 0.08
+      mcon_layer: [67, 44]
+      mcon_enclosure: [0.09, 0.09]
+      m1_layer: [68, 20]
+      urpm_layer: [79, 20]
+      urpm_min_width: 1.27
+      urpm_enclosure: [0.2, 0.2]
+      npc_layer: [95, 20]
+      npc_enclosure: [0.095, 0.095]
+  runits_8:
+    component: p_n_poly
+    settings:
+      p_poly_width: 0.35
+      p_poly_length: 0.5
+      poly_res_layer: [66, 13]
+      poly_layer: [66, 20]
+      psdm_layer: [94, 20]
+      sdm_enclosure: [0.125, 0.125]
+      contact_size: [0.17, 0.17]
+      contact_spacing: [0.17, 0.17]
+      licon_slots_size: [0.19, 2]
+      licon_slots_spacing: [0.51, 0.51]
+      contact_layer: [66, 44]
+      contact_enclosure: [0.06, 0.06]
+      li_layer: [67, 20]
+      li_enclosure: 0.08
+      mcon_layer: [67, 44]
+      mcon_enclosure: [0.09, 0.09]
+      m1_layer: [68, 20]
+      urpm_layer: [79, 20]
+      urpm_min_width: 1.27
+      urpm_enclosure: [0.2, 0.2]
+      npc_layer: [95, 20]
+      npc_enclosure: [0.095, 0.095]
+  runits_9:
+    component: p_n_poly
+    settings:
+      p_poly_width: 0.35
+      p_poly_length: 0.5
+      poly_res_layer: [66, 13]
+      poly_layer: [66, 20]
+      psdm_layer: [94, 20]
+      sdm_enclosure: [0.125, 0.125]
+      contact_size: [0.17, 0.17]
+      contact_spacing: [0.17, 0.17]
+      licon_slots_size: [0.19, 2]
+      licon_slots_spacing: [0.51, 0.51]
+      contact_layer: [66, 44]
+      contact_enclosure: [0.06, 0.06]
+      li_layer: [67, 20]
+      li_enclosure: 0.08
+      mcon_layer: [67, 44]
+      mcon_enclosure: [0.09, 0.09]
+      m1_layer: [68, 20]
+      urpm_layer: [79, 20]
+      urpm_min_width: 1.27
+      urpm_enclosure: [0.2, 0.2]
+      npc_layer: [95, 20]
+      npc_enclosure: [0.095, 0.095]
+  runits_10:
+    component: p_n_poly
+    settings:
+      p_poly_width: 0.35
+      p_poly_length: 0.5
+      poly_res_layer: [66, 13]
+      poly_layer: [66, 20]
+      psdm_layer: [94, 20]
+      sdm_enclosure: [0.125, 0.125]
+      contact_size: [0.17, 0.17]
+      contact_spacing: [0.17, 0.17]
+      licon_slots_size: [0.19, 2]
+      licon_slots_spacing: [0.51, 0.51]
+      contact_layer: [66, 44]
+      contact_enclosure: [0.06, 0.06]
+      li_layer: [67, 20]
+      li_enclosure: 0.08
+      mcon_layer: [67, 44]
+      mcon_enclosure: [0.09, 0.09]
+      m1_layer: [68, 20]
+      urpm_layer: [79, 20]
+      urpm_min_width: 1.27
+      urpm_enclosure: [0.2, 0.2]
+      npc_layer: [95, 20]
+      npc_enclosure: [0.095, 0.095]
+  runits_11:
+    component: p_n_poly
+    settings:
+      p_poly_width: 0.35
+      p_poly_length: 0.5
+      poly_res_layer: [66, 13]
+      poly_layer: [66, 20]
+      psdm_layer: [94, 20]
+      sdm_enclosure: [0.125, 0.125]
+      contact_size: [0.17, 0.17]
+      contact_spacing: [0.17, 0.17]
+      licon_slots_size: [0.19, 2]
+      licon_slots_spacing: [0.51, 0.51]
+      contact_layer: [66, 44]
+      contact_enclosure: [0.06, 0.06]
+      li_layer: [67, 20]
+      li_enclosure: 0.08
+      mcon_layer: [67, 44]
+      mcon_enclosure: [0.09, 0.09]
+      m1_layer: [68, 20]
+      urpm_layer: [79, 20]
+      urpm_min_width: 1.27
+      urpm_enclosure: [0.2, 0.2]
+      npc_layer: [95, 20]
+      npc_enclosure: [0.095, 0.095]
+  runits_12:
+    component: p_n_poly
+    settings:
+      p_poly_width: 0.35
+      p_poly_length: 0.5
+      poly_res_layer: [66, 13]
+      poly_layer: [66, 20]
+      psdm_layer: [94, 20]
+      sdm_enclosure: [0.125, 0.125]
+      contact_size: [0.17, 0.17]
+      contact_spacing: [0.17, 0.17]
+      licon_slots_size: [0.19, 2]
+      licon_slots_spacing: [0.51, 0.51]
+      contact_layer: [66, 44]
+      contact_enclosure: [0.06, 0.06]
+      li_layer: [67, 20]
+      li_enclosure: 0.08
+      mcon_layer: [67, 44]
+      mcon_enclosure: [0.09, 0.09]
+      m1_layer: [68, 20]
+      urpm_layer: [79, 20]
+      urpm_min_width: 1.27
+      urpm_enclosure: [0.2, 0.2]
+      npc_layer: [95, 20]
+      npc_enclosure: [0.095, 0.095]
+  runits_13:
+    component: p_n_poly
+    settings:
+      p_poly_width: 0.35
+      p_poly_length: 0.5
+      poly_res_layer: [66, 13]
+      poly_layer: [66, 20]
+      psdm_layer: [94, 20]
+      sdm_enclosure: [0.125, 0.125]
+      contact_size: [0.17, 0.17]
+      contact_spacing: [0.17, 0.17]
+      licon_slots_size: [0.19, 2]
+      licon_slots_spacing: [0.51, 0.51]
+      contact_layer: [66, 44]
+      contact_enclosure: [0.06, 0.06]
+      li_layer: [67, 20]
+      li_enclosure: 0.08
+      mcon_layer: [67, 44]
+      mcon_enclosure: [0.09, 0.09]
+      m1_layer: [68, 20]
+      urpm_layer: [79, 20]
+      urpm_min_width: 1.27
+      urpm_enclosure: [0.2, 0.2]
+      npc_layer: [95, 20]
+      npc_enclosure: [0.095, 0.095]
+  runits_14:
+    component: p_n_poly
+    settings:
+      p_poly_width: 0.35
+      p_poly_length: 0.5
+      poly_res_layer: [66, 13]
+      poly_layer: [66, 20]
+      psdm_layer: [94, 20]
+      sdm_enclosure: [0.125, 0.125]
+      contact_size: [0.17, 0.17]
+      contact_spacing: [0.17, 0.17]
+      licon_slots_size: [0.19, 2]
+      licon_slots_spacing: [0.51, 0.51]
+      contact_layer: [66, 44]
+      contact_enclosure: [0.06, 0.06]
+      li_layer: [67, 20]
+      li_enclosure: 0.08
+      mcon_layer: [67, 44]
+      mcon_enclosure: [0.09, 0.09]
+      m1_layer: [68, 20]
+      urpm_layer: [79, 20]
+      urpm_min_width: 1.27
+      urpm_enclosure: [0.2, 0.2]
+      npc_layer: [95, 20]
+      npc_enclosure: [0.095, 0.095]
+schematic_placements:
+  runits_0: {rotation: 0, dx: -4.426076548125775, dy: 0.2228959412725211}
+  runits_1: {rotation: 0, dx: 3.574295629691498, dy: -0.3821073278957504}
+  runits_2: {rotation: 0, dx: -4.72288495924887, dy: -6.032254367480482}
+  runits_3: {rotation: 0, dx: 2.8681354173915055, dy: -5.868066502994218}
+  runits_4: {rotation: 0, dx: -1.8664830368064012, dy: 3.994876027391382}
+  runits_5: {rotation: 0, dx: 1.2576437297169987, dy: 2.9869038580778717}
+  runits_6: {rotation: 0, dx: -1.7607012216037983, dy: -2.5886500103341556}
+  runits_7: {rotation: 0, dx: 1.2576437297169987, dy: -6.361581199485151}
+  runits_8: {rotation: 0, dx: 6.518786665699776, dy: 1.655897577460715}
+  runits_9: {rotation: 0, dx: 0.1152840085573914, dy: -0.4401753054009496}
+  runits_10: {rotation: 0, dx: 0.817468424316049, dy: 1.079477534673757}
+  runits_11: {rotation: 0, dx: 0.817468424316049, dy: 1.079477534673757}
+  runits_12: {rotation: 0, dx: 0.817468424316049, dy: 1.079477534673757}
+  runits_13: {rotation: 0, dx: 0.817468424316049, dy: 1.079477534673757}
+  runits_14: {rotation: 0, dx: 0.817468424316049, dy: 1.079477534673757}
+nets:
+- ['runits_0,p', 'runits_1,p']
+- ['runits_1,n', 'runits_0,p']
+- ['runits_2,p', 'runits_0,p']
+- ['runits_2,n', 'runits_0,p']
+- ['runits_3,p', 'runits_0,p']
+- ['runits_3,n', 'runits_0,p']
+- ['runits_4,p', 'runits_0,p']
+- ['runits_4,n', 'runits_0,p']
+- ['runits_5,p', 'runits_0,p']
+- ['runits_5,n', 'runits_0,p']
+- ['runits_6,p', 'runits_0,p']
+- ['runits_6,n', 'runits_0,p']
+- ['runits_7,p', 'runits_0,p']
+- ['runits_7,n', 'runits_0,p']
+- ['runits_8,p', 'runits_0,p']
+- ['runits_8,n', 'runits_0,p']
+- ['runits_9,p', 'runits_0,p']
+- ['runits_9,n', 'runits_0,p']
+- ['runits_10,p', 'runits_0,p']
+- ['runits_10,n', 'runits_0,p']
+- ['runits_11,p', 'runits_0,p']
+- ['runits_11,n', 'runits_0,p']
+- ['runits_12,p', 'runits_0,p']
+- ['runits_12,n', 'runits_0,p']
+- ['runits_13,p', 'runits_0,p']
+- ['runits_13,n', 'runits_0,p']
+- ['runits_14,n', 'runits_0,p']
+ports: {}
+schema_version: 1

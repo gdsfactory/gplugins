@@ -84,6 +84,12 @@ gmsh = [
   "shapely",
   "meshwell>=1.0.7,<=1.1"
 ]
+hdl21 = [
+  "hdl21>=6.0.0,<7.0.0",
+  "vlsir>=6.0.0",
+  "sky130-hdl21>=6.0.0",
+  "sky130 @ git+https://github.com/gdsfactory/skywater130.git@main"
+]
 klayout = [
   "klayout",
   "pyvis<=0.3.1"
@@ -119,8 +125,8 @@ vlsir = [
 ]
 
 [tool.codespell]
-ignore-words-list = 'te, te/tm, te, ba, fpr, fpr_spacing, ro, nd, donot, schem, Ue'
-skip = 'notebooks/palace_02_fullwave.ipynb'
+ignore-words-list = 'te, te/tm, te, ba, fpr, fpr_spacing, ro, nd, donot, schem, Ue, Inout'
+skip = 'notebooks/palace_02_fullwave.ipynb, notebooks/22_sky130nm_inverter_schematic_to_layout.ipynb'
 
 [tool.mypy]
 python_version = "3.10"
