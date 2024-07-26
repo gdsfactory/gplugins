@@ -14,6 +14,9 @@ elmer:
 	sudo apt-get update
 	sudo apt-get install -y elmerfem-csc mpich
 
+meep:
+	conda install -c conda-forge pymeep=*=mpi_mpich_* nlopt -y\
+
 test:
 	pytest
 

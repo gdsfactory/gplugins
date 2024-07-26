@@ -65,9 +65,9 @@ def plot_model(
                 y = np.abs(sdict[(port1, port2)])
                 y = 20 * np.log10(y) if logscale else y
                 ylabel = "|S (dB)|" if logscale else "|S|"
-            ax.plot(wavelengths * 1e9, y, label=port2)
+            ax.plot(wavelengths, y, label=port2)
     ax.set_title(port1)
-    ax.set_xlabel("wavelength (nm)")
+    ax.set_xlabel("wavelength (um)")
     ax.set_ylabel(ylabel)
     plt.legend()
     return ax

@@ -13,7 +13,6 @@ from functools import partial
 from pathlib import Path
 
 import gdsfactory as gf
-import pydantic
 from gdsfactory import logger
 from gdsfactory.component import Component
 from gdsfactory.config import GDSDIR_TEMP
@@ -40,7 +39,6 @@ def _python() -> str:
     return sys.executable
 
 
-@pydantic.validate_arguments
 def write_sparameters_meep_mpi(
     component: ComponentSpec,
     layer_stack: LayerStack | None = None,

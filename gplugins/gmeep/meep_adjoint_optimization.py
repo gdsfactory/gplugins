@@ -151,8 +151,8 @@ def get_meep_adjoint_optimizer(
         Vector3(*cell_size)
         if cell_size
         else Vector3(
-            c.xsize + 2 * sim.boundary_layers[0].thickness,
-            c.ysize + 2 * sim.boundary_layers[0].thickness,
+            c.dxsize + 2 * sim.boundary_layers[0].thickness,
+            c.dysize + 2 * sim.boundary_layers[0].thickness,
             cell_thickness,
         )
     )

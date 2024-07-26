@@ -14,7 +14,6 @@ from gdsfactory.config import PATH
 from gdsfactory.pdk import get_active_pdk, get_layer_stack
 from gdsfactory.technology import DerivedLayer, LayerStack
 from gdsfactory.typings import Component, LayerSpec, PathType
-from meow.base_model import _array as mw_array
 from tqdm.auto import tqdm
 
 from gplugins.common.utils.get_sparameters_path import (
@@ -420,7 +419,7 @@ class MEOW:
                     for k, v in sp.items()
                 }
                 S, self.port_map = sax.sdense(sdict)
-                self.S = np.asarray(S).view(mw_array)
+                self.S = np.asarray(S).view(np.ndarray)
                 return sp
             else:
                 self.filepath.unlink()

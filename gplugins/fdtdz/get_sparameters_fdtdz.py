@@ -131,7 +131,7 @@ def get_sparameters_fdtdz(
             port=component.ports[portname],
             epsilon=epsilon,
             xmin=component_extended.dxmin,
-            ymin=component_extended.ymin,
+            ymin=component_extended.dymin,
             nm_per_pixel=nm_per_pixel,
             port_extent_xy=port_margin,
         )
