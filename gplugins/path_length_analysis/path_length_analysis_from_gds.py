@@ -1,4 +1,5 @@
-# type: ignore
+"""This script extracts the centerlines of a component from a GDS file and calculates the minimum radius of curvature and the length of the centerline."""
+
 from collections.abc import Callable
 from functools import partial
 
@@ -13,9 +14,9 @@ filter_savgol_filter = partial(savgol_filter, window_length=11, polyorder=3, axi
 
 def extract_paths(
     component: gf.typings.Component | kf.Instance,
-    layer: gf.typings.LayerSpec = (1, 0),
+    layer: gf.typings.LayerSpec,
     plot: bool = False,
-    filter_function: Callable = None,
+    filter_function: Callable | None = None,
     under_sampling: int = 1,
 ) -> list[gf.Path]:
     """Extracts the centerlines of a component or instance from a GDS file.
@@ -32,7 +33,10 @@ def extract_paths(
     """
     layer = gf.get_layer(layer)
 
-    polygons_by_layer = gf.functions.get_polygons_points(component, merge=True)
+    polygons_by_layer = gf.functions.get_polygons_points(
+        component,
+        merge=True,
+    )
 
     if layer not in polygons_by_layer:
         raise ValueError(f"Layer {layer} not found in component")
@@ -187,7 +191,7 @@ if __name__ == "__main__":
     c0.show()
 
     c = gf.import_gds(gdspath)
-    paths = extract_paths(c, plot=True, under_sampling=1)
+    paths = extract_paths(c, plot=True, under_sampling=1, layer=(1, 0))
     for path in paths:
         min_radius, length = get_min_radius_and_length(path)
         print(f"Minimum radius of curvature: {min_radius:.2f}")
