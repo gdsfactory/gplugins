@@ -25,7 +25,7 @@ execute:
     - "*fdtdz*"
     - "*elmer_01_electrostatic*"
     - "*meep_01_sparameters*"
-    # - "*sax_01_sax*"
+    - "*meow_01*"
     # - "*20_schematic_driven_layout*"
     # - "*001_meep_sparameters*"
     # - "*00_tidy3d.ipynb"
