@@ -194,7 +194,7 @@ def get_ports(child, parent=None):
 
 def get_netlist(c: gf.Component, with_instance_info=False):
     try:
-        netlist = c.get_netlist(merge_info=True)
+        netlist = c.get_netlist()
     except TypeError:
         netlist = c.get_netlist()
     netlist = replace_cross_sections_recursive(netlist)
