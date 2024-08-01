@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import shapely as sh
 import shapely.ops as ops
-from klayout.db import DPoint
+from klayout.db import DPoint, Polygon
 from scipy.signal import savgol_filter
 from scipy.spatial import distance
 
@@ -16,7 +16,13 @@ filter_savgol_filter = partial(savgol_filter, window_length=11, polyorder=3, axi
 fix_values = [0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6, 7, -7, 8, -8]
 
 
-def _check_midpoint_found(inner_points, outer_points, port_list):
+def _check_midpoint_found(inner_points, outer_points, port_list) -> bool:
+    """
+    Simple routine to check if the inner and outer points have been correctly found.
+
+    This is necessary because sometimes the ordering of the points is not right
+    and in that case the inner and outer points are mixed up.
+    """
     coincident_points = False
     if (
         outer_points[0, 0] == inner_points[0, 0]
@@ -49,29 +55,26 @@ def _check_midpoint_found(inner_points, outer_points, port_list):
         return False
 
 
-def centerline_single_poly_2_ports(poly, under_sampling, port_list):
+def centerline_single_poly_2_ports(poly, under_sampling, port_list) -> np.ndarray:
     """
     Returns the centerline for a single polygon that has 2 ports.
     We assume that the ports are at min_x and max_x respectively.
     """
 
-    # Simplify points
-    # xx, yy = sh.simplify(poly, tolerance=1e-3).exterior.coords.xy
-    # # points = np.array(tuple(zip(xx.tolist(),yy.tolist())))
-    # points = np.column_stack((xx.tolist(), yy.tolist()))[:-1, :]
-
+    # Simplify points that are too close to each other
     r = gf.kdb.Region(poly)
     r = r.smoothed(0.05, True)
 
+    # Get polygon points from klayout DPolygon
     xs = [pt.x for pt in r[0].each_point_hull()]
     ys = [pt.y for pt in r[0].each_point_hull()]
     # For some reason there always seems to be a roll by 1 needed
-    # to be closer to the right partition
+    # to be closer to the right partition between inner and outer shell
     points = np.column_stack((xs, ys))
     points = np.roll(points, -1, axis=0)
 
-    # Assume the points are ordered and the first half is the outer curve, the second half is the inner curve
-    # This assumption might need to be adjusted based on your specific geometry
+    # Initially, assume the points are ordered and the first half is the outer curve,
+    # the second half is the inner curve
     mid_index = len(points) // 2
     roll_val = 1
     mid_point_found = False
@@ -80,25 +83,26 @@ def centerline_single_poly_2_ports(poly, under_sampling, port_list):
     inner_points = points[mid_index:, :]
     inner_points = inner_points[::-1, :]
 
+    # Check our assumption indeed makes it so that the inner and outer points
+    # are correctly recognized
+    mid_point_found = _check_midpoint_found(inner_points, outer_points, port_list)
+
+    # ==== This is for debugging, keep until this is stable ====
     # print(len(outer_points))
     # print(len(inner_points))
     # input()
 
     # Relatively simple check to make sure that the first half is the outer curve and the
     # second half is the inner curve
-    # print(outer_points[0,:])
-    # print(inner_points[0,:])
-    # print(outer_points[-1,:])
-    # print(inner_points[-1,:])
-    # input()
-    plt.figure()
-    plt.plot(points[:, 0], points[:, 1], "x")
-    plt.plot(inner_points[:, 0], inner_points[:, 1], "x", label="inner points")
-    plt.plot(outer_points[:, 0], outer_points[:, 1], "x", label="outer points")
-    plt.show()
+    # plt.figure()
+    # plt.plot(points[:, 0], points[:, 1], "x")
+    # plt.plot(inner_points[:, 0], inner_points[:, 1], "x", label="inner points")
+    # plt.plot(outer_points[:, 0], outer_points[:, 1], "x", label="outer points")
+    # plt.show()
+    # =================
 
-    mid_point_found = _check_midpoint_found(inner_points, outer_points, port_list)
-
+    # If the midpoint was not found, do some complicated tests to try to find the
+    # actual midpoint.
     n_rolls = 0
     n_fixes_tried = 0
 
@@ -109,6 +113,7 @@ def centerline_single_poly_2_ports(poly, under_sampling, port_list):
         inner_points = points[(mid_index + fix_values[n_fixes_tried]) :, :]
         inner_points = inner_points[::-1, :]
 
+        # ==== This is for debugging, keep until this is stable ====
         # plt.figure()
         # plt.plot(points[:, 0],points[:, 1], 'x')
         # plt.plot(inner_points[:, 0],inner_points[:, 1], 'x', label="inner points")
@@ -120,24 +125,27 @@ def centerline_single_poly_2_ports(poly, under_sampling, port_list):
         # print(outer_points[-1,:])
         # print(inner_points[-1,:])
         # input()
+        # =================
 
         mid_point_found = _check_midpoint_found(inner_points, outer_points, port_list)
 
         if n_rolls > points.shape[0] and n_fixes_tried < 10 and not mid_point_found:
-            # Sometimes it is enough if we make the inner point be +-1 element longer
+            # Sometimes it is enough if we make the inner point be +-n elements longer
             n_fixes_tried += 1
-            print(f"Trying fix {n_fixes_tried}")
+            # print(f"Trying fix {n_fixes_tried}")
             n_rolls = 0
 
             outer_points = points[: (mid_index + fix_values[n_fixes_tried]), :]
             inner_points = points[(mid_index + fix_values[n_fixes_tried]) :, :]
             inner_points = inner_points[::-1]
 
-            plt.figure()
-            plt.plot(points[:, 0], points[:, 1], "x")
-            plt.plot(inner_points[:, 0], inner_points[:, 1], "x", label="inner points")
-            plt.plot(outer_points[:, 0], outer_points[:, 1], "x", label="outer points")
-            plt.show()
+            # ==== This is for debugging, keep until this is stable ====
+            # plt.figure()
+            # plt.plot(points[:, 0], points[:, 1], "x")
+            # plt.plot(inner_points[:, 0], inner_points[:, 1], "x", label="inner points")
+            # plt.plot(outer_points[:, 0], outer_points[:, 1], "x", label="outer points")
+            # plt.show()
+            # =================
 
             mid_point_found = _check_midpoint_found(
                 inner_points, outer_points, port_list
@@ -157,6 +165,7 @@ def centerline_single_poly_2_ports(poly, under_sampling, port_list):
     inds = np.argsort(outer_points[:, 0])
     outer_points = outer_points[inds, :]
 
+    # Apply undersampling if necessary
     inner_points = np.append(
         inner_points[::under_sampling], np.array([inner_points[-1]]), axis=0
     )
@@ -206,15 +215,9 @@ def centerline_single_poly_2_ports(poly, under_sampling, port_list):
                 (np.reshape(interp_xs, (-1, 1)), np.reshape(interp_inner_y, (-1, 1)))
             )
 
-    # print(inner_points.shape)
-    # print(outer_points.shape)
-    plt.figure()
-    plt.plot(inner_points[:, 0], inner_points[:, 1], "x", label="inner points")
-    plt.plot(outer_points[:, 0], outer_points[:, 1], "x", label="outer points")
-    plt.show()
-
     centerline = np.mean([outer_points, inner_points], axis=0) * 1e-3
 
+    # ==== This is for debugging, keep until this is stable ====
     # plt.figure()
     # plt.plot(points[:, 0],points[:, 1], 'x')
     # plt.plot(inner_points[:, 0],inner_points[:, 1], 'x', label="inner points")
@@ -225,6 +228,7 @@ def centerline_single_poly_2_ports(poly, under_sampling, port_list):
     # plt.grid(True)
     # plt.legend()
     # plt.show()
+    # =================
 
     return centerline
 
@@ -236,15 +240,18 @@ def extract_paths(
     filter_function: Callable = None,
     under_sampling: int = 1,
     evanescent_coupling: bool = False,
-) -> gf.Path:
+) -> dict:
     """Extracts the centerline of a component or instance from a GDS file.
+
+    Requires the components to have ports, and it returns a dictionary
+    with {port1},{port2} as the key and a gf.Path as the value.
 
     Args:
         component: gdsfactory component or instance to extract from.
         layer: layer to extract the centerline from.
-        plot: Plot the centerline.
+        plot: If True, we plot the extracted paths.
         filter_function: optional Function to filter the centerline.
-        under_sampling: under sampling factor.
+        under_sampling: under sampling factor of the polygon points.
         evanescent_coupling: if True, it assumes that there is evanescent coupling
             between ports not physically connected.
     """
@@ -257,12 +264,7 @@ def extract_paths(
             "The specified component does not have ports - path length extraction will not work."
         )
 
-    # Perform over_under in the component
-    # interm_component = component.extract([layer])
-    # simplified_component = gf.Component()
-    # simplified_component << over_under(
-    #     interm_component, layers=[layer], distances=(0.05,), remove_original=True
-    # )
+    # Perform over-under to merge all physically connected polygons
     polygons = component.get_polygons(layers=(layer,), by="tuple")[layer]
     r = gf.kdb.Region(polygons)
     r = r.sized(0.05)
@@ -278,8 +280,9 @@ def extract_paths(
         # Single polygon - we need to act differently depending on the number
         # of ports
         poly = polys
+
         if n_ports == 2:
-            # This is the simplest case - straight or bend
+            # This is the simplest case - a straight or a bend
             centerline = centerline_single_poly_2_ports(
                 poly, under_sampling, component.ports
             )
@@ -295,24 +298,38 @@ def extract_paths(
             # the x axis, divide the single polygon into two, and use the
             # logic for MultiPolygons
 
-            y_val = (simplified_component.ymax + simplified_component.ymin) / 2
+            # Unfortunately klayout does not have an easy way to split, so
+            # we will use shapely to do it and then go back to klayout
+
+            y_val = (simplified_component.dymax + simplified_component.dymin) / 2
             slice = sh.LineString(
-                [[simplified_component.xmin, y_val], [simplified_component.xmax, y_val]]
+                [
+                    [simplified_component.dxmin, y_val],
+                    [simplified_component.dxmax, y_val],
+                ]
             )
 
-            polys = ops.split(polys, slice)
+            pts = [(pt.x * 1e-3, pt.y * 1e-3) for pt in poly[0].each_point_hull()]
+            poly = sh.Polygon(pts)
+            split_polys = ops.split(sh.Polygon(poly), slice)
 
-            # sh_plotting.plot_polygon(polys.geoms[0])
-            # sh_plotting.plot_polygon(polys.geoms[1])
-            # plt.show()
+            polys = []
+            # Convert the resulting polygons into klayout regions
+            for poly in split_polys.geoms:
+                pts = []
+                for pt in poly.exterior.coords:
+                    pts.append(DPoint(pt[0] * 1e3, pt[1] * 1e3))
+                polys.append(Polygon(pts))
 
-    else:
+            # Here polys is a list of length 2, so the code that follows will be executed
+
+    if len(polys) > 1:
         # Multiple polygons - iterate through each one
 
         all_ports = list()
 
         for poly in polys:
-            # Need to check how many ports does the polygon contain
+            # Need to check how many ports does that specific polygon contain
             ports_poly = list()
 
             for port in component.ports:
@@ -342,10 +359,10 @@ def extract_paths(
                 )
             all_ports.extend(ports_poly)
 
+        # Deal with evanescent coupling
         if evanescent_coupling:
             ev_paths = dict()
 
-            # Deal with evanescent coupling
             for port1p in all_ports:
                 port1 = port1p.name
                 for port2p in all_ports:
@@ -362,7 +379,7 @@ def extract_paths(
                         # The path has already been computed
                         continue
                     else:
-                        # We need to calculate the path
+                        # We need to calculate the (evanescent) path
 
                         # First gather a connected path that contains each port
                         for key in paths.keys():
@@ -397,12 +414,9 @@ def extract_paths(
                             ]
                         )
 
-                        # print(center.reshape(1, -1))
-                        # print(min_dist_points)
                         distances2 = distance.cdist(
                             center.reshape(1, -1), min_dist_points1
                         )
-                        print(distances2)
                         ind = np.argmin(distances2)
 
                         # Now that we have the closest point we just start by one path and
@@ -443,11 +457,13 @@ def extract_paths(
                         else:
                             evan_path = np.vstack((np.flipud(part1), part2))
 
-                        plt.figure()
-                        plt.plot(path1.points[:, 0], path1.points[:, 1], "--")
-                        plt.plot(path2.points[:, 0], path2.points[:, 1], "--")
-                        plt.plot(evan_path[:, 0], evan_path[:, 1], "-o")
-                        plt.show()
+                        # ==== This is for debugging, keep it until this is table ===
+                        # plt.figure()
+                        # plt.plot(path1.points[:, 0], path1.points[:, 1], "--")
+                        # plt.plot(path2.points[:, 0], path2.points[:, 1], "--")
+                        # plt.plot(evan_path[:, 0], evan_path[:, 1], "-o")
+                        # plt.show()
+                        # ========
 
                         if filter_function is not None:
                             evan_path = filter_function(evan_path)
@@ -460,12 +476,12 @@ def extract_paths(
             xs = [pt.x * 1e-3 for pt in chunk.each_point_hull()]
             ys = [pt.y * 1e-3 for pt in chunk.each_point_hull()]
             plt.plot(xs, ys, "x")
-        for centerline in paths.values():
+        for ports, centerline in paths.items():
             plt.plot(
                 centerline.points[:, 0],
                 centerline.points[:, 1],
-                "k--",
-                label="Centerline",
+                "--",
+                label=ports,
             )
         plt.legend()
         plt.title("Direct paths")
@@ -479,12 +495,12 @@ def extract_paths(
                 xs = [pt.x * 1e-3 for pt in chunk.each_point_hull()]
                 ys = [pt.y * 1e-3 for pt in chunk.each_point_hull()]
                 plt.plot(xs, ys, "x")
-            for centerline in ev_paths.values():
+            for ports, centerline in ev_paths.items():
                 plt.plot(
                     centerline.points[:, 0],
                     centerline.points[:, 1],
-                    "k--",
-                    label="Centerline",
+                    "--",
+                    label=ports,
                 )
             plt.legend()
             plt.title("Evanescent paths")
@@ -597,8 +613,8 @@ if __name__ == "__main__":
     # c0 = gf.components.bend_euler(cross_section="xs_sc", with_arc_floorplan=True)
     # c0 = gf.components.bend_circular()
     # c0 = gf.components.bend_s(npoints=50)
-    # c0 = gf.components.mmi2x2()
-    c0 = gf.components.coupler()
+    c0 = gf.components.mmi2x2()
+    # c0 = gf.components.coupler()
     ev_coupling = True
     # c0 = _demo_routes()
     # ev_coupling = False
