@@ -55,7 +55,7 @@ def get_reasonable_mesh_parameters(c: Component):
     return dict(
         background_tag="vacuum",
         background_padding=(0,) * 5 + (700,),
-        port_names=list(c.ports.keys()),
+        port_names=[port.name for port in c.ports],
         default_characteristic_length=200,
         resolutions={
             "bw": {

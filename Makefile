@@ -1,5 +1,6 @@
 install:
 	pip install -e .[dev,docs,devsim,femwell,gmsh,klayout,meow,meshwell,ray,sax,schematic,tidy3d,vlsir]
+	pip install git+https://github.com/gdsfactory/gdsfactory --force-reinstall
 	pre-commit install
 
 dev: test-data gmsh elmer install
@@ -12,6 +13,9 @@ elmer:
 	sudo apt-add-repository ppa:elmer-csc-ubuntu/elmer-csc-ppa
 	sudo apt-get update
 	sudo apt-get install -y elmerfem-csc mpich
+
+meep:
+	conda install -c conda-forge pymeep=*=mpi_mpich_* nlopt -y\
 
 test:
 	pytest

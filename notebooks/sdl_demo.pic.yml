@@ -9,10 +9,10 @@ instances:
     settings: {gap_mmi: 0.7}
   s1:
     component: straight
-    settings: {length: 20, npoints: 2, cross_section: xs_sc}
+    settings: {length: 20, npoints: 2, cross_section: strip}
   s2:
     component: straight
-    settings: {length: 40, npoints: 2, cross_section: xs_sc}
+    settings: {length: 40, npoints: 2, cross_section: strip}
 placements:
   mmi1: {x: null, y: null, port: null, rotation: 0.0, dx: -22.832156230736544, dy: -0.9358105716724547,
     mirror: null}
@@ -24,19 +24,19 @@ placements:
     mirror: null}
 routes:
   r0:
-    routing_strategy: get_bundle
-    settings: {cross_section: xs_sc, separation: 5.0}
+    routing_strategy: route_bundle
+    settings: {cross_section: strip, separation: 5.0}
     links: {'mmi1,o2': 's1,o1'}
   r1:
-    routing_strategy: get_bundle
-    settings: {cross_section: xs_sc, separation: 5.0}
+    routing_strategy: route_bundle
+    settings: {cross_section: strip, separation: 5.0}
     links: {'mmi2,o2': 's1,o2'}
   r2:
-    routing_strategy: get_bundle
-    settings: {cross_section: xs_sc, separation: 5.0}
+    routing_strategy: route_bundle
+    settings: {cross_section: strip, separation: 5.0}
     links: {'mmi1,o3': 's2,o1'}
   r3:
-    routing_strategy: get_bundle
-    settings: {cross_section: xs_sc, separation: 5.0}
+    routing_strategy: route_bundle
+    settings: {cross_section: strip, separation: 5.0}
     links: {'mmi2,o1': 's2,o2'}
 ports: {o1: 'mmi1,o1', o2: 'mmi2,o3', o3: 'mmi2,o4'}

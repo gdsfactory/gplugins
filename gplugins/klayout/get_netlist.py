@@ -1,3 +1,4 @@
+# type: ignore
 import gdsfactory as gf
 import kfactory as kf
 import klayout.db as kdb
@@ -32,7 +33,7 @@ def get_l2n(
         klayout_tech_path = tech_dir
 
     # klayout tech path is now assumed to contain a `tech.lyt`` file to use
-    technology = Tech.load(str(klayout_tech_path / "tech.lyt"))
+    technology = Tech.load(str(klayout_tech_path))
 
     lib.read(filename=str(gdspath))
     c = lib[0]
@@ -40,9 +41,11 @@ def get_l2n(
     l2n = kf.kdb.LayoutToNetlist(c.begin_shapes_rec(0))
     l2n.threads = kf.config.n_threads
 
-    reversed_layer_map = dict()
-    for k, v in gf.get_active_pdk().layers.items():
-        reversed_layer_map[v] = reversed_layer_map.get(v, set()) | {k}
+    reversed_layer_map = {}
+    layers = gf.get_active_pdk().layers
+
+    for layer in layers:
+        reversed_layer_map[layer] = str(layer)
 
     # define stack connections through vias
     layer_connection_iter = [
@@ -59,8 +62,7 @@ def get_l2n(
     labels = kdb.Texts(c.begin_shapes_rec(0))
     # define the layers to be extracted
     for l_idx in c.kcl.layer_indexes():
-        layer_info = c.kcl.get_info(l_idx)
-        names = reversed_layer_map[(layer_info.layer, layer_info.datatype)]
+        names = {reversed_layer_map[l_idx]}
         try:
             same_name_as_in_connections = next(iter(correct_layer_names & names))
         except StopIteration:
@@ -82,7 +84,6 @@ def get_l2n(
             l2n.connect(layer_via, layer_b)
 
     l2n.extract_netlist()
-
     return l2n
 
 

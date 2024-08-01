@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import devsim as tcad
-from gdsfactory.config import logger
+from gdsfactory import logger
 
 from gplugins.devsim.get_simulation_xsection import (
     PINWaveguide,

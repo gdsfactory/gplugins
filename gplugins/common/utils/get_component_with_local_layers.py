@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 import gdsfactory as gf
 import gdstk
-from gdsfactory.component_layout import _parse_layer
+from gdsfactory.pdk import get_layer
 from gdsfactory.typings import Component, Layer, List
 from gdstk import Polygon
 
@@ -56,7 +56,7 @@ def get_component_with_local_layers(
                 old_layer_number
             ]
             local_component.remove_layers([old_layer_number])
-            gds_layer, gds_datatype = _parse_layer(old_layer_number)
+            gds_layer, gds_datatype = tuple(get_layer(old_layer_number))
             for layer_polygon in layer_polygons:
                 # Polygons inside the domain
                 p_inside = gdstk.boolean(

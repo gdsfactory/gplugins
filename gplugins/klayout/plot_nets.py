@@ -76,19 +76,26 @@ def plot_nets(
         net.from_nx(G_connectivity)
         net.show("connectivity.html")
     else:
-        plt.figure(figsize=(8, 6))
+        color_nets = [
+            "lightblue"
+            if G_connectivity.nodes[node].get("is_net", False)
+            else "lightpink"
+            for node in G_connectivity.nodes()
+        ]
+
+        fig = plt.figure(figsize=(8, 6))
         nx.draw(
             G_connectivity,
             with_labels=True,
             node_size=2000,
-            node_color="lightpink",
+            node_color=color_nets,
             font_size=12,
         )
-        plt.title("Connectivity")
-        return plt
+        return fig
 
 
 if __name__ == "__main__":
+    from gdsfactory.config import PATH as GPATH
     from gdsfactory.samples.demo.lvs import pads_correct, pads_shorted
 
     from gplugins.common.config import PATH
@@ -100,8 +107,9 @@ if __name__ == "__main__":
 
     gdspath = c.write_gds(PATH.extra / "pads.gds")
 
-    l2n = get_l2n(gdspath)
+    l2n = get_l2n(gdspath, klayout_tech_path=GPATH.klayout_lyt)
     path = PATH.extra / f"{c.name}.txt"
     l2n.write_l2n(str(path))
 
     plot_nets(path)
+    plt.show()

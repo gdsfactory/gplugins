@@ -1,13 +1,33 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v0.13.0...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.0.1...main)
 
 <!-- towncrier release notes start -->
 
-## [0.14.0](https://github.com/gdsfactory/gplugins/releases/tag/v0.14.0) - 2024-06-02
+## [1.0.2](https://github.com/gdsfactory/gplugins/releases/tag/v1.0.2) - 2024-06-21
 
 No significant changes.
 
+
+## [1.0.1](https://github.com/gdsfactory/gplugins/releases/tag/v1.0.1) - 2024-06-20
+
+- fix write_drc [#428](https://github.com/gdsfactory/gplugins/pull/428)
+
+## [1.0.0](https://github.com/gdsfactory/gplugins/releases/tag/v1.0.0) - 2024-06-20
+
+- Gdsfactory8 [#413](https://github.com/gdsfactory/gplugins/pull/413)
+- Color net labels differently in imported SPICE graph [#423](https://github.com/gdsfactory/gplugins/pull/423)
+- Strip brackets from model name in Calibre SPICE reader [#419](https://github.com/gdsfactory/gplugins/pull/419)
+- tidy3d fixes [#421](https://github.com/gdsfactory/gplugins/pull/421)
+
+## [0.14.0](https://github.com/gdsfactory/gplugins/releases/tag/v0.14.0) - 2024-06-02
+
+- fix notebooks [#411](https://github.com/gdsfactory/gplugins/pull/411)
+- fix tests [#409](https://github.com/gdsfactory/gplugins/pull/409)
+- Fix SPICE plotting example notebook [#398](https://github.com/gdsfactory/gplugins/pull/398)
+- Fix Elmer tests in CI, fixes towards Palace [#395](https://github.com/gdsfactory/gplugins/pull/395)
+- improve SDL interconnect docs [#401](https://github.com/gdsfactory/gplugins/pull/401)
+- Sdl [#393](https://github.com/gdsfactory/gplugins/pull/393)
 
 ## [0.13.0](https://github.com/gdsfactory/gplugins/releases/tag/v0.13.0) - 2024-04-28
 

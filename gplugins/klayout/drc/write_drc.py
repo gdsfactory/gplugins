@@ -283,8 +283,12 @@ def write_layer_definition(layers: dict[str, Layer]) -> list[str]:
         layers: layer definitions can be dict, dataclass or pydantic BaseModel.
     """
     layers = asdict(layers) if is_dataclass(layers) else layers
-    layers = dict(layers)
-    return [f"{key} = input({value[0]}, {value[1]})" for key, value in layers.items()]
+    out = []
+    for layer in layers:
+        layer_name = str(layer)
+        layer_tuple = tuple(layer)
+        out += [f"{layer_name} = input({layer_tuple[0]}, {layer_tuple[1]})"]
+    return out
 
 
 def get_drc_script(
@@ -454,8 +458,7 @@ if __name__ == "__main__":
         output_layer("TRENCH", (2, 33)),
     ]
 
-    layers = dict(LAYER)
-    layers["WG_PIN"] = (1, 10)
+    layers = LAYER
     drc_check_deck = write_drc_deck_macro(rules=rules, layers=layers, mode="tiled")
     script = get_drc_script(rules=rules, layers=layers, mode="tiled")
     print(script)

@@ -5,7 +5,7 @@ from tempfile import NamedTemporaryFile
 
 import klayout.db as kdb
 import networkx as nx
-from gdsfactory.config import logger
+from gdsfactory import logger
 from gdsfactory.typings import PathType
 
 import gplugins.vlsir
@@ -90,6 +90,10 @@ def netlist_to_networkx(
                 net_name = net.expanded_name()
                 G.add_edge(device_name, net_name)
                 all_used_nets.add(net_name)
+
+    # Easier to set different colors for nets
+    for net in all_used_nets:
+        G.nodes[net]["is_net"] = True
 
     if not include_labels:
         for node in all_used_nets:

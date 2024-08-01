@@ -23,7 +23,7 @@ def mock_region() -> kdb.Region:
 def region_collection() -> dp.RegionCollection:
     c = gf.Component()
     ring = c << gf.components.coupler_ring()
-    c << gf.components.bbox(ring.bbox, layer=l.FLOORPLAN)
+    c << gf.components.bbox(ring, layer=l.FLOORPLAN)
     gdspath = c.write_gds()
     return dp.RegionCollection(gdspath)
 

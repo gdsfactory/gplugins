@@ -7,7 +7,12 @@ import gdsfactory as gf
 import numpy as np
 import pandas as pd
 import yaml
-from gdsfactory.picmodel import PicYamlConfiguration, Placement, SchematicConfiguration
+
+from gplugins.schematic_editor.picmodel import (
+    PicYamlConfiguration,
+    Placement,
+    SchematicConfiguration,
+)
 
 try:
     import bokeh.events as be
@@ -110,8 +115,8 @@ def _get_sources(objs):
         elif isinstance(obj, Rect):
             src = srcs["Rect"]
             src["tag"].append(obj.tag)
-            src["x"].append(obj.x + obj.w / 2)
-            src["y"].append(obj.y + obj.h / 2)
+            src["x"].append(obj.dx + obj.w / 2)
+            src["y"].append(obj.dy + obj.h / 2)
             src["width"].append(obj.w)
             src["height"].append(obj.h)
             src["fill_color"].append(obj.c)
@@ -245,10 +250,10 @@ def viz_bk(
             return
         df = pd.DataFrame(data["dss"]["Rect"].data)
         mask = np.ones_like(df.x, dtype=bool)
-        mask &= df.x - df.width / 2 < event.x
-        mask &= event.x < df.x + df.width / 2
-        mask &= df.y - df.height / 2 < event.y
-        mask &= event.y < df.y + df.width / 2
+        mask &= df.dx - df.width / 2 < event.x
+        mask &= event.dx < df.dx + df.width / 2
+        mask &= df.dy - df.height / 2 < event.y
+        mask &= event.dy < df.dy + df.width / 2
         df = df[mask]
 
         tags = df.tag.values
@@ -336,7 +341,8 @@ def viz_bk(
 
 def get_ports(component):
     comp = component
-    return natsorted(comp.ports.keys())
+    port_names = [port.name for port in comp.ports]
+    return natsorted(port_names)
 
 
 def is_output_port(port):
@@ -376,11 +382,10 @@ def viz_instance(
 ):
     # inst_spec = netlist.instances[instance_name].dict()
     inst_ref = component.named_references[instance_name]
-    bbox = inst_ref.bbox
-    w = bbox[1][0] - bbox[0][0]
-    h = bbox[1][1] - bbox[0][1]
-    x0 = bbox[0][0]
-    y0 = bbox[0][1]
+    w = inst_ref.dxsize
+    h = inst_ref.dysize
+    x0 = inst_ref.dxmin
+    y0 = inst_ref.dymin
     # pl = w / 10
     # input_ports = get_input_ports(component)
     # output_ports = get_output_ports(component)
@@ -388,7 +393,7 @@ def viz_instance(
     # y_outputs = ports_ys(output_ports, h)
     # x, y = get_placements(netlist).get(instance_name, (0, 0))
     x, y = x0, y0
-    polys_by_layer = inst_ref.get_polygons(by_spec=True, as_array=False)
+    polys_by_layer = inst_ref.parent_cell.get_polygons()
     layer_polys = []
     layer_views = gf.pdk.get_layer_views()
 
@@ -409,10 +414,10 @@ def viz_instance(
             )
             layer_polys.append(lp)
 
-    ports: list[gf.Port] = inst_ref.ports.values()
+    ports: list[gf.Port] = inst_ref.ports
     ports = [p.copy() for p in ports]
     for p in ports:
-        # p.move((x, y))
+        # p.dmove((x, y))
         p.tag = instance_name
     c = "#000000"
 

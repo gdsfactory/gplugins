@@ -5,8 +5,8 @@ from pathlib import Path
 
 import gdsfactory as gf
 import numpy as np
+from gdsfactory import logger
 from gdsfactory.component import Component
-from gdsfactory.config import logger
 from gdsfactory.generic_tech import LAYER_STACK
 from gdsfactory.technology import LayerStack
 

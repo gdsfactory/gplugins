@@ -1,6 +1,6 @@
 """gplugins - gdsfactory plugins"""
 
-__version__ = "0.14.0"
+__version__ = "1.0.2"
 
 import pathlib
 

@@ -13,10 +13,9 @@ from typing import Any
 import gdsfactory as gf
 import meep as mp
 import numpy as np
-import pydantic
 import yaml
+from gdsfactory import logger
 from gdsfactory.component import Component
-from gdsfactory.config import logger
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.serialization import clean_value_json
 from gdsfactory.technology import LayerStack
@@ -65,7 +64,8 @@ def parse_port_eigenmode_coeff(
 
     """
     if port_name not in ports:
-        raise ValueError(f"port = {port_name!r} not in {list(ports.keys())}.")
+        port_names = [port.name for port in ports]
+        raise ValueError(f"port = {port_name!r} not in {port_names}.")
 
     orientation = ports[port_name].orientation
 
@@ -113,7 +113,6 @@ def parse_port_eigenmode_coeff(
     return coeff_in, coeff_out
 
 
-@pydantic.validate_arguments
 def write_sparameters_meep(
     component: ComponentSpec,
     port_source_names: list[str] | None = None,
@@ -348,9 +347,10 @@ def write_sparameters_meep(
         right=xmargin_right,
     )
 
-    component_ref = component.ref()
+    dummy = Component()
+    component_ref = dummy << component
     ports = component_ref.ports
-    port_names = [port.name for port in list(ports.values())]
+    port_names = [port.name for port in ports]
     port_source_names = port_source_names or port_names
     port_source_modes = port_source_modes or {key: [0] for key in port_source_names}
     port_modes = port_modes or [0]
@@ -401,7 +401,6 @@ def write_sparameters_meep(
     sp = {}  # Sparameters dict
     start = time.time()
 
-    @pydantic.validate_arguments
     def sparameter_calculation(
         port_source_name: str,
         component: Component,

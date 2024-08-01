@@ -84,7 +84,7 @@ class Model:
         # Extract inputs and outputs vector size data
         self.size_inputs = len(self.trainable_parameters)
         self.num_ports = len(
-            trainable_component(self.get_nominal_dict()).get_ports_list(
+            trainable_component(self.get_nominal_dict()).ports.filter(
                 port_type="optical"
             )
         )

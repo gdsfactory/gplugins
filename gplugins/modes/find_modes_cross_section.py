@@ -165,7 +165,7 @@ def find_modes_cross_section(
 if __name__ == "__main__":
     import gdsfactory as gf
 
-    cross_section = "xs_sc"
+    cross_section = "strip"
     s = gf.components.straight(cross_section=cross_section)
 
     s.show()

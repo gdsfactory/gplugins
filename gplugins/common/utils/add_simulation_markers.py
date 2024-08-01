@@ -83,13 +83,13 @@ def add_simulation_markers(
     component = gf.get_component(component)
 
     ref = c << component
-    port_names = list(ref.ports.keys())
+    port_names = [port.name for port in ref.ports]
 
     layer_stack = get_layer_stack()
 
     if port_source_name not in port_names:
         warnings.warn(f"port_source_name={port_source_name!r} not in {port_names}")
-        port_source = ref.get_ports_list()[0]
+        port_source = ref.ports[0]
         port_source_name = port_source.name
         warnings.warn(f"Selecting port_source_name={port_source_name!r} instead.")
 
@@ -98,7 +98,7 @@ def add_simulation_markers(
     ), f"component needs to be a gf.Component, got Type {type(component)}"
 
     # Add port monitors
-    for port_name in ref.ports.keys():
+    for port_name in port_names:
         port = ref.ports[port_name]
         add_pin_rectangle(c, port=port, port_margin=port_margin, layer=layer_monitor)
         layer_stack.layers["monitor"] = LayerLevel(

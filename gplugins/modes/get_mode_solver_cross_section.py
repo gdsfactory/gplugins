@@ -24,7 +24,7 @@ tmp.mkdir(exist_ok=True)
 
 @pydantic.validate_call
 def get_mode_solver_cross_section(
-    cross_section: CrossSectionSpec = "xs_sc",
+    cross_section: CrossSectionSpec = "strip",
     sy: float = 2.0,
     sz: float = 2.0,
     resolution: int = 32,
@@ -113,7 +113,7 @@ def get_mode_solver_cross_section(
     return mode_solver
 
 
-get_mode_solver_rib = partial(get_mode_solver_cross_section, cross_section="xs_rc")
+get_mode_solver_rib = partial(get_mode_solver_cross_section, cross_section="rib")
 
 
 if __name__ == "__main__":

@@ -6,13 +6,14 @@ import warnings
 from functools import partial
 
 import gdsfactory as gf
+import gdstk
 import matplotlib.pyplot as plt
 import numpy as np
 import tidy3d as td
+from gdsfactory import logger
 from gdsfactory.add_padding import add_padding_container
 from gdsfactory.component import Component
 from gdsfactory.components.extension import move_polar_rad_copy
-from gdsfactory.config import logger
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 from gdsfactory.typings import CrossSectionSpec
@@ -244,22 +245,22 @@ def get_simulation_grating_coupler(
         raise ValueError(f"component should be a gdsfactory.Component not {component}")
 
     if port_waveguide_name not in component.ports:
+        port_names = [port.name for port in component.ports]
         warnings.warn(
-            f"port_waveguide_name={port_waveguide_name!r} not in {component.ports.keys()}"
+            f"port_waveguide_name={port_waveguide_name!r} not in {port_names}"
         )
-        port_waveguide = component.get_ports_list()[0]
+        port_waveguide = component.ports[0]
         port_waveguide_name = port_waveguide.name
         warnings.warn(f"Selecting port_waveguide_name={port_waveguide_name!r} instead.")
 
     fiber_port_name = None
-    for port_name in component.ports.keys():
+    port_names = [port.name for port in component.ports]
+    for port_name in port_names:
         if port_name.startswith(fiber_port_prefix):
             fiber_port_name = port_name
 
     if fiber_port_name is None:
-        raise ValueError(
-            f"No port named {fiber_port_prefix!r} in {component.ports.keys()}"
-        )
+        raise ValueError(f"No port named {fiber_port_prefix!r} in {port_names}")
     add_padding_custom = partial(
         add_padding_container,
         default=0,
@@ -287,22 +288,23 @@ def get_simulation_grating_coupler(
         else component
     )
 
-    component_extended = component_extended.flatten()
-    component_extended.name = component.name
-    component_extended.show(show_ports=True)
+    gdspath = component_extended.write_gds()
+    component_exteded_name = component_extended.name
 
-    component_ref = component_padding.ref()
-    component_ref.center = (0, 0)
+    c = gf.Component()
+    component_ref = c << component_padding
+    component_ref.dx = 0
+    component_ref.dy = 0
 
     if len(layer_to_thickness) < 1:
-        raise ValueError(f"{component.get_layers()} not in {layer_to_thickness.keys()}")
+        raise ValueError(f"{component.layers} not in {layer_to_thickness.keys()}")
 
     core_thickness = max(layer_to_thickness.values())
-    sim_xsize = component_ref.xsize + 2 * thickness_pml
+    sim_xsize = component_ref.dxsize + 2 * thickness_pml
     sim_zsize = (
         thickness_pml + box_thickness + core_thickness + thickness_pml + 2 * zmargin
     )
-    sim_ysize = component_ref.ysize + 2 * thickness_pml if is_3d else 0
+    sim_ysize = component_ref.dysize + 2 * thickness_pml if is_3d else 0
     sim_size = [
         sim_xsize,
         sim_ysize,
@@ -353,13 +355,20 @@ def get_simulation_grating_coupler(
 
     structures = [substrate, box, clad]
 
-    component_layers = component_padding.get_layers()
+    component_layers = component_padding.layers
+
+    zmax_simulation = 0
 
     for layer, thickness in layer_to_thickness.items():
-        if layer in layer_to_material and layer in component_layers:
+        if not hasattr(layer, "layer"):
+            print(f"Skipping {layer}")
+            continue
+        layer_tuple = tuple(layer.layer)
+        if layer in layer_to_material and layer_tuple in component_layers:
             zmin = layer_to_zmin[layer]
             zmax = zmin + thickness
             material_name = layer_to_material[layer]
+            zmax_simulation = max(zmax_simulation, zmax)
 
             if material_name in material_name_to_tidy3d:
                 spec = material_name_to_tidy3d[material_name]
@@ -378,10 +387,16 @@ def get_simulation_grating_coupler(
                 )
                 medium = get_medium(material_index)
 
+            lib_loaded = gdstk.read_gds(gdspath)
+            # Create a cell dictionary with all the cells in the file
+            all_cells = {c.name: c for c in lib_loaded.cells}
+            component_extended_cell = all_cells[component_exteded_name]
+
+            print(f"Adding {layer=}, {layer_tuple=} {zmin=}, {zmax=} {material_name=}")
             polygons = td.PolySlab.from_gds(
-                gds_cell=component_extended._cell,
-                gds_layer=layer[0],
-                gds_dtype=layer[1],
+                gds_cell=component_extended_cell,
+                gds_layer=layer_tuple[0],
+                gds_dtype=layer_tuple[1],
                 axis=2,
                 slab_bounds=(zmin, zmax),
                 sidewall_angle=np.deg2rad(sidewall_angle_deg),
@@ -395,6 +410,10 @@ def get_simulation_grating_coupler(
                 )
                 structures.append(geometry)
 
+    if zmax_simulation == 0:
+        raise ValueError("No layers found in component")
+
+    zmax = zmax_simulation
     wavelengths = np.linspace(wavelength_start, wavelength_stop, wavelength_points)
     freqs = td.constants.C_0 / wavelengths
     freq0 = td.constants.C_0 / np.mean(wavelengths)
@@ -403,7 +422,7 @@ def get_simulation_grating_coupler(
     # Add input waveguide port
     port = component_ref[port_waveguide_name]
     angle = port.orientation
-    width = port.width + 2 * port_margin
+    width = port.dwidth + 2 * port_margin
     size_x = width * abs(np.sin(angle * np.pi / 180))
     size_y = width * abs(np.cos(angle * np.pi / 180))
     size_x = 0 if size_x < 0.001 else size_x
@@ -412,7 +431,7 @@ def get_simulation_grating_coupler(
     size_z = core_thickness + zmargin + box_thickness
     waveguide_port_size = [size_x, size_y, size_z]
     xy_shifted = move_polar_rad_copy(
-        np.array(port.center), angle=angle * np.pi / 180, length=port_waveguide_offset
+        np.array(port.dcenter), angle=angle * np.pi / 180, length=port_waveguide_offset
     )
     waveguide_port_center = xy_shifted.tolist() + [
         (core_thickness + zmargin - box_thickness) / 2
@@ -428,7 +447,7 @@ def get_simulation_grating_coupler(
 
     # Add fiber monitor
     fiber_port = component_ref.ports[fiber_port_name]
-    fiber_port_x = fiber_port.x + fiber_xoffset
+    fiber_port_x = fiber_port.dx + fiber_xoffset
 
     if fiber_port_x < -sim_size[0] / 2 or fiber_port_x > sim_size[0] / 2:
         raise ValueError(
@@ -532,6 +551,8 @@ def get_simulation_grating_coupler(
 
 
 if __name__ == "__main__":
+    import gplugins.tidy3d as gt
+
     c = gf.components.grating_coupler_elliptical_trenches()
 
     # c = gf.components.grating_coupler_elliptical_arbitrary(
@@ -543,7 +564,7 @@ if __name__ == "__main__":
         is_3d=False,
         fiber_angle_deg=20,
     )
-    # gt.plot_simulation(sim)  # make sure simulations looks good
+    gt.plot_simulation(sim)  # make sure simulations looks good
 
     # c = gf.components.grating_coupler_elliptical_lumerical()  # inverse design grating
     # sim = get_simulation_grating_coupler(c, plot_modes=False, fiber_angle_deg=-5)

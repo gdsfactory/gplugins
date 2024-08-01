@@ -19,11 +19,13 @@ authors = [
 classifiers = [
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
   "Operating System :: OS Independent"
 ]
 dependencies = [
-  "gdsfactory>=7.27.1,<8.0",
+  "gdsfactory>=8.5.3",
   "pint",
+  "gdstk",
   "tqdm"
 ]
 description = "gdsfactory plugins"
@@ -32,7 +34,7 @@ license = {file = "LICENSE"}
 name = "gplugins"
 readme = "README.md"
 requires-python = ">=3.10"
-version = "0.14.0"
+version = "1.0.2"
 
 [project.optional-dependencies]
 dagster = ["dagster", "dagit"]
@@ -53,12 +55,12 @@ dev = [
 devsim = [
   "devsim",
   "pyvista<=0.43.8",
-  "tidy3d>=2.5.2,<2.7"
+  "tidy3d>=2.5.2,<2.8"
 ]
 docs = [
   "jupytext",
   "matplotlib",
-  "jupyter-book==1.0.0",
+  "jupyter-book==1.0.2",
   "pyvista[all,trame]<=0.43.8"
 ]
 femwell = [
@@ -90,29 +92,30 @@ meow = [
   "jax>=0.4.26",
   "jaxlib>=0.4.26",
   "flax>=0.8.2",
-  "meow-sim~=0.9.0",
-  "tidy3d>=2.5.2,<2.7"
+  "meow-sim~=0.11.0",
+  "tidy3d>=2.5.2,<2.8"
 ]
 sax = [
   "jax>=0.4.26",
   "jaxlib>=0.4.26",
   "flax>=0.8.2",
-  "sax~=0.12.2",
+  "sax~=0.13.1",
   "scikit-learn",
   "pyvis<=0.3.1"
 ]
 schematic = [
   "bokeh",
+  "ipywidgets",
   "natsort"
 ]
 tidy3d = [
-  "tidy3d>=2.5.2,<2.7",
+  "tidy3d>=2.5.2,<2.8",
   "meshio",
   "meshwell>=1.0.7,<=1.1"
 ]
 vlsir = [
-  "vlsir>=4.0.0,<6.0.0",
-  "vlsirtools>=4.0.0,<6.0.0"
+  "vlsir>=4.0.0,<=6.0.0",
+  "vlsirtools>=4.0.0,<=6.0.0"
 ]
 
 [tool.codespell]
@@ -207,7 +210,7 @@ message_template = "Bump to {new_version}"
 tag_template = "v{new_version}"
 
 [tool.tbump.version]
-current = "0.14.0"
+current = "1.0.2"
 regex = '''
   (?P<major>\d+)
   \.

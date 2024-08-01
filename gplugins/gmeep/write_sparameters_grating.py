@@ -20,7 +20,8 @@ import matplotlib.pyplot as plt
 import meep as mp
 import numpy as np
 import yaml
-from gdsfactory.config import logger, sparameters_path
+from gdsfactory import logger
+from gdsfactory.config import PATH
 from gdsfactory.serialization import clean_value_json, clean_value_name
 from gdsfactory.typings import PathType
 
@@ -45,11 +46,11 @@ def write_sparameters_grating(
     plot_contour: bool = False,
     animate: bool = False,
     overwrite: bool = False,
-    dirpath: PathType | None = sparameters_path,
+    dirpath: PathType | None = PATH.sparameters,
     decay_by: float = 1e-3,
     verbosity: int = 0,
     **settings,
-) -> np.ndarray:
+) -> dict[str, np.ndarray]:
     """Write grating coupler with fiber Sparameters.
 
     Args:

@@ -55,6 +55,11 @@ def get_component_with_net_layers(
         new_layers_init: initial layer number for the temporary new layers.
         add_to_layerstack: True by default, but can be set to False to disable parsing of the layerstack.
     """
+
+    return NotImplementedError(
+        "Meshing component with net layers not implemented in gdsfactory8 yet."
+    )
+
     # Initialize returned component
     net_component = component.copy()
 

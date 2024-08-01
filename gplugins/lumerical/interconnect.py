@@ -7,7 +7,6 @@ from collections import OrderedDict
 import numpy as np
 from gdsfactory import Component
 from gdsfactory.config import PATH
-from omegaconf import DictConfig
 
 c = 2.9979e8
 pi = np.pi
@@ -16,12 +15,10 @@ um = 1e-6
 
 def install_design_kit(
     session: object,
+    cml_path: pathlib.Path,
     install_dir: pathlib.Path = PATH.interconnect,
     overwrite: bool = False,
 ) -> None:
-    from gdsfactory.pdk import get_interconnect_cml_path
-
-    cml_path = get_interconnect_cml_path()
     session.installdesignkit(str(cml_path), str(install_dir), overwrite)
 
 
@@ -30,9 +27,6 @@ def set_named_settings(
 ) -> None:
     for param, val in zip(simulation_settings.keys(), simulation_settings.values()):
         session.setnamed(element, param, val)
-
-
-# TODO: Add custom s-parameter models using compound elements
 
 
 def add_interconnect_element(
@@ -154,10 +148,10 @@ def send_to_interconnect(
 
     netlist = c.get_netlist()
 
-    instances: DictConfig = netlist["instances"]
-    connections: DictConfig = netlist["connections"]
-    placements: DictConfig = placements or netlist["placements"]
-    ports: DictConfig = netlist["ports"]
+    instances = netlist["instances"]
+    connections = netlist["connections"]
+    placements = placements or netlist["placements"]
+    ports = netlist["ports"]
 
     relay_count = 1
     excluded = []

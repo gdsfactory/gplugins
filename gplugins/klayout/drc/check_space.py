@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import klayout.db as pya
 from gdsfactory.component import Component
 from gdsfactory.typings import ComponentOrPath
@@ -46,12 +48,11 @@ def check_space(
 
     """
 
-    if isinstance(gdspath, Component):
-        gdspath.flatten()
-        gdspath = gdspath.write_gds()
-    layout = pya.Layout()
-    layout.read(str(gdspath))
-    cell = layout.top_cell()
+    if isinstance(gdspath, str | Path):
+        gdspath = gf.import_gds(gdspath)
+
+    layout = gdspath.kcl
+    cell = gdspath._kdb_cell
     region = pya.Region(cell.begin_shapes_rec(layout.layer(layer[0], layer[1])))
 
     valid_metrics = ["Square", "Euclidean"]

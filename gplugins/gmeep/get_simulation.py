@@ -10,7 +10,7 @@ import gdsfactory as gf
 import meep as mp
 import numpy as np
 from gdsfactory.component import Component
-from gdsfactory.components.extension import move_polar_rad_copy
+from gdsfactory.components.extension import extend_ports, move_polar_rad_copy
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 
@@ -141,18 +141,19 @@ def get_simulation(
     layer_stack = layer_stack or get_layer_stack()
     layer_to_thickness = layer_stack.get_layer_to_thickness()
 
-    component_ref = component.ref()
-    component_ref.x = 0
-    component_ref.y = 0
+    dummy_component = gf.Component()
+    component_ref = dummy_component << component
+    component_ref.dx = 0
+    component_ref.dy = 0
 
     wavelength = (wavelength_start + wavelength_stop) / 2
 
     wavelengths = np.linspace(wavelength_start, wavelength_stop, wavelength_points)
-    port_names = list(component_ref.ports.keys())
+    port_names = [port.name for port in component_ref.ports]
 
     if port_source_name not in port_names:
         warnings.warn(f"port_source_name={port_source_name!r} not in {port_names}")
-        port_source = component_ref.get_ports_list()[0]
+        port_source = component_ref.ports[0]
         port_source_name = port_source.name
         warnings.warn(f"Selecting port_source_name={port_source_name!r} instead.")
 
@@ -161,15 +162,13 @@ def get_simulation(
     ), f"component needs to be a gf.Component, got Type {type(component)}"
 
     component_extended = (
-        gf.components.extension.extend_ports(
-            component=component, length=extend_ports_length, centered=True
-        )
+        extend_ports(component=component, length=extend_ports_length, centered=True)
         if extend_ports_length
         else component
     )
 
     component_extended.show()
-    component_extended = component_extended.flatten()
+    # component_extended.flatten()
 
     # geometry_center = [component_extended.x, component_extended.y]
     # geometry_center = [0, 0]
@@ -193,8 +192,8 @@ def get_simulation(
     cell_thickness = tpml + zmargin_bot + t_core + zmargin_top + tpml if is_3d else 0
 
     cell_size = mp.Vector3(
-        component.xsize + 2 * tpml,
-        component.ysize + 2 * tpml,
+        component.dxsize + 2 * tpml,
+        component.dysize + 2 * tpml,
         cell_thickness,
     )
 
@@ -271,8 +270,8 @@ def get_simulation(
 
     # Add port monitors dict
     monitors = {}
-    for port_name in component_ref.ports.keys():
-        port = component_ref.ports[port_name]
+    for port in component_ref:
+        port_name = port.name
         angle_rad = np.radians(port.orientation)
         width = port.width + 2 * port_margin
         size_x = width * abs(np.sin(angle_rad))

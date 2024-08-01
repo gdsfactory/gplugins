@@ -1,7 +1,9 @@
+# type: ignore
 from collections.abc import Callable
 from functools import partial
 
 import gdsfactory as gf
+import kfactory as kf
 import matplotlib.pyplot as plt
 import numpy as np
 import shapely as sh
@@ -204,19 +206,19 @@ def centerline_single_poly_2_ports(poly, under_sampling, port_list):
     return centerline
 
 
-def extract_path(
-    component: gf.Component,
+def extract_paths(
+    component: gf.typings.Component | kf.Instance,
     layer: gf.typings.LayerSpec = (1, 0),
     plot: bool = False,
     filter_function: Callable = None,
     under_sampling: int = 1,
     evanescent_coupling: bool = False,
 ) -> gf.Path:
-    """Extracts the centerline of a component from a GDS file.
+    """Extracts the centerline of a component or instance from a GDS file.
 
     Args:
-        component: GDS component.
-        layer: GDS layer to extract the centerline from.
+        component: gdsfactory component or instance to extract from.
+        layer: layer to extract the centerline from.
         plot: Plot the centerline.
         filter_function: optional Function to filter the centerline.
         under_sampling: under sampling factor.
@@ -555,15 +557,13 @@ def _demo_routes():
     left_ports.reverse()
 
     c = gf.Component(name="connect_bundle_v2")
-    routes = gf.routing.get_bundle(
+    gf.routing.route_bundle(
+        c,
         left_ports,
         right_ports,
         sort_ports=True,
         start_straight_length=100,
-        enforce_port_ordering=False,
     )
-    for route in routes:
-        c.add(route.references)
     c.add_ports(right_ports)
     c.add_ports(left_ports)
 
@@ -587,7 +587,7 @@ if __name__ == "__main__":
 
     # c = gf.import_gds(gdspath)
     # p = extract_path(c, plot=False, window_length=None, polyorder=None)
-    path_dict, ev_path_dict = extract_path(
+    path_dict, ev_path_dict = extract_paths(
         c0, plot=True, under_sampling=1, evanescent_coupling=ev_coupling
     )
     r_and_l_dict = get_min_radius_and_length_path_dict(path_dict)
