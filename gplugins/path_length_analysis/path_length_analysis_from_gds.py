@@ -374,7 +374,7 @@ def extract_paths(
                         f"{port1};{port2}" in paths,
                         f"{port2};{port1}" in paths,
                         f"{port1};{port2}" in ev_paths,
-                        f"{port2};{port1}" in ev_paths
+                        f"{port2};{port1}" in ev_paths,
                     ):
                         # The path has already been computed
                         continue
