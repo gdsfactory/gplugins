@@ -218,7 +218,7 @@ def idealized_mxn_connectivity(
     Returns:
         None (graph is modified in-place)
     """
-    warnings.warn(f"using idealized links for {inst_name} ({ref.parent_cell.name})")
+    warnings.warn(f"using idealized links for {inst_name} ({ref.cell.name})")
     in_ports = [p for p in ref.ports if p.startswith("in")]
     out_ports = [p for p in ref.ports if p.startswith("out")]
     for in_port in in_ports:
@@ -257,7 +257,7 @@ def _get_edge_based_route_attr_graph(
     for inst_name in netlist["instances"]:
         ref = component.insts[inst_name]
         inst_refs[inst_name] = ref
-        info = ref.parent_cell.info.model_dump()
+        info = ref.cell.info.model_dump()
         if "route_info_length" in info:
             inst_route_attrs[inst_name] = {}
             for key, value in info.items():

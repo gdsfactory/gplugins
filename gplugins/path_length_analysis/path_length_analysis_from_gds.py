@@ -370,11 +370,11 @@ def extract_paths(
                     if port1 == port2:
                         # Same port - skip
                         continue
-                    if any(
-                        f"{port1};{port2}" in paths,
-                        f"{port2};{port1}" in paths,
-                        f"{port1};{port2}" in ev_paths,
-                        f"{port2};{port1}" in ev_paths,
+                    if (
+                        f"{port1};{port2}" in paths
+                        or f"{port2};{port1}" in paths
+                        or f"{port1};{port2}" in ev_paths
+                        or f"{port2};{port1}" in ev_paths
                     ):
                         # The path has already been computed
                         continue
@@ -613,8 +613,8 @@ if __name__ == "__main__":
     # c0 = gf.components.bend_euler(cross_section="xs_sc", with_arc_floorplan=True)
     # c0 = gf.components.bend_circular()
     # c0 = gf.components.bend_s(npoints=50)
-    c0 = gf.components.mmi2x2()
-    # c0 = gf.components.coupler()
+    # c0 = gf.components.mmi2x2()
+    c0 = gf.components.coupler()
     ev_coupling = True
     # c0 = _demo_routes()
     # ev_coupling = False

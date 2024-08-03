@@ -320,7 +320,7 @@ if __name__ == "__main__":
     from gdsfactory.pdk import get_layer_stack
 
     # Choose some component
-    c = gf.component.Component()
+    c = gf.Component()
     waveguide = c << gf.get_component(gf.components.straight(length=40))
     c.add_ports(waveguide.ports)
 

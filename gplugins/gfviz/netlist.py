@@ -51,7 +51,7 @@ def patch_netlist_with_connection_info(netlist):
     i = netlist["info"] = netlist.get("info", {})
     s = i["schematic"] = i.get("schematic", {})
     ic = s["implicit_connections"] = s.get("implicit_connections", {})
-    for ip1, ip2 in netlist["nets"].items():
+    for ip1, ip2 in netlist["nets"]:
         if _is_implicit_connection(ip1, ip2, netlist["instances"], netlist["nets"]):
             ic["ip1"] = ip2
     return netlist
@@ -188,13 +188,13 @@ def get_ports(child, parent=None):
         i = np.argmin([dn, de, ds, dw])
         return ["n", "e", "s", "w"][i]
 
-    ports = {name: orientation(*c.ports[name].center) for name in ports}
+    ports = {port.name: orientation(*c.ports[port.name].center) for port in ports}
     return ports
 
 
 def get_netlist(c: gf.Component, with_instance_info=False):
     try:
-        netlist = c.get_netlist(merge_info=True)
+        netlist = c.get_netlist()
     except TypeError:
         netlist = c.get_netlist()
     netlist = replace_cross_sections_recursive(netlist)
@@ -212,7 +212,6 @@ def get_icon_poly(name):
     if "taper" in name or "trans" in name:
         return taper
     c = gf.get_component(name)
-    c.flatten()
     layer_priority = {lay: i for i, lay in enumerate(most_common_layers())}
     polys = {}
     for layer, p in c.get_polygons_points().items():
@@ -281,7 +280,7 @@ def wrap_component_in_netlist(name):
     c = gf.Component()
     _ = c << gf.get_component(name)
     c.name = name
-    ports = {p: f"{name},{p}" for p in c.references[0].ports}
+    ports = {p: f"{name},{p}" for p in c.insts[0].ports}
     return {
         "instances": {
             f"{name}": {
@@ -289,7 +288,7 @@ def wrap_component_in_netlist(name):
                 "settings": {},
             },
         },
-        "nets": {},
+        "nets": [],
         "ports": {p: ports[p] for p in sort_ports(ports)},
     }
 
@@ -318,7 +317,7 @@ def ensure_netlist_order(netlist):
     return {
         "pdk": netlist.pop("pdk", ""),
         "instances": netlist.pop("instances", {}),
-        "nets": netlist.pop("nets", {}),
+        "nets": netlist.pop("nets", []),
         "routes": netlist.pop("routes", {}),
         "ports": netlist.pop("ports", {}),
         "placements": netlist.pop("placements", {}),
