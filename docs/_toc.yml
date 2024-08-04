@@ -43,8 +43,6 @@ parts:
       - file: plugins_circuits
         sections:
           - file: notebooks/sax_01_sax
-          - file: notebooks/sax_02_model_extraction
-          - file: notebooks/sax_03_variability_analysis
           - file: notebooks/lumerical_2_interconnect
           - file: notebooks/vlsir_netlist
       - file: sdl

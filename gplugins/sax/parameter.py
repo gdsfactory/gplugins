@@ -96,6 +96,12 @@ class NamedParameter(Parameter):
         return None
 
 
+def array_to_tuples(array, n):
+    array = [float(x) for x in array]
+    # Form tuples of size n
+    return [tuple(array[i : i + n]) for i in range(0, len(array), n)]
+
+
 class LithoParameter(Parameter):
     def __init__(
         self,
@@ -141,7 +147,7 @@ class LithoParameter(Parameter):
     def layer_dilation_erosion(self, component, dilation_value):
         temp_component = gf.Component()
         for layer, layer_polygons in component.get_polygons_points().items():
-            if layer == self.layer:
+            if layer == self.layer.layer1.layer1.layer:
                 # Make sure all layer polygons are fused properly
                 shapely_polygons = [
                     shapely.geometry.Polygon(polygon) for polygon in layer_polygons
@@ -335,18 +341,18 @@ if __name__ == "__main__":
     eroded_c = param.layer_dilation_erosion(c, 0.2)
     eroded_c.show()
 
-    param = LithoParameter(layername="core")
-    eroded_c = param.layer_dilation_erosion(c, -0.2)
-    eroded_c.show()
+    # param = LithoParameter(layername="core")
+    # eroded_c = param.layer_dilation_erosion(c, -0.2)
+    # eroded_c.show()
 
-    param = LithoParameter(layername="core")
-    eroded_c = param.layer_x_offset(c, 0.5)
-    eroded_c.show()
+    # param = LithoParameter(layername="core")
+    # eroded_c = param.layer_x_offset(c, 0.5)
+    # eroded_c.show()
 
-    param = LithoParameter(layername="core")
-    eroded_c = param.layer_y_offset(c, 0.5)
-    eroded_c.show()
+    # param = LithoParameter(layername="core")
+    # eroded_c = param.layer_y_offset(c, 0.5)
+    # eroded_c.show()
 
-    param = LithoParameter(layername="core")
-    eroded_c = param.layer_round_corners(c, 0.2)
-    eroded_c.show()
+    # param = LithoParameter(layername="core")
+    # eroded_c = param.layer_round_corners(c, 0.2)
+    # eroded_c.show()
