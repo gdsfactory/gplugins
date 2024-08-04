@@ -30,8 +30,8 @@ def get_mesh(
     z: float | None = None,
     xsection_bounds=None,
     wafer_padding: float = 0.0,
-    wafer_layer: Layer = (99999, 0),
-    default_characteristic_length=0.5,
+    wafer_layer: Layer = (999, 0),
+    default_characteristic_length: float = 0.5,
     background_remeshing_file: Path | None = None,
     **kwargs,
 ):

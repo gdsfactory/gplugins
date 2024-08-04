@@ -1,3 +1,4 @@
+# type: ignore
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -261,11 +262,7 @@ def uz_xsection_mesh(
     )
 
     # simulation polygons to u-z coordinates along cross-sectional line
-    if "z_bounds" in kwargs:
-        z_bounds = kwargs["z_bounds"]
-    else:
-        z_bounds = None
-
+    z_bounds = kwargs.get("z_bounds", None)
     bounds_dict = get_uz_bounds_layers(
         buffered_layer_polygons_dict,
         xsection_bounds,
@@ -409,7 +406,7 @@ def uz_xsection_mesh(
 if __name__ == "__main__":
     from gdsfactory.pdk import get_layer_stack
 
-    c = gf.component.Component()
+    c = gf.Component()
 
     waveguide = c << gf.get_component(gf.components.straight_pin(length=10, taper=None))
     undercut = c << gf.get_component(

@@ -188,7 +188,7 @@ def xy_xsection_mesh(
 if __name__ == "__main__":
     import gdsfactory as gf
 
-    c = gf.component.Component()
+    c = gf.Component()
     waveguide = c << gf.get_component(gf.components.straight_pin(length=10, taper=None))
 
     from gdsfactory.pdk import get_layer_stack
