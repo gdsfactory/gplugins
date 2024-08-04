@@ -26,6 +26,7 @@ execute:
     - "*elmer_01_electrostatic*"
     - "*meep_01_sparameters*"
     - "*meow_01*"
+    - "*femwell_01_modes*"
     # - "*20_schematic_driven_layout*"
     # - "*001_meep_sparameters*"
     # - "*00_tidy3d.ipynb"
