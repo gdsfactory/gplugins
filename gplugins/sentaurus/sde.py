@@ -283,7 +283,7 @@ if __name__ == "__main__":
         ]
     )
 
-    test_component = gf.geometry.trim(
+    test_component = gf.functions.trim(
         component=test_straight, domain=[[0, -4], [0, 4], [length, 4], [length, -4]]
     )
 

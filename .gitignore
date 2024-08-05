@@ -13,6 +13,8 @@ gplugins/klayout/tech.lyt
 
 # C extensions
 *.csv
+*.xdmf
+*.h5
 *.html
 *.png
 *.so

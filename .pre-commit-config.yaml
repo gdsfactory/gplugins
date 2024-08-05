@@ -16,7 +16,7 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.5.1"
+    rev: "v0.5.5"
     hooks:
       - id: ruff
       - id: ruff-format
@@ -35,7 +35,7 @@ repos:
         exclude: ^tests/
 
   - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-    rev: v2.13.0
+    rev: v2.14.0
     hooks:
       - id: pretty-format-toml
         args: [--autofix]

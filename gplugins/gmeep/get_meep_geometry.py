@@ -46,6 +46,7 @@ def get_meep_geometry_from_component(
     ordered_layer_stack_keys = order_layer_stack(layer_stack)[::-1]
     for layername in ordered_layer_stack_keys:
         layer = layer_stack.layers[layername].layer
+
         if layer not in layer_to_polygons:
             continue
         polygons = layer_to_polygons[layer]

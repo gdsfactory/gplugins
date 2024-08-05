@@ -470,6 +470,7 @@ if __name__ == "__main__":
     m = MEOW(
         component=c, layer_stack=filtered_layer_stack, wavelength=1.55, overwrite=False
     )
+    m.plot_structure()
     print(len(m.cells))
 
     pprint.pprint(m.compute_sparameters())

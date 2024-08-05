@@ -35,7 +35,7 @@ class LayeredComponentBase(BaseModel):
     pad_xy_outer: NonNegativeFloat = 0.0
     pad_z_inner: float = 0.0
     pad_z_outer: NonNegativeFloat = 0.0
-    wafer_layer: tuple[int, int] = (99999, 0)
+    wafer_layer: tuple[int, int] = (999, 0)
     slice_stack: tuple[int, int | None] = (0, None)
 
     def __hash__(self):

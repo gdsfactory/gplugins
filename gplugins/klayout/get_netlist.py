@@ -1,3 +1,4 @@
+# type: ignore
 import gdsfactory as gf
 import kfactory as kf
 import klayout.db as kdb
@@ -29,20 +30,22 @@ def get_l2n(
     tech_dir.mkdir(exist_ok=True, parents=True)
     if not klayout_tech_path:
         gf.get_active_pdk().klayout_technology.write_tech(tech_dir)
-        klayout_tech_path = tech_dir
+        klayout_tech_path = tech_dir / "tech.lyt"
 
     # klayout tech path is now assumed to contain a `tech.lyt`` file to use
     technology = Tech.load(str(klayout_tech_path))
 
     lib.read(filename=str(gdspath))
-    c = lib[0]
+    c = lib.top_kcell()
 
     l2n = kf.kdb.LayoutToNetlist(c.begin_shapes_rec(0))
     l2n.threads = kf.config.n_threads
 
-    reversed_layer_map = dict()
+    reversed_layer_map = {}
     layers = gf.get_active_pdk().layers
-    for k, v in layers:
+
+    # Reversed layer map with names as sets in order to support layer aliases
+    for k, v in {layer.name: (layer.layer, layer.datatype) for layer in layers}.items():
         reversed_layer_map[v] = reversed_layer_map.get(v, set()) | {k}
 
     # define stack connections through vias
@@ -83,7 +86,6 @@ def get_l2n(
             l2n.connect(layer_via, layer_b)
 
     l2n.extract_netlist()
-
     return l2n
 
 

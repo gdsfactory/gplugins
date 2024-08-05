@@ -47,7 +47,7 @@ def test_gmsh_xyz_mesh() -> None:
         verbosity=5,
         # port_names=["r_e2", "l_e4"],
         wafer_padding=2.0,
-        wafer_layer=(99999, 0),
+        wafer_layer=(999, 0),
     )
 
 
