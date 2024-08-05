@@ -96,12 +96,6 @@ class NamedParameter(Parameter):
         return None
 
 
-def array_to_tuples(array, n):
-    array = [float(x) for x in array]
-    # Form tuples of size n
-    return [tuple(array[i : i + n]) for i in range(0, len(array), n)]
-
-
 class LithoParameter(Parameter):
     def __init__(
         self,
@@ -167,11 +161,13 @@ class LithoParameter(Parameter):
                         if hasattr(buffered_polygons, "geoms")
                         else [buffered_polygons]
                     ):
-                        for poly in np.array(buffered_polygon.exterior.coords.xy):
-                            temp_component.add_polygon(poly, layer=layer)
+                        coords_tuple = tuple(
+                            map(tuple, buffered_polygon.exterior.coords)
+                        )
+                        temp_component.add_polygon(coords_tuple, layer=layer)
             else:
-                for layer_polygon in layer_polygons:
-                    temp_component.add_polygon(layer_polygon, layer=layer)
+                for poly in layer_polygons:
+                    temp_component.add_polygon(poly, layer=layer)
         # Transform ports
         ports = []
         for port in component.ports:
@@ -193,14 +189,14 @@ class LithoParameter(Parameter):
         temp_component = gf.Component()
         for layer, layer_polygons in component.get_polygons_points().items():
             for layer_polygon in layer_polygons:
-                if layer == self.layer:
+                if layer == self.layer.layer1.layer1.layer:
                     shapely_polygon = shapely.geometry.Polygon(layer_polygon)
                     translated_polygon = translate(
                         shapely_polygon, xoff=offset_value, yoff=0.0
                     )
-                    temp_component.add_polygon(
-                        translated_polygon.exterior.coords, layer=layer
-                    )
+
+                    coords_tuple = tuple(map(tuple, translated_polygon.exterior.coords))
+                    temp_component.add_polygon(coords_tuple, layer=layer)
                 else:
                     temp_component.add_polygon(layer_polygon, layer=layer)
         # Transform ports
@@ -218,14 +214,13 @@ class LithoParameter(Parameter):
         temp_component = gf.Component()
         for layer, layer_polygons in component.get_polygons_points().items():
             for layer_polygon in layer_polygons:
-                if layer == self.layer:
+                if layer == self.layer.layer1.layer1.layer:
                     shapely_polygon = shapely.geometry.Polygon(layer_polygon)
                     translated_polygon = translate(
                         shapely_polygon, xoff=0.0, yoff=offset_value
                     )
-                    temp_component.add_polygon(
-                        translated_polygon.exterior.coords, layer=layer
-                    )
+                    coords = tuple(map(tuple, translated_polygon.exterior.coords))
+                    temp_component.add_polygon(coords, layer=layer)
                 else:
                     temp_component.add_polygon(layer_polygon, layer=layer)
         # Transform ports
@@ -242,7 +237,7 @@ class LithoParameter(Parameter):
     def layer_round_corners(self, component, round_value):
         temp_component = gf.Component()
         for layer, layer_polygons in component.get_polygons_points().items():
-            if layer == self.layer:
+            if layer == self.layer.layer1.layer1.layer:
                 # Make sure all layer polygons are fused properly
                 shapely_polygons = [
                     shapely.geometry.Polygon(polygon) for polygon in layer_polygons
@@ -259,9 +254,8 @@ class LithoParameter(Parameter):
                         .buffer(-2 * round_value, join_style=1)
                         .buffer(round_value, join_style=1)
                     )
-                    temp_component.add_polygon(
-                        buffered_polygon.exterior.coords, layer=layer
-                    )
+                    coords = tuple(map(tuple, buffered_polygon.exterior.coords))
+                    temp_component.add_polygon(coords, layer=layer)
             else:
                 for layer_polygon in layer_polygons:
                     temp_component.add_polygon(layer_polygon, layer=layer)
@@ -337,11 +331,11 @@ if __name__ == "__main__":
     c.add_port(name="o2", center=(3, -2), width=1, orientation=90, layer=1)
     c.show()
 
-    param = LithoParameter(layername="core")
-    eroded_c = param.layer_dilation_erosion(c, 0.2)
-    eroded_c.show()
-
     # param = LithoParameter(layername="core")
+    # eroded_c = param.layer_dilation_erosion(c, 0.2)
+    # eroded_c.show()
+
+    # param = LithoParameter(layername="core")  # FIXME
     # eroded_c = param.layer_dilation_erosion(c, -0.2)
     # eroded_c.show()
 
@@ -353,6 +347,6 @@ if __name__ == "__main__":
     # eroded_c = param.layer_y_offset(c, 0.5)
     # eroded_c.show()
 
-    # param = LithoParameter(layername="core")
-    # eroded_c = param.layer_round_corners(c, 0.2)
-    # eroded_c.show()
+    param = LithoParameter(layername="core")
+    eroded_c = param.layer_round_corners(c, 0.2)
+    eroded_c.show()
