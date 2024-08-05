@@ -65,3 +65,7 @@ def test_litho_parameters() -> None:
 
     param = LithoParameter(layername="core")
     param.layer_round_corners(c, 0.2)
+
+
+if __name__ == "__main__":
+    test_litho_parameters()
