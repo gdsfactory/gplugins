@@ -30,13 +30,13 @@ def get_l2n(
     tech_dir.mkdir(exist_ok=True, parents=True)
     if not klayout_tech_path:
         gf.get_active_pdk().klayout_technology.write_tech(tech_dir)
-        klayout_tech_path = tech_dir
+        klayout_tech_path = tech_dir / "tech.lyt"
 
     # klayout tech path is now assumed to contain a `tech.lyt`` file to use
     technology = Tech.load(str(klayout_tech_path))
 
     lib.read(filename=str(gdspath))
-    c = lib[0]
+    c = lib.top_kcell()
 
     l2n = kf.kdb.LayoutToNetlist(c.begin_shapes_rec(0))
     l2n.threads = kf.config.n_threads
@@ -44,8 +44,9 @@ def get_l2n(
     reversed_layer_map = {}
     layers = gf.get_active_pdk().layers
 
-    for layer in layers:
-        reversed_layer_map[layer] = str(layer)
+    # Reversed layer map with names as sets in order to support layer aliases
+    for k, v in {layer.name: (layer.layer, layer.datatype) for layer in layers}.items():
+        reversed_layer_map[v] = reversed_layer_map.get(v, set()) | {k}
 
     # define stack connections through vias
     layer_connection_iter = [
@@ -62,7 +63,8 @@ def get_l2n(
     labels = kdb.Texts(c.begin_shapes_rec(0))
     # define the layers to be extracted
     for l_idx in c.kcl.layer_indexes():
-        names = {reversed_layer_map[l_idx]}
+        layer_info = c.kcl.get_info(l_idx)
+        names = reversed_layer_map[(layer_info.layer, layer_info.datatype)]
         try:
             same_name_as_in_connections = next(iter(correct_layer_names & names))
         except StopIteration:
