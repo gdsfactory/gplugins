@@ -44,8 +44,9 @@ def get_l2n(
     reversed_layer_map = {}
     layers = gf.get_active_pdk().layers
 
-    for layer in layers:
-        reversed_layer_map[layer] = str(layer)
+    # Reversed layer map with names as sets in order to support layer aliases
+    for k, v in {layer.name: (layer.layer, layer.datatype) for layer in layers}.items():
+        reversed_layer_map[v] = reversed_layer_map.get(v, set()) | {k}
 
     # define stack connections through vias
     layer_connection_iter = [
