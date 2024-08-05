@@ -1,18 +1,26 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.0.1...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.1.0...main)
 
 <!-- towncrier release notes start -->
 
 ## [1.1.0](https://github.com/gdsfactory/gplugins/releases/tag/v1.1.0) - 2024-08-05
 
-No significant changes.
-
-
-## [1.0.2](https://github.com/gdsfactory/gplugins/releases/tag/v1.0.2) - 2024-06-21
-
-No significant changes.
-
+- Robust path length extraction [#453](https://github.com/gdsfactory/gplugins/pull/453)
+- Improve path extraction from GDS [#447](https://github.com/gdsfactory/gplugins/pull/447)
+- Fix sax and vlsir tests [#459](https://github.com/gdsfactory/gplugins/pull/459)
+- Fix netlist extraction issue [#458](https://github.com/gdsfactory/gplugins/pull/458)
+- fix notebooks [#455](https://github.com/gdsfactory/gplugins/pull/455)
+- update sax notebook [#454](https://github.com/gdsfactory/gplugins/pull/454)
+- fix docs [#450](https://github.com/gdsfactory/gplugins/pull/450)
+- Fix klayout netlist [#442](https://github.com/gdsfactory/gplugins/pull/442)
+- Improve path extraction from GDS [#447](https://github.com/gdsfactory/gplugins/pull/447)
+- fixed plot_model xlabel [#443](https://github.com/gdsfactory/gplugins/pull/443)
+- fix meow [#441](https://github.com/gdsfactory/gplugins/pull/441)
+- Fix path length [#438](https://github.com/gdsfactory/gplugins/pull/438)
+- Update gdsfactory850 [#435](https://github.com/gdsfactory/gplugins/pull/435)
+- Update path length analysis [#436](https://github.com/gdsfactory/gplugins/pull/436)
+- fix meow [#441](https://github.com/gdsfactory/gplugins/pull/441)
 
 ## [1.0.1](https://github.com/gdsfactory/gplugins/releases/tag/v1.0.1) - 2024-06-20
 
