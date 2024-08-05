@@ -36,7 +36,7 @@ def get_l2n(
     technology = Tech.load(str(klayout_tech_path))
 
     lib.read(filename=str(gdspath))
-    c = lib[0]
+    c = lib.top_kcell()
 
     l2n = kf.kdb.LayoutToNetlist(c.begin_shapes_rec(0))
     l2n.threads = kf.config.n_threads
