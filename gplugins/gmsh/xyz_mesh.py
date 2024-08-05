@@ -251,7 +251,7 @@ def xyz_mesh(
             | {
                 background_tag: LayerLevel(
                     layer=LogicalLayer(
-                        layer=(9999, 0)
+                        layer=(999, 0)
                     ),  # TODO something like LAYERS.BACKGROUND?
                     thickness=(
                         (zmax + background_padding[5]) - (zmin - background_padding[2])
