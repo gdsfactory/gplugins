@@ -30,7 +30,7 @@ def get_l2n(
     tech_dir.mkdir(exist_ok=True, parents=True)
     if not klayout_tech_path:
         gf.get_active_pdk().klayout_technology.write_tech(tech_dir)
-        klayout_tech_path = tech_dir
+        klayout_tech_path = tech_dir / "tech.lyt"
 
     # klayout tech path is now assumed to contain a `tech.lyt`` file to use
     technology = Tech.load(str(klayout_tech_path))
