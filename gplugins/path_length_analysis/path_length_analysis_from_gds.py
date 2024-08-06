@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import shapely as sh
 import shapely.ops as ops
+from gdsfactory.typings import List, Optional
 from klayout.db import DPoint, Polygon
 from scipy.signal import savgol_filter
 from scipy.spatial import distance
@@ -240,6 +241,7 @@ def extract_paths(
     filter_function: Callable = None,
     under_sampling: int = 1,
     evanescent_coupling: bool = False,
+    consider_ports: Optional[List[str]] = None,
 ) -> dict:
     """Extracts the centerline of a component or instance from a GDS file.
 
@@ -254,11 +256,23 @@ def extract_paths(
         under_sampling: under sampling factor of the polygon points.
         evanescent_coupling: if True, it assumes that there is evanescent coupling
             between ports not physically connected.
+        consider_ports: if specified, it only considers paths between the specified ports and
+            ignores all other existing ports. Note - this will not work in cases where the
+            specified ports are only coupled evanescently. In this case, it is better to
+            run the function with consider_ports = None and then filter the returned dict.
     """
 
     ev_paths = None
 
-    n_ports = len(component.ports)
+    if consider_ports is None:
+        consider_ports = component.ports
+    else:
+        consider_ports = [component.ports[port_name] for port_name in consider_ports]
+
+    # print(consider_ports)
+    # input()
+
+    n_ports = len(consider_ports)
     if n_ports == 0:
         raise ValueError(
             "The specified component does not have ports - path length extraction will not work."
@@ -284,12 +298,12 @@ def extract_paths(
         if n_ports == 2:
             # This is the simplest case - a straight or a bend
             centerline = centerline_single_poly_2_ports(
-                poly, under_sampling, component.ports
+                poly, under_sampling, consider_ports
             )
             if filter_function is not None:
                 centerline = filter_function(centerline)
             p = gf.Path(centerline)
-            paths[f"{component.ports[0].name};{component.ports[1].name}"] = p
+            paths[f"{consider_ports[0].name};{consider_ports[1].name}"] = p
 
         else:
             # Single polygon and more than 2 ports - MMI
@@ -332,7 +346,7 @@ def extract_paths(
             # Need to check how many ports does that specific polygon contain
             ports_poly = list()
 
-            for port in component.ports:
+            for port in consider_ports:
                 if poly.sized(0.005).inside(DPoint(port.center[0], port.center[1])):
                     ports_poly.append(port)
 
@@ -345,6 +359,10 @@ def extract_paths(
                     centerline = filter_function(centerline)
                 p = gf.Path(centerline)
                 paths[f"{ports_poly[0].name};{ports_poly[1].name}"] = p
+
+            elif len(ports_poly) == 0:
+                # No ports in the polygon - continue
+                continue
 
             else:
                 # More than 2 ports and multiple polygons
@@ -626,7 +644,11 @@ if __name__ == "__main__":
     # c = gf.import_gds(gdspath)
     # p = extract_path(c, plot=False, window_length=None, polyorder=None)
     path_dict, ev_path_dict = extract_paths(
-        c0, plot=True, under_sampling=1, evanescent_coupling=ev_coupling
+        c0,
+        plot=True,
+        under_sampling=1,
+        evanescent_coupling=ev_coupling,
+        consider_ports=["o2", "o3"],
     )
     r_and_l_dict = get_min_radius_and_length_path_dict(path_dict)
     for ports, (min_radius, length) in r_and_l_dict.items():
