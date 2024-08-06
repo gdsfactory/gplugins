@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import shapely as sh
 import shapely.ops as ops
-from gdsfactory.typings import List, Optional
+from gdsfactory.typings import List, Optional, Tuple
 from klayout.db import DPoint, Polygon
 from scipy.signal import savgol_filter
 from scipy.spatial import distance
@@ -242,6 +242,7 @@ def extract_paths(
     under_sampling: int = 1,
     evanescent_coupling: bool = False,
     consider_ports: Optional[List[str]] = None,
+    port_positions: Optional[List[Tuple]] = None,
 ) -> dict:
     """Extracts the centerline of a component or instance from a GDS file.
 
@@ -256,21 +257,39 @@ def extract_paths(
         under_sampling: under sampling factor of the polygon points.
         evanescent_coupling: if True, it assumes that there is evanescent coupling
             between ports not physically connected.
-        consider_ports: if specified, it only considers paths between the specified ports and
-            ignores all other existing ports. Note - this will not work in cases where the
+        consider_ports: if specified, it only considers paths between the specified port names
+            and ignores all other existing ports. Note - this will not work in cases where the
             specified ports are only coupled evanescently. In this case, it is better to
             run the function with consider_ports = None and then filter the returned dict.
+        port_positions: if specified, we ignore the existing ports on the component and instead
+            create new ports at the specified positions. Overrides the parameter consider_ports.
+            Note - this will not work in cases where the specified port positions are only coupled
+            evanescently. A workaround for this limitation is to specify one additional port that is
+            physically connected to the ports of interest, for each port of interest.
     """
 
     ev_paths = None
 
-    if consider_ports is None:
-        consider_ports = component.ports
-    else:
-        consider_ports = [component.ports[port_name] for port_name in consider_ports]
+    if port_positions is not None:
+        # Create ports at the specified positions
+        consider_ports = []
+        new_component = component.copy()
+        for i, pos in enumerate(port_positions):
+            pname = f"pl{i}"
+            # The port width and orientation are irrelevant but need to be specified
+            new_component.add_port(
+                name=pname, center=pos, layer=layer, width=0.3, orientation=0
+            )
+            consider_ports.append(pname)
 
-    # print(consider_ports)
-    # input()
+        component = new_component
+
+    if consider_ports is not None:
+        # Only ports in the specified list
+        consider_ports = [component.ports[port_name] for port_name in consider_ports]
+    else:
+        # All ports
+        consider_ports = component.ports
 
     n_ports = len(consider_ports)
     if n_ports == 0:
@@ -648,7 +667,8 @@ if __name__ == "__main__":
         plot=True,
         under_sampling=1,
         evanescent_coupling=ev_coupling,
-        consider_ports=["o2", "o3"],
+        # consider_ports=["o2", "o3"],
+        port_positions=[(-10.0, -1.6), (30.0, -1.6)],
     )
     r_and_l_dict = get_min_radius_and_length_path_dict(path_dict)
     for ports, (min_radius, length) in r_and_l_dict.items():
