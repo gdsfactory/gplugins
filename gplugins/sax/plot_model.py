@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import matplotlib.pyplot as plt
 import numpy as np
-from pydantic import validate_arguments
+from pydantic import validate_call
 from sax.saxtypes import Model
 
 
-@validate_arguments
+@validate_call
 def plot_model(
     model: Model,
     port1: str = "o1",
