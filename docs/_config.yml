@@ -1,8 +1,8 @@
 # Book settings
 # Learn more at https://jupyterbook.org/customize/config.html
 
-title: gplugins
-author: gdsfactory
+title: GDSFactory Plugins
+author: GDSFactory
 
 # Force re-execution of notebooks on each build.
 # See https://jupyterbook.org/content/execute.html
@@ -43,6 +43,10 @@ html:
   use_repository_button: true
   use_issues_button: true
   baseurl: https://github.com/gdsfactory/gplugins
+  options:
+    logo:
+      light: "_static/logo_black.png"
+      dark: "_static/logo_white.png"
 
 # Information about where the book exists on the web
 repository:
