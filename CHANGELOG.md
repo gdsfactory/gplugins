@@ -4,6 +4,11 @@
 
 <!-- towncrier release notes start -->
 
+## [1.1.1](https://github.com/gdsfactory/gplugins/releases/tag/v1.1.1) - 2024-08-13
+
+No significant changes.
+
+
 ## [1.1.0](https://github.com/gdsfactory/gplugins/releases/tag/v1.1.0) - 2024-08-05
 
 - Robust path length extraction [#453](https://github.com/gdsfactory/gplugins/pull/453)
