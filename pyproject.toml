@@ -64,7 +64,7 @@ docs = [
   "pyvista[all,trame]<=0.43.8"
 ]
 femwell = [
-  "femwell>=0.1.6,<0.2",
+  "femwell~=0.1.11",
   "meshwell~=1.0.7"
 ]
 gfviz = [
@@ -74,7 +74,7 @@ gfviz = [
   "natsort"
 ]
 gmsh = [
-  "gmsh==4.13.0",
+  "gmsh~=4.13.0",
   "h5py",
   "mapbox_earcut",
   "meshio",

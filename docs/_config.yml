@@ -80,3 +80,7 @@ sphinx:
     #     .py:
     #         - jupytext.reads
     #         - fmt: py
+    html_theme_options:
+      logo:
+        image_light: logo_white.png
+        image_dark: logo_black.png
