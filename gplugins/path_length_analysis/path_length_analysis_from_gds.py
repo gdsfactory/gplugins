@@ -236,7 +236,7 @@ def centerline_single_poly_2_ports(poly, under_sampling, port_list) -> np.ndarra
 
 def extract_paths(
     component: gf.typings.Component | kf.Instance,
-    layer: gf.typings.LayerSpec = (1, 0),
+    layer: tuple[int, int] = (1, 0),
     plot: bool = False,
     filter_function: Callable = None,
     under_sampling: int = 1,
