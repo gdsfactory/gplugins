@@ -1,5 +1,6 @@
 import copy
 
+import gdsfactory as gf
 from gdsfactory.technology import LogicalLayer
 from gdsfactory.typings import Component, LayerStack
 
@@ -74,7 +75,7 @@ def get_component_with_net_layers(
         net_component = net_component.remove_layers(layers=(port.layer,))
         for polygon in polygons:
             # If polygon belongs to port, create a unique new layer, and add the polygon to it
-            if polygon.sized(0.005).inside(port.center):
+            if polygon.sized(3 * gf.kcl.dbu).inside(port.center):
                 # if gdstk.inside(
                 #     [port.center],
                 #     gdstk.offset(gdstk.Polygon(polygon), gf.get_active_pdk().grid_size),
