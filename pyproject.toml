@@ -34,7 +34,7 @@ license = {file = "LICENSE"}
 name = "gplugins"
 readme = "README.md"
 requires-python = ">=3.10"
-version = "1.1.1"
+version = "1.1.2"
 
 [project.optional-dependencies]
 dagster = ["dagster", "dagit"]
@@ -210,7 +210,7 @@ message_template = "Bump to {new_version}"
 tag_template = "v{new_version}"
 
 [tool.tbump.version]
-current = "1.1.1"
+current = "1.1.2"
 regex = '''
   (?P<major>\d+)
   \.
