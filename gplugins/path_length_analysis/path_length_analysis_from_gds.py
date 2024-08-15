@@ -236,7 +236,7 @@ def centerline_single_poly_2_ports(poly, under_sampling, port_list) -> np.ndarra
 
 def extract_paths(
     component: gf.typings.Component | kf.Instance,
-    layer: gf.typings.LayerSpec = (1, 0),
+    layer: tuple[int, int] = (1, 0),
     plot: bool = False,
     filter_function: Callable = None,
     under_sampling: int = 1,
@@ -298,14 +298,16 @@ def extract_paths(
         )
 
     # Perform over-under to merge all physically connected polygons
-    polygons = component.get_polygons(layers=(layer,), by="tuple")[layer]
+    polygons = gf.functions.get_polygons(component, layers=(layer,), by="tuple")[layer]
     r = gf.kdb.Region(polygons)
     r = r.sized(0.05)
     r = r.sized(-0.05)
     simplified_component = gf.Component()
     simplified_component.add_polygon(r, layer=layer)
 
-    polys = simplified_component.get_polygons(merge=True, by="tuple")[layer]
+    polys = gf.functions.get_polygons(simplified_component, merge=True, by="tuple")[
+        layer
+    ]
 
     paths = dict()
 
@@ -507,7 +509,9 @@ def extract_paths(
                         ev_paths[f"{port1};{port2}"] = gf.Path(evan_path)
 
     if plot:
-        points = simplified_component.get_polygons(merge=True, by="tuple")[layer]
+        points = gf.functions.get_polygons(
+            simplified_component, merge=True, by="tuple"
+        )[layer]
         plt.figure()
         for chunk in points:
             xs = [pt.x * 1e-3 for pt in chunk.each_point_hull()]
