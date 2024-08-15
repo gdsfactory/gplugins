@@ -1,12 +1,13 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.1.1...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.1.2...main)
 
 <!-- towncrier release notes start -->
 
 ## [1.1.2](https://github.com/gdsfactory/gplugins/releases/tag/v1.1.2) - 2024-08-15
 
-No significant changes.
+- Support instances in path-length extraction from gds [#468](https://github.com/gdsfactory/gplugins/pull/468)
+- update pins [#466](https://github.com/gdsfactory/gplugins/pull/466)
 
 
 ## [1.1.1](https://github.com/gdsfactory/gplugins/releases/tag/v1.1.1) - 2024-08-13
