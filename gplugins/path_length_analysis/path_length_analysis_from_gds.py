@@ -166,13 +166,24 @@ def centerline_single_poly_2_ports(poly, under_sampling, port_list) -> np.ndarra
     inds = np.argsort(outer_points[:, 0])
     outer_points = outer_points[inds, :]
 
-    # Apply undersampling if necessary
-    inner_points = np.append(
-        inner_points[::under_sampling], np.array([inner_points[-1]]), axis=0
-    )
-    outer_points = np.append(
-        outer_points[::under_sampling], np.array([outer_points[-1]]), axis=0
-    )
+    # # (OLD, keep juts in case for now) Apply undersampling if necessary
+    # inner_points = np.append(
+    #     inner_points[::under_sampling], np.array([inner_points[-1]]), axis=0
+    # )
+    # outer_points = np.append(
+    #     outer_points[::under_sampling], np.array([outer_points[-1]]), axis=0
+    # )
+
+    # Apply undersampling if necessary, and add the last point if it is not there
+    last_inner_pt = inner_points[-1]
+    inner_points = inner_points[::under_sampling]
+    if last_inner_pt not in inner_points:
+        inner_points = np.append(inner_points, np.array([last_inner_pt]), axis=0)
+
+    last_outer_pt = outer_points[-1]
+    outer_points = outer_points[::under_sampling]
+    if last_outer_pt not in outer_points:
+        outer_points = np.append(outer_points, np.array([last_outer_pt]), axis=0)
 
     # There is a chance that the length of inner and outer is different
     # Interpolate if that's the case
@@ -652,10 +663,10 @@ def _demo_routes():
 if __name__ == "__main__":
     # c0 = gf.components.bend_euler(npoints=20)
     # c0 = gf.components.bend_euler(cross_section="xs_sc", with_arc_floorplan=True)
-    # c0 = gf.components.bend_circular()
+    c0 = gf.components.bend_circular()
     # c0 = gf.components.bend_s(npoints=50)
     # c0 = gf.components.mmi2x2()
-    c0 = gf.components.coupler()
+    # c0 = gf.components.coupler()
     ev_coupling = True
     # c0 = _demo_routes()
     # ev_coupling = False
@@ -672,7 +683,7 @@ if __name__ == "__main__":
         under_sampling=1,
         evanescent_coupling=ev_coupling,
         # consider_ports=["o2", "o3"],
-        port_positions=[(-10.0, -1.6), (30.0, -1.6)],
+        # port_positions=[(-10.0, -1.6), (30.0, -1.6)],
     )
     r_and_l_dict = get_min_radius_and_length_path_dict(path_dict)
     for ports, (min_radius, length) in r_and_l_dict.items():
