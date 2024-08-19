@@ -1,7 +1,7 @@
 import copy
 
 import gdsfactory as gf
-import gdstk
+from gdsfactory.technology import LogicalLayer
 from gdsfactory.typings import Component, LayerStack
 
 
@@ -56,9 +56,9 @@ def get_component_with_net_layers(
         add_to_layerstack: True by default, but can be set to False to disable parsing of the layerstack.
     """
 
-    return NotImplementedError(
-        "Meshing component with net layers not implemented in gdsfactory8 yet."
-    )
+    # return NotImplementedError(
+    #     "Meshing component with net layers not implemented in gdsfactory8 yet."
+    # )
 
     # Initialize returned component
     net_component = component.copy()
@@ -67,17 +67,23 @@ def get_component_with_net_layers(
     for i, portname in enumerate(port_names):
         port = component.ports[portname]
         # Get original port layer polygons, and modify a new component without that layer
-        polygons = net_component.extract(layers=[port.layer]).get_polygons()
-        net_component = net_component.remove_layers(layers=[port.layer])
+        polygons = (
+            net_component.extract(layers=(port.layer,))
+            .get_polygons()
+            .get(port.layer, [])
+        )
+        net_component = net_component.remove_layers(layers=(port.layer,))
         for polygon in polygons:
             # If polygon belongs to port, create a unique new layer, and add the polygon to it
-
-            if gdstk.inside(
-                [port.center],
-                gdstk.offset(gdstk.Polygon(polygon), gf.get_active_pdk().grid_size),
-            )[0]:
+            if polygon.sized(3 * gf.kcl.dbu).inside(port.center):
+                # if gdstk.inside(
+                #     [port.center],
+                #     gdstk.offset(gdstk.Polygon(polygon), gf.get_active_pdk().grid_size),
+                # )[0]:
                 try:
-                    port_layernames = layer_stack.get_layer_to_layername()[port.layer]
+                    port_layernames = layer_stack.get_layer_to_layername()[
+                        LogicalLayer(layer=port.layer)
+                    ]
                 except KeyError as e:
                     raise KeyError(
                         "Make sure your `layer_stack` contains all layers with ports"
@@ -89,10 +95,13 @@ def get_component_with_net_layers(
                     )
                     if add_to_layerstack:
                         new_layer = copy.deepcopy(layer_stack.layers[old_layername])
-                        new_layer.layer = (
-                            new_layers_init[0] + i,
-                            new_layers_init[1] + j,
+                        new_layer.layer = LogicalLayer(
+                            layer=(
+                                new_layers_init[0] + i,
+                                new_layers_init[1] + j,
+                            )
                         )
+                        new_layer.name = f"{old_layername}{delimiter}{portname}"
                         layer_stack.layers[f"{old_layername}{delimiter}{portname}"] = (
                             new_layer
                         )
