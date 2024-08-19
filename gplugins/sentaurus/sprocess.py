@@ -1,3 +1,4 @@
+import importlib
 import math
 import pathlib
 from pathlib import Path
@@ -15,7 +16,10 @@ from gdsfactory.technology.processes import (
 from gdsfactory.typings import Dict, Tuple
 
 from gplugins.gmsh.parse_gds import cleanup_component_layermap
-from gplugins.sentaurus.mask import get_sentaurus_mask_2D, get_sentaurus_mask_3D
+from gplugins.sentaurus.mask_sprocess import (
+    get_sentaurus_mask_2D,
+    get_sentaurus_mask_3D,
+)
 
 DEFAULT_INIT_LINES = """AdvancedCalibration
 mgoals accuracy=2e-5
@@ -211,6 +215,12 @@ def write_sprocess(
         global_device_remeshing_str (str): commands to apply before remeshing
         num_threads (int): for parallelization
     """
+
+    gf_version = importlib.metadata.version("gdsfactory")
+    if int(gf_version.split(".")[0]) >= 8:
+        raise ImportError(
+            "The Sentaurus Process plugin is not compatible with gdsfactory version 8 or above."
+        )
 
     save_directory = (
         Path("./sprocess/") if save_directory is None else Path(save_directory)
