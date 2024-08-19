@@ -24,7 +24,6 @@ def round_coordinates(geom, ndigits=4):
 
 def fuse_polygons(component, layer, round_tol=4, simplify_tol=1e-4, offset_tol=None):
     """Take all polygons from a layer, and returns a single (Multi)Polygon shapely object."""
-
     layer_region = layer.get_shapes(component)
 
     # Convert polygons to shapely
@@ -37,7 +36,7 @@ def fuse_polygons(component, layer, round_tol=4, simplify_tol=1e-4, offset_tol=N
             exterior_points.append((point.x / 1000, point.y / 1000))
         for hole_index in range(klayout_polygon.holes()):
             holes_points = []
-            for point in layer_region.each_polygon_hole(hole_index):
+            for point in klayout_polygon.each_point_hole(hole_index):
                 holes_points.append((point.x / 1000, point.y / 1000))
             interior_points.append(holes_points)
 
