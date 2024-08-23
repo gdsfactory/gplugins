@@ -270,7 +270,7 @@ def get_simulation(
 
     # Add port monitors dict
     monitors = {}
-    for port in component_ref:
+    for port in component_ref.ports:
         port_name = port.name
         angle_rad = np.radians(port.orientation)
         width = port.width + 2 * port_margin
