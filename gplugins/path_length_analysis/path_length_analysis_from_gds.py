@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import shapely as sh
 import shapely.ops as ops
+from gdsfactory import logger
 from gdsfactory.typings import List, Optional, Tuple
 from klayout.db import DPoint, Polygon
 from scipy.signal import savgol_filter
@@ -89,8 +90,8 @@ def centerline_single_poly_2_ports(poly, under_sampling, port_list) -> np.ndarra
     mid_point_found = _check_midpoint_found(inner_points, outer_points, port_list)
 
     # ==== This is for debugging, keep until this is stable ====
-    # print(len(outer_points))
-    # print(len(inner_points))
+    # logger.debug(len(outer_points))
+    # logger.debug(len(inner_points))
     # input()
 
     # Relatively simple check to make sure that the first half is the outer curve and the
@@ -133,7 +134,7 @@ def centerline_single_poly_2_ports(poly, under_sampling, port_list) -> np.ndarra
         if n_rolls > points.shape[0] and n_fixes_tried < 10 and not mid_point_found:
             # Sometimes it is enough if we make the inner point be +-n elements longer
             n_fixes_tried += 1
-            # print(f"Trying fix {n_fixes_tried}")
+            # logger.debug(f"Trying fix {n_fixes_tried}")
             n_rolls = 0
 
             outer_points = points[: (mid_index + fix_values[n_fixes_tried]), :]
@@ -154,7 +155,7 @@ def centerline_single_poly_2_ports(poly, under_sampling, port_list) -> np.ndarra
 
         elif n_rolls > points.shape[0] and not mid_point_found:
             # We could not find the right inner and outer points
-            print("We could not find the center line correctly")
+            logger.error(f"We could not find the center line correctly for {port_list}")
             mid_point_found = True
             outer_points = points[:mid_index]
             inner_points = points[mid_index:]
@@ -188,7 +189,7 @@ def centerline_single_poly_2_ports(poly, under_sampling, port_list) -> np.ndarra
     # There is a chance that the length of inner and outer is different
     # Interpolate if that's the case
     if inner_points.shape[0] != outer_points.shape[0]:
-        # print('interpolating')
+        # logger.debug('interpolating')
         if inner_points.shape[0] > outer_points.shape[0]:
             # More points in inner
             outer_pts_x = outer_points[:, 0]
@@ -329,9 +330,13 @@ def extract_paths(
 
         if n_ports == 2:
             # This is the simplest case - a straight or a bend
-            centerline = centerline_single_poly_2_ports(
-                poly, under_sampling, consider_ports
-            )
+
+            if poly[0].is_box():  # only 4 points, no undersampling
+                centerline = centerline_single_poly_2_ports(poly, 1, consider_ports)
+            else:
+                centerline = centerline_single_poly_2_ports(
+                    poly, under_sampling, consider_ports
+                )
             if filter_function is not None:
                 centerline = filter_function(centerline)
             p = gf.Path(centerline)
