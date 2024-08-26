@@ -137,7 +137,7 @@ def get_meep_adjoint_optimizer(
         for monitor in monitors.values()
     ]
 
-    c = component.copy()
+    c = component.dup()
     for design_region, design_variable in zip(design_regions, design_variables):
         sim.geometry.append(
             Block(design_region.size, design_region.center, material=design_variable)
