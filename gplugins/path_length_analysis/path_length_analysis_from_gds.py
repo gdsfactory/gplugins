@@ -330,9 +330,13 @@ def extract_paths(
 
         if n_ports == 2:
             # This is the simplest case - a straight or a bend
-            centerline = centerline_single_poly_2_ports(
-                poly, under_sampling, consider_ports
-            )
+
+            if poly[0].is_box():  # only 4 points, no undersampling
+                centerline = centerline_single_poly_2_ports(poly, 1, consider_ports)
+            else:
+                centerline = centerline_single_poly_2_ports(
+                    poly, under_sampling, consider_ports
+                )
             if filter_function is not None:
                 centerline = filter_function(centerline)
             p = gf.Path(centerline)
