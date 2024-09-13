@@ -65,7 +65,7 @@ docs = [
 ]
 femwell = [
   "femwell~=0.1.11",
-  "meshwell~=1.0.7"
+  "meshwell>=1.0.7,<1.2.0"
 ]
 gfviz = [
   "jinja2",
@@ -82,7 +82,7 @@ gmsh = [
   "pyvista<=0.43.8",
   "trimesh",
   "shapely",
-  "meshwell~=1.0.7"
+  "meshwell>=1.0.7,<1.2.0"
 ]
 klayout = [
   "klayout",
@@ -111,7 +111,7 @@ schematic = [
 tidy3d = [
   "tidy3d>=2.5.2,<2.8",
   "meshio",
-  "meshwell~=1.0.7"
+  "meshwell>=1.0.7,<1.2.0"
 ]
 vlsir = [
   "vlsir~=6.0",
