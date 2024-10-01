@@ -27,7 +27,7 @@ dependencies = [
   "pint",
   "gdstk",
   "tqdm",
-  "numpy<2"
+  "numpy<3"
 ]
 description = "gdsfactory plugins"
 keywords = ["python"]
