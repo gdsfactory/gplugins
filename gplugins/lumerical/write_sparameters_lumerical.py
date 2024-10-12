@@ -409,21 +409,21 @@ def write_sparameters_lumerical(
             direction = "Backward"
             injection_axis = "x-axis"
             dxp = 0
-            dyp = 2 * ss.port_margin + port.width
+            dyp = 2 * ss.port_margin + port.dwidth
         elif 45 < deg < 90 + 45:
             direction = "Backward"
             injection_axis = "y-axis"
-            dxp = 2 * ss.port_margin + port.width
+            dxp = 2 * ss.port_margin + port.dwidth
             dyp = 0
         elif 90 + 45 < deg < 180 + 45:
             direction = "Forward"
             injection_axis = "x-axis"
             dxp = 0
-            dyp = 2 * ss.port_margin + port.width
+            dyp = 2 * ss.port_margin + port.dwidth
         elif 180 + 45 < deg < 180 + 45 + 90:
             direction = "Forward"
             injection_axis = "y-axis"
-            dxp = 2 * ss.port_margin + port.width
+            dxp = 2 * ss.port_margin + port.dwidth
             dyp = 0
 
         else:
@@ -544,9 +544,8 @@ def _sample_convergence_wavelength():
 
 
 if __name__ == "__main__":
-    import lumapi
-
-    s = lumapi.FDTD()
+    # import lumapi
+    # s = lumapi.FDTD()
 
     # component = gf.components.straight(length=2.5)
     component = gf.components.mmi1x2()
@@ -556,7 +555,7 @@ if __name__ == "__main__":
         component=component,
         material_name_to_lumerical=material_name_to_lumerical,
         run=False,
-        session=s,
+        # session=s,
     )
     # c = gf.components.coupler_ring(length_x=3)
     # c = gf.components.mmi1x2()
