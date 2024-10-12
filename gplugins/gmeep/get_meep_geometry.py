@@ -44,12 +44,15 @@ def get_meep_geometry_from_component(
     layer_to_polygons = component_with_booleans.get_polygons_points()
 
     ordered_layer_stack_keys = order_layer_stack(layer_stack)[::-1]
+
     for layername in ordered_layer_stack_keys:
         layer = layer_stack.layers[layername].layer
 
         if layer not in layer_to_polygons:
             continue
         polygons = layer_to_polygons[layer]
+        print(f"layer: {layer}, polygons: {polygons}")
+
         if layer in layer_to_thickness and layer in layer_to_material:
             height = layer_to_thickness[layer] if is_3d else mp.inf
             zmin_um = layer_to_zmin[layer] if is_3d else 0

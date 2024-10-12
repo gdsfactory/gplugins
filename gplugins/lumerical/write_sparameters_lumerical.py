@@ -241,7 +241,6 @@ def write_sparameters_lumerical(
     component_extended_beyond_pml = gf.components.extension.extend_ports(
         component=component_extended, length=ss.port_extension
     )
-    component_extended_beyond_pml.name = "top"
     gdspath = component_extended_beyond_pml.write_gds()
 
     filepath_npz = get_sparameters_path(
@@ -270,17 +269,17 @@ def write_sparameters_lumerical(
 
     layers_thickness = [
         layer_to_thickness[layer]
-        for layer in component_with_booleans.get_layers()
+        for layer in component_with_booleans.layers
         if layer in layer_to_thickness
     ]
     if not layers_thickness:
         raise ValueError(
-            f"no layers for component {component.get_layers()}"
+            f"no layers for component {component.layers}"
             f"in layer stack {layer_stack}"
         )
     layers_zmin = [
         layer_to_zmin[layer]
-        for layer in component_with_booleans.get_layers()
+        for layer in component_with_booleans.layers
         if layer in layer_to_zmin
     ]
     component_thickness = max(layers_thickness)
@@ -357,7 +356,7 @@ def write_sparameters_lumerical(
         simulation_time=ss.simulation_time,
         simulation_temperature=ss.simulation_temperature,
     )
-    component_layers = component_with_booleans.get_layers()
+    component_layers = component_with_booleans.layers
 
     for layer, thickness in layer_to_thickness.items():
         if layer not in component_layers:
@@ -410,21 +409,21 @@ def write_sparameters_lumerical(
             direction = "Backward"
             injection_axis = "x-axis"
             dxp = 0
-            dyp = 2 * ss.port_margin + port.width
+            dyp = 2 * ss.port_margin + port.dwidth
         elif 45 < deg < 90 + 45:
             direction = "Backward"
             injection_axis = "y-axis"
-            dxp = 2 * ss.port_margin + port.width
+            dxp = 2 * ss.port_margin + port.dwidth
             dyp = 0
         elif 90 + 45 < deg < 180 + 45:
             direction = "Forward"
             injection_axis = "x-axis"
             dxp = 0
-            dyp = 2 * ss.port_margin + port.width
+            dyp = 2 * ss.port_margin + port.dwidth
         elif 180 + 45 < deg < 180 + 45 + 90:
             direction = "Forward"
             injection_axis = "y-axis"
-            dxp = 2 * ss.port_margin + port.width
+            dxp = 2 * ss.port_margin + port.dwidth
             dyp = 0
 
         else:
@@ -545,9 +544,8 @@ def _sample_convergence_wavelength():
 
 
 if __name__ == "__main__":
-    import lumapi
-
-    s = lumapi.FDTD()
+    # import lumapi
+    # s = lumapi.FDTD()
 
     # component = gf.components.straight(length=2.5)
     component = gf.components.mmi1x2()
@@ -557,7 +555,7 @@ if __name__ == "__main__":
         component=component,
         material_name_to_lumerical=material_name_to_lumerical,
         run=False,
-        session=s,
+        # session=s,
     )
     # c = gf.components.coupler_ring(length_x=3)
     # c = gf.components.mmi1x2()
