@@ -66,6 +66,22 @@ def write_yaml(rdb_path: PathType, filepath: PathType, threshold: int = 0) -> No
         yaml.dump(data, file, default_flow_style=False)
 
 
+def write_csv(rdb_path: PathType, filepath: PathType, threshold: int = 0) -> None:
+    """Write DRC report to CSV.
+
+    Args:
+        rdb_path: Path to rdb file or directory of rdb files.
+        filepath: Path to output CSV file.
+        threshold: Minimum number of errors to be included in the output.
+
+    """
+    data = _get_errors(rdb_path, threshold, {})
+    with open(filepath, "w") as file:
+        file.write("Category,Errors\n")
+        for key, value in data.items():
+            file.write(f"{key},{value}\n")
+
+
 def plot_drc(errors: dict[str, int]) -> None:
     """Plot DRC errors.
 
@@ -81,13 +97,18 @@ def plot_drc(errors: dict[str, int]) -> None:
 
 
 if __name__ == "__main__":
-    import argparse
+    from gdsfactory.config import home
 
-    parser = argparse.ArgumentParser(description="Count DRC errors.")
-    parser.add_argument("rdb_path", help="Path to rdb file or directory of rdb files.")
-    parser.add_argument("filepath", help="Path to output YAML file.")
+    # import argparse
 
-    write_yaml(**vars(parser.parse_args()))
+    # parser = argparse.ArgumentParser(description="Count DRC errors.")
+    # parser.add_argument("rdb_path", help="Path to rdb file or directory of rdb files.")
+    # parser.add_argument("filepath", help="Path to output YAML file.")
 
-    # rdb_path = pathlib.Path("/home/jmatres/Downloads/demo")
-    # errors = count_drc(rdb_path, threshold=100)
+    # write_yaml(**vars(parser.parse_args()))
+
+    dirpath = home / "Downloads"
+    rdb_path = dirpath / "demo.lyrdb"
+    errors = count_drc(rdb_path, threshold=100)
+    write_csv(rdb_path, dirpath / "errors.csv", threshold=0)
+    print(errors)
