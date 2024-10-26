@@ -32,12 +32,10 @@ def count_drc(rdb_path: PathType, threshold: int = 0) -> dict[str, int]:
     return errors_dict
 
 
-def _get_errors(rdb_path, threshold, errors_dict):
+def _get_errors(rdb_path, threshold, errors_dict, include_total: bool = True):
     r = rdb.ReportDatabase()
     r.load(rdb_path)
-
     categories = {cat.rdb_id(): cat for cat in r.each_category()}
-
     errors_total = 0
 
     for category_id, category in categories.items():
@@ -48,7 +46,8 @@ def _get_errors(rdb_path, threshold, errors_dict):
         if errors > threshold:
             errors_dict[category.name()] = errors
 
-    errors_dict["total"] = errors_total
+    if include_total:
+        errors_dict["total"] = errors_total
     return dict(sorted(errors_dict.items(), key=lambda item: item[1], reverse=True))
 
 
@@ -66,20 +65,26 @@ def write_yaml(rdb_path: PathType, filepath: PathType, threshold: int = 0) -> No
         yaml.dump(data, file, default_flow_style=False)
 
 
-def write_csv(rdb_path: PathType, filepath: PathType, threshold: int = 0) -> None:
+def write_csv(
+    rdb_path: PathType, filepath: PathType, threshold: int = 0, **waivers
+) -> None:
     """Write DRC report to CSV.
 
     Args:
         rdb_path: Path to rdb file or directory of rdb files.
         filepath: Path to output CSV file.
         threshold: Minimum number of errors to be included in the output.
-
+        waivers: Dict of error code to waiver reason.
     """
-    data = _get_errors(rdb_path, threshold, {})
+    data = _get_errors(
+        rdb_path=rdb_path, threshold=threshold, errors_dict={}, include_total=False
+    )
     with open(filepath, "w") as file:
-        file.write("Category,Errors\n")
+        file.write("Category,Errors,Waiver\n")
+
         for key, value in data.items():
-            file.write(f"{key},{value}\n")
+            waiver = waivers.get(key, "")
+            file.write(f"{key},{value},{waiver}\n")
 
 
 def plot_drc(errors: dict[str, int]) -> None:
@@ -107,8 +112,16 @@ if __name__ == "__main__":
 
     # write_yaml(**vars(parser.parse_args()))
 
-    dirpath = home / "Downloads"
-    rdb_path = dirpath / "demo.lyrdb"
-    errors = count_drc(rdb_path, threshold=100)
-    write_csv(rdb_path, dirpath / "errors.csv", threshold=0)
-    print(errors)
+    # rdb_path = pathlib.Path(
+    #     "/Users/thomas/Downloads/qt01-drc-marker-database (1)/die01_test_nwg_only.tapeout.lyrdb"
+    # )
+    rdb_path = home / "Downloads" / "demo.lyrdb"
+    threshold = 0
+    data = _get_errors(
+        rdb_path=rdb_path, threshold=threshold, errors_dict={}, include_total=False
+    )
+    waivers = {
+        "WG space 0.2um": "Waived by foundry",
+    }
+    write_csv(rdb_path, rdb_path.with_suffix(".errors.csv"), threshold=0, **waivers)
+    print(f"Wrote {rdb_path.with_suffix('.errors.csv')}")
