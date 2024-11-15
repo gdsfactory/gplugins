@@ -22,7 +22,7 @@ gdsfactory plugins:
 - `mpb` for MPB mode solver.
 - `elmer` for electrostatic (capacitive) simulations.
 - `palace` for full-wave driven (S parameter) and electrostatic (capacitive) simulations.
-- `vlsir` for parsing GDS-extracted circuit netlists into Spice, Spectre and Xyce Schematic File formats.
+- `vlsir` for parsing GDS-extracted circuit netlists into Cadence Spectre, NgSpice and Xyce Schematic File formats.
 
 ## Installation
 
