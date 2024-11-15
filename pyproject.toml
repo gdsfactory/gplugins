@@ -124,7 +124,7 @@ ignore-words-list = 'te, te/tm, te, ba, fpr, fpr_spacing, ro, nd, donot, schem, 
 skip = 'notebooks/palace_02_fullwave.ipynb'
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.11"
 strict = true
 
 [tool.pylsp-mypy]
