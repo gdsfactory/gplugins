@@ -1,12 +1,23 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.1.2...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.1.3...main)
 
 <!-- towncrier release notes start -->
 
 ## [1.1.3](https://github.com/gdsfactory/gplugins/releases/tag/v1.1.3) - 2024-11-15
 
-No significant changes.
+- Fix lumerical fdtd [#486](https://github.com/gdsfactory/gplugins/pull/486)
+- Fix path-length extraction of bbox-like polygons [#478](https://github.com/gdsfactory/gplugins/pull/478)
+- add ruff [#488](https://github.com/gdsfactory/gplugins/pull/488)
+- Update get_simulation.py (component_ref.ports correction) [#476](https://github.com/gdsfactory/gplugins/pull/476)
+- Update meep_adjoint_optimization.py. component.copy() to component.dup() [#475](https://github.com/gdsfactory/gplugins/pull/475)
+- process plugin version [#471](https://github.com/gdsfactory/gplugins/pull/471)
+- Make 3d net layers work [#469](https://github.com/gdsfactory/gplugins/pull/469)
+- Fix repeated points [#470](https://github.com/gdsfactory/gplugins/pull/470)
+- Update numpy requirement from <2 to <3 [#484](https://github.com/gdsfactory/gplugins/pull/484)
+- Update sax requirement from ~=0.13.1 to >=0.13.1,<0.15.0 [#492](https://github.com/gdsfactory/gplugins/pull/492)
+- pin numpy [#473](https://github.com/gdsfactory/gplugins/pull/473)
+- [pre-commit.ci] pre-commit autoupdate [#479](https://github.com/gdsfactory/gplugins/pull/479)
 
 
 ## [1.1.2](https://github.com/gdsfactory/gplugins/releases/tag/v1.1.2) - 2024-08-15
