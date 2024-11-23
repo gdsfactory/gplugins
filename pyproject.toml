@@ -84,7 +84,9 @@ gmsh = [
 ]
 klayout = [
   "klayout",
-  "pyvis<=0.3.1"
+  "pyvis<=0.3.1",
+  "vlsir~=6.0",
+  "vlsirtools~=6.0"
 ]
 meow = [
   "jax>=0.4.26",
@@ -109,6 +111,7 @@ schematic = [
 tidy3d = [
   "tidy3d>=2.5.2,<2.8",
   "meshio",
+  "numpy<2",
   "meshwell~=1.0.7"
 ]
 vlsir = [
