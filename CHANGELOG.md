@@ -1,13 +1,12 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.1.3...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.1.4...main)
 
 <!-- towncrier release notes start -->
 
 ## [1.1.4](https://github.com/gdsfactory/gplugins/releases/tag/v1.1.4) - 2024-11-22
 
-No significant changes.
-
+- Update gdsfactory [#495](https://github.com/gdsfactory/gplugins/pull/495)
 
 ## [1.1.3](https://github.com/gdsfactory/gplugins/releases/tag/v1.1.3) - 2024-11-15
 
