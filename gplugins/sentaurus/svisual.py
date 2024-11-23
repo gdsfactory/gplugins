@@ -4,15 +4,15 @@ from pathlib import Path
 
 def write_tdr_to_csv_2D(
     filename: str = "parse.tcl",
-    save_directory: Path = None,
-    execution_directory: Path = None,
+    save_directory: Path | None = None,
+    execution_directory: Path | None = None,
     fields_str: str = "eDensity hDensity",
     input_tdr: Path = "in.tdr",
     output_csv: str = "out.csv",
     temp_filename: str = "temp.csv",
     write_utilities: bool = True,
     x_coord: float = 0,
-):
+) -> None:
     """Writes a Sentaurus Visual TCL file that can return CSV data from 2D TDR data.
 
     SVisual will cd into the filename folder, so other files are referenced to it.
@@ -28,7 +28,6 @@ def write_tdr_to_csv_2D(
         write_utilities (bool): also write Python utility script
         x_coord: where to define the cutline to read y-values
     """
-
     save_directory = (
         Path("./sdevice/") if save_directory is None else Path(save_directory)
     )
@@ -45,7 +44,7 @@ def write_tdr_to_csv_2D(
         out_file.unlink()
 
     filetxt = f"""# Load TDR file.
-set mydata2D [load_file {str(input_tdr)}]
+set mydata2D [load_file {input_tdr!s}]
 
 # Create new plot.
 set myplot2D [create_plot -dataset $mydata2D]
@@ -55,15 +54,15 @@ set center1D [create_cutline -plot $myplot2D -type x -at {x_coord}]
 set Y_values [ get_variable_data Y -dataset $center1D ]
 
 # Create 1D cutline normal to y-axis at y in Y_values
-exec touch {str(output_csv)}
+exec touch {output_csv!s}
 
 foreach y_value $Y_values {{
     set mydata1D [create_cutline -plot $myplot2D -type y -at $y_value]
-    export_variables {{ {fields_str} X }} \\ -dataset $mydata1D -filename \"{str(temp_filename)}\" -overwrite
-    exec python add_column.py \"{str(temp_filename)}\" Y $y_value
-    exec python merge_data.py \"{str(temp_filename)}\" \"{str(output_csv)}\" \"{str(output_csv)}\"
+    export_variables {{ {fields_str} X }} \\ -dataset $mydata1D -filename \"{temp_filename!s}\" -overwrite
+    exec python add_column.py \"{temp_filename!s}\" Y $y_value
+    exec python merge_data.py \"{temp_filename!s}\" \"{output_csv!s}\" \"{output_csv!s}\"
 }}
-exec rm \"{str(temp_filename)}\"
+exec rm \"{temp_filename!s}\"
     """
 
     with open(out_file, "a") as f:

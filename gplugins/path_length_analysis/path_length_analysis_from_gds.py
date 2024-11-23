@@ -9,7 +9,6 @@ import numpy as np
 import shapely as sh
 import shapely.ops as ops
 from gdsfactory import logger
-from gdsfactory.typings import List, Optional, Tuple
 from klayout.db import DPoint, Polygon
 from scipy.signal import savgol_filter
 from scipy.spatial import distance
@@ -19,8 +18,7 @@ fix_values = [0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6, 7, -7, 8, -8]
 
 
 def _check_midpoint_found(inner_points, outer_points, port_list) -> bool:
-    """
-    Simple routine to check if the inner and outer points have been correctly found.
+    """Simple routine to check if the inner and outer points have been correctly found.
 
     This is necessary because sometimes the ordering of the points is not right
     and in that case the inner and outer points are mixed up.
@@ -58,11 +56,10 @@ def _check_midpoint_found(inner_points, outer_points, port_list) -> bool:
 
 
 def centerline_single_poly_2_ports(poly, under_sampling, port_list) -> np.ndarray:
-    """
-    Returns the centerline for a single polygon that has 2 ports.
+    """Returns the centerline for a single polygon that has 2 ports.
+
     We assume that the ports are at min_x and max_x respectively.
     """
-
     # Simplify points that are too close to each other
     r = gf.kdb.Region(poly)
     r = r.smoothed(0.05, True)
@@ -250,11 +247,11 @@ def extract_paths(
     component: gf.typings.Component | kf.Instance,
     layer: tuple[int, int] = (1, 0),
     plot: bool = False,
-    filter_function: Callable = None,
+    filter_function: Callable | None = None,
     under_sampling: int = 1,
     evanescent_coupling: bool = False,
-    consider_ports: Optional[List[str]] = None,
-    port_positions: Optional[List[Tuple]] = None,
+    consider_ports: list[str] | None = None,
+    port_positions: list[tuple[float, float]] | None = None,
 ) -> dict:
     """Extracts the centerline of a component or instance from a GDS file.
 
@@ -279,7 +276,6 @@ def extract_paths(
             evanescently. A workaround for this limitation is to specify one additional port that is
             physically connected to the ports of interest, for each port of interest.
     """
-
     ev_paths = None
 
     if port_positions is not None:

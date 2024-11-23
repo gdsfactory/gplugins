@@ -46,7 +46,7 @@ expected_densities = (
         ((2, 0), (100, 100), None),
     ],
 )
-def test_calculate_density(layer, tile_size, expected_densities):
+def test_calculate_density(layer, tile_size, expected_densities) -> None:
     gdspath = PATH.test_data / "test_gds_density1.gds"
 
     test_component = component_test_density1()

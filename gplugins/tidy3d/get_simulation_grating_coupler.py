@@ -186,7 +186,7 @@ def get_simulation_grating_coupler(
             a negative value corresponds to erosion.
         cross_section: optional cross_section to extend ports beyond PML.
 
-    keyword Args:
+    Keyword Args:
         symmetry: Define Symmetries.
             Tuple of integers defining reflection symmetry across a plane
             bisecting the simulation domain normal to the x-, y-, and z-axis

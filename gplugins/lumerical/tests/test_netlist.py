@@ -28,7 +28,7 @@ def setup_data():
 
 
 # Test function for correct instance extraction
-def test_instance_extraction_correct(setup_data):
+def test_instance_extraction_correct(setup_data) -> None:
     models, netlist = setup_data
     instances = get_instances(netlist, models)
     expected = [
@@ -55,7 +55,7 @@ def test_instance_extraction_correct(setup_data):
 
 
 # Test for handling non-PDK models
-def test_non_pdk_handling(setup_data):
+def test_non_pdk_handling(setup_data) -> None:
     models, netlist = setup_data
     # Adding a line with a model not in the models dictionary
     netlist += "\nX_dc_1 6 7 non_pdk_model param=3.0"
@@ -67,7 +67,7 @@ def test_non_pdk_handling(setup_data):
 
 
 # Test for correct parameter parsing and conversion
-def test_parameter_parsing(setup_data):
+def test_parameter_parsing(setup_data) -> None:
     models, netlist = setup_data
     # Adjust netlist to include a unit in parameters
     netlist = "X_dc_0 1 2 ebeam_dc_te1550 width=0.5u length=1.5n"

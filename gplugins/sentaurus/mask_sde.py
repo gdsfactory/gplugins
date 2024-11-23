@@ -2,7 +2,7 @@ import operator
 from functools import reduce
 
 import shapely
-from gdsfactory.typings import Layer, LayerSpecs, List
+from gdsfactory.typings import Layer, LayerSpecs
 
 
 def get_mask_polygons(
@@ -57,7 +57,7 @@ def get_sentaurus_mask_3D(
     layers_and: LayerSpecs = None,
     layers_diff: LayerSpecs = None,
     layers_xor: LayerSpecs = None,
-) -> List[str]:
+) -> list[str]:
     """Returns the 3D Sentaurus mask script line for the given layer + extra layers.
 
     Arguments:
@@ -69,7 +69,6 @@ def get_sentaurus_mask_3D(
         layers_and: other layers' polygons to intersect with layer polygons
         layers_xor: other layers' polygons to exclusive or with layer polygons
     """
-
     return_str = ""
 
     layers_or = layers_or or []

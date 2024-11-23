@@ -50,7 +50,7 @@ def write_sparameters_meep_batch(
     If there are more simulations than cores each batch runs sequentially.
 
 
-    Args
+    Args:
         jobs: list of Dicts containing the simulation settings for each job.
             for write_sparameters_meep.
         cores_per_run: number of processors to assign to each component simulation.
@@ -61,7 +61,7 @@ def write_sparameters_meep_batch(
         layer_stack: contains layer to thickness, zmin and material.
             Defaults to active pdk.layer_stack.
 
-    keyword Args:
+    Keyword Args:
         resolution: in pixels/um (30: for coarse, 100: for fine).
         port_symmetries: Dict to specify port symmetries, to save number of simulations.
         dirpath: directory to store Sparameters.

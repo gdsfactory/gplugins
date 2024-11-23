@@ -1,5 +1,4 @@
-"""
-This module contains the Tidy3DComponent class which is used to model 3D components in the Tidy3D simulation environment.
+"""This module contains the Tidy3DComponent class which is used to model 3D components in the Tidy3D simulation environment.
 It extends the LayeredComponentBase class and adds additional properties and methods specific to the Tidy3D environment.
 
 Classes:
@@ -52,8 +51,7 @@ dirpath_default = home / ".gdsfactory" / "sparameters"
 
 
 class Tidy3DComponent(LayeredComponentBase):
-    """
-    Represents a 3D component in the Tidy3D simulation environment.
+    """Represents a 3D component in the Tidy3D simulation environment.
 
     Attributes:
         material_mapping (dict[str, Tidy3DMedium]): A mapping of material names to Tidy3DMedium instances.
@@ -82,8 +80,7 @@ class Tidy3DComponent(LayeredComponentBase):
 
     @cached_property
     def polyslabs(self) -> dict[str, tuple[td.PolySlab, ...]]:
-        """
-        Returns a dictionary of PolySlab instances for each layer in the component.
+        """Returns a dictionary of PolySlab instances for each layer in the component.
 
         Returns:
             dict[str, tuple[td.PolySlab, ...]]: A dictionary mapping layer names to tuples of PolySlab instances.
@@ -109,8 +106,7 @@ class Tidy3DComponent(LayeredComponentBase):
 
     @cached_property
     def structures(self) -> list[td.Structure]:
-        """
-        Returns a list of Structure instances for each PolySlab in the component.
+        """Returns a list of Structure instances for each PolySlab in the component.
 
         Returns:
             list[td.Structure]: A list of Structure instances.
@@ -138,8 +134,7 @@ class Tidy3DComponent(LayeredComponentBase):
         cz: float | None = None,
         grid_eps: float | None = None,
     ) -> list[Port]:
-        """
-        Returns a list of Port instances for each optical port in the component.
+        """Returns a list of Port instances for each optical port in the component.
 
         Args:
             mode_spec (td.ModeSpec): The mode specification for the ports.
@@ -192,8 +187,7 @@ class Tidy3DComponent(LayeredComponentBase):
         symmetry: tuple[Symmetry, Symmetry, Symmetry] = (0, 0, 0),
         **kwargs,
     ) -> td.Simulation:
-        """
-        Returns a Simulation instance for the component.
+        """Returns a Simulation instance for the component.
 
         Args:
             grid_spec (td.GridSpec): The grid specification for the simulation.
@@ -250,8 +244,7 @@ class Tidy3DComponent(LayeredComponentBase):
         symmetry: tuple[Symmetry, Symmetry, Symmetry] = (0, 0, 0),
         **kwargs,
     ) -> ComponentModeler:
-        """
-        Returns a ComponentModeler instance for the component.
+        """Returns a ComponentModeler instance for the component.
 
         Args:
             wavelength: The wavelength for the ComponentModeler. Defaults to 1.55.
@@ -278,7 +271,6 @@ class Tidy3DComponent(LayeredComponentBase):
         Returns:
             ComponentModeler: A ComponentModeler instance.
         """
-
         match center_z:
             case float():
                 cz = center_z
@@ -339,8 +331,7 @@ class Tidy3DComponent(LayeredComponentBase):
         ax: plt.Axes | None = None,
         legend: bool = False,
     ) -> plt.Axes:
-        """
-        Plots a cross section of the component at a specified position.
+        """Plots a cross section of the component at a specified position.
 
         Args:
             x (float | str | None, optional): The x-coordinate for the cross section. If None, the x-coordinate of the component is used. Defaults to None.
@@ -638,7 +629,7 @@ def write_sparameters_batch(
     Args:
         jobs: list of kwargs for write_sparameters_grating_coupler.
 
-    keyword Args:
+    Keyword Args:
         component: gdsfactory component to write the S-parameters for.
         layer_stack: The layer stack for the component. If None, uses active pdk layer_stack.
         material_mapping: A mapping of material names to Tidy3DMedium instances. Defaults to material_name_to_medium.

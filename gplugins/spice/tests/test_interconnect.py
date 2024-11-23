@@ -50,7 +50,7 @@ spice_netlist_interconnect = """
 """
 
 
-def test_interconnect():
+def test_interconnect() -> None:
     netlist_path = GDSDIR_TEMP / "test_interconnect.sp"
     netlist_path.write_text(spice_netlist_interconnect)
     picyaml_path = GDSDIR_TEMP / "test_interconnect.sp"

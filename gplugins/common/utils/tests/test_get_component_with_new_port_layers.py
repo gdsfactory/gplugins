@@ -11,7 +11,7 @@ layernames_before = set(LAYER_STACK.layers.keys())
 original_component = straight_heater_metal()
 
 
-def test_component_with_new_port_layers():
+def test_component_with_new_port_layers() -> None:
     layer_stack = LAYER_STACK.model_copy()
     get_component_with_net_layers(
         component=original_component,
@@ -31,7 +31,7 @@ def test_component_with_new_port_layers():
     # print(original_component.get_layers())
 
 
-def test_remove_empty_layer_stack_layers():
+def test_remove_empty_layer_stack_layers() -> None:
     layer_stack = LAYER_STACK.model_copy()
     new_component = get_component_with_net_layers(
         component=original_component,

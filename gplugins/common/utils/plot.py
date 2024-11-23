@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def _check_ports(sp: dict[str, np.ndarray], ports: Sequence[str]):
+def _check_ports(sp: dict[str, np.ndarray], ports: Sequence[str]) -> None:
     """Ensure ports exist in Sparameters."""
     for port in ports:
         if port not in sp:

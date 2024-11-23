@@ -9,9 +9,6 @@ requires = ["flit_core >=3.2,<4"]
 "docs/notebooks/meep_01_sparameters.py" = ["F821", 'E402']
 "docs/notebooks/tcad_02_analytical_process.py" = ["F821", 'E402', 'F405', 'F403']
 
-[lint.pydocstyle]
-convention = "google"
-
 [project]
 authors = [
   {name = "gdsfactory", email = "contact@gdsfactory.com"}
@@ -27,7 +24,7 @@ dependencies = [
   "pint",
   "gdstk",
   "tqdm",
-  "numpy<3"
+  "numpy<2"
 ]
 description = "gdsfactory plugins"
 keywords = ["python"]
@@ -87,7 +84,9 @@ gmsh = [
 ]
 klayout = [
   "klayout",
-  "pyvis<=0.3.1"
+  "pyvis<=0.3.1",
+  "vlsir~=6.0",
+  "vlsirtools~=6.0"
 ]
 meow = [
   "jax>=0.4.26",
@@ -112,6 +111,7 @@ schematic = [
 tidy3d = [
   "tidy3d>=2.5.2,<2.8",
   "meshio",
+  "numpy<2",
   "meshwell~=1.0.7"
 ]
 vlsir = [
@@ -155,27 +155,47 @@ testpaths = ["gplugins/", "tests"]
 
 [tool.ruff]
 fix = true
-lint.ignore = [
-  "E501",  # line too long, handled by black
+
+[tool.ruff.lint]
+ignore = [
   "B008",  # do not perform function calls in argument defaults
-  "C901",  # too complex
+  "B028",  # stacklevel
+  "B904",
   "B905",  # `zip()` without an explicit `strict=` parameter
   "C408",  # C408 Unnecessary `dict` call (rewrite as a literal)
-  "E402",  # module level import not at top of file
-  "B018",  # found useless expression
-  "B028",  # no explicit stacklevel
-  "D301"  # allow escape sequences in docstrings
+  "C901",  # too complex
+  "D100",  # public module docstrings
+  "D101",  # public class docstrings
+  "D102",  # public method docstrings
+  "D103",  # public function docstrings
+  "D104",  # public package docstrings
+  "E501",  # line too long, handled by black
+  "RUF005",  # Consider {expression} instead of concatenation
+  "ANN101",  # Missing self type annotation
+  "ANN102",  # Missing cls type annotation
+  "ANN401",  # typing.Any is not allowed
+  "RUF015",  # Using next() instead of [0]
+  "UP037"  # Remove quotes from type annotations
 ]
-lint.select = [
+select = [
+  "B",  # flake8-bugbear
+  "C",  # flake8-comprehensions
+  "D",  # pydocstyle
   "E",  # pycodestyle errors
-  "W",  # pycodestyle warnings
   "F",  # pyflakes
   "I",  # isort
-  "C",  # flake8-comprehensions
-  "B",  # flake8-bugbear
   "T10",  # flake8-debugger
-  "UP"
+  "UP",  # pyupgrade
+  "W",  # pycodestyle warnings
+  "PERF",  # performance improvements
+  "RUF",  # ruff
+  # "ANN",  # flake8-annotations
+  "UP007",
+  "UP035"
 ]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.setuptools.package-data]
 mypkg = ["*.csv", "*.yaml"]

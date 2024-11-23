@@ -39,7 +39,7 @@ def setup_routing_data():
 #     assert float(routes["optical_bundle_00"]["settings"]["radius"]) == 10
 
 
-def test_ignore_electrical_routes(setup_routing_data):
+def test_ignore_electrical_routes(setup_routing_data) -> None:
     instances, mapping, layers = setup_routing_data
 
     # Mock get_connections to return electrical connections

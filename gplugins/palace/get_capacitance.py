@@ -116,7 +116,7 @@ def _generate_json(
         json.dump(palace_json_data, fp, indent=4)
 
 
-def _palace(simulation_folder: Path, name: str, n_processes: int = 1):
+def _palace(simulation_folder: Path, name: str, n_processes: int = 1) -> None:
     """Run simulations with Palace."""
     palace = shutil.which("palace")
     if palace is None:
@@ -208,7 +208,6 @@ def run_capacitive_simulation_palace(
 
     .. _Palace: https://github.com/awslabs/palace
     """
-
     if layer_stack is None:
         layer_stack = LayerStack(
             layers={

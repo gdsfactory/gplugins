@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import gdsfactory as gf
-from gdsfactory.typings import ComponentSpec, List
+from gdsfactory.typings import ComponentSpec
 from tqdm.auto import tqdm
 
 from gplugins.lumerical.write_sparameters_lumerical import (
@@ -12,7 +12,7 @@ from gplugins.lumerical.write_sparameters_lumerical import (
 
 
 def write_sparameters_lumerical_components(
-    components: List[ComponentSpec],
+    components: list[ComponentSpec],
     run: bool = True,
     session: object | None = None,
     **kwargs,
@@ -53,7 +53,6 @@ if __name__ == "__main__":
         coupler_asymmetric,
         coupler_full,
         coupler_ring,
-        coupler_ring_point,
         coupler_symmetric,
         crossing,
         crossing45,
@@ -73,7 +72,6 @@ if __name__ == "__main__":
         coupler_asymmetric=coupler_asymmetric,
         coupler_full=coupler_full,
         coupler_ring=coupler_ring,
-        coupler_ring_point=coupler_ring_point,
         coupler_symmetric=coupler_symmetric,
         crossing=crossing,
         crossing45=crossing45,
@@ -85,4 +83,4 @@ if __name__ == "__main__":
         mmi2x2=mmi2x2,
     )
 
-    write_sparameters_lumerical_components(factory=factory_passives.values())
+    write_sparameters_lumerical_components(components=factory_passives.values())

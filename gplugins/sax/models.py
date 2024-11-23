@@ -341,8 +341,7 @@ def _mmi_nxn(
     shift=None,
     splitting_matrix=None,
 ) -> sax.SDict:
-    """
-    General n x n MMI model.
+    """General n x n MMI model.
 
     Args:
         n (int): Number of input and output ports.

@@ -10,21 +10,20 @@ from klayout.db import Box, Layout, TileOutputReceiver, TilingProcessor
 
 
 class DensityOutputReceiver(TileOutputReceiver):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.data = []
 
     def put(
         self, ix: int, iy: int, tile: Box, obj: float, dbu: float, clip: bool
     ) -> None:
-        """
-        Arguments:
+        """Arguments:
             ix: index position of the tile along the x-axis in a grid of tiles.
             iy: index position of the tile along the y-axis in a grid of tiles.
             tile: x-y boundaries of the tile (Klayout Box object)
             obj: density value (for this task)
             dbu: database units per user unit.
-            clip: flag indicating if the tile has been clipped
+            clip: flag indicating if the tile has been clipped.
 
         Add data as:
             (tile_center_x, tile_center_y, density)
@@ -45,8 +44,7 @@ def calculate_density(
     tile_size: tuple[int, int] = (200, 200),
     threads: int = get_number_of_cores(),
 ) -> list[tuple[float, float, float]]:
-    """
-    Calculates the density of a given layer in a GDS file and returns the density data.
+    """Calculates the density of a given layer in a GDS file and returns the density data.
 
     Process a GDS file to calculate the density of a specified layer. It divides the layout into tiles of a specified size, computes the density of the layer within each tile, and returns a (x,y,density) list of density data. The density is calculated as the area of the layer within a tile divided by the total area of the tile.
 
@@ -93,8 +91,7 @@ def calculate_density(
 def get_layer_polygons(
     gdspath: Path, layer: Layer, cellname: str | None = None
 ) -> list[np.array]:
-    """
-    Extracts polygons from a specified layer in a GDS file using gdsfactory.
+    """Extracts polygons from a specified layer in a GDS file using gdsfactory.
 
     Args:
         gdspath (Path): The path to the GDS file.
@@ -114,8 +111,7 @@ def get_gds_bbox(
     layer: Layer | None = None,
     cellname: str | None = None,
 ) -> tuple[tuple[float, float], tuple[float, float]]:
-    """
-    Calculates the bounding box of the entire GDS file using gdsfactory.
+    """Calculates the bounding box of the entire GDS file using gdsfactory.
 
     Args:
         gdspath (Path): The path to the GDS file.
@@ -136,8 +132,7 @@ def extend_grid_and_density_to_bbox(
     density: np.ndarray,
     bbox: tuple[tuple[float, float], tuple[float, float]],
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """
-    Extends the grid and pads the density arrays with zeros to cover the entire bounding box.
+    """Extends the grid and pads the density arrays with zeros to cover the entire bounding box.
 
     Args:
         x (np.ndarray): Current x coordinates.
@@ -191,8 +186,7 @@ def density_data_to_meshgrid(
     density_data: list[tuple[float, float, float]],
     bbox: tuple[tuple[float, float], tuple[float, float]] | None = None,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """
-    Converts density data into a meshgrid for plotting.
+    """Converts density data into a meshgrid for plotting.
 
     Args:
         density_data (List[Tuple[float, float, float]]): A list of tuples, each containing the x-coordinate, y-coordinate, and density value. Output of "calculate_density"
@@ -235,8 +229,7 @@ def estimate_weighted_global_density(
     Zi: np.ndarray,
     bbox: tuple[tuple[float, float], tuple[float, float]] | None = None,
 ) -> float:
-    """
-    Calculates the mean density within a specified bounding box or overall if bbox is None.
+    """Calculates the mean density within a specified bounding box or overall if bbox is None.
 
     Args:
         Xi (np.ndarray): 2D array of X coordinates.
@@ -305,8 +298,7 @@ def plot_density_heatmap(
     visualize_with_full_gds: bool = True,
     visualize_polygons: bool = False,
 ) -> None:
-    """
-    Generates and displays a heatmap visualization representing the density distribution across a specified layer of a GDS file. The heatmap is constructed using the density data calculated for each tile within the layer.
+    """Generates and displays a heatmap visualization representing the density distribution across a specified layer of a GDS file. The heatmap is constructed using the density data calculated for each tile within the layer.
 
     Args:
         gdspath (Path): The path to the GDS file for which the density heatmap is to be plotted.

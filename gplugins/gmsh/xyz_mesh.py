@@ -7,7 +7,7 @@ import gdsfactory as gf
 import numpy as np
 from gdsfactory.config import get_number_of_cores
 from gdsfactory.technology import LayerLevel, LayerStack, LogicalLayer
-from gdsfactory.typings import ComponentOrReference, List
+from gdsfactory.typings import ComponentOrReference
 from meshwell.gmsh_entity import GMSH_entity
 from meshwell.model import Model
 from meshwell.prism import Prism
@@ -84,11 +84,13 @@ def define_prisms(
     """Define meshwell prism dimtags from gdsfactory information.
 
     Args:
-        layer_polygons_dict: dictionary of polygons for each layer
-        layer_stack: gdsfactory LayerStack to parse
-        model: meshwell Model object
-        resolutions: Pairs {"layername": {"resolution": float, "distance": "float}} to roughly control mesh refinement.
-        scale_factor: scaling factor to apply to the polygons (default: 1)
+        layer_polygons_dict: dictionary of polygons for each layer.
+        layer_stack: gdsfactory LayerStack to parse.
+        layer_physical_map: map layer names to physical names.
+        layer_meshbool_map: map layer names to mesh_bool (True: mesh the prisms, False: don't mesh).
+        model: meshwell Model object.
+        resolutions: Pairs {"layername": {"resolution": float, "distance": "float}} to roughly control mesh refinement..
+        scale_factor: scaling factor to apply to the polygons (default: 1).
     """
     prisms_list = []
     buffered_layer_stack = bufferize(layer_stack)
@@ -151,31 +153,32 @@ def xyz_mesh(
     round_tol: int = 3,
     simplify_tol: float = 1e-3,
     n_threads: int = get_number_of_cores(),
-    port_names: List[str] | None = None,
-    edge_ports: List[str] | None = None,
+    port_names: list[str] | None = None,
+    edge_ports: list[str] | None = None,
     gmsh_version: float | None = None,
     layer_port_delimiter: str | None = None,
-    background_remeshing_file: Path = None,
+    background_remeshing_file: Path | None = None,
     optimization_flags: tuple[tuple[str, int]] | None = None,
 ) -> bool:
     """Full 3D mesh of component.
 
     Args:
-        component: gdsfactory component to mesh
-        layer_stack: gdsfactory LayerStack to parse
-        layer_physical_map: map layer names to physical names
-        layer_meshbool_map: map layer names to mesh_bool (True: mesh the prisms, False: don't mesh)
-        resolutions: Pairs {"layername": {"resolution": float, "distance": "float}} to roughly control mesh refinement
-            default_characteristic_length: gmsh maximum edge length
+        component: gdsfactory component to mesh.
+        layer_stack: gdsfactory LayerStack to parse.
+        layer_physical_map: map layer names to physical names.
+        layer_meshbool_map: map layer names to mesh_bool (True: mesh the prisms, False: don't mesh).
+        resolutions: Pairs {"layername": {"resolution": float, "distance": "float}} to roughly control mesh refinement.
+        default_characteristic_length: gmsh maximum edge length.
         background_tag: name of the background layer to add (default: no background added). This will be used as the material as well.
         background_padding: [-x, -y, -z, +x, +y, +z] distances to add to the components and to fill with ``background_tag``
-        background_mesh_order (int, float): mesh order to assign to the background
-        global_scaling: factor to scale all mesh coordinates by (e.g. 1E-6 to go from um to m)
+        background_mesh_order (int, float): mesh order to assign to the background.
+        global_scaling: factor to scale all mesh coordinates by (e.g. 1E-6 to go from um to m).
         global_scaling_premesh: factor to scale all mesh coordinates by (e.g. 1E-6 to go from um to m).
             Instead of using a gmsh-option which is only applied to meshes, this parameter can scale cad-exported files, e.g. .step files
-        global_2D_algorithm: gmsh surface default meshing algorithm, see https://gmsh.info/doc/texinfo/gmsh.html#Mesh-options
-        global_3D_algorithm: gmsh volume default meshing algorithm, see https://gmsh.info/doc/texinfo/gmsh.html#Mesh-options
-        filename: where to save the .msh file
+        global_2D_algorithm: gmsh surface default meshing algorithm, see https://gmsh.info/doc/texinfo/gmsh.html#Mesh-options.
+        global_3D_algorithm: gmsh volume default meshing algorithm, see https://gmsh.info/doc/texinfo/gmsh.html#Mesh-options.
+        filename: where to save the .msh file.
+        verbosity: gmsh verbosity level.
         round_tol: during gds --> mesh conversion cleanup, number of decimal points at which to round the gdsfactory/shapely points before introducing to gmsh
         simplify_tol: during gds --> mesh conversion cleanup, shapely "simplify" tolerance (make it so all points are at least separated by this amount)
         n_threads: for gmsh parallelization
@@ -195,6 +198,7 @@ def xyz_mesh(
             see https://mfem.org/mesh-formats/#gmsh-mesh-formats.
         layer_port_delimiter: Delimiter to use for new layers generated for ports: "layer{delimiter}port_name".
         background_remeshing_file: .pos file to use as a remeshing field. Overrides resolutions if not None.
+        optimization_flags: list of tuples of optimization flags to pass to gmsh, e.g. [("Optimize", 1), ("OptimizeNetgen", 1)].
     """
     if port_names:
         mesh_component = component.dup()

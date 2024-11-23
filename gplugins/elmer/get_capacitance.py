@@ -40,7 +40,7 @@ def _generate_sif(
     element_order: int,
     background_tag: str | None = None,
     simulator_params: Mapping[str, Any] | None = None,
-):
+) -> None:
     # pylint: disable=unused-argument
     """Generates a sif file for Elmer simulations using Jinja2."""
     # Have background_tag as first s.t. unaccounted elements use it by default
@@ -61,7 +61,7 @@ def _generate_sif(
         fp.write(output)
 
 
-def _elmergrid(simulation_folder: Path, name: str, n_processes: int = 1):
+def _elmergrid(simulation_folder: Path, name: str, n_processes: int = 1) -> None:
     """Run ElmerGrid for converting gmsh mesh to Elmer format."""
     elmergrid = shutil.which("ElmerGrid")
     if elmergrid is None:
@@ -99,7 +99,7 @@ def _elmergrid(simulation_folder: Path, name: str, n_processes: int = 1):
         )
 
 
-def _elmersolver(simulation_folder: Path, name: str, n_processes: int = 1):
+def _elmersolver(simulation_folder: Path, name: str, n_processes: int = 1) -> None:
     """Run simulations with ElmerFEM."""
     elmersolver_name = (
         "ElmerSolver" if (no_mpi := n_processes == 1) else "ElmerSolver_mpi"
@@ -193,7 +193,6 @@ def run_capacitive_simulation_elmer(
 
     .. _Elmer: https://github.com/ElmerCSC/elmerfem
     """
-
     if layer_stack is None:
         layer_stack = LayerStack(
             layers={

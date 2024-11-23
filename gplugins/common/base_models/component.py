@@ -39,6 +39,7 @@ class LayeredComponentBase(BaseModel):
     slice_stack: tuple[int, int | None] = (0, None)
 
     def __hash__(self):
+        """Returns a hash of the model dump."""
         if not hasattr(self, "_hash"):
             dump = str.encode(self.model_dump_json())
             self._hash = int(md5(dump).hexdigest()[:15], 16)

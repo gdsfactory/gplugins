@@ -9,8 +9,7 @@ from tidy3d.plugins.smatrix import ComponentModeler
 def sort_layers(
     layers: dict[str, LayerLevel], sort_by: str, reverse: bool = False
 ) -> dict[str, LayerLevel]:
-    """
-    Sorts a dictionary of LayerLevel objects based on a specified attribute.
+    """Sorts a dictionary of LayerLevel objects based on a specified attribute.
 
     Args:
         layers (dict[str, LayerLevel]): A dictionary where the keys are layer names and the values are LayerLevel objects.
@@ -26,8 +25,7 @@ def sort_layers(
 
 
 def get_port_normal(port: Port) -> tuple[int, Literal["+", "-"]]:
-    """
-    This function returns the index of the normal axis (x,y,z) and the tidy3d port orientation string.
+    """This function returns the index of the normal axis (x,y,z) and the tidy3d port orientation string.
 
     Args:
         port (Port): A gdsfactory Port object.
@@ -54,8 +52,7 @@ def get_port_normal(port: Port) -> tuple[int, Literal["+", "-"]]:
 def get_mode_solvers(
     modeler: ComponentModeler, port_name: str
 ) -> dict[str, ModeSolver]:
-    """
-    Retrieves the mode solvers for all modes corresponding to a specified port in a ComponentModeler.
+    """Retrieves the mode solvers for all modes corresponding to a specified port in a ComponentModeler.
 
     Args:
         modeler (ComponentModeler): The ComponentModeler object that contains the port.

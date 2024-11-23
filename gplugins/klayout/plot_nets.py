@@ -32,7 +32,6 @@ def plot_nets(
             Helpful for reducing trivial waveguide elements.
         spice_reader: The KLayout Spice reader to use for parsing SPICE netlists.
     """
-
     G_connectivity = networkx_from_spice(
         filepath=filepath,
         include_labels=include_labels,

@@ -46,13 +46,13 @@ def initialize_sprocess(
     component,
     waferstack,
     layermap,
-    xsection_bounds: tuple[tuple[float, float], tuple[float, float]] = None,
+    xsection_bounds: tuple[tuple[float, float], tuple[float, float]] | None = None,
     u_offset: float = 0.0,
     round_tol: int = 3,
     simplify_tol: float = 1e-3,
     initial_z_resolutions: Dict = None,
-    initial_xy_resolution: float = None,
-    extra_resolution_str: str = None,
+    initial_xy_resolution: float | None = None,
+    extra_resolution_str: str | None = None,
 ):
     """Returns a string defining the geometry definition for a Sentaurus sprocess file based on a component, initial wafer state, and settings.
 
@@ -69,7 +69,6 @@ def initialize_sprocess(
         initial_xy_resolution (float): initial resolution in the wafer plane
         extra_resolution_str (str): extra initial meshing commands
     """
-
     output_str = ""
 
     # Defaults
@@ -164,11 +163,11 @@ def write_sprocess(
     waferstack,
     layermap,
     process,
-    xsection_bounds: tuple[tuple[float, float], tuple[float, float]] = None,
+    xsection_bounds: tuple[tuple[float, float], tuple[float, float]] | None = None,
     u_offset: float = 0.0,
-    init_tdr: str = None,
-    save_directory: Path = None,
-    execution_directory: Path = None,
+    init_tdr: str | None = None,
+    save_directory: Path | None = None,
+    execution_directory: Path | None = None,
     filename: str = "sprocess_fps.cmd",
     struct_prefix: str = "struct_",
     structout: str | None = None,
@@ -177,14 +176,14 @@ def write_sprocess(
     split_steps: bool = True,
     init_lines: str = DEFAULT_INIT_LINES,
     initial_z_resolutions: Dict = None,
-    initial_xy_resolution: float = None,
-    extra_resolution_str: str = None,
+    initial_xy_resolution: float | None = None,
+    extra_resolution_str: str | None = None,
     global_process_remeshing_str: str = DEFAULT_PROCESS_REMESHING,
     global_device_remeshing_str: str = DEFAULT_DEVICE_REMESHING,
     num_threads: int = 6,
     contact_str: str = DEFAULT_CONTACT_STR,
     device_remesh: bool = True,
-):
+) -> None:
     """Writes a Sentaurus Process TLC file for the component + layermap + initial waferstack + process.
 
     The meshing strategy is to initially use a fixed grid defined by initial_z_resolutions and initial_xy_resolution, and use default adaptive refinement on all fields in regions defined as "active", followed by adaptive refinement on net active dopants in "active" regions.
@@ -215,7 +214,6 @@ def write_sprocess(
         global_device_remeshing_str (str): commands to apply before remeshing
         num_threads (int): for parallelization
     """
-
     gf_version = importlib.metadata.version("gdsfactory")
     if int(gf_version.split(".")[0]) >= 8:
         raise ImportError(
@@ -269,12 +267,12 @@ def write_sprocess(
             u_offset=u_offset,
         )
         if init_tdr:
-            f.write(f"init tdr= {str(relative_tdr_file)}")
+            f.write(f"init tdr= {relative_tdr_file!s}")
         else:
             f.write(str(output_str))
             if split_steps:
                 f.write(
-                    f"struct tdr={str(relative_save_directory)}/{struct_prefix}0_wafer.tdr\n"
+                    f"struct tdr={relative_save_directory!s}/{struct_prefix}0_wafer.tdr\n"
                 )
 
         # Global remeshing strategy
@@ -311,7 +309,7 @@ def write_sprocess(
                         )
                     if split_steps:
                         f.write(
-                            f"struct tdr={str(relative_save_directory)}/{struct_prefix}{i+1}_{step.name}_litho.tdr\n"
+                            f"struct tdr={relative_save_directory!s}/{struct_prefix}{i+1}_{step.name}_litho.tdr\n"
                         )
 
             if isinstance(step, Etch):
@@ -352,7 +350,7 @@ def write_sprocess(
 
             if split_steps:
                 f.write(
-                    f"struct tdr={str(relative_save_directory)}/{struct_prefix}{i+1}_{step.name}.tdr"
+                    f"struct tdr={relative_save_directory!s}/{struct_prefix}{i+1}_{step.name}.tdr"
                 )
 
             f.write("\n")
@@ -364,7 +362,7 @@ def write_sprocess(
                 f.write("#split remeshing\n")
             f.write(global_device_remeshing_str)
 
-            for _layername, layer in waferstack.layers.items():
+            for layer in waferstack.layers.values():
                 if layer.info and layer.info["active"] is True:
                     f.write(
                         f"""refinebox name= Global min= {{ {layer.zmin - layer.thickness:1.3f} {xmin} {ymin} }} max= {{ {layer.zmin:1.3f} {xmax} {ymax} }} refine.min.edge= {{ 0.0005 0.0005 0.0005 }} refine.max.edge= {{ 0.01 0.01 0.01 }}  refine.fields= {{ NetActive }} def.max.asinhdiff= 0.5 adaptive {layer.material}
@@ -377,17 +375,17 @@ def write_sprocess(
 
         # Create structure
         f.write("\n")
-        f.write(f"struct tdr={str(relative_save_directory)}/{structout}")
+        f.write(f"struct tdr={relative_save_directory!s}/{structout}")
 
 
 def write_add_contacts_to_tdr(
     struct_in: str = "/struct_out_fps.tdr",
     struct_out: str = "struct_out_contacts_fps.tdr",
-    contact_str: str = None,
+    contact_str: str | None = None,
     filename: str = "sprocess_contacts.cmd",
-    save_directory: Path = None,
-    execution_directory: Path = None,
-):
+    save_directory: Path | None = None,
+    execution_directory: Path | None = None,
+) -> None:
     """Add contacts to tdr file, and (optionally) remesh.
 
     Arguments:
@@ -415,7 +413,7 @@ def write_add_contacts_to_tdr(
 
     # Load TDR file
     with open(out_file, "a") as f:
-        f.write(f"init tdr= {str(relative_input_tdr_file)}")
+        f.write(f"init tdr= {relative_input_tdr_file!s}")
         f.write("\n")
 
         # Manual for now
@@ -423,17 +421,17 @@ def write_add_contacts_to_tdr(
 
         # Create structure
         f.write("\n")
-        f.write(f"struct tdr={str(relative_output_tdr_file)}")
+        f.write(f"struct tdr={relative_output_tdr_file!s}")
 
 
 def write_generic_sprocess_tdr(
     struct_in: str = "/struct_out_fps.tdr",
     struct_out: str = "struct_out_contacts_fps.tdr",
-    lines: str = None,
+    lines: str | None = None,
     filename: str = "sprocess_contacts.cmd",
-    save_directory: Path = None,
-    execution_directory: Path = None,
-):
+    save_directory: Path | None = None,
+    execution_directory: Path | None = None,
+) -> None:
     """Loads struct_in, add scripts lines, and outputs struct_out."""
     # Fix paths
     save_directory = Path("./") if save_directory is None else Path(save_directory)
@@ -454,7 +452,7 @@ def write_generic_sprocess_tdr(
 
     # Load TDR file
     with open(out_file, "a") as f:
-        f.write(f"init tdr= {str(relative_input_tdr_file)}")
+        f.write(f"init tdr= {relative_input_tdr_file!s}")
         f.write("\n")
 
         # Manual for now
@@ -462,19 +460,19 @@ def write_generic_sprocess_tdr(
 
         # Create structure
         f.write("\n")
-        f.write(f"struct tdr={str(relative_output_tdr_file)}")
+        f.write(f"struct tdr={relative_output_tdr_file!s}")
 
 
 def write_extrude_combine_tdrs(
     structs_in: str = "/struct_out_fps.tdr",
     extrusions: Tuple[float] = (0,),
     struct_out: str = "struct_out_fps.tdr",
-    contact_str: str = None,
-    remesh_str: str = None,
+    contact_str: str | None = None,
+    remesh_str: str | None = None,
     filename: str = "sprocess_contacts.cmd",
-    save_directory: Path = None,
-    execution_directory: Path = None,
-):
+    save_directory: Path | None = None,
+    execution_directory: Path | None = None,
+) -> None:
     """Extrude the 2D structs_in according to extrusions, paste the structs sequentially into one tdr, add contacts, and remesh.
 
     Arguments:
@@ -511,7 +509,7 @@ def write_extrude_combine_tdrs(
 
         # Create structure
         f.write("\n")
-        f.write(f"struct tdr={str(relative_output_tdr_file)}")
+        f.write(f"struct tdr={relative_output_tdr_file!s}")
 
 
 def cut_tdr(
@@ -521,10 +519,10 @@ def cut_tdr(
     y: float | None = None,
     z: float | None = None,
     filename: str = "sprocess_cut.cmd",
-    save_directory: Path = None,
-    execution_directory: Path = None,
+    save_directory: Path | None = None,
+    execution_directory: Path | None = None,
     global_device_remeshing_str: str = DEFAULT_DEVICE_REMESHING,
-):
+) -> None:
     # Fix paths
     save_directory = Path("./") if save_directory is None else Path(save_directory)
     execution_directory = (
@@ -546,7 +544,7 @@ def cut_tdr(
         tdr_file = str(struct_in)
         f.write(f"init tdr= {tdr_file}\n")
 
-        slice_str = f"struct tdr= {str(relative_output_tdr_file)}"
+        slice_str = f"struct tdr= {relative_output_tdr_file!s}"
         # Perform coordinate change too
         if x is not None:
             slice_str += " z= {x}"
@@ -557,7 +555,7 @@ def cut_tdr(
         f.write(slice_str)
 
         # Remeshing instructions
-        f.write(f"init tdr= {str(relative_output_tdr_file)}\n")
+        f.write(f"init tdr= {relative_output_tdr_file!s}\n")
 
         f.write(global_device_remeshing_str)
 

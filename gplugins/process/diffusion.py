@@ -1,6 +1,4 @@
-"""
-Reference: Selberherr, S. (1984). Process Modeling. In: Analysis and Simulation of Semiconductor Devices. Springer, Vienna. https://doi.org/10.1007/978-3-7091-8752-4_3
-"""
+"""Reference: Selberherr, S. (1984). Process Modeling. In: Analysis and Simulation of Semiconductor Devices. Springer, Vienna. https://doi.org/10.1007/978-3-7091-8752-4_3."""
 
 import numpy as np
 
@@ -56,8 +54,7 @@ def D(
     n: float | None = None,
     p: float | None = None,
 ):
-    """
-    Diffusion coefficient of dopants in silicon.
+    """Diffusion coefficient of dopants in silicon.
 
     Arguments:
         dopant: dopant atom name
@@ -100,8 +97,7 @@ def silicon_diffused_gaussian_profile(
     z: np.array = np.linspace(0, 1, 1000),
     # x: np.array = np.linspace(-5,5,1000),
 ):
-    """
-    Returns diffused gaussian implantation profile for dopant in silicon.
+    """Returns diffused gaussian implantation profile for dopant in silicon.
 
     Arguments:
         dopant: str name of implant

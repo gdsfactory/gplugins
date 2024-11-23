@@ -9,7 +9,7 @@ from gplugins.materials.optical.refractive_index_info import (
 class OpticalMaterial:
     def __init__(
         self, ureg=None, load_source=None, lda_min=0, lda_max=np.inf, formula=1
-    ):
+    ) -> None:
         """Create optical material."""
         self.ureg = ureg
         if load_source is not None:
@@ -43,7 +43,7 @@ class OpticalMaterial:
             wl / self.ureg("meters")
         ), lambda wl: self.refractive_index.k(wl / self.ureg("meters"))
 
-    def fit_index_from_wls_nk(self, wls, ns, ks=None):
+    def fit_index_from_wls_nk(self, wls, ns, ks=None) -> None:
         """Fit real and imaginary parts of the refractive to wavelength.
 
         Arguments:

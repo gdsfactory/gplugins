@@ -3,8 +3,9 @@ from dataclasses import dataclass
 
 import gdsfactory as gf
 import gdstk
+from gdsfactory.component import Component
 from gdsfactory.pdk import get_layer
-from gdsfactory.typings import Component, Layer, List
+from gdsfactory.typings import Layer
 from gdstk import Polygon
 
 
@@ -22,13 +23,13 @@ class LocalMapping:
     new_layer_name: str
     new_layer_number: Layer
     old_layer_name: str
-    domains: List[Polygon]
+    domains: list[Polygon]
 
 
 def get_component_with_local_layers(
     component,
     layer_stack,
-    mappings: List[LocalMapping],
+    mappings: list[LocalMapping],
     precision: float = 1e-4,
 ) -> Component:
     """Returns a component where polygons within "domains" belonging to "old_layer_name" are remapped to "new_layer_name" (with layer details copied from old_layer), and polygons outside the domain are kept on "old_layer_name".

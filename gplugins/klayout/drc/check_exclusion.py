@@ -34,7 +34,6 @@ def check_exclusion(
         max_projection: upper limit of the projected length of one edge onto another.
 
     """
-
     if isinstance(gdspath, str | Path):
         gdspath = gf.import_gds(gdspath)
 

@@ -46,7 +46,7 @@ def test_plot_nets(
     interactive,
     include_labels,
     nodes_to_reduce,
-):
+) -> None:
     plot_nets(
         klayout_netlist,
         interactive=interactive,
@@ -58,5 +58,5 @@ def test_plot_nets(
         assert Path("connectivity.html").exists()
 
 
-def test_plot_nets_spice(spice_netlist):
+def test_plot_nets_spice(spice_netlist) -> None:
     plot_nets(spice_netlist)

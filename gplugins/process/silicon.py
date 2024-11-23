@@ -1,6 +1,6 @@
 """Temporary file to hold silicon material properties until better material database implemented.
 
-TODO:
+Todo:
     Material class
     Pint for units
 """
@@ -37,7 +37,7 @@ def mn(T: float):
     return 1.045 + 4.5 * 1e-4 * T
 
 
-def mp(T: float):
+def mp(T: float) -> float:
     """Hole (relative) effective mass.
 
     Ref: https://www.ioffe.ru/SVA/NSM/Semicond/Si/bandstr.html#:~:text=mcd%20%3D%201.18mo,of%20the%20density%20of%20states.

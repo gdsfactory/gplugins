@@ -284,7 +284,7 @@ class MEOW:
     def layer_stack_to_extrusion(self):
         """Convert LayerStack to meow extrusions."""
         extrusions = {}
-        for _layername, layer in self.layer_stack.layers.items():
+        for layer in self.layer_stack.layers.values():
             if layer.layer not in extrusions.keys():
                 extrusions[layer.layer] = []
             extrusions[layer.layer].append(
@@ -382,7 +382,7 @@ class MEOW:
 
         return mw.visualize((S, self.port_map), **kwargs)
 
-    def validate_component(self, component):
+    def validate_component(self, component) -> None:
         optical_ports = [
             port for port in component.ports if port.port_type == "optical"
         ]

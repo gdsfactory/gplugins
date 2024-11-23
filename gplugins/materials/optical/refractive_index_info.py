@@ -53,7 +53,7 @@ class RefractiveIndex:
             coefficients (list): Formula coefficients.
     """
 
-    def __init__(self, name="", **kwargs):
+    def __init__(self, name="", **kwargs) -> None:
         """Create refractive index."""
         self.name = name
         self.lda = None
@@ -388,11 +388,11 @@ class RefractiveIndex:
                     lda_max_set = True
                 self._set_k_list(self.lda_k, kwargs["k"])
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Return name."""
         return self.name
 
-    def _set_n_list(self, lda, n):
+    def _set_n_list(self, lda, n) -> None:
         self.n = lambda x: numpy.interp(x, lda, n, left=numpy.nan, right=numpy.nan)
         g = numpy.gradient(n, lda)
         self.dn = lambda x: numpy.interp(x, lda, g, left=numpy.nan, right=numpy.nan)
@@ -400,14 +400,14 @@ class RefractiveIndex:
         self.d2n = lambda x: numpy.interp(x, lda, g2, left=numpy.nan, right=numpy.nan)
         self.k = lambda x: numpy.zeros_like(x)
 
-    def _set_k_list(self, lda, k):
+    def _set_k_list(self, lda, k) -> None:
         self.k = lambda x: numpy.interp(x, lda, k, left=numpy.nan, right=numpy.nan)
         if self.n is None:
             self.n = lambda x: numpy.ones_like(x)
             self.dn = lambda x: numpy.zeros_like(x)
             self.d2n = lambda x: numpy.zeros_like(x)
 
-    def _set_eps_list(self, lda, eps):
+    def _set_eps_list(self, lda, eps) -> None:
         nk = eps**0.5
         self.n = lambda x: numpy.interp(
             x, lda, nk.real, left=numpy.nan, right=numpy.nan

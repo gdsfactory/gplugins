@@ -36,7 +36,7 @@ def spice_to_yaml(
     picyaml_path: str,
     pdk: str,
     mode: str = "overwrite",
-):
+) -> None:
     """Handle the export of netlists based on the selected mode.
 
     Args:
@@ -46,7 +46,6 @@ def spice_to_yaml(
         pdk: Process design kit name.
         mode: Mode for netlist export (overwrite or update).
     """
-
     netlists = get_netlists(
         netlist_path, mapping_path, pdk=pdk, ignore_electrical=False, map_flag=False
     )
@@ -81,10 +80,8 @@ def cli(
         "netlist", help="Netlist file name, defaults to 'netlist'."
     ),
     picyaml_path: str = typer.Option("netlist", help="pic.yml path"),
-):
-    """
-    Command Line Interface for processing netlists using Typer.
-    """
+) -> None:
+    """Command Line Interface for processing netlists using Typer."""
     spice_to_yaml(netlist_path=netlist_path, mode=mode, picyaml_path=picyaml_path)
 
 
@@ -96,8 +93,7 @@ def get_netlists(
     map_flag: str,
     ignored_info: tuple[str, ...] = ignored_info,
 ) -> list:
-    """
-    Get netlists from SPICE netlist and mapping file
+    """Get netlists from SPICE netlist and mapping file.
 
     Args:
         netlist_path: Path to SPICE netlist (.spi).
@@ -387,7 +383,7 @@ def create_mapping_from_netlist(netlist_path: str, pdk: str) -> list:
 
 
 def get_instances(netlist: str, models: dict) -> list:
-    """Get instances with all info on instance
+    """Get instances with all info on instance.
 
     Args:
         netlist: SPICE netlist
@@ -498,8 +494,7 @@ def get_instances_info(
     ignore_electrical: bool,
     ignored_info: list | None = None,
 ) -> dict:
-    """
-    Get instances data structure in the format of GDSFactory YAML instances
+    """Get instances data structure in the format of GDSFactory YAML instances.
 
     Args:
         instances: Instances with model params, nets, ports, names, and models
@@ -642,14 +637,13 @@ def get_instances_info(
                     sides.append(side2)
             for i in range(len(sides)):
                 pin = sides[i].split(",")[1]
-                name = f"X_PAD_0{str(i)}_{pin}" if i < 10 else f"X_PAD_{str(i)}_{pin}"
+                name = f"X_PAD_0{i!s}_{pin}" if i < 10 else f"X_PAD_{i!s}_{pin}"
                 instances_info[name] = {"component": cell_name}
     return instances_info
 
 
 def get_var_name(string: str):
-    """
-    Get variable name by replacing %, spaces, and commas with other characters
+    """Get variable name by replacing %, spaces, and commas with other characters.
 
     Args:
         string: String to convert to a variable name
@@ -661,7 +655,7 @@ def get_var_name(string: str):
 
 
 def group_instance_str(netlist: str) -> list:
-    """Group instance SPICE strings if they are extended by '+' and filter away lines that do not have params
+    """Group instance SPICE strings if they are extended by '+' and filter away lines that do not have params.
 
     Args:
         netlist: SPICE netlist
@@ -693,8 +687,7 @@ def group_instance_str(netlist: str) -> list:
 
 
 def get_placements(instances: list, mapping: dict, ignore_electrical: bool) -> dict:
-    """
-    Get xy coordinates and orientation for each instance
+    """Get xy coordinates and orientation for each instance.
 
     Args:
         instances: Instances with model params, nets, ports, names, and models
@@ -743,7 +736,7 @@ def get_placements(instances: list, mapping: dict, ignore_electrical: bool) -> d
                     sides.append(side2)
             for i in range(len(sides)):
                 pin = sides[i].split(",")[1]
-                name = f"X_PAD_0{str(i)}_{pin}" if i < 10 else f"X_PAD_{str(i)}_{pin}"
+                name = f"X_PAD_0{i!s}_{pin}" if i < 10 else f"X_PAD_{i!s}_{pin}"
                 x += 1.20 * scale
                 placements[name] = {
                     "x": x,
@@ -771,8 +764,7 @@ def get_placements(instances: list, mapping: dict, ignore_electrical: bool) -> d
 
 
 def get_ports(netlist: str, instances: list, model: dict, mapping: dict) -> dict:
-    """
-    Get circuit ports and their connectivity
+    """Get circuit ports and their connectivity.
 
     Args:
         netlist: SPICE netlist
@@ -864,8 +856,7 @@ def get_ports(netlist: str, instances: list, model: dict, mapping: dict) -> dict
 
 
 def get_connections(instances: list, mapping: dict) -> dict:
-    """
-    Get connections between instances based on their ports and nets.
+    """Get connections between instances based on their ports and nets.
 
     Args:
         instances (list): List of dictionaries where each dictionary describes an instance with model params, nets, ports, names, and models.
@@ -913,9 +904,7 @@ def get_connections(instances: list, mapping: dict) -> dict:
 
 
 def create_bundle(connections, layer_params, bundle_type):
-    """
-    Creates a routing bundle dictionary with appropriate settings based on layer parameters.
-    """
+    """Creates a routing bundle dictionary with appropriate settings based on layer parameters."""
     routes = {}
     sides = set()
     for side_pair in connections.items():
@@ -929,8 +918,7 @@ def create_bundle(connections, layer_params, bundle_type):
 
 
 def get_routes(instances, mapping, layers, ignore_electrical):
-    """
-    Extract routing information from instances using provided mapping and layers.
+    """Extract routing information from instances using provided mapping and layers.
 
     Args:
         - instances: list of instance dictionaries with port and net information.
@@ -984,8 +972,7 @@ def parse_parameters(line):
 
 
 def get_models(netlist_path: str, ignored_info: list | None = None) -> dict:
-    """
-    Extracts models and their information from a SPICE netlist file.
+    """Extracts models and their information from a SPICE netlist file.
 
     Args:
         netlist_path: Path to SPICE netlist (.spi)
@@ -1048,8 +1035,7 @@ def get_models(netlist_path: str, ignored_info: list | None = None) -> dict:
 
 
 def get_top_circuit(netlist_path: str) -> str:
-    """
-    Get top circuit information from a SPICE netlist by filtering out subcircuit definitions.
+    """Get top circuit information from a SPICE netlist by filtering out subcircuit definitions.
 
     Args:
         netlist_path: Path to SPICE netlist (.spi).
