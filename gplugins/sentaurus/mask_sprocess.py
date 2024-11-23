@@ -2,7 +2,7 @@ import operator
 from functools import reduce
 
 import shapely
-from gdsfactory.typings import Layer, LayerSpecs, List
+from gdsfactory.typings import Layer, LayerSpecs
 
 from gplugins.gmsh.uz_xsection_mesh import get_u_bounds_polygons
 
@@ -96,7 +96,7 @@ def get_sentaurus_mask_3D(
     layers_diff: LayerSpecs = None,
     layers_xor: LayerSpecs = None,
     positive_tone: bool = True,
-) -> List[str]:
+) -> list[str]:
     """Returns the 3D Sentaurus mask script line for the given layer + extra layers.
 
     Arguments:
@@ -156,19 +156,20 @@ def get_sentaurus_mask_2D(
     layers_diff: LayerSpecs = None,
     layers_xor: LayerSpecs = None,
     positive_tone: bool = True,
-) -> List[str]:
+) -> list[str]:
     """Returns the 2D Sentaurus mask script line for the given layer + extra layers.
 
     Arguments:
-        layer_polygons_dict: dict of layernames --> shapely (multi)polygons
-        name: name of the mask
-        xsection_bounds: cross-sectional line bounds (only for 2D simulations)
-        layer: main layer for this mask
-        layers_or: other layers' polygons to union with layer polygons
-        layers_diff: other layers' polygons to diff with layer polygons
-        layers_and: other layers' polygons to intersect with layer polygons
-        layers_xor: other layers' polygons to exclusive or with layer polygons
-        positive_tone: whether to invert the resulting mask (False) or not (True)
+        layer_polygons_dict: dict of layernames --> shapely (multi)polygons.
+        name: name of the mask.
+        xsection_bounds: cross-sectional line bounds (only for 2D simulations).
+        u_offset: offset for the cross-sectional line.
+        layer: main layer for this mask.
+        layers_or: other layers' polygons to union with layer polygons.
+        layers_and: other layers' polygons to intersect with layer polygons.
+        layers_diff: other layers' polygons to diff with layer polygons.
+        layers_xor: other layers' polygons to exclusive or with layer polygons.
+        positive_tone: whether to invert the resulting mask (False) or not (True).
     """
     layers_or = layers_or or []
     layers_and = layers_and or []

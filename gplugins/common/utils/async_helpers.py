@@ -48,7 +48,8 @@ async def execute_and_stream_output(
     stream_stderr: io.TextIOWrapper | None = sys.stderr,
     **kwargs,
 ) -> asyncio.subprocess.Process:
-    """Run a command asynchronously and stream *stdout* and *stderr* to given IO and a log file
+    """Run a command asynchronously and stream *stdout* and *stderr* to given IO and a log file.
+
     in ``log_file_dir / log_file_str``. Uses ``shell=True`` as default unlike ``subprocess.Popen``. Returns an asyncio process.
 
     Args:
@@ -59,6 +60,8 @@ async def execute_and_stream_output(
         log_file_str: Log file name. Will be expanded to ``f'{log_file_str}_out.log'`` and ``f'{log_file_str}_err.log'``.
         stream_stdout: Stream to write stdout to. Defaults to ``sys.stdout``.
         stream_stderr: Stream to write stderr to. Defaults to ``sys.stderr``.
+        *args: Additional arguments to pass to :func:`~
+        **kwargs: Additional keyword arguments to pass to :func:`~
 
     ``*args`` and ``**kwargs`` are passed to :func:`~create_subprocess_shell` or :func:`create_subprocess_exec`,
     which in turn passes them to :class:`subprocess.Popen`.
@@ -102,8 +105,9 @@ async def execute_and_stream_output(
 
 
 def run_async_with_event_loop(coroutine: Coroutine[Any, Any, T] | Awaitable[T]) -> T:
-    """Run a coroutine within an asyncio event loop, either by adding it to the
-    existing running event loop or by creating a new event loop. Returns the result.
+    """Run a coroutine within an asyncio event loop.
+
+    Either by adding it to the existing running event loop or by creating a new event loop. Returns the result.
 
     Args:
         coroutine: The coroutine (async function) to be executed.

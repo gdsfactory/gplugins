@@ -88,7 +88,7 @@ def get_results(
     for .result()
 
     Args:
-        sims: List[Simulation]
+        sim: tidy3d Simulation.
         dirpath: to store results locally
         overwrite: overwrites the data even if path exists. Keep True.
         verbose: prints info messages and progressbars.
@@ -113,8 +113,8 @@ def get_results_batch(
     """Return a  a list of Simulation.
 
     Args:
-        sims: List[Simulation]
-        dirpath: to store results locally
+        sims: tidy3d Simulation.
+        dirpath: to store results locally.
         overwrite: overwrites the data even if path exists. Keep True.
         verbose: prints info messages and progressbars.
 
