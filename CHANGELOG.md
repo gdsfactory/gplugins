@@ -4,6 +4,11 @@
 
 <!-- towncrier release notes start -->
 
+## [1.1.4](https://github.com/gdsfactory/gplugins/releases/tag/v1.1.4) - 2024-11-22
+
+No significant changes.
+
+
 ## [1.1.3](https://github.com/gdsfactory/gplugins/releases/tag/v1.1.3) - 2024-11-15
 
 - Fix lumerical fdtd [#486](https://github.com/gdsfactory/gplugins/pull/486)
