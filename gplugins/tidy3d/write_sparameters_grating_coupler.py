@@ -11,13 +11,11 @@ import numpy as np
 import tidy3d as td
 import yaml
 from gdsfactory import logger
+from gdsfactory.component import Component
 from gdsfactory.serialization import clean_value_json
 from gdsfactory.typings import (
     Any,
-    Component,
     ComponentSpec,
-    Dict,
-    List,
     PathType,
     Sparameters,
 )
@@ -149,6 +147,7 @@ def write_sparameters_grating_coupler(
             Maps layer_stack names with tidy3d material database names.
         is_3d: True by default runs in 3D.
         with_all_monitors: stores all monitor fields.
+        kwargs: simulation settings.
 
     """
     component = gf.get_component(component)
@@ -232,8 +231,8 @@ def write_sparameters_grating_coupler(
 
 
 def write_sparameters_grating_coupler_batch(
-    jobs: List[Dict[str, Any]], **kwargs
-) -> List[Awaitable[Sparameters]]:
+    jobs: list[dict[str, Any]], **kwargs
+) -> list[Awaitable[Sparameters]]:
     """Returns Sparameters for a list of write_sparameters.
 
     Each job runs in separate thread and is non blocking.

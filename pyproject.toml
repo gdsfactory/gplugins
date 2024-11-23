@@ -187,7 +187,8 @@ select = [
   "PERF",  # performance improvements
   "RUF",  # ruff
   # "ANN",  # flake8-annotations
-  "UP007"
+  "UP007",
+  "UP035"
 ]
 
 [tool.ruff.lint.pydocstyle]
