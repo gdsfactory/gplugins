@@ -1,5 +1,5 @@
 class SemiconductorMaterial:
-    def __init__(self, ureg=None):
+    def __init__(self, ureg=None) -> None:
         """Semiconductor parameters."""
         self.ureg = ureg
         self.m_e = None

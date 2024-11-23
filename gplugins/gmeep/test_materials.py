@@ -6,7 +6,6 @@ from gplugins.gmeep.write_sparameters_meep import write_sparameters_meep
 
 def test_materials_override() -> None:
     """Checks that materials are properly overridden if index is provided."""
-
     c = gf.components.straight(length=2)
 
     # Default (materials strings)
@@ -34,7 +33,6 @@ def test_materials_override() -> None:
 
 def test_materials_override_complex() -> None:
     """Checks that materials are properly overridden if complex index is provided."""
-
     c = gf.components.straight(length=2)
 
     # Default (materials strings)

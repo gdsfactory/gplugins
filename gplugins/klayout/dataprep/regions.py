@@ -113,7 +113,7 @@ class RegionCollection:
         _assert_is_layer(layer)
         self.regions[layer] = region
 
-    def __contains__(self, item):
+    def __contains__(self, item) -> bool:
         # checks if the layout contains the given layer
         _assert_is_layer(item)
         layer, datatype = item

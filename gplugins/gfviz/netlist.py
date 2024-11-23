@@ -293,7 +293,7 @@ def wrap_component_in_netlist(name):
     }
 
 
-def _bad_instance(_):
+def _bad_instance(_) -> bool:
     return False
 
 

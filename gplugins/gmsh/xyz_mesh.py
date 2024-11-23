@@ -155,7 +155,7 @@ def xyz_mesh(
     edge_ports: List[str] | None = None,
     gmsh_version: float | None = None,
     layer_port_delimiter: str | None = None,
-    background_remeshing_file: Path = None,
+    background_remeshing_file: Path | None = None,
     optimization_flags: tuple[tuple[str, int]] | None = None,
 ) -> bool:
     """Full 3D mesh of component.

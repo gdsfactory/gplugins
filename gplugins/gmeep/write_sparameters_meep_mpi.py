@@ -123,7 +123,7 @@ def write_sparameters_meep_mpi(
         filepath for sparameters CSV (wavelengths, s11a, o1@0,o2@0, ...)
             where `a` is the angle in radians and `m` the module.
 
-    TODO:
+    Todo:
         write stdout to file, maybe simulation logs too.
 
     """

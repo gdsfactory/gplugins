@@ -12,7 +12,6 @@ from gplugins.vlsir import export_netlist, kdb_vlsir
 @pytest.fixture(scope="session")
 def pkg() -> Package:
     """Get VLSIR Package for `pads_correct`. Cached for session scope."""
-
     c = pads_correct()
     gdspath = c.write_gds()
     kdbnet = get_netlist(gdspath)
@@ -20,7 +19,7 @@ def pkg() -> Package:
 
 
 def test_kdb_vlsir(pkg) -> None:
-    """Test the conversion from KLayout DB Netlist to VLSIR Package"""
+    """Test the conversion from KLayout DB Netlist to VLSIR Package."""
     name = "pads_correct_Ppad_CSmetal3"
 
     assert pkg is not None
@@ -31,8 +30,7 @@ def test_kdb_vlsir(pkg) -> None:
 
 @pytest.mark.parametrize("spice_format", ["spice", "spectre", "xyce", "verilog"])
 def test_export_netlist(pkg, spice_format) -> None:
-    """Test the export of a VLSIR Package to a netlist in the supported formats"""
-
+    """Test the export of a VLSIR Package to a netlist in the supported formats."""
     if spice_format == "verilog":
         with pytest.raises(NotImplementedError):
             export_netlist(pkg, fmt=spice_format)

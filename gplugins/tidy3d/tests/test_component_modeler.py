@@ -6,7 +6,7 @@ import gplugins.tidy3d as gt
 component = gf.components.coupler_ring()
 
 
-def test_component_modeler_3d():
+def test_component_modeler_3d() -> None:
     c = gt.Tidy3DComponent(
         component=component,
         layer_stack=LAYER_STACK,

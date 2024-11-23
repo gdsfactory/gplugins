@@ -7,7 +7,7 @@ import sys
 
 
 class DisablePrint:
-    def __init__(self):
+    def __init__(self) -> None:
         self.output = sys.stdout
 
     def __enter__(self) -> DisablePrint:

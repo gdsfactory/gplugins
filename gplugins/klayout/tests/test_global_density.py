@@ -84,7 +84,7 @@ def test_estimate_weighted_global_density(
     small_rect2_offset,
     tile_size,
     expected_global_density,
-):
+) -> None:
     gdspath = PATH.test_data / "test_gds_global_density.gds"
     test_component = component_test_density1(
         large_rect_size=large_rect_size,

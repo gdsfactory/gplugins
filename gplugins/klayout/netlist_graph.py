@@ -113,6 +113,7 @@ def networkx_from_spice(
     **kwargs,
 ) -> nx.Graph:
     """Returns a networkx Graph from a SPICE netlist file or KLayout LayoutToNetlist.
+
     Args:
         filepath: Path to the KLayout LayoutToNetlist file or a SPICE netlist.
             File extensions should be `.l2n` and `.spice`, respectively.

@@ -163,7 +163,7 @@ class Waveguide(BaseModel, extra="forbid"):
 
     @property
     def filepath(self) -> pathlib.Path | None:
-        """Cache file path"""
+        """Cache file path."""
         if not self.cache_path:
             return None
         cache_path = pathlib.Path(self.cache_path)

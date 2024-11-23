@@ -109,7 +109,6 @@ def get_sentaurus_mask_3D(
         layers_xor: other layers' polygons to exclusive or with layer polygons
         positive_tone: whether to invert the resulting mask (False) or not (True)
     """
-
     return_str_lines = []
 
     layers_or = layers_or or []
@@ -149,7 +148,7 @@ def get_sentaurus_mask_3D(
 def get_sentaurus_mask_2D(
     layer_polygons_dict,
     name: str,
-    xsection_bounds: tuple[tuple[float, float], tuple[float, float]] = None,
+    xsection_bounds: tuple[tuple[float, float], tuple[float, float]] | None = None,
     u_offset: float = 0.0,
     layer: Layer = None,
     layers_or: LayerSpecs = None,
@@ -171,7 +170,6 @@ def get_sentaurus_mask_2D(
         layers_xor: other layers' polygons to exclusive or with layer polygons
         positive_tone: whether to invert the resulting mask (False) or not (True)
     """
-
     layers_or = layers_or or []
     layers_and = layers_and or []
     layers_diff = layers_diff or []

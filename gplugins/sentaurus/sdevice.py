@@ -76,12 +76,12 @@ def write_sdevice_quasistationary_ramp_voltage_dd(
     ramp_min_step: float = 1e-6,
     ramp_sample_voltages: Floats = (0.0, 0.3, 0.6, 0.8, 1.0),
     filename: str = "sdevice_fps.cmd",
-    save_directory: Path = None,
-    execution_directory: Path = None,
+    save_directory: Path | None = None,
+    execution_directory: Path | None = None,
     output_settings: str = DEFAULT_OUTPUT_SETTINGS,
     physics_settings: str = DEFAULT_PHYSICS_SETTINGS,
     math_settings: str = DEFAULT_MATH_SETTINGS,
-):
+) -> None:
     """Writes a Sentaurus Device TLC file for sweeping DC voltage of one terminal of a Sentaurus Structure (from sprocess or structure editor) using the drift-diffusion equations (Hole + Electrons + Poisson).
 
     You may need to modify the settings or this function itself for better results.
@@ -103,7 +103,6 @@ def write_sdevice_quasistationary_ramp_voltage_dd(
         math_settings: str = "Math" field settings to add to the TCL file
         initialization_commands: in the solver, what to execute before the ramp
     """
-
     save_directory = (
         Path("./sdevice/") if save_directory is None else Path(save_directory)
     )
@@ -131,8 +130,8 @@ def write_sdevice_quasistationary_ramp_voltage_dd(
             f"""
 File {{
   Grid = "{struct}"
-  Plot = "{str(relative_save_directory)}/tdrdat_"
-  Output = "{str(relative_save_directory)}/log_"
+  Plot = "{relative_save_directory!s}/tdrdat_"
+  Output = "{relative_save_directory!s}/log_"
 }}
     """
         )
@@ -151,7 +150,7 @@ File {{
 
         # Initialization
         initialization_commands = f"""
-            NewCurrentPrefix=\"{str(relative_save_directory)}/init\"
+            NewCurrentPrefix=\"{relative_save_directory!s}/init\"
             Coupled(Iterations=100){{ Poisson }}
             Coupled{{ Poisson Electron Hole }}
         """
@@ -172,8 +171,8 @@ File {{
         MaxStep ={ramp_max_step} MinStep = {ramp_min_step}
         Goal{{ Name=\"{ramp_contact_name}\" Voltage={ramp_final_voltage} }}
     ){{ Coupled {{Poisson Electron Hole }}
-        Save(FilePrefix=\"{str(relative_save_directory)}/sweep_save\" Time= ({ramp_sample_voltages_str} ) NoOverWrite )
-        Plot(FilePrefix=\"{str(relative_save_directory)}/sweep_plot\" Time= ({ramp_sample_voltages_str} ) NoOverWrite )
+        Save(FilePrefix=\"{relative_save_directory!s}/sweep_save\" Time= ({ramp_sample_voltages_str} ) NoOverWrite )
+        Plot(FilePrefix=\"{relative_save_directory!s}/sweep_plot\" Time= ({ramp_sample_voltages_str} ) NoOverWrite )
     }}
     """
         )
@@ -184,10 +183,10 @@ def write_sdevice_ssac_ramp_voltage_dd(
     ramp_final_voltage: float = 3.0,
     device_name_extra_str="0",
     filename: str = "sdevice_fps.cmd",
-    save_directory: Path = None,
-    execution_directory: Path = None,
+    save_directory: Path | None = None,
+    execution_directory: Path | None = None,
     struct: str = "./sprocess/struct_out_fps.tdr",
-):
+) -> None:
     save_directory = (
         Path("./sdevice/") if save_directory is None else Path(save_directory)
     )
@@ -246,10 +245,10 @@ System {{
 
 File {{
   Grid = "{struct}"
-  Current = "{str(relative_save_directory)}/plot_{Vstring}"
-  Plot = "{str(relative_save_directory)}/tdrdat_{Vstring}"
-  Output = "{str(relative_save_directory)}/log_{Vstring}"
-  ACExtract = "{str(relative_save_directory)}/acplot_{Vstring}"
+  Current = "{relative_save_directory!s}/plot_{Vstring}"
+  Plot = "{relative_save_directory!s}/tdrdat_{Vstring}"
+  Output = "{relative_save_directory!s}/log_{Vstring}"
+  ACExtract = "{relative_save_directory!s}/acplot_{Vstring}"
 }}
 
 Solve {{

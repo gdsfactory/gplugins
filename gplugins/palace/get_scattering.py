@@ -211,7 +211,6 @@ async def _palace(
     simulation_folder: Path, json_files: Collection[Path], n_processes: int = 1
 ) -> None:
     """Run simulations with Palace."""
-
     # split processes as evenly as possible
     quotient, remainder = divmod(n_processes, len(json_files))
     n_processes_per_json = [quotient] * len(json_files)
@@ -332,7 +331,6 @@ def run_scattering_simulation_palace(
 
     .. _Palace https://github.com/awslabs/palace
     """
-
     if layer_stack is None:
         layer_stack = LayerStack(
             layers={

@@ -114,7 +114,6 @@ def get_uz_bounds_layers(
 
     Returns: Dict containing layer: polygon pairs, with (u1,u2) in xsection line coordinates
     """
-
     if z_bounds is not None:
         z_min_sim = z_bounds[0]
         z_max_sim = z_bounds[1]
@@ -277,7 +276,7 @@ def uz_xsection_mesh(
     shapes = {}
     for layername in layer_order:
         current_shapes = []
-        for _, (gds_name, bounds) in bounds_dict.items():
+        for (gds_name, bounds) in bounds_dict.values():
             if gds_name == layername:
                 layer_shapes = list(bounds)
                 current_shapes.append(MultiPolygon(to_polygons(layer_shapes)))

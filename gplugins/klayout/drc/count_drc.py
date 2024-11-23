@@ -72,7 +72,6 @@ def plot_drc(errors: dict[str, int]) -> None:
     Args:
         errors: Dict of error names to number of errors.
     """
-
     plt.bar(errors.keys(), errors.values())
     plt.title("DRC Errors")
     plt.xlabel("Categories")

@@ -34,7 +34,7 @@ def initialize_sde(
     component,
     waferstack,
     layermap,
-    xsection_bounds: tuple[tuple[float, float], tuple[float, float]] = None,
+    xsection_bounds: tuple[tuple[float, float], tuple[float, float]] | None = None,
     u_offset: float = 0.0,
     round_tol: int = 3,
     simplify_tol: float = 1e-3,
@@ -52,7 +52,6 @@ def initialize_sde(
         round_tol (int): for gds cleanup (grid snapping by rounding coordinates)
         simplify_tol (float): for gds cleanup (shape simplification)
     """
-
     output_str = ""
 
     get_mask = gf.partial(get_sentaurus_mask_3D)
@@ -99,9 +98,9 @@ def write_sde(
     process,
     contact_str: str | None = None,
     slice_str: str | None = None,
-    init_tdr: str = None,
-    save_directory: Path = None,
-    execution_directory: Path = None,
+    init_tdr: str | None = None,
+    save_directory: Path | None = None,
+    execution_directory: Path | None = None,
     filename: str = "sprocess_fps.cmd",
     fileout: str | None = None,
     round_tol: int = 3,
@@ -110,7 +109,7 @@ def write_sde(
     remesh_str: str = REMESH_STR,
     header_str: str = DEFAULT_HEADER,
     num_threads: int = 4,
-):
+) -> None:
     """Writes a Sentaurus Device Editor Scheme file for the component + layermap + initial waferstack + process.
 
     Arguments:
@@ -135,7 +134,6 @@ def write_sde(
         global_device_remeshing_str (str): commands to apply before remeshing
         num_threads (int): for parallelization
     """
-
     save_directory = Path("./sde/") if save_directory is None else Path(save_directory)
     execution_directory = (
         Path("./") if execution_directory is None else Path(execution_directory)
@@ -313,7 +311,6 @@ if __name__ == "__main__":
 
         based on paper https://www.degruyter.com/document/doi/10.1515/nanoph-2013-0034/html
         """
-
         return (
             Etch(
                 name="strip_etch",

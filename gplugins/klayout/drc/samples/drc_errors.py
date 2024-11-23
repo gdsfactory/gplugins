@@ -47,7 +47,7 @@ def enclosing(
     enclosing: float = 0.1, layer1: Layer = (40, 0), layer2: Layer = (41, 0)
 ) -> Component:
     """Layer1 must be enclosed by layer2 by value.
-    checks if layer1 encloses (is bigger than) layer2 by value
+    checks if layer1 encloses (is bigger than) layer2 by value.
 
     Args:
         enclosing: value to enclose layer1 by layer2.

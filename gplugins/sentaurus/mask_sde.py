@@ -69,7 +69,6 @@ def get_sentaurus_mask_3D(
         layers_and: other layers' polygons to intersect with layer polygons
         layers_xor: other layers' polygons to exclusive or with layer polygons
     """
-
     return_str = ""
 
     layers_or = layers_or or []

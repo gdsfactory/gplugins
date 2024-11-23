@@ -83,7 +83,7 @@ def get_reasonable_mesh_parameters(c: Component):
 
 @pytest.fixture(scope="session")
 def elmer_capacitance_simulation_basic_results(geometry) -> ElectrostaticResults:
-    """Run a Elmer capacitance simulation and cache the results"""
+    """Run a Elmer capacitance simulation and cache the results."""
     c = geometry
     return run_capacitive_simulation_elmer(
         c,
@@ -100,7 +100,7 @@ def test_elmer_capacitance_simulation_runs(
 
 
 @pytest.mark.parametrize("n_processes", [(1), (2)])
-def test_elmer_capacitance_simulation_n_processes(geometry, n_processes):
+def test_elmer_capacitance_simulation_n_processes(geometry, n_processes) -> None:
     c = geometry
     run_capacitive_simulation_elmer(
         c,

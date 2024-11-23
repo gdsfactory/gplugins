@@ -251,7 +251,7 @@ def write_sparameters_meep(
         plot_args: if animate or not run, customization keyword arguments passed to
           `plot2D()` (i.e. `labels`, `eps_parameters`, `boundary_parameters`, `field_parameters`, etc.)
 
-    keyword Args:
+    Keyword Args:
         extend_ports_length: to extend ports beyond the PML (um).
         zmargin_top: thickness for cladding above core (um).
         zmargin_bot: thickness for cladding below core (um).

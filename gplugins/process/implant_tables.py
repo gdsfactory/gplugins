@@ -1,6 +1,4 @@
-"""
-Reference: Selberherr, S. (1984). Process Modeling. In: Analysis and Simulation of Semiconductor Devices. Springer, Vienna. https://doi.org/10.1007/978-3-7091-8752-4_3
-"""
+"""Reference: Selberherr, S. (1984). Process Modeling. In: Analysis and Simulation of Semiconductor Devices. Springer, Vienna. https://doi.org/10.1007/978-3-7091-8752-4_3."""
 
 from pathlib import Path
 
@@ -76,8 +74,7 @@ skew_in_silicon = {
 def silicon_gaussian_profile(
     dopant: str, dose: float, E: float, z: np.array = np.linspace(0, 1, 1000)
 ):
-    """
-    Returns gaussian implantation profile for dopant in silicon.
+    """Returns gaussian implantation profile for dopant in silicon.
 
     Arguments:
         dopant: str name of implant
@@ -101,8 +98,7 @@ def silicon_gaussian_profile(
 def silicon_skewed_gaussian_profile(
     dopant: str, dose: float, E: float, z: np.array = np.linspace(0, 1, 1000)
 ):
-    """
-    Returns skewed two half-gaussian implantation profile for dopant in silicon. Valid for |skew| <~ 1.
+    """Returns skewed two half-gaussian implantation profile for dopant in silicon. Valid for |skew| <~ 1.
 
     Arguments:
         dopant: str name of implant

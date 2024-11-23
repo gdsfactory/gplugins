@@ -120,7 +120,6 @@ def run_async_with_event_loop(coroutine: Coroutine[Any, Any, T] | Awaitable[T]) 
 
         run_async_with_event_loop(main())
     """
-
     try:
         loop = asyncio.get_running_loop()
         try:

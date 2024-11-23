@@ -1,5 +1,6 @@
 """Compares the modes of a gdsfactory + MEEP waveguide cross-section vs a
-direct MPB calculation."""
+direct MPB calculation.
+"""
 
 from __future__ import annotations
 
@@ -21,7 +22,7 @@ def lumerical_parser(E_1D, H_1D, y_1D, z_1D, res=50, z_offset=0.11 * 1e-6):
 
     Lumerical data is in 1D arrays, and over a nonregular mesh
 
-    Args
+    Args:
         E_1D: E array from Lumerical.
         H_1D: H array from Lumerical.
         y_1D: y array from Lumerical.
@@ -114,9 +115,8 @@ def MPB_eigenmode_toDisk() -> None:
 
 
 def compare_mpb_lumerical(plot=False) -> None:
-    """
-    WARNING: Segmentation fault occurs if both ms object above and sim object exist in memory at the same time
-    Instead load results from separate MPB run
+    """WARNING: Segmentation fault occurs if both ms object above and sim object exist in memory at the same time
+    Instead load results from separate MPB run.
 
     Same namespace run does not work
     # MPB mode

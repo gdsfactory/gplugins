@@ -14,7 +14,6 @@ def check_duplicated_cells(gdspath: Path | str):
     Args:
         gdspath: path to GDS or Component
     """
-
     if isinstance(gdspath, Component):
         gdspath = gdspath.write_gds()
     layout = pya.Layout()

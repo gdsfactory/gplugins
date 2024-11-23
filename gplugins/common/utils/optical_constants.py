@@ -30,7 +30,7 @@ def permittivity_imag_from_index(n, k):
 
 
 def D_conductivity_um(n, k, wavelength):
-    """conductivity as defined by Meep https://meep.readthedocs.io/en/latest/Materials/#conductivity-and-complex
+    """Conductivity as defined by Meep https://meep.readthedocs.io/en/latest/Materials/#conductivity-and-complex.
 
     Assumes natural units, with lengthscale in microns (see https://meep.readthedocs.io/en/latest/Introduction/#units-in-meep)
 

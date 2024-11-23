@@ -1,4 +1,4 @@
-"""gplugins - gdsfactory plugins"""
+"""gplugins - gdsfactory plugins."""
 
 __version__ = "1.1.3"
 
