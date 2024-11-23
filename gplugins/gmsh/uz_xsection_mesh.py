@@ -7,7 +7,7 @@ import gdsfactory as gf
 import numpy as np
 from gdsfactory.config import get_number_of_cores
 from gdsfactory.technology import LayerStack
-from gdsfactory.typings import ComponentOrReference, Optional
+from gdsfactory.typings import ComponentOrReference
 from meshwell.gmsh_entity import GMSH_entity
 from meshwell.model import Model
 from shapely.geometry import LineString, MultiPolygon, Point, Polygon
@@ -32,9 +32,9 @@ def get_u_bounds_polygons(
     """Performs the bound extraction given a (Multi)Polygon or [Polygon] and cross-sectional line coordinates.
 
     Args:
-        layer_polygons_dict: dict containing layernames: shapely polygons pairs
+        polygons: shapely MultiPolygon or list of Polygons.
         xsection_bounds: ( (x1,y1), (x2,y2) ), with x1,y1 beginning point of cross-sectional line and x2,y2 the end.
-        u_offset: amount to offset the returned polygons in the lateral dimension
+        u_offset: amount to offset the returned polygons in the lateral dimension.
 
     Returns: list of bounding box coordinates (u1,u2)) in xsection line coordinates (distance from xsection_bounds[0]).
     """
@@ -67,8 +67,9 @@ def get_u_bounds_layers(
     layer_polygons_dict: dict[tuple(str, str, str), MultiPolygon],
     xsection_bounds: tuple[tuple[float, float], tuple[float, float]],
 ):
-    """Given a layer_polygons_dict and two coordinates (x1,y1), (x2,y2), computes the \
-        bounding box(es) of each layer in the xsection coordinate system (u).
+    """Given a layer_polygons_dict and two coordinates (x1,y1), (x2,y2).
+
+    Computes the bounding box(es) of each layer in the xsection coordinate system (u).
 
     Args:
         layer_polygons_dict: dict containing layernames: shapely polygons pairs
@@ -103,14 +104,18 @@ def get_uz_bounds_layers(
     xsection_bounds: tuple[tuple[float, float], tuple[float, float]],
     layer_stack: LayerStack,
     u_offset: float = 0.0,
-    z_bounds: Optional[tuple[float, float]] = None,
+    z_bounds: tuple[float, float] | None = None,
 ):
-    """Given a component and layer stack, computes the bounding box(es) of each \
-            layer in the xsection coordinate system (u,z).
+    """Given a component and layer stack, computes the bounding box(es).
+
+    For each layer in the xsection coordinate system (u,z).
 
     Args:
-        component: Component or ComponentReference.
-        xsection_bounds: ( (x1,y1), (x2,y2) ), with x1,y1 beginning point of cross-sectional line and x2,y2 the end
+        layer_polygons_dict: dict containing layernames: shapely polygons pairs.
+        xsection_bounds: ( (x1,y1), (x2,y2) ), with x1,y1 beginning point of cross-sectional line and x2,y2 the end.
+        layer_stack: LayerStack object containing layer information.
+        u_offset: amount to offset the returned polygons in the lateral dimension.
+        z_bounds: optional tuple containing the zmin and zmax of the simulation region.
 
     Returns: Dict containing layer: polygon pairs, with (u1,u2) in xsection line coordinates
     """
@@ -233,22 +238,27 @@ def uz_xsection_mesh(
         layer_physical_map: map layer names to physical names
         layer_meshbool_map: map layer names to mesh_bool (True: mesh the prisms, False: don't mesh)
         resolutions (Dict): Pairs {"layername": {"resolution": float, "distance": "float}} to roughly control mesh refinement
-        mesh_scaling_factor (float): factor multiply mesh geometry by
-        default_resolution_min (float): gmsh minimal edge length
-        default_resolution_max (float): gmsh maximal edge length
+        default_characteristic_length (float): default characteristic length to use in the mesh.
         background_tag (str): name of the background layer to add (default: no background added)
         background_padding (Tuple): [xleft, ydown, xright, yup] distances to add to the components and to fill with background_tag
         background_mesh_order (int, float): mesh order to assign to the background
-        filename (str, path): where to save the .msh file
-        global_meshsize_array: np array [x,y,z,lc] to parametrize the mesh
-        global_meshsize_interpolant_func: interpolating function for global_meshsize_array
-        extra_shapes_dict: Optional[OrderedDict] = OrderedDict of {key: geo} with key a label and geo a shapely (Multi)Polygon or (Multi)LineString of extra shapes to override component
         round_tol: during gds --> mesh conversion cleanup, number of decimal points at which to round the gdsfactory/shapely points before introducing to gmsh
+        global_scaling: global scaling factor to apply to the mesh.
+        global_scaling_premesh: global scaling factor to apply to the mesh before meshing.
+        global_2D_algorithm: gmsh 2D meshing algorithm to use.
+        filename: filename to save the mesh to.
+        round_tol: during gds --> mesh conversion cleanup, number of decimal points at which to round the gdsfactory/shapely points before introducing to gmsh.
         simplify_tol: during gds --> mesh conversion cleanup, shapely "simplify" tolerance (make it so all points are at least separated by this amount)
         u_offset: quantity to add to the "u" coordinates, useful to convert back to x or y if parallel to those axes
         atol: tolerance used to establish equivalency between vertices
         left_right_periodic_bcs: if True, makes the left and right simulation edge meshes periodic
+        verbosity: verbosity level of gmsh
+        n_threads: number of threads to use in gmsh.
+        gmsh_version: gmsh version to use.
+        interface_delimiter: delimiter to use in the interface names
         background_remeshing_file: .pos file to use as a remeshing field. Overrides resolutions if not None.
+        optimization_flags: list of tuples containing optimization flags to pass to gmsh.
+        kwargs: additional arguments to pass to the meshing function.
     """
     # Fuse and cleanup polygons of same layer in case user overlapped them
     layer_polygons_dict = cleanup_component(
@@ -276,7 +286,7 @@ def uz_xsection_mesh(
     shapes = {}
     for layername in layer_order:
         current_shapes = []
-        for (gds_name, bounds) in bounds_dict.values():
+        for gds_name, bounds in bounds_dict.values():
             if gds_name == layername:
                 layer_shapes = list(bounds)
                 current_shapes.append(MultiPolygon(to_polygons(layer_shapes)))

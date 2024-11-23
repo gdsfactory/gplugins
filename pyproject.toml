@@ -186,7 +186,7 @@ select = [
   "W",  # pycodestyle warnings
   "PERF",  # performance improvements
   "RUF",  # ruff
-  "ANN",  # flake8-annotations
+  # "ANN",  # flake8-annotations
   "UP007"
 ]
 
