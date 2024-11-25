@@ -16,12 +16,12 @@ from gplugins.devsim.get_solver import DDComponent
 logger.info(f"DEVSIM {tcad.__version__!r} installed at {tcad.__path__!r}")
 
 __all__ = [
-    "dn_carriers",
-    "dalpha_carriers",
-    "alpha_to_k",
-    "k_to_alpha",
-    "PINWaveguide",
     "DDComponent",
+    "PINWaveguide",
+    "alpha_to_k",
     "clear_devsim_cache",
+    "dalpha_carriers",
+    "dn_carriers",
+    "k_to_alpha",
 ]
 __version__ = "0.0.1"

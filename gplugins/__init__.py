@@ -20,4 +20,4 @@ class Paths:
 
 PATH = Paths()
 
-__all__ = ["plot", "get_effective_indices", "port_symmetries"]
+__all__ = ["get_effective_indices", "plot", "port_symmetries"]
