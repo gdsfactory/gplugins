@@ -24,7 +24,7 @@ dependencies = [
   "pint",
   "gdstk",
   "tqdm",
-  "numpy<2"
+  "numpy<3"
 ]
 description = "gdsfactory plugins"
 keywords = ["python"]
@@ -111,7 +111,7 @@ schematic = [
 tidy3d = [
   "tidy3d>=2.5.2,<2.8",
   "meshio",
-  "numpy<2",
+  "numpy<3",
   "meshwell~=1.0.7"
 ]
 vlsir = [
