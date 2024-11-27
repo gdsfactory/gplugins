@@ -20,16 +20,16 @@ from gplugins.modes.find_neff_vs_width import (
 )
 
 __all__ = [
-    "find_modes_waveguide",
-    "find_modes_coupler",
-    "find_neff_vs_width",
-    "find_mode_dispersion",
+    "coupler",
     "find_coupling_vs_gap",
+    "find_mode_dispersion",
+    "find_modes_coupler",
+    "find_modes_waveguide",
     "find_neff_ng_dw_dh",
+    "find_neff_vs_width",
+    "plot_coupling_vs_gap",
     "plot_neff_ng_dw_dh",
     "plot_neff_vs_width",
-    "plot_coupling_vs_gap",
-    "coupler",
     "waveguide",
 ]
 __version__ = "0.0.2"
