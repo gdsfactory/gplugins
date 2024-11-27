@@ -1,3 +1,4 @@
+# type: ignore
 import os
 import pathlib
 import re
@@ -420,17 +421,15 @@ def get_instances(netlist: str, models: dict) -> list:
     grouped_instances = group_instance_str(netlist)
     instances = []
     non_pdk = []
-    model_names = []
-    for model in models:
-        model_names.append(str(model))
+    model_names = [str(model) for model in models]
+    # Get params using regular expressions
+    pattern = r'(\w+|"[^"]*")\s*=\s*({.*?}|-[0-9.]+|[0-9.]+|f+|y+|x+|"[^"]*")'
     for inst_line in grouped_instances:
         instance = {}
         # Get preamble before parameters (instance name, nets, model name)
         fields = inst_line.split(" ")
         instance["name"] = fields[0]
 
-        # Get params using regular expressions
-        pattern = r'(\w+|"[^"]*")\s*=\s*({.*?}|-[0-9.]+|[0-9.]+|f+|y+|x+|"[^"]*")'
         matches = re.findall(pattern, inst_line)
 
         # Get fields before params
@@ -459,7 +458,7 @@ def get_instances(netlist: str, models: dict) -> list:
                 match = re.match(r"([\d.]+)([un])", value)
                 if match:
                     instance["params"][param] = (
-                        float(match.group(1)) * CONVERSION[match.group(2)]
+                        float(match[1]) * CONVERSION[match.group(2)]
                     )
                 else:
                     try:
@@ -477,12 +476,10 @@ def get_instances(netlist: str, models: dict) -> list:
             instances.append(instance)
         except KeyError:
             non_pdk.append(instance["name"])
-            pass
-
-    if len(non_pdk) > 0:
+    if non_pdk:
         print(
             "LOG: Non-PDK elements detected! Removing instances {"
-            + ", ".join(x for x in non_pdk)
+            + ", ".join(non_pdk)
             + "} from netlist."
         )
     return instances
@@ -540,6 +537,7 @@ def get_instances_info(
                             .
                         }
                     }
+        ignore_electrical: Flag to ignore electrical routes and bundles.
         ignored_info: Ignored param names that will not be put into the 'settings' or 'info' fields (list of str)
 
     Returns:
@@ -671,19 +669,13 @@ def group_instance_str(netlist: str) -> list:
             i
         ].strip().startswith("+"):
             instances.append(lines[i].strip())
-        i = i + 1
+        i += 1
 
         while i < len(lines) and lines[i].strip().startswith("+") and instances:
             instances[-1] = instances[-1] + lines[i].strip()[1:-1]
-            i = i + 1
+            i += 1
 
-    # Check that each instance has params. If not, remove them
-    filtered_instances = []
-    for inst in instances:
-        if "=" in inst:
-            filtered_instances.append(inst)
-
-    return filtered_instances
+    return [inst for inst in instances if "=" in inst]
 
 
 def get_placements(instances: list, mapping: dict, ignore_electrical: bool) -> dict:
@@ -921,10 +913,10 @@ def get_routes(instances, mapping, layers, ignore_electrical):
     """Extract routing information from instances using provided mapping and layers.
 
     Args:
-        - instances: list of instance dictionaries with port and net information.
-        - mapping: dictionary mapping model names to layout cells and their properties.
-        - layers: dictionary defining parameters for different routing layers.
-        - ignore_electrical: boolean indicating whether to ignore electrical routes.
+        instances: list of instance dictionaries with port and net information.
+        mapping: dictionary mapping model names to layout cells and their properties.
+        layers: dictionary defining parameters for different routing layers.
+        ignore_electrical: boolean indicating whether to ignore electrical routes.
 
     Returns:
         - A dictionary of routes organized by bundle types.

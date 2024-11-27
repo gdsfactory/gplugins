@@ -16,13 +16,13 @@ from gplugins.tidy3d.write_sparameters_grating_coupler import (
 
 __all__ = [
     "Tidy3DComponent",
-    "material_name_to_medium",
-    "modes",
-    "materials",
     "get_simulation_grating_coupler",
+    "material_name_to_medium",
+    "materials",
+    "modes",
+    "plot_simulation",
     "write_sparameters",
     "write_sparameters_batch",
     "write_sparameters_grating_coupler",
     "write_sparameters_grating_coupler_batch",
-    "plot_simulation",
 ]

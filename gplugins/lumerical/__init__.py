@@ -11,7 +11,7 @@ from gplugins.lumerical.write_sparameters_lumerical_components import (
 
 __all__ = [
     "read_sparameters_lumerical",
+    "run_wavelength_sweep",
     "write_sparameters_lumerical",
     "write_sparameters_lumerical_components",
-    "run_wavelength_sweep",
 ]
