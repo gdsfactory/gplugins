@@ -174,8 +174,7 @@ ignore = [
   "ANN101",  # Missing self type annotation
   "ANN102",  # Missing cls type annotation
   "ANN401",  # typing.Any is not allowed
-  "RUF015",  # Using next() instead of [0]
-  "UP037"  # Remove quotes from type annotations
+  "RUF015"  # Using next() instead of [0]
 ]
 select = [
   "B",  # flake8-bugbear
@@ -191,7 +190,8 @@ select = [
   "RUF",  # ruff
   # "ANN",  # flake8-annotations
   "UP007",
-  "UP035"
+  "UP035",
+  "UP"  # pyupgrade
 ]
 
 [tool.ruff.lint.pydocstyle]

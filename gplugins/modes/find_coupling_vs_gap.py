@@ -7,7 +7,7 @@ import meep as mp
 import numpy as np
 import pandas as pd
 import pydantic
-from gdsfactory.typings import Optional, PathType
+from gdsfactory.typings import PathType
 from tqdm.auto import tqdm
 
 from gplugins.modes.find_modes import find_modes_coupler
@@ -65,7 +65,7 @@ def find_coupling_vs_gap(
     nmodes: int = 4,
     wavelength: float = 1.55,
     parity=mp.NO_PARITY,
-    filepath: Optional[PathType] = None,
+    filepath: PathType | None = None,
     overwrite: bool = False,
     **kwargs,
 ) -> pd.DataFrame:
@@ -129,6 +129,7 @@ def find_coupling_vs_gap(
 
 
 def plot_coupling_vs_gap(df: pd.DataFrame, **kwargs) -> None:
+    """Plots coupling vs gap."""
     plt.plot(df.gap, df.lc, ".-")
     plt.ylabel("100% coupling length (um)")
     plt.xlabel("gap (um)")
