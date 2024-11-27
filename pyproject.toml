@@ -24,7 +24,7 @@ dependencies = [
   "pint",
   "gdstk",
   "tqdm",
-  "numpy<2"
+  "numpy"
 ]
 description = "gdsfactory plugins"
 keywords = ["python"]
@@ -53,7 +53,7 @@ dev = [
 devsim = [
   "devsim",
   "pyvista<=0.43.8",
-  "tidy3d>=2.5.2,<2.8"
+  "tidy3d>=2.7.8,<2.8"
 ]
 docs = [
   "jupytext",
@@ -93,7 +93,7 @@ meow = [
   "jaxlib>=0.4.26",
   "flax>=0.8.2",
   "meow-sim~=0.11.0",
-  "tidy3d>=2.5.2,<2.8"
+  "tidy3d>=2.7.8,<2.8"
 ]
 sax = [
   "jax>=0.4.26",
@@ -109,9 +109,9 @@ schematic = [
   "natsort"
 ]
 tidy3d = [
-  "tidy3d>=2.5.2,<2.8",
+  "tidy3d>=2.7.8,<2.8",
   "meshio",
-  "numpy<2",
+  "numpy",
   "meshwell~=1.0.7"
 ]
 vlsir = [

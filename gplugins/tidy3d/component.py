@@ -1,4 +1,5 @@
 """This module contains the Tidy3DComponent class which is used to model 3D components in the Tidy3D simulation environment.
+
 It extends the LayeredComponentBase class and adds additional properties and methods specific to the Tidy3D environment.
 
 Classes:
@@ -207,7 +208,7 @@ class Tidy3DComponent(LayeredComponentBase):
         """
         sim_center = (*self.center[:2], center_z)
         sim_size = (*self.size[:2], sim_size_z)
-        sim = td.Simulation(
+        return td.Simulation(
             size=sim_size,
             center=sim_center,
             structures=self.structures,
@@ -219,7 +220,6 @@ class Tidy3DComponent(LayeredComponentBase):
             symmetry=symmetry,
             **kwargs,
         )
-        return sim
 
     def get_component_modeler(
         self,
@@ -308,7 +308,7 @@ class Tidy3DComponent(LayeredComponentBase):
 
         ports = self.get_ports(mode_spec, port_size_mult, grid_eps=grid_eps)
 
-        modeler = ComponentModeler(
+        return ComponentModeler(
             simulation=sim,
             ports=ports,
             freqs=tuple(freqs),
@@ -318,8 +318,6 @@ class Tidy3DComponent(LayeredComponentBase):
             path_dir=path_dir,
             verbose=verbose,
         )
-
-        return modeler
 
     @td.components.viz.add_ax_if_none
     def plot_slice(
@@ -495,6 +493,7 @@ def write_sparameters(
         plot_simulation_x: which x coordinate to plot. Defaults to None.
         plot_mode_index: which mode index to plot. Defaults to 0.
         plot_mode_port_name: which port name to plot. Defaults to None.
+        plot_epsilon: whether to plot epsilon. Defaults to False.
         filepath: Optional file path for the S-parameters. If None, uses hash of simulation.
         overwrite: Whether to overwrite existing S-parameters. Defaults to False.
         kwargs: Additional keyword arguments for the tidy3d Simulation constructor.
