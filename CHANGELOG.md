@@ -1,12 +1,15 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.1.4...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.1.5...main)
 
 <!-- towncrier release notes start -->
 
 ## [1.1.5](https://github.com/gdsfactory/gplugins/releases/tag/v1.1.5) - 2024-11-27
 
 No significant changes.
+
+- Update ruff version [#503](https://github.com/gdsfactory/gplugins/pull/503)
+- update tidy3d and unpin numpy [#501](https://github.com/gdsfactory/gplugins/pull/501)
 
 
 ## [1.1.4](https://github.com/gdsfactory/gplugins/releases/tag/v1.1.4) - 2024-11-22
