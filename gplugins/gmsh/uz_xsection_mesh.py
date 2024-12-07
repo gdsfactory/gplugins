@@ -123,8 +123,8 @@ def get_uz_bounds_layers(
         z_min_sim = z_bounds[0]
         z_max_sim = z_bounds[1]
     else:
-        z_min_sim = -np.Inf
-        z_max_sim = np.Inf
+        z_min_sim = -np.inf
+        z_max_sim = np.inf
 
     # Get in-plane cross-sections
     inplane_bounds_dict = get_u_bounds_layers(layer_polygons_dict, xsection_bounds)
