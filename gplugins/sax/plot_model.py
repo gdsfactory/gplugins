@@ -27,6 +27,7 @@ def plot_model(
         port1: input port name.
         ports2: list of ports.
         logscale: plots in dB logarithmic scale.
+        fig: matplotlib figure.
         wavelength_start: wavelength min (um).
         wavelength_stop: wavelength max (um).
         wavelength_points: number of wavelength steps.
