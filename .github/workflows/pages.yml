@@ -30,6 +30,7 @@ jobs:
         env:
           UV_SYSTEM_PYTHON: 1
         run: |
+          sudo apt update
           sudo apt-get install -y libglu1-mesa
           make install
       - name: Build docs
