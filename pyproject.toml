@@ -41,14 +41,9 @@ dev = [
   "pytest",
   "pytest-cov",
   "pytest_regressions",
-  "jsondiff",
-  "mypy",
   "pyswarms",
-  "autograd",
-  "hyperopt",
-  "tbump",
-  "towncrier",
-  "ray"
+  "ray",
+  "autograd"
 ]
 devsim = [
   "devsim",
@@ -59,7 +54,7 @@ docs = [
   "jupytext",
   "matplotlib",
   "jupyter-book~=1.0",
-  "pyvista[all,trame]<=0.43.8"
+  "pyvista[all]<=0.43.8"
 ]
 femwell = [
   "femwell~=0.1.11",
@@ -87,6 +82,11 @@ klayout = [
   "pyvis<=0.3.1",
   "vlsir~=6.0",
   "vlsirtools~=6.0"
+]
+maintainer = [
+  "mypy",
+  "tbump",
+  "towncrier"
 ]
 meow = [
   "jax>=0.4.26",

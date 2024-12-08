@@ -24,7 +24,7 @@ execute:
     - "*palace*"
     - "*fdtdz*"
     - "*elmer_01_electrostatic*"
-    - "*meep_01_sparameters*"
+    - "*meep_*"
     - "*meow_01*"
     - "*femwell_01_modes*"
     # - "*20_schematic_driven_layout*"

@@ -58,7 +58,7 @@ expected_global_densities = [
         small_rect1_size=small_rect1_sizes[0],
         small_rect2_size=small_rect2_sizes[0],
     ),
-] * 3 + [0.5]
+] * 3 + [0.125]
 
 
 @pytest.mark.parametrize(

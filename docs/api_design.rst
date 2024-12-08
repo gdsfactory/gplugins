@@ -121,20 +121,6 @@ FDTD Simulation
 .. autosummary::
    :toctree: _autosummary/
 
-.. currentmodule:: gplugins.gmeep
-
-.. rubric:: FDTD meep
-
-.. autosummary::
-   :toctree: _autosummary/
-
-   write_sparameters_meep
-   write_sparameters_meep_mpi
-   write_sparameters_meep_batch
-   write_sparameters_grating
-   write_sparameters_grating_mpi
-   write_sparameters_grating_batch
-
 .. currentmodule:: gplugins.tidy3d
 
 .. rubric:: FDTD tidy3d
