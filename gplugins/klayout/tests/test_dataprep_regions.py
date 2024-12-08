@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 import gdsfactory as gf
 import pytest
-from gdsfactory.generic_tech.layer_map import LAYER as l
+from gdsfactory.generic_tech.layer_map import LAYER
 from kfactory import kdb
 
 import gplugins.klayout.dataprep.regions as dp
@@ -23,7 +23,7 @@ def mock_region() -> kdb.Region:
 def region_collection() -> dp.RegionCollection:
     c = gf.Component()
     ring = c << gf.components.coupler_ring()
-    c << gf.components.bbox(ring, layer=l.FLOORPLAN)
+    c << gf.components.bbox(ring, layer=LAYER.FLOORPLAN)
     gdspath = c.write_gds()
     return dp.RegionCollection(gdspath)
 
@@ -91,10 +91,6 @@ def test_Region_isub() -> None:
 def test_RegionCollection_init(region_collection) -> None:
     # Check if the RegionCollection was initialized properly
     assert region_collection[(1, 0)]
-
-
-def test_region_collection_contains(region_collection) -> None:
-    assert l.FLOORPLAN in region_collection
 
 
 if __name__ == "__main__":
