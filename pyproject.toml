@@ -42,6 +42,7 @@ dev = [
   "pytest-cov",
   "pytest_regressions",
   "pyswarms",
+  "ray",
   "autograd"
 ]
 devsim = [

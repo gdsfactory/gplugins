@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Sphinx docs to gh-pages
     steps:
+      - uses: actions/checkout@v4
       - name: Setup Mambaforge
         uses: conda-incubator/setup-miniconda@v3
         with:
