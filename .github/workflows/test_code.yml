@@ -91,7 +91,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install dependencies
         run: |
-          make uv install
+          make uv
+          source $HOME/.local/bin/env
+          make install
       - name: Run tests
         env:
           SIMCLOUD_APIKEY: ${{ secrets.SIMCLOUD_APIKEY }}
