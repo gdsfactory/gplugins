@@ -91,13 +91,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install dependencies
         run: |
-          pip install -e .
+          make uv install
       - name: Run tests
         env:
           SIMCLOUD_APIKEY: ${{ secrets.SIMCLOUD_APIKEY }}
           GDSFACTORY_DISPLAY_TYPE: klayout
         run: |
-          pytest --cov=gplugins
+          uv run pytest --cov=gplugins
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
