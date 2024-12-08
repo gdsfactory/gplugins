@@ -12,24 +12,32 @@ concurrency:
 jobs:
   build-docs:
     runs-on: ubuntu-latest
-    container: ghcr.io/gdsfactory/gdsfactory:main
     name: Sphinx docs to gh-pages
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/cache@v4
+      - name: Setup Mambaforge
+        uses: conda-incubator/setup-miniconda@v3
         with:
-          path: |
-            ~/.gdsfactory/
-          key: 0.0.1
-          restore-keys: 0.0.1
-      - name: Install
+            miniforge-version: latest
+            activate-environment: env
+            use-mamba: true
+            python-version: "3.11"
+      - name: Add conda to system path
         run: |
-          pip install .
+          echo $CONDA/bin >> $GITHUB_PATH
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+      - name: Install dependencies
+        env:
+          UV_SYSTEM_PYTHON: 1
+        run: |
+          sudo apt-get install -y libglu1-mesa
+          make uv venv test-data
+          uv sync
       - name: Build docs
         env:
           SIMCLOUD_APIKEY: ${{ secrets.SIMCLOUD_APIKEY }}
         run: |
-          jb build docs
+          uv run jb build docs
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
