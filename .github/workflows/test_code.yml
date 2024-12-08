@@ -51,9 +51,9 @@ jobs:
         run: |
           sudo apt-get install -y libglu1-mesa
           make uv venv test-data
-          uv pip install .[${{ matrix.plugin }},dev] setuptools --upgrade
       - name: Test with pytest
         run: |
+          uv pip install .[${{ matrix.plugin }},dev] setuptools
           uv run pytest gplugins/${{ matrix.plugin }}
 
   test_non_pip:
