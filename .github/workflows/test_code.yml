@@ -81,8 +81,6 @@ jobs:
           make ${{ matrix.plugin }}
           uv pip install -e .[dev,gmsh]
       - name: Test with pytest
-        env:
-          GDSFACTORY_DISPLAY_TYPE: klayout
         run: uv run pytest gplugins/${{ matrix.plugin }}
   test_code_coverage:
     runs-on: ubuntu-latest
@@ -92,7 +90,6 @@ jobs:
       - name: Install dependencies
         run: |
           make uv
-          source $HOME/.local/bin/env
           make install
       - name: Run tests
         env:
