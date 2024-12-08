@@ -45,15 +45,13 @@ jobs:
           echo $CONDA/bin >> $GITHUB_PATH
       - name: Install uv
         uses: astral-sh/setup-uv@v4
-        with:
-          version: "0.4.x"
       - name: Install dependencies
         env:
           UV_SYSTEM_PYTHON: 1
         run: |
           sudo apt-get install -y libglu1-mesa
           make uv venv test-data
-          uv pip install .[${{ matrix.plugin }},dev]
+          uv pip install .[${{ matrix.plugin }},dev] setuptools --upgrade
       - name: Test with pytest
         run: |
           uv run pytest gplugins/${{ matrix.plugin }}
