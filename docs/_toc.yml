@@ -34,6 +34,7 @@ parts:
           - file: notebooks/meow_01
       - file: plugins_fdtd
         sections:
+          - file: notebooks/luminescent
           - file: notebooks/tidy3d_00_tidy3d
           - file: notebooks/fdtdz_01
           - file: notebooks/meep_01_sparameters
