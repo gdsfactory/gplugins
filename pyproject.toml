@@ -41,14 +41,8 @@ dev = [
   "pytest",
   "pytest-cov",
   "pytest_regressions",
-  "jsondiff",
-  "mypy",
   "pyswarms",
-  "autograd",
-  "hyperopt",
-  "tbump",
-  "towncrier",
-  "ray"
+  "autograd"
 ]
 devsim = [
   "devsim",
@@ -87,6 +81,11 @@ klayout = [
   "pyvis<=0.3.1",
   "vlsir~=6.0",
   "vlsirtools~=6.0"
+]
+maintainer = [
+  "mypy",
+  "tbump",
+  "towncrier"
 ]
 meow = [
   "jax>=0.4.26",

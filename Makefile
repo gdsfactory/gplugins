@@ -60,6 +60,6 @@ notebooks:
 	jupytext docs/**/*.py --to ipynb
 
 docs:
-	jb build docs
+	uv run jb build docs
 
 .PHONY: drc doc docs
