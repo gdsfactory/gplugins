@@ -83,7 +83,7 @@ jobs:
       - name: Test with pytest
         env:
           GDSFACTORY_DISPLAY_TYPE: klayout
-        run: pytest gplugins/${{ matrix.plugin }}
+        run: uv run pytest gplugins/${{ matrix.plugin }}
   test_code_coverage:
     runs-on: ubuntu-latest
     container: ghcr.io/gdsfactory/gdsfactory:main

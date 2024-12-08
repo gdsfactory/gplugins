@@ -1,18 +1,25 @@
 import pytest
 from gdsfactory.samples.demo.lvs import pads_correct
+from vlsir.circuit_pb2 import (
+    Package,
+)
 
 from gplugins.common.config import PATH
 from gplugins.klayout.get_netlist import get_netlist
 from gplugins.vlsir import export_netlist, kdb_vlsir
 
 
-def test_kdb_vlsir() -> None:
-    """Test the conversion from KLayout DB Netlist to VLSIR Package."""
+@pytest.fixture(scope="session")
+def pkg() -> Package:
+    """Get VLSIR Package for `pads_correct`. Cached for session scope."""
     c = pads_correct()
     gdspath = c.write_gds()
     kdbnet = get_netlist(gdspath)
-    pkg = kdb_vlsir(kdbnet, domain="gplugins.klayout.example")
+    return kdb_vlsir(kdbnet, domain="gplugins.klayout.example")
 
+
+def test_kdb_vlsir(pkg) -> None:
+    """Test the conversion from KLayout DB Netlist to VLSIR Package."""
     packages = [
         "taper_L10_W100_W10_LNon_43bc52bd",
         "pad_S100_100_LMTOP_BLNo_163fd346",

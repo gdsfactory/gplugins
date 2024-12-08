@@ -25,15 +25,11 @@ jobs:
       - name: Add conda to system path
         run: |
           echo $CONDA/bin >> $GITHUB_PATH
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
       - name: Install dependencies
-        env:
-          UV_SYSTEM_PYTHON: 1
         run: |
           sudo apt update
           sudo apt-get install -y libglu1-mesa
-          make install meep
+          make uv install meep
       - name: Build docs
         env:
           SIMCLOUD_APIKEY: ${{ secrets.SIMCLOUD_APIKEY }}
