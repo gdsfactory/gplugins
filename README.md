@@ -6,7 +6,7 @@
 [![MIT](https://img.shields.io/github/license/gdsfactory/gplugins)](https://choosealicense.com/licenses/mit/)
 [![codecov](https://img.shields.io/codecov/c/github/gdsfactory/gplugins)](https://codecov.io/gh/gdsfactory/gdsfactory/tree/main/gplugins)
 
-gdsfactory plugins:
+GDSFactory plugins:
 
 - `devsim` TCAD device simulator.
 - `meow` Eigen Mode Expansion (EME).
