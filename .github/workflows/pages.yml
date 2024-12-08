@@ -33,7 +33,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt-get install -y libglu1-mesa
-          make install
+          make install meep
       - name: Build docs
         env:
           SIMCLOUD_APIKEY: ${{ secrets.SIMCLOUD_APIKEY }}

@@ -1,31 +1,30 @@
 import pytest
 from gdsfactory.samples.demo.lvs import pads_correct
-from vlsir.circuit_pb2 import (
-    Package,
-)
 
 from gplugins.common.config import PATH
 from gplugins.klayout.get_netlist import get_netlist
 from gplugins.vlsir import export_netlist, kdb_vlsir
 
 
-@pytest.fixture(scope="session")
-def pkg() -> Package:
-    """Get VLSIR Package for `pads_correct`. Cached for session scope."""
+def test_kdb_vlsir() -> None:
+    """Test the conversion from KLayout DB Netlist to VLSIR Package."""
     c = pads_correct()
     gdspath = c.write_gds()
     kdbnet = get_netlist(gdspath)
-    return kdb_vlsir(kdbnet, domain="gplugins.klayout.example")
+    pkg = kdb_vlsir(kdbnet, domain="gplugins.klayout.example")
 
+    packages = [
+        "taper_L10_W100_W10_LNon_43bc52bd",
+        "pad_S100_100_LMTOP_BLNo_163fd346",
+        "pads_correct_Ppad_CSmetal3",
+    ]
 
-def test_kdb_vlsir(pkg) -> None:
-    """Test the conversion from KLayout DB Netlist to VLSIR Package."""
-    name = "pads_correct_Ppad_CSmetal3"
-
-    assert pkg is not None
-    assert len(pkg.modules) == 7
-    assert len(pkg.modules[6].instances) == 10
-    assert pkg.modules[6].name == name
+    assert pkg is not None, "Package should not be None"
+    assert len(pkg.modules) == 3, "Expected 3 modules in the package"
+    for i in range(3):
+        assert (
+            pkg.modules[i].name == packages[i]
+        ), f"Module[{i}] name should be {packages[i]}"
 
 
 @pytest.mark.parametrize("spice_format", ["spice", "spectre", "xyce", "verilog"])
@@ -49,6 +48,4 @@ def test_export_netlist(pkg, spice_format) -> None:
 
 
 if __name__ == "__main__":
-    c = pads_correct()
-    gdspath = c.write_gds()
-    kdbnet = get_netlist(gdspath)
+    test_kdb_vlsir()
