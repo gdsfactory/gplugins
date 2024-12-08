@@ -33,19 +33,23 @@ jobs:
     name: Test ${{ matrix.plugin }}
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+          key: ${{ hashFiles('pyproject.toml') }}
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
-          cache: "pip"
-          cache-dependency-path: pyproject.toml
-      - name: Test with pytest
-        env:
-          SIMCLOUD_APIKEY: ${{ secrets.SIMCLOUD_APIKEY }}
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
         run: |
           make uv venv test-data
-          uv pip install -e .[${{ matrix.plugin }},dev]
+          uv pip install .[${{ matrix.plugin }},dev]
+      - name: Test with pytest
+        run: |
           uv run pytest gplugins/${{ matrix.plugin }}
+
   test_non_pip:
     runs-on: ${{ matrix.os }}
     strategy:

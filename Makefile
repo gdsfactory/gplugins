@@ -41,9 +41,6 @@ git-rm-merged:
 update-pre:
 	pre-commit autoupdate
 
-git-rm-merged:
-	git branch -D `git branch --merged | grep -v \* | xargs`
-
 release:
 	git push
 	git push origin --tags
