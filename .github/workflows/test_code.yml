@@ -73,7 +73,7 @@ jobs:
         run: |
           make uv venv gmsh
           make ${{ matrix.plugin }}
-          uv pip install -e .[dev,gmsh]
+          uv pip install -e .[dev,gmsh]  --with setuptools
       - name: Test with pytest
         env:
           GDSFACTORY_DISPLAY_TYPE: klayout
