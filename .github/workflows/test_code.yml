@@ -84,17 +84,28 @@ jobs:
         run: uv run pytest gplugins/${{ matrix.plugin }}
   test_code_coverage:
     runs-on: ubuntu-latest
-    container: ghcr.io/gdsfactory/gdsfactory:main
     steps:
       - uses: actions/checkout@v4
-      - name: Install dependencies
+      - name: Setup Mambaforge
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+            miniforge-version: latest
+            activate-environment: env
+            use-mamba: true
+            python-version: "3.11"
+      - name: Add conda to system path
         run: |
-          make uv
-          make install
-      - name: Run tests
+          echo $CONDA/bin >> $GITHUB_PATH
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+      - name: Install dependencies
         env:
-          SIMCLOUD_APIKEY: ${{ secrets.SIMCLOUD_APIKEY }}
-          GDSFACTORY_DISPLAY_TYPE: klayout
+          UV_SYSTEM_PYTHON: 1
+        run: |
+          sudo apt-get install -y libglu1-mesa
+          make uv venv test-data
+          uv sync
+      - name: Test with pytest
         run: |
           uv run pytest --cov=gplugins
       - name: Upload coverage to Codecov

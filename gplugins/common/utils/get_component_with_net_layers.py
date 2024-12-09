@@ -1,8 +1,8 @@
 import copy
 
 import gdsfactory as gf
-from gdsfactory.technology import LogicalLayer
-from gdsfactory.typings import Component, LayerStack
+from gdsfactory import Component
+from gdsfactory.technology import LayerStack, LogicalLayer
 
 
 def get_component_layer_stack(
