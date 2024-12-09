@@ -29,6 +29,7 @@ execute:
     - "*femwell_01_modes*"
     - "*luminescent*"
     - "*pso*"
+    - "*mpb*"
     # - "*20_schematic_driven_layout*"
     # - "*001_meep_sparameters*"
     # - "*00_tidy3d.ipynb"
