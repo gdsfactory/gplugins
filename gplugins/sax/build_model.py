@@ -38,6 +38,7 @@ class Model:
         **kwargs,
     ) -> None:
         """Utility class which simplifies the execution of simulations to build compact models for circuit simulations.
+
         Aims to be agnostic to the specific simulator being used.
 
         It contains shared utilities for the different types of Models:
