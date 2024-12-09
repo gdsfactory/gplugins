@@ -83,6 +83,10 @@ klayout = [
   "vlsir~=6.0",
   "vlsirtools~=6.0"
 ]
+luminescent = [
+  "luminescent~=0.2.12",
+  "sortedcontainers"
+]
 maintainer = [
   "mypy",
   "tbump",

@@ -16,13 +16,15 @@ GDSFactory plugins:
 - `lumerical` For Ansys FDTD and Circuit interconnect.
 - `klayout` for fill, dataprep and testing.
 - `ray` for distributed computing and optimization.
-- `sax` S-parameter circuit solver.
 - `schematic`: for bokeh schematic editor and `path_length_analysis`.
 - `meep` for FDTD.
 - `mpb` for MPB mode solver.
 - `elmer` for electrostatic (capacitive) simulations.
 - `palace` for full-wave driven (S parameter) and electrostatic (capacitive) simulations.
+- `sax` S-parameter circuit solver.
 - `vlsir` for parsing GDS-extracted circuit netlists into Cadence Spectre, NgSpice and Xyce Schematic File formats.
+- `luminescent` for FDTD simulations.
+
 
 ## Installation
 
