@@ -36,7 +36,6 @@ jobs:
           make uv
           make install test-data
           uv run jb build docs
-          tidy3d configure --apikey=${SIMCLOUD_APIKEY}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
