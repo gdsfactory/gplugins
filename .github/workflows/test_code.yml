@@ -104,7 +104,7 @@ jobs:
         run: |
           sudo apt-get install -y libglu1-mesa
           make uv venv test-data
-          make install
+          uv sync
       - name: Test with pytest
         run: |
           uv run pytest --cov=gplugins
