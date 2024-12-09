@@ -1,3 +1,4 @@
+import itertools
 import pathlib
 import pprint
 import time
@@ -326,7 +327,7 @@ class MEOW:
             ez_interfaces=True,
         )
         cells = []
-        for z_min, z_max in zip(zs[:-1], zs[1:]):
+        for z_min, z_max in itertools.pairwise(zs):
             cell = mw.Cell(
                 structures=self.structs,
                 mesh=mesh,

@@ -244,7 +244,7 @@ def centerline_single_poly_2_ports(poly, under_sampling, port_list) -> np.ndarra
 
 
 def extract_paths(
-    component: gf.typings.Component | kf.Instance,
+    component: gf.Component | kf.Instance,
     layer: tuple[int, int] = (1, 0),
     plot: bool = False,
     filter_function: Callable | None = None,
@@ -381,7 +381,7 @@ def extract_paths(
 
             for port in consider_ports:
                 if poly.sized(0.005).inside(DPoint(port.center[0], port.center[1])):
-                    ports_poly.append(port)
+                    ports_poly.extend(port)
 
             if len(ports_poly) == 2:
                 # Each polygon has two ports - simple case
