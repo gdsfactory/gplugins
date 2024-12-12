@@ -1479,7 +1479,7 @@ wheels = [
 
 [[package]]
 name = "gplugins"
-version = "1.1.5"
+version = "1.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "gdsfactory" },
