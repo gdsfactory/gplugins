@@ -230,6 +230,9 @@ src = "pyproject.toml"
 [[tool.tbump.file]]
 src = "gplugins/__init__.py"
 
+[[tool.tbump.file]]
+src = "uv.lock"
+
 [tool.tbump.git]
 message_template = "Bump to {new_version}"
 tag_template = "v{new_version}"
