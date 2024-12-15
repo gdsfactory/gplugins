@@ -80,8 +80,8 @@ gmsh = [
 klayout = [
   "klayout",
   "pyvis<=0.3.1",
-  "vlsir~=6.0",
-  "vlsirtools~=6.0"
+  "vlsir",
+  "vlsirtools"
 ]
 luminescent = [
   "luminescent~=0.2.12",
@@ -119,8 +119,8 @@ tidy3d = [
   "meshwell~=1.0.7"
 ]
 vlsir = [
-  "vlsir~=6.0",
-  "vlsirtools~=6.0"
+  "vlsir",
+  "vlsirtools"
 ]
 
 [tool.codespell]
