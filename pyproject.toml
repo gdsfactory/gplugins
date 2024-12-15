@@ -47,7 +47,7 @@ dev = [
 ]
 devsim = [
   "devsim",
-  "pyvista<=0.43.8",
+  "pyvista<=0.44.2",
   "tidy3d>=2.7.8,<2.8"
 ]
 docs = [
@@ -72,7 +72,7 @@ gmsh = [
   "mapbox_earcut",
   "meshio",
   "pygmsh",
-  "pyvista<=0.43.8",
+  "pyvista<=0.44.2",
   "trimesh",
   "shapely",
   "meshwell~=1.0.7"
