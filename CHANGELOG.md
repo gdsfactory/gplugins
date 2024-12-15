@@ -4,6 +4,11 @@
 
 <!-- towncrier release notes start -->
 
+## [1.2.1](https://github.com/gdsfactory/gplugins/releases/tag/v1.2.1) - 2024-12-15
+
+No significant changes.
+
+
 ## [1.2.0](https://github.com/gdsfactory/gplugins/releases/tag/v1.2.0) - 2024-12-12
 
 - add luminescent [#507](https://github.com/gdsfactory/gplugins/pull/507)
