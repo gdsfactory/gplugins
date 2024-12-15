@@ -1,17 +1,25 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.1.5...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.2.0...main)
 
 <!-- towncrier release notes start -->
 
 ## [1.2.0](https://github.com/gdsfactory/gplugins/releases/tag/v1.2.0) - 2024-12-12
 
-No significant changes.
-
+- add luminescent [#507](https://github.com/gdsfactory/gplugins/pull/507)
+- fix docs [#511](https://github.com/gdsfactory/gplugins/pull/511)
+- fix ruff issues [#506](https://github.com/gdsfactory/gplugins/pull/506)
+- Update ruff version [#503](https://github.com/gdsfactory/gplugins/pull/503)
+- fix docs [#511](https://github.com/gdsfactory/gplugins/pull/511)
+- use uv [#509](https://github.com/gdsfactory/gplugins/pull/509)
+- [pre-commit.ci] pre-commit autoupdate [#505](https://github.com/gdsfactory/gplugins/pull/505)
+- unpin vlsir [#515](https://github.com/gdsfactory/gplugins/pull/515)
+- [pre-commit.ci] pre-commit autoupdate [#513](https://github.com/gdsfactory/gplugins/pull/513)
+- allow numpy2 [#508](https://github.com/gdsfactory/gplugins/pull/508)
+- update tidy3d and unpin numpy [#501](https://github.com/gdsfactory/gplugins/pull/501)
 
 ## [1.1.5](https://github.com/gdsfactory/gplugins/releases/tag/v1.1.5) - 2024-11-27
 
-No significant changes.
 
 - Update ruff version [#503](https://github.com/gdsfactory/gplugins/pull/503)
 - update tidy3d and unpin numpy [#501](https://github.com/gdsfactory/gplugins/pull/501)
