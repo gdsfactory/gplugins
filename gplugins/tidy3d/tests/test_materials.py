@@ -23,7 +23,7 @@ def test_material_medium() -> None:
         clad_material=td.Medium(permittivity=(1.448) ** 2),
         **settings,
     )
-    strip._data
+    assert strip._data
 
 
 def test_material_float() -> None:
@@ -32,7 +32,7 @@ def test_material_float() -> None:
         clad_material=1.4,
         **settings,
     )
-    strip._data
+    assert strip._data
 
 
 def test_material_string() -> None:
@@ -41,7 +41,7 @@ def test_material_string() -> None:
         clad_material="sio2",
         **settings,
     )
-    strip._data
+    assert strip._data
 
 
 def test_material_validation_error() -> None:
@@ -51,7 +51,7 @@ def test_material_validation_error() -> None:
             clad_material="sio2",
             **settings,
         )
-        strip._data
+        assert strip._data
 
 
 def test_material_library_many_variants() -> None:
@@ -61,7 +61,7 @@ def test_material_library_many_variants() -> None:
             clad_material="sio2",
             **settings,
         )
-        strip._data
+        assert strip._data
 
 
 def test_material_library_single_variant() -> None:
@@ -70,7 +70,7 @@ def test_material_library_single_variant() -> None:
         clad_material="AlxOy",
         **settings,
     )
-    strip._data
+    assert strip._data
 
 
 def test_material_library() -> None:
@@ -79,7 +79,7 @@ def test_material_library() -> None:
         clad_material="sio2",
         **settings,
     )
-    strip._data
+    assert strip._data
 
 
 if __name__ == "__main__":
