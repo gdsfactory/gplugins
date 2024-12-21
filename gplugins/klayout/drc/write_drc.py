@@ -138,6 +138,7 @@ def check_width(value: float | int, layer: str, angle_limit: float = 90.0) -> st
 
     Args:
         value: width in um if float, dbu if int (nm).
+        layer: layer name.
         angle_limit: angle limit in degrees.
     """
     category = "width"
@@ -153,6 +154,7 @@ def check_space(value: float | int, layer: str, angle_limit: float = 90.0) -> st
 
     Args:
         value: width in um if float, dbu if int (nm).
+        layer: layer name.
         angle_limit: angle limit in degrees.
     """
     category = "space"
@@ -198,7 +200,7 @@ def check_area(layer: str, min_area_um2: float | int = 2.0) -> str:
     """Return script for min area checking.
 
     Args:
-        layer1: layer name.
+        layer: layer name.
         min_area_um2: min area in um2. int if dbu, float if um.
 
     """
@@ -449,6 +451,12 @@ if __name__ == "__main__":
         derived_layer_boolean("TRENCH", "SLAB90", "-", "WG"),
         check_width(layer="WG", value=0.2),
         check_space(layer="WG", value=0.2),
+        check_width(layer="M1", value=0.2),
+        check_space(layer="M1", value=0.2),
+        check_width(layer="M2", value=1.0),
+        check_space(layer="M2", value=1.0),
+        check_width(layer="M3", value=1.0),
+        check_space(layer="M3", value=1.0),
         check_separation(layer1="HEATER", layer2="M1", value=1.0),
         check_enclosing(layer1="VIAC", layer2="M1", value=0.2),
         check_area(layer="WG", min_area_um2=0.05),

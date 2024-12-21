@@ -10,7 +10,7 @@ import gdsfactory as gf
 import meep as mp
 import numpy as np
 from gdsfactory.component import Component
-from gdsfactory.components.extension import extend_ports, move_polar_rad_copy
+from gdsfactory.components.containers.extension import extend_ports, move_polar_rad_copy
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 
@@ -108,6 +108,7 @@ def get_simulation(
         wavelength_points: wavelength steps.
         dfcen: delta frequency.
         port_source_name: input port name.
+        port_source_mode: mode number for source.
         port_margin: margin on each side of the port.
         distance_source_to_monitors: in (um) source goes before.
         port_source_offset: offset between source GDS port and source MEEP port.

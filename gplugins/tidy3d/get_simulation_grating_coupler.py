@@ -13,7 +13,7 @@ import tidy3d as td
 from gdsfactory import logger
 from gdsfactory.add_padding import add_padding_container
 from gdsfactory.component import Component
-from gdsfactory.components.extension import move_polar_rad_copy
+from gdsfactory.components.containers.extension import move_polar_rad_copy
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 from gdsfactory.typings import CrossSectionSpec
@@ -138,8 +138,8 @@ def get_simulation_grating_coupler(
         ymargin_bot: bottom distance from component to PML.
         zmargin: thickness for cladding above and below core.
         clad_material: material for cladding.
-        box_material:
-        substrate_material:
+        box_material: material for box.
+        substrate_material: material for substrate.
         box_thickness: (um).
         substrate_thickness: (um).
         port_waveguide_name: input port name.
@@ -180,11 +180,13 @@ def get_simulation_grating_coupler(
             Angle of the sidewall.
             ``sidewall_angle=0`` (default) specifies vertical wall,
             while ``0<sidewall_angle_deg<90`` for the base to be larger than the top.
+        padding_layer: layer to use for padding.
         dilation: float = 0.0
             Dilation of the polygon in the base by shifting each edge along its
             normal outwards direction by a distance;
             a negative value corresponds to erosion.
         cross_section: optional cross_section to extend ports beyond PML.
+        kwargs: Additional keyword arguments to pass to the Simulation constructor.
 
     Keyword Args:
         symmetry: Define Symmetries.
