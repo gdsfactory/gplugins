@@ -43,14 +43,14 @@ def initialize_sde(
     """Returns a string defining the geometry definition for a Sentaurus sde file based on a component, initial wafer state, and settings.
 
     Arguments:
-        component,: gdsfactory component containing polygons defining the mask
+        component: gdsfactory component containing polygons defining the mask
         waferstack: gdsfactory layerstack representing the initial wafer
         layermap: gdsfactory LayerMap object containing all layers
-        process: list of gdsfactory.technology.processes process steps
-        xsection_bounds: two in-plane coordinates ((x1,y1), (x2,y2)) defining a line cut for a 2D process cross-section
+        xsection_bounds: two in-plane coordinates ((x1,y1), (x2,y2)) defining a line cut for a 2D process cross-section. If None, simulate in 3D.
         u_offset: for the x-axis of the 2D coordinate system, useful to go back to component units if xsection_bounds parallel to x or y
-        round_tol (int): for gds cleanup (grid snapping by rounding coordinates)
-        simplify_tol (float): for gds cleanup (shape simplification)
+        round_tol: for gds cleanup (grid snapping by rounding coordinates)
+        simplify_tol: for gds cleanup (shape simplification)
+        header_str: initial string to write to the TCL file. Useful for settings
     """
     output_str = ""
 
@@ -113,25 +113,22 @@ def write_sde(
     """Writes a Sentaurus Device Editor Scheme file for the component + layermap + initial waferstack + process.
 
     Arguments:
-        component,: gdsfactory component containing polygons defining the mask
-        waferstack: gdsfactory layerstack representing the initial wafer
-        layermap: gdsfactory LayerMap object containing all layers
-        process: list of gdsfactory.technology.processes process steps
-        xsection_bounds: two in-plane coordinates ((x1,y1), (x2,y2)) defining a line cut for a 2D process cross-section. If None, simulate in 3D.
-        u_offset: offset for lateral dimension of xsection mesh
-        save_directory: directory where to save output and script. Default ./sprocess
+        component: gdsfactory component containing polygons defining the mask.
+        waferstack: gdsfactory layerstack representing the initial wafer.
+        layermap: gdsfactory LayerMap object containing all layers.
+        process: list of gdsfactory.technology.processes process steps.
+        contact_str: string defining the contacts to be added to the device.
+        slice_str: string defining the slices to be added to the device.
+        init_tdr: tdr file containing the initial structure, ready for sdevice simulation.
+        save_directory: directory where to save output and script. Default ./sprocess.
         execution_directory: directory where sprocess will be run from. Default local ./
         filename: name of the final sprocess command file
-        struct_prefix: prefixes of the final sprocess command file
-        structout: tdr file containing the final structure, ready for sdevice simulation. Defaults to component name.
-        contact_portnames Tuple(str): list of portnames to convert into device contacts
-        round_tol (int): for gds cleanup (grid snapping by rounding coordinates)
+        fileout: tdr file containing the final structure, ready for sdevice simulation. Defaults to component name.
+        round_tol: for gds cleanup (grid snapping by rounding coordinates).
         simplify_tol (float): for gds cleanup (shape simplification)
-        split_steps (bool): if True, creates a new workbench node for each step, and saves a TDR file at each step. Useful for fabrication splits, visualization, and debugging.
-        init_lines (str): initial string to write to the TCL file. Useful for settings
-        initial_z_resolutions {key: float}: initial layername: spacing mapping for mesh resolution in the wafer normal direction
-        initial_xy_resolution (float): initial resolution in the wafer plane
-        global_device_remeshing_str (str): commands to apply before remeshing
+        device_remesh (bool): whether to remesh the device after processing.
+        remesh_str (str): string defining the remeshing options.
+        header_str (str): initial string to write to the TCL file. Useful for settings.
         num_threads (int): for parallelization
     """
     save_directory = Path("./sde/") if save_directory is None else Path(save_directory)
