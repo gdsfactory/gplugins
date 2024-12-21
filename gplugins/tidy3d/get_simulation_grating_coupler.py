@@ -13,12 +13,12 @@ import tidy3d as td
 from gdsfactory import logger
 from gdsfactory.add_padding import add_padding_container
 from gdsfactory.component import Component
-from gdsfactory.components.containers.extension import move_polar_rad_copy
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 from gdsfactory.typings import CrossSectionSpec
 from tidy3d.plugins.mode import ModeSolver
 
+from gplugins.common.base_models.component import move_polar_rad_copy
 from gplugins.tidy3d.materials import (
     get_index,
     get_medium,
