@@ -1,19 +1,18 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.2.1...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.2.2...main)
 
 <!-- towncrier release notes start -->
 
 ## [1.2.2](https://github.com/gdsfactory/gplugins/releases/tag/v1.2.2) - 2024-12-20
 
-No significant changes.
-
+- fix docstring [#519](https://github.com/gdsfactory/gplugins/pull/519)
+- update to latest gdsfactory [#518](https://github.com/gdsfactory/gplugins/pull/518)
 
 ## [1.2.1](https://github.com/gdsfactory/gplugins/releases/tag/v1.2.1) - 2024-12-15
 
 - update changelog [#516](https://github.com/gdsfactory/gplugins/pull/516)
 - unpin vlsir [#515](https://github.com/gdsfactory/gplugins/pull/515)
-
 
 ## [1.2.0](https://github.com/gdsfactory/gplugins/releases/tag/v1.2.0) - 2024-12-12
 
