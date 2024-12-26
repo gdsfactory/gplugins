@@ -8,22 +8,29 @@
 
 GDSFactory plugins:
 
-- `devsim` TCAD device simulator.
-- `meow` Eigen Mode Expansion (EME).
-- `femwell` Finite Element Method Solver (heaters, modes, TCAD, RF waveguides).
-- `gmsh` mesh structures.
-- `tidy3d` Finite Difference Time Domain (FDTD) simulations on the cloud using GPU.
-- `lumerical` For Ansys FDTD and Circuit interconnect.
-- `klayout` for fill, dataprep and testing.
-- `ray` for distributed computing and optimization.
-- `schematic`: for bokeh schematic editor and `path_length_analysis`.
-- `meep` for FDTD.
-- `mpb` for MPB mode solver.
-- `elmer` for electrostatic (capacitive) simulations.
-- `palace` for full-wave driven (S parameter) and electrostatic (capacitive) simulations.
-- `sax` S-parameter circuit solver.
-- `vlsir` for parsing GDS-extracted circuit netlists into Cadence Spectre, NgSpice and Xyce Schematic File formats.
-- `luminescent` for FDTD simulations.
+- Device simulators
+    - Meshing
+    - FDTD
+        - `Ansys Lumerical`
+        - tidy3d
+        - Luminescent
+        - FDTDz
+        - MEEP
+    - FEM
+        - `femwell` Finite Element Method Solver (heaters, modes, TCAD, RF waveguides).
+        - `elmer` for electrostatic (capacitive) simulations.
+        - `palace` for full-wave driven (S parameter) and electrostatic (capacitive) simulations.
+    - EME
+        - `meow` Eigen Mode Expansion (EME).
+    - Mode Solver
+        - Tidy3d
+        - Femwell
+        - MPB
+    - TCAD
+        - `devsim` TCAD device simulator.
+- Circuit simulations
+    - `sax` S-parameter circuit solver.
+    - `vlsir` for parsing GDS-extracted circuit netlists into Cadence Spectre, NgSpice and Xyce Schematic File formats.
 
 
 ## Installation
