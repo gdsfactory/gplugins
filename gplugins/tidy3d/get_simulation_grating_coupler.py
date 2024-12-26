@@ -461,7 +461,7 @@ def get_simulation_grating_coupler(
 
     if not (-sim_size[0] / 2 <= fiber_port_x <= sim_size[0] / 2):
         raise ValueError(
-            f"Fiber port x-position {fiber_port_x} is outside the simulation domain width {sim_size[0]}."
+            f"Fiber port x-position {fiber_port_x} is outside the simulation domain width {-sim_size[0]/2} {sim_size[0]/2}."
         )
 
     # Define Gaussian beam source
