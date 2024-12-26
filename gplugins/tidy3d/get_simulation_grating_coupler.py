@@ -44,7 +44,7 @@ def get_simulation_grating_coupler(
     num_modes: int = 2,
     run_time_ps: float = 10.0,
     fiber_port_prefix: str = "o2",
-    fiber_xoffset: float = -7,
+    fiber_xoffset: float = 0,
     fiber_z: float = 2,
     fiber_mfd: float = 10.4,
     fiber_angle_deg: float = 20.0,
@@ -55,7 +55,6 @@ def get_simulation_grating_coupler(
     grid_spec: td.GridSpec | None = None,
     sidewall_angle_deg: float = 0,
     dilation: float = 0.0,
-    padding_layer: tuple[int, int] = (67, 0),
     cross_section: CrossSectionSpec | None = None,
     **kwargs,
 ) -> td.Simulation:
@@ -173,7 +172,6 @@ def get_simulation_grating_coupler(
             Angle of the sidewall.
             ``sidewall_angle=0`` (default) specifies vertical wall,
             while ``0<sidewall_angle_deg<90`` for the base to be larger than the top.
-        padding_layer: layer to use for padding.
         dilation: float = 0.0
             Dilation of the polygon in the base by shifting each edge along its
             normal outwards direction by a distance;
@@ -457,11 +455,13 @@ def get_simulation_grating_coupler(
         )
 
     fiber_port = component_with_booleans.ports[fiber_port_name]
-    fiber_port_x = fiber_port.dcenter[0] + fiber_xoffset
+    fiber_port_x = fiber_port.dcenter[0] + fiber_xoffset - component_with_booleans.dx
 
     if not (-sim_size[0] / 2 <= fiber_port_x <= sim_size[0] / 2):
+        xmin = float(np.round(-sim_size[0] / 2, 3))
+        xmax = -xmin
         raise ValueError(
-            f"Fiber port x-position {fiber_port_x} is outside the simulation domain width {-sim_size[0]/2} {sim_size[0]/2}."
+            f"Fiber port x-position {fiber_port_x} is outside the simulation domain {xmin=}, {xmax=}."
         )
 
     # Define Gaussian beam source
@@ -584,3 +584,4 @@ if __name__ == "__main__":
         fiber_angle_deg=20,
     )
     gt.plot_simulation(sim)  # Ensure simulation looks good
+    c.show()
