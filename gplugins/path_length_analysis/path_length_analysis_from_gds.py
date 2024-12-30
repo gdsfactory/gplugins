@@ -244,7 +244,7 @@ def centerline_single_poly_2_ports(poly, under_sampling, port_list) -> np.ndarra
 
 
 def extract_paths(
-    component: gf.typings.Component | kf.Instance,
+    component: gf.Component | kf.Instance,
     layer: tuple[int, int] = (1, 0),
     plot: bool = False,
     filter_function: Callable | None = None,
@@ -294,12 +294,12 @@ def extract_paths(
 
     if consider_ports is not None:
         # Only ports in the specified list
-        consider_ports = [component.ports[port_name] for port_name in consider_ports]
+        ports_list = [component.ports[port_name] for port_name in consider_ports]
     else:
         # All ports
-        consider_ports = component.ports
+        ports_list = component.ports
 
-    n_ports = len(consider_ports)
+    n_ports = len(ports_list)
     if n_ports == 0:
         raise ValueError(
             "The specified component does not have ports - path length extraction will not work."
@@ -328,15 +328,15 @@ def extract_paths(
             # This is the simplest case - a straight or a bend
 
             if poly[0].is_box():  # only 4 points, no undersampling
-                centerline = centerline_single_poly_2_ports(poly, 1, consider_ports)
+                centerline = centerline_single_poly_2_ports(poly, 1, ports_list)
             else:
                 centerline = centerline_single_poly_2_ports(
-                    poly, under_sampling, consider_ports
+                    poly, under_sampling, ports_list
                 )
             if filter_function is not None:
                 centerline = filter_function(centerline)
             p = gf.Path(centerline)
-            paths[f"{consider_ports[0].name};{consider_ports[1].name}"] = p
+            paths[f"{ports_list[0].name};{ports_list[1].name}"] = p
 
         else:
             # Single polygon and more than 2 ports - MMI
@@ -373,15 +373,15 @@ def extract_paths(
     if len(polys) > 1:
         # Multiple polygons - iterate through each one
 
-        all_ports = list()
+        all_ports = []
 
         for poly in polys:
             # Need to check how many ports does that specific polygon contain
-            ports_poly = list()
+            ports_poly = []
 
-            for port in consider_ports:
+            for port in ports_list:
                 if poly.sized(0.005).inside(DPoint(port.center[0], port.center[1])):
-                    ports_poly.append(port)
+                    ports_poly.append(port)  # noqa: PERF401
 
             if len(ports_poly) == 2:
                 # Each polygon has two ports - simple case
@@ -568,7 +568,7 @@ def extract_paths(
 
 def get_min_radius_and_length_path_dict(path_dict: dict) -> dict:
     """Get the minimum radius of curvature and the length of all paths in the dictionary."""
-    curv_and_len_dict = dict()
+    curv_and_len_dict = {}
     for key, val in path_dict.items():
         curv_and_len_dict[key] = get_min_radius_and_length(val)
 
@@ -683,7 +683,7 @@ if __name__ == "__main__":
         plot=True,
         under_sampling=1,
         evanescent_coupling=ev_coupling,
-        # consider_ports=["o2", "o3"],
+        consider_ports=["o1", "o2"],
         # port_positions=[(-10.0, -1.6), (30.0, -1.6)],
     )
     r_and_l_dict = get_min_radius_and_length_path_dict(path_dict)

@@ -28,10 +28,7 @@ def _is_layer(value: any) -> bool:
         layer, datatype = value
     except Exception:
         return False
-    if isinstance(layer, int) and isinstance(datatype, int):
-        return True
-    else:
-        return False
+    return isinstance(layer, int) and isinstance(datatype, int)
 
 
 def _assert_is_layer(value: any) -> None:
@@ -129,10 +126,10 @@ class RegionCollection:
         """Write gds.
 
         Args:
-            gdspath: output gds path
-            top_cell_name: name to use for the top cell of the output library
+            gdspath: output gds path.
+            top_cell_name: name to use for the top cell of the output library.
             keep_original: if True, keeps all original cells (and hierarchy, to the extent possible) in the output. If false, only explicitly defined layers are output.
-            save_options: if provided, specified KLayout SaveLayoutOptions are used when writing the GDS
+            save_options: if provided, specified KLayout SaveLayoutOptions are used when writing the GDS.
         """
         # use the working top cell name if not provided
         if top_cell_name is None:

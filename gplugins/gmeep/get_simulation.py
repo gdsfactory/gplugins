@@ -10,10 +10,10 @@ import gdsfactory as gf
 import meep as mp
 import numpy as np
 from gdsfactory.component import Component
-from gdsfactory.components.extension import extend_ports, move_polar_rad_copy
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 
+from gplugins.common.base_models.component import move_polar_rad_copy
 from gplugins.gmeep.get_material import get_material
 from gplugins.gmeep.get_meep_geometry import (
     get_meep_geometry_from_component,
@@ -108,6 +108,7 @@ def get_simulation(
         wavelength_points: wavelength steps.
         dfcen: delta frequency.
         port_source_name: input port name.
+        port_source_mode: mode number for source.
         port_margin: margin on each side of the port.
         distance_source_to_monitors: in (um) source goes before.
         port_source_offset: offset between source GDS port and source MEEP port.
@@ -162,7 +163,9 @@ def get_simulation(
     ), f"component needs to be a gf.Component, got Type {type(component)}"
 
     component_extended = (
-        extend_ports(component=component, length=extend_ports_length, centered=True)
+        gf.c.extend_ports(
+            component=component, length=extend_ports_length, centered=True
+        )
         if extend_ports_length
         else component
     )

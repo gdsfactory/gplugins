@@ -1,10 +1,12 @@
 from functools import cached_property
 from hashlib import md5
+from typing import TypeAlias
 
 import gdsfactory as gf
 import numpy as np
 from gdsfactory.component import Component
 from gdsfactory.technology import LayerLevel, LayerStack
+from numpy.typing import NDArray
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -16,6 +18,23 @@ from shapely import MultiPolygon, Polygon
 from gplugins.gmsh.parse_gds import cleanup_component
 
 from ..types import AnyShapelyPolygon, GFComponent
+
+Coordinate: TypeAlias = tuple[float, float]
+
+
+def move_polar_rad_copy(
+    pos: Coordinate, angle: float, length: float
+) -> NDArray[np.float64]:
+    """Returns the points of a position (pos) with angle, shifted by length.
+
+    Args:
+        pos: position.
+        angle: in radians.
+        length: extension length in um.
+    """
+    c = np.cos(angle)
+    s = np.sin(angle)
+    return pos + length * np.array([c, s])
 
 
 class LayeredComponentBase(BaseModel):

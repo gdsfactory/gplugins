@@ -32,7 +32,7 @@ license = {file = "LICENSE"}
 name = "gplugins"
 readme = "README.md"
 requires-python = ">=3.10"
-version = "1.1.5"
+version = "1.2.3"
 
 [project.optional-dependencies]
 dagster = ["dagster", "dagit"]
@@ -41,14 +41,9 @@ dev = [
   "pytest",
   "pytest-cov",
   "pytest_regressions",
-  "jsondiff",
-  "mypy",
   "pyswarms",
-  "autograd",
-  "hyperopt",
-  "tbump",
-  "towncrier",
-  "ray"
+  "ray",
+  "autograd"
 ]
 devsim = [
   "devsim",
@@ -59,7 +54,7 @@ docs = [
   "jupytext",
   "matplotlib",
   "jupyter-book~=1.0",
-  "pyvista[all,trame]<=0.43.8"
+  "pyvista[all]<=0.43.8"
 ]
 femwell = [
   "femwell~=0.1.11",
@@ -85,8 +80,17 @@ gmsh = [
 klayout = [
   "klayout",
   "pyvis<=0.3.1",
-  "vlsir~=6.0",
-  "vlsirtools~=6.0"
+  "vlsir",
+  "vlsirtools"
+]
+luminescent = [
+  "luminescent~=0.2.12",
+  "sortedcontainers"
+]
+maintainer = [
+  "mypy",
+  "tbump",
+  "towncrier"
 ]
 meow = [
   "jax>=0.4.26",
@@ -115,8 +119,8 @@ tidy3d = [
   "meshwell~=1.0.7"
 ]
 vlsir = [
-  "vlsir~=6.0",
-  "vlsirtools~=6.0"
+  "vlsir",
+  "vlsirtools"
 ]
 
 [tool.codespell]
@@ -226,12 +230,15 @@ src = "pyproject.toml"
 [[tool.tbump.file]]
 src = "gplugins/__init__.py"
 
+[[tool.tbump.file]]
+src = "uv.lock"
+
 [tool.tbump.git]
 message_template = "Bump to {new_version}"
 tag_template = "v{new_version}"
 
 [tool.tbump.version]
-current = "1.1.5"
+current = "1.2.3"
 regex = '''
   (?P<major>\d+)
   \.

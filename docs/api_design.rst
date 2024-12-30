@@ -51,24 +51,6 @@ Mode solvers
 
    compute_cross_section_modes
 
-
-.. currentmodule:: gplugins.modes
-
-.. rubric:: Mode solver MPB
-
-.. autosummary::
-   :toctree: _autosummary/
-
-    find_modes_waveguide
-    find_modes_coupler
-    find_neff_vs_width
-    find_mode_dispersion
-    find_coupling_vs_gap
-    find_neff_ng_dw_dh
-    plot_neff_ng_dw_dh
-    plot_neff_vs_width
-    plot_coupling_vs_gap
-
 .. currentmodule:: gplugins.meow
 
 .. rubric:: EME (Eigen Mode Expansion)
@@ -120,20 +102,6 @@ FDTD Simulation
 
 .. autosummary::
    :toctree: _autosummary/
-
-.. currentmodule:: gplugins.gmeep
-
-.. rubric:: FDTD meep
-
-.. autosummary::
-   :toctree: _autosummary/
-
-   write_sparameters_meep
-   write_sparameters_meep_mpi
-   write_sparameters_meep_batch
-   write_sparameters_grating
-   write_sparameters_grating_mpi
-   write_sparameters_grating_batch
 
 .. currentmodule:: gplugins.tidy3d
 

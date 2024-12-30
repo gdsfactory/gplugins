@@ -5,10 +5,8 @@ from __future__ import annotations
 import warnings
 
 import gdsfactory as gf
-import numpy as np
 from gdsfactory.add_pins import add_pin_rectangle
 from gdsfactory.component import Component
-from gdsfactory.components.bend_circular import bend_circular
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerLevel
 from gdsfactory.typings import ComponentSpec, Layer
@@ -16,7 +14,7 @@ from gdsfactory.typings import ComponentSpec, Layer
 
 @gf.cell
 def add_simulation_markers(
-    component: ComponentSpec = bend_circular,
+    component: ComponentSpec = gf.c.bend_circular,
     port_margin: float = 3,
     port_source_name: str = "o1",
     layer_source: Layer = (110, 0),
@@ -107,9 +105,7 @@ def add_simulation_markers(
 
     # Add source
     port = ref.ports[port_source_name]
-    angle_rad = np.radians(port.orientation)
-
-    port = port.move_polar_copy(angle=angle_rad, d=port_source_offset)
+    port = port.copy_polar(d=port_source_offset / c.kcl.dbu, angle=port.angle)
     add_pin_rectangle(c, port=port, port_margin=port_margin, layer=layer_source)
 
     layer_stack.layers["source"] = LayerLevel(
@@ -124,7 +120,7 @@ def add_simulation_markers(
 if __name__ == "__main__":
     # c = gf.components.coupler_ring()
     c = gf.components.mmi1x2()
-    c = add_simulation_markers(c)
+    # c = add_simulation_markers(c)
     c.show()
     scene = c.to_3d()
     scene.show()

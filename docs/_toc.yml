@@ -36,11 +36,12 @@ parts:
         sections:
           - file: notebooks/luminescent
           - file: notebooks/tidy3d_00_tidy3d
+          - file: notebooks/lumerical_1_fdtd_sparameters
+          - file: notebooks/luminescent
           - file: notebooks/fdtdz_01
           - file: notebooks/meep_01_sparameters
           - file: notebooks/meep_02_gratings
           - file: notebooks/meep_03_fields
-          - file: notebooks/lumerical_1_fdtd_sparameters
       - file: plugins_circuits
         sections:
           - file: notebooks/sax_01_sax

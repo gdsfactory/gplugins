@@ -3,7 +3,8 @@ from pathlib import Path
 import gdsfactory as gf
 import meshio
 from gdsfactory import Component
-from gdsfactory.typings import ComponentSpec, Layer, LayerStack
+from gdsfactory.technology import LayerStack
+from gdsfactory.typings import ComponentSpec, Layer
 
 from gplugins.gmsh.uz_xsection_mesh import uz_xsection_mesh
 from gplugins.gmsh.xy_xsection_mesh import xy_xsection_mesh
@@ -47,7 +48,9 @@ def get_mesh(
         xsection_bounds: used to define in-plane line for uz meshing.
         wafer_padding: padding beyond bbox to add to WAFER layers.
         wafer_layer: layer to use for WAFER padding.
+        default_characteristic_length: default characteristic length for meshing.
         background_remeshing_file: .pos file to use as a remeshing field. Overrides resolutions if not None.
+        kwargs: additional arguments for the target meshing function in gplugins.gmsh.
 
     Keyword Args:
         Arguments for the target meshing function in gplugins.gmsh

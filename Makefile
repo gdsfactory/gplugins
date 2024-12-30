@@ -1,7 +1,13 @@
+uv:
+	curl -LsSf https://astral.sh/uv/0.5.5/install.sh | sh
+
+venv:
+	uv venv --python 3.11
+
 install:
-	pip install -e .[dev,docs,devsim,femwell,gmsh,klayout,meow,meshwell,ray,sax,schematic,tidy3d,vlsir]
-	pip install git+https://github.com/gdsfactory/gdsfactory --force-reinstall
-	pre-commit install
+	uv venv --python 3.11
+	uv pip install -e .[dev,docs,devsim,femwell,gmsh,klayout,meow,meshwell,ray,sax,schematic,tidy3d,vlsir]
+	uv run pre-commit install
 
 dev: test-data gmsh elmer install
 
@@ -35,9 +41,6 @@ git-rm-merged:
 update-pre:
 	pre-commit autoupdate
 
-git-rm-merged:
-	git branch -D `git branch --merged | grep -v \* | xargs`
-
 release:
 	git push
 	git push origin --tags
@@ -54,6 +57,6 @@ notebooks:
 	jupytext docs/**/*.py --to ipynb
 
 docs:
-	jb build docs
+	uv run jb build docs
 
 .PHONY: drc doc docs
