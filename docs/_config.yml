@@ -27,7 +27,6 @@ execute:
     - "*meep_*"
     - "*meow_01*"
     - "*femwell_01_modes*"
-    - "*luminescent*"
     - "*pso*"
     - "*mpb*"
     # - "*20_schematic_driven_layout*"
