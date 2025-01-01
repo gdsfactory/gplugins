@@ -54,7 +54,9 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
     @override
     def parse_element(self, s: str, element: str) -> kdb.ParseElementData:
         # Allow Calibre-style model name given as `$[model_name]` by removing the brackets
-        s = re.sub(r"\$\[([^\]]+)\]", r"\1", s)
+        # This is used for resistors and capacitors
+        if element != "X":
+            s = re.sub(r"\$\[([^\]]+)\]", r"\1", s)
 
         x_value, y_value = None, None
         if "$" in s:
