@@ -41,7 +41,8 @@ def get_component_with_local_layers(
         precision: of the boolean operations.
     """
     # Initialize returned component and layerstack
-    local_component = component.flatten()
+    local_component = component.copy()
+    local_component.flatten()
     local_layer_stack = layer_stack.model_copy()
 
     for mapping in mappings:
