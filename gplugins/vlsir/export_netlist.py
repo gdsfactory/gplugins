@@ -1,12 +1,13 @@
-"""Uses VLSIRTools for converting between Klayout's DB Netlist format and other electrical schematic file formats:
+"""Uses VLSIRTools for converting between Klayout's DB Netlist format and other electrical schematic file formats.
+
 - SPICE
 - Spectre
 - Xyce
 - Verilog (Not supported yet).
 
 Todo:
-    - Add support for Verilog
-    - Thoroughly test the parser with more complex netlists
+    - Add support for Verilog.
+    - Thoroughly test the parser with more complex netlists.
 """
 
 from io import StringIO
@@ -45,9 +46,7 @@ def _connections(**kwargs) -> list[Connection]:
 
 
 def _params(**kwargs) -> list[Param]:
-    """Create a list of `Param`s from keyword args of the form
-    `r=ParamValue(double_value=1e3)`.
-    """
+    """Create a list of `Param`s from keyword args of the form r=ParamValue(double_value=1e3)."""
     return [Param(name=key, value=value) for key, value in kwargs.items()]
 
 

@@ -96,12 +96,12 @@ def write_sdevice_quasistationary_ramp_voltage_dd(
         ramp_max_step: maximum ramping step.
         ramp_min_step: minimum ramping step.
         ramp_sample_voltages: list of voltages between 0V and ramp_final_voltage to report.
-        filepath: str = Path to the TLC file to be written.
-        file_settings: "File" field settings to add to the TCL file
-        output_settings: "Output" field settings to add to the TCL file
-        physics_settings: "Physics" field settings to add to the TCL file
-        math_settings: str = "Math" field settings to add to the TCL file
-        initialization_commands: in the solver, what to execute before the ramp
+        filename: name of the TCL file to save.
+        save_directory: directory to save the TCL file.
+        execution_directory: directory to execute the TCL file.
+        output_settings: "Plot" field settings to add to the TCL file.
+        physics_settings: "Physics" field settings to add to the TCL file.
+        math_settings: str = "Math" field settings to add to the TCL file.
     """
     save_directory = (
         Path("./sdevice/") if save_directory is None else Path(save_directory)
