@@ -15,6 +15,7 @@ notebooks/luminescent_runs/
 
 # C extensions
 *.csv
+*.npz
 *.xdmf
 *.h5
 *.html
