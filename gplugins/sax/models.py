@@ -413,10 +413,9 @@ def mmi2x2(
         loss_dB: loss in dB.
         shift: shift in wavelength for both cross and thru ports.
         loss_dB_cross: loss in dB for the cross port.
-        loss_dB_bar: loss in dB for the bar port.
+        loss_dB_thru: loss in dB for the bar port.
         splitting_ratio_cross: splitting ratio for the cross port.
         splitting_ratio_thru: splitting ratio for the bar port.
-
     """
     loss_dB_cross = loss_dB_cross or loss_dB
     loss_dB_thru = loss_dB_thru or loss_dB
