@@ -590,6 +590,8 @@ def write_sparameters(
     dirpath.mkdir(parents=True, exist_ok=True)
     filepath = filepath or dirpath / f"{modeler._hash_self()}.npz"
     filepath = pathlib.Path(filepath)
+    if filepath.suffix != ".npz":
+        filepath = filepath.with_suffix(".npz")
 
     if filepath.exists() and not overwrite:
         print(f"Simulation loaded from {filepath!r}")
@@ -703,15 +705,16 @@ if __name__ == "__main__":
     #     ]
     # )
     # s_params_list = [sim.result() for sim in sims]
-    c = gf.components.taper_sc_nc()
+    c = gf.components.straight(length=1, cross_section="rib")
 
     sp = write_sparameters(
         c,
-        sim_size_z=4,
+        # sim_size_z=4,
         center_z="core",
-        plot_simulation_x=10,
-        plot_simulation_layer_name="core",
-        plot_epsilon=True,
+        # plot_simulation_x=10,
+        # plot_simulation_layer_name="core",
+        # plot_epsilon=True,
+        filepath="straight2",
         # plot_mode_port_name="o1",
         # plot_mode_index=1,
         # mode_spec=mode_spec,
