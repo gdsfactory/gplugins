@@ -1,18 +1,20 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.2.2...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.2.4...main)
 
 <!-- towncrier release notes start -->
 
 ## [1.2.4](https://github.com/gdsfactory/gplugins/releases/tag/v1.2.4) - 2025-01-11
 
-No significant changes.
 
+- Fix ruff [#535](https://github.com/gdsfactory/gplugins/pull/535)
+- fix tidy3d cache [#534](https://github.com/gdsfactory/gplugins/pull/534)
+- fix flatten [#529](https://github.com/gdsfactory/gplugins/pull/529)
+- Fix X SPICE element parsing for Calibre-style model names [#528](https://github.com/gdsfactory/gplugins/pull/528)
 
 ## [1.2.3](https://github.com/gdsfactory/gplugins/releases/tag/v1.2.3) - 2024-12-25
 
-No significant changes.
-
+- fix grating couplers in tidy3d [#522](https://github.com/gdsfactory/gplugins/pull/522)
 
 ## [1.2.2](https://github.com/gdsfactory/gplugins/releases/tag/v1.2.2) - 2024-12-20
 
