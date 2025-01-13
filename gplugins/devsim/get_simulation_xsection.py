@@ -306,7 +306,7 @@ class PINWaveguide(BaseModel):
             device,
             "slab",
             "Acceptors",
-            f"{self.p_conc:1.3e}*step({-1*self.p_offset / cm:1.3e}-x) + {self.ppp_conc:1.3e}*step({self.xppp / cm:1.3e}-x)",
+            f"{self.p_conc:1.3e}*step({-1 * self.p_offset / cm:1.3e}-x) + {self.ppp_conc:1.3e}*step({self.xppp / cm:1.3e}-x)",
         )
         model_create.CreateNodeModel(
             device,
@@ -319,7 +319,7 @@ class PINWaveguide(BaseModel):
             device,
             "core",
             "Acceptors",
-            f"{self.p_conc:1.1e}*step({-1*self.p_offset / cm:1.6e}-x)",
+            f"{self.p_conc:1.1e}*step({-1 * self.p_offset / cm:1.6e}-x)",
         )
         model_create.CreateNodeModel(
             device,

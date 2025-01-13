@@ -367,7 +367,7 @@ def _mmi_nxn(
                 splitting_matrix[i][j]
             )  # Convert power ratio to amplitude
             loss_factor = 10 ** (-loss_dB[j] / 20)
-            S[(f"o{i+1}", f"o{j+1}")] = amplitude * loss_factor
+            S[(f"o{i + 1}", f"o{j + 1}")] = amplitude * loss_factor
 
     return sax.reciprocal(S)
 

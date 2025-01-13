@@ -121,7 +121,7 @@ def check_not_inside(
     """
     if size is None:
         error = f"{layer} not inside {not_inside}"
-        return f"{layer}.not_inside({not_inside})" f".output({error!r}, {error!r})"
+        return f"{layer}.not_inside({not_inside}).output({error!r}, {error!r})"
     else:
         error = f"{layer} sized by {size} not inside {not_inside}"
         script = f"{layer}_sized = {layer}.size({size})\n "

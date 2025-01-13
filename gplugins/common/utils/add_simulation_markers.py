@@ -91,9 +91,9 @@ def add_simulation_markers(
         port_source_name = port_source.name
         warnings.warn(f"Selecting port_source_name={port_source_name!r} instead.")
 
-    assert isinstance(
-        component, Component
-    ), f"component needs to be a gf.Component, got Type {type(component)}"
+    assert isinstance(component, Component), (
+        f"component needs to be a gf.Component, got Type {type(component)}"
+    )
 
     # Add port monitors
     for port_name in port_names:

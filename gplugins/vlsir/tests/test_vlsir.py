@@ -29,9 +29,9 @@ def test_kdb_vlsir(pkg) -> None:
     assert pkg is not None, "Package should not be None"
     assert len(pkg.modules) == 3, "Expected 3 modules in the package"
     for i in range(3):
-        assert (
-            pkg.modules[i].name == packages[i]
-        ), f"Module[{i}] name should be {packages[i]}"
+        assert pkg.modules[i].name == packages[i], (
+            f"Module[{i}] name should be {packages[i]}"
+        )
 
 
 @pytest.mark.parametrize("spice_format", ["spice", "spectre", "xyce", "verilog"])

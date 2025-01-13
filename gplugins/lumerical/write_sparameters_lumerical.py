@@ -274,8 +274,7 @@ def write_sparameters_lumerical(
     ]
     if not layers_thickness:
         raise ValueError(
-            f"no layers for component {component.layers}"
-            f"in layer stack {layer_stack}"
+            f"no layers for component {component.layers}in layer stack {layer_stack}"
         )
     layers_zmin = [
         layer_to_zmin[layer]
@@ -300,7 +299,7 @@ def write_sparameters_lumerical(
     )
 
     logger.info(
-        f"Simulation size = {x_span*1e6:.3f}, {y_span*1e6:.3f}, {z_span*1e6:.3f} um"
+        f"Simulation size = {x_span * 1e6:.3f}, {y_span * 1e6:.3f}, {z_span * 1e6:.3f} um"
     )
 
     # from pprint import pprint
@@ -393,7 +392,7 @@ def write_sparameters_lumerical(
         zspan = 2 * ss.port_margin + thickness
 
         s.addport()
-        p = f"FDTD::ports::port {i+1}"
+        p = f"FDTD::ports::port {i + 1}"
         s.setnamed(p, "x", port.dx * 1e-6)
         s.setnamed(p, "y", port.dy * 1e-6)
         s.setnamed(p, "z", z * 1e-6)

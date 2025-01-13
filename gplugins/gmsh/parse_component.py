@@ -88,7 +88,7 @@ def process_buffers(layer_polygons_dict: dict, layer_stack: LayerStack):
                     )
                     extended_layer_polygons_dict[f"{layername}_{poly_ind}_{z}"] = (
                         f"{layername}",
-                        f"{layername}_{poly_ind}_{zs[z_ind+1]}",
+                        f"{layername}_{poly_ind}_{zs[z_ind + 1]}",
                         polygon.buffer(width_buffer),
                         polygon.buffer(width_buffers[z_ind + 1]),
                     )

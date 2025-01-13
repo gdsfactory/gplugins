@@ -404,14 +404,14 @@ def run_wavelength_sweep(
         session.connect(ona.name, "output", component.name, name)
     for i, port in enumerate(ports_out.keys()):
         name = port if is_top_level else f"{port}.{ports_out[port]}"
-        session.connect(ona.name, f"input {i+1}", component.name, name)
+        session.connect(ona.name, f"input {i + 1}", component.name, name)
 
     session.run()
 
     # inc.close()
     return {
         result: {
-            port: session.getresult(ona.name, f"input {i+1}/mode {mode}/{result}")
+            port: session.getresult(ona.name, f"input {i + 1}/mode {mode}/{result}")
             for i, port in enumerate(ports_out)
         }
         for result in results

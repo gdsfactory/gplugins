@@ -98,9 +98,9 @@ def get_sparameters_fdtdz(
 
     optical_port_names = list(component_ref.get_ports_dict(port_type="optical").keys())
 
-    assert isinstance(
-        component, Component
-    ), f"component needs to be a gf.Component, got Type {type(component)}"
+    assert isinstance(component, Component), (
+        f"component needs to be a gf.Component, got Type {type(component)}"
+    )
 
     component_extended = (
         gf.components.extension.extend_ports(
