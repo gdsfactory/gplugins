@@ -105,6 +105,6 @@ def test_estimate_weighted_global_density(
     estimated_density = estimate_weighted_global_density(
         Xi=Xi, Yi=Yi, Zi=Zi, bbox=get_gds_bbox(gdspath)
     )
-    assert np.isclose(
-        estimated_density, expected_global_density
-    ), f"{estimated_density=}, {expected_global_density=}"
+    assert np.isclose(estimated_density, expected_global_density), (
+        f"{estimated_density=}, {expected_global_density=}"
+    )

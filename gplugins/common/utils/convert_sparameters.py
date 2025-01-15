@@ -46,9 +46,9 @@ def pandas_to_numpy(df: pd.DataFrame, port_map=None) -> np.ndarray:
     if port_map is None:
         port_map = {f"o{i}@0": i for i in idxs}
     rev_port_map = {i: p for p, i in port_map.items()}
-    assert len(rev_port_map) == len(
-        port_map
-    ), "Duplicate port indices found in port_map"
+    assert len(rev_port_map) == len(port_map), (
+        "Duplicate port indices found in port_map"
+    )
 
     s_map = {
         s: tuple(rev_port_map[i] for i in _s_header_to_port_idxs(s)) for s in s_headers

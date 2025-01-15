@@ -309,7 +309,7 @@ def write_sprocess(
                         )
                     if split_steps:
                         f.write(
-                            f"struct tdr={relative_save_directory!s}/{struct_prefix}{i+1}_{step.name}_litho.tdr\n"
+                            f"struct tdr={relative_save_directory!s}/{struct_prefix}{i + 1}_{step.name}_litho.tdr\n"
                         )
 
             if isinstance(step, Etch):
@@ -350,7 +350,7 @@ def write_sprocess(
 
             if split_steps:
                 f.write(
-                    f"struct tdr={relative_save_directory!s}/{struct_prefix}{i+1}_{step.name}.tdr"
+                    f"struct tdr={relative_save_directory!s}/{struct_prefix}{i + 1}_{step.name}.tdr"
                 )
 
             f.write("\n")
@@ -632,7 +632,7 @@ if __name__ == "__main__":
     )
 
     contact_str = f"""contact name=cathode aluminum silicon xlo=0.0 xhi=0.2 ylo=0.0 yhi=1 zlo=0 zhi=0
-contact name=anode aluminum silicon xlo=0.0 xhi=0.2 ylo={c.dysize-1:1.3f} yhi={c.dysize:1.3f} zlo=0 zhi=0
+contact name=anode aluminum silicon xlo=0.0 xhi=0.2 ylo={c.dysize - 1:1.3f} yhi={c.dysize:1.3f} zlo=0 zhi=0
 contact name=substrate box silicon xlo=4.2 xhi=4.3 ylo=0.0 yhi={c.dysize:1.3f} zlo=0 zhi=0
     """
 

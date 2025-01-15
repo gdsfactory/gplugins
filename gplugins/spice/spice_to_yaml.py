@@ -834,13 +834,13 @@ def get_ports(netlist: str, instances: list, model: dict, mapping: dict) -> dict
             # Ex. [a,o1: b,o1] is same as [b,o1: a,o1]; remove this permutation
             if (
                 "$" not in inst1["nets"][i]
-                and f'{inst1["name"]},{inst1["ports"][i]}' not in connections
+                and f"{inst1['name']},{inst1['ports'][i]}" not in connections
             ):
-                side1 = f'{inst1["name"]},{inst1["ports"][i]}'
+                side1 = f"{inst1['name']},{inst1['ports'][i]}"
                 connections.append(side1)
 
                 # Map instance port name to layout port name
-                side1 = f'{inst1["name"]},{mapping[inst1["model"]]["ports"][inst1["ports"][i]]}'
+                side1 = f"{inst1['name']},{mapping[inst1['model']]['ports'][inst1['ports'][i]]}"
 
                 j = ctk_ports.index(inst1["nets"][i])
                 ports[model["ports"][j]] = side1
