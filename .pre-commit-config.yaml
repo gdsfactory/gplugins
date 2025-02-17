@@ -28,7 +28,7 @@ repos:
   #     - id: shellcheck
 
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.8.2
+    rev: 1.8.3
     hooks:
       - id: bandit
         args: [--exit-zero]
@@ -61,6 +61,6 @@ repos:
         additional_dependencies:
           - tomli
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.5.29
+    rev: 0.6.0
     hooks:
       - id: uv-lock
