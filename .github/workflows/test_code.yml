@@ -25,7 +25,7 @@ jobs:
           uv pip install .[${{ matrix.plugin }},dev] setuptools
       - name: Test pre-commit hooks
         run: |
-          uv run pre-commit run -a --files gplugins/${{ matrix.plugin }}
+          uv run pre-commit run --files gplugins/${{ matrix.plugin }}
 
   test_code_pip:
     needs: pre-commit
