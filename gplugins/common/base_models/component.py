@@ -109,7 +109,7 @@ class LayeredComponentBase(BaseModel):
         p = tuple(
             p.copy_polar(
                 p.kcl.to_dbu(self.extend_ports + self.pad_xy_inner - self.port_offset),
-                angle=p.angle,
+                orientation=p.orientation,
             )
             for p in self.component.ports
         )

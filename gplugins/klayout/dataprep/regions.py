@@ -87,7 +87,7 @@ class RegionCollection:
     """
 
     def __init__(self, gdspath, cell_name: str | None = None) -> None:
-        lib = kf.kcell.KCLayout(str(gdspath))
+        lib = kf.KCLayout(str(gdspath))
         lib.read(filename=str(gdspath))
         self.layout = lib.cell_by_name(cell_name) if cell_name else lib.top_cell()
         self.lib = lib
@@ -157,7 +157,7 @@ class RegionCollection:
             uid = str(uuid.uuid4())[:8]
             cellname += f"_{uid}"
 
-        output_lib = kf.kcell.KCLayout("output")
+        output_lib = kf.KCLayout("output")
         c = kf.KCell(cellname, output_lib)
         if keep_original:
             c.copy_tree(self.layout)

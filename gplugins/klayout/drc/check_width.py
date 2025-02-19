@@ -25,7 +25,7 @@ def check_width(
         gdspath = gf.import_gds(gdspath)
 
     layout = gdspath.kcl
-    cell = gdspath._kdb_cell
+    cell = gdspath.kdb_cell
     region = pya.Region(cell.begin_shapes_rec(layout.layer(layer[0], layer[1])))
     # print(region)
     # print(min_width*1e3)

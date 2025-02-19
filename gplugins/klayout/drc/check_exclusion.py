@@ -38,7 +38,7 @@ def check_exclusion(
         gdspath = gf.import_gds(gdspath)
 
     layout = gdspath.kcl
-    cell = gdspath._kdb_cell
+    cell = gdspath.kdb_cell
     a = pya.Region(cell.begin_shapes_rec(layout.layer(layer1[0], layer1[1])))
     b = pya.Region(cell.begin_shapes_rec(layout.layer(layer2[0], layer2[1])))
 

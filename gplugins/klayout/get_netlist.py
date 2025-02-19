@@ -23,7 +23,7 @@ def get_l2n(
         kdb.LayoutToNetlist: The layout to netlist object.
 
     """
-    lib = kf.kcell.KCLayout(str(gdspath))
+    lib = kf.KCLayout(str(gdspath))
     Tech = kdb.Technology()
 
     tech_dir = PATH.klayout

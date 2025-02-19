@@ -38,7 +38,7 @@ def check_inclusion(
         gdspath = gf.import_gds(gdspath)
 
     layout = gdspath.kcl
-    cell = gdspath._kdb_cell
+    cell = gdspath.kdb_cell
     a = pya.Region(cell.begin_shapes_rec(layout.layer(layer_in[0], layer_in[1])))
     b = pya.Region(cell.begin_shapes_rec(layout.layer(layer_out[0], layer_out[1])))
 
