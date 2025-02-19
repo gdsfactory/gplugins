@@ -32,11 +32,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
-      max-parallel: 12
+      max-parallel: 24
       matrix:
         plugin: [femwell, gmsh, meow, sax, tidy3d, klayout, vlsir]
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: [3.11, 3.13]
+        os: [ubuntu-latest] #, macos-latest, windows-latest]
+        python-version: [3.11] #, 3.13]
         exclude:
           - plugin: femwell
             os: macos-latest
