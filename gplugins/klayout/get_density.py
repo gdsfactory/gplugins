@@ -6,18 +6,21 @@ import matplotlib.pyplot as plt
 import numpy as np
 from gdsfactory.config import get_number_of_cores
 from gdsfactory.typings import Layer
-from klayout.db import Box, Layout, TileOutputReceiver, TilingProcessor
+from klayout.db import Box, Layout, Polygon, TileOutputReceiver, TilingProcessor
 
 
 class DensityOutputReceiver(TileOutputReceiver):
     def __init__(self) -> None:
+        """Output receiver for density data."""
         super().__init__()
         self.data = []
 
     def put(
         self, ix: int, iy: int, tile: Box, obj: float, dbu: float, clip: bool
     ) -> None:
-        """Arguments:
+        """Put density data into the receiver.
+
+        Arguments:
             ix: index position of the tile along the x-axis in a grid of tiles.
             iy: index position of the tile along the y-axis in a grid of tiles.
             tile: x-y boundaries of the tile (Klayout Box object)
@@ -51,6 +54,7 @@ def calculate_density(
     Args:
         gdspath (Path): The path to the GDS file.
         layer (Layer): The layer for which to calculate density (layer number, datatype).
+        cellname (str | None, optional): The name of the cell to consider for the density heatmap. Defaults to all top cells.
         tile_size (Tuple, optional): The size of the tiles (width, height) in database units. Defaults to (200, 200).
         threads (int, optional): The number of threads to use for processing. Defaults to total number of threads.
 
@@ -90,12 +94,13 @@ def calculate_density(
 
 def get_layer_polygons(
     gdspath: Path, layer: Layer, cellname: str | None = None
-) -> list[np.array]:
+) -> dict[tuple[int, int] | str | int, list[Polygon]]:
     """Extracts polygons from a specified layer in a GDS file using gdsfactory.
 
     Args:
         gdspath (Path): The path to the GDS file.
         layer (Layer): The layer from which to extract polygons (layer number, datatype).
+        cellname (str | None, optional): The name of the cell to consider for the density heatmap. Defaults to all top cells.
 
     Returns:
         list: A list of polygons from the specified layer.
@@ -116,6 +121,7 @@ def get_gds_bbox(
     Args:
         gdspath (Path): The path to the GDS file.
         layer (Layer): if not None, only consider the bbox of that specific layer
+        cellname (str | None, optional): The name of the cell to consider for the bounding box. Defaults to all top cells.
 
     Returns:
         tuple: ((xmin,ymin),(xmax,ymax))
@@ -303,6 +309,7 @@ def plot_density_heatmap(
     Args:
         gdspath (Path): The path to the GDS file for which the density heatmap is to be plotted.
         layer (Layer): The specific layer within the GDS file for which the density heatmap is to be generated.
+        cellname (str | None, optional): The name of the cell to consider for the density heatmap. Defaults to all top cells.
         tile_size (Tuple, optional): The dimensions (width, height) of each tile, in database units, used for density calculation. Defaults to (200, 200).
         threads (int, optional): The number of threads to utilize for processing the density calculations. Defaults to the total number of threads.
         cmap (Colormap, optional): The matplotlib colormap to use for the heatmap. Defaults to cm.Reds.

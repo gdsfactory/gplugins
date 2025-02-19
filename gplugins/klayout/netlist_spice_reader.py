@@ -44,7 +44,12 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
 
     n_nodes: int = 0
     calibre_location_pattern: str = r"\$X=(-?\d+) \$Y=(-?\d+)"
-    integer_to_string_map: MutableMapping[int, str] = {}
+    integer_to_string_map: MutableMapping[int, str]
+
+    def __init__(self) -> None:
+        """Calibre Spice reader."""
+        super().__init__()
+        self.integer_to_string_map = {}
 
     @override
     def wants_subcircuit(self, name: str):
@@ -147,6 +152,12 @@ class GdsfactorySpiceReader(CalibreSpiceReader):
         components_as_subcircuits: Sequence[str] | None = None,
         components_as_devices: Sequence[str] | None = None,
     ) -> None:
+        """Gdsfactory Spice reader.
+
+        Args:
+            components_as_subcircuits: components to not treat as their own devices but look into the internal subcircuits
+            components_as_devices: components to treat as their own devices
+        """
         super().__init__()
         # Define default components to not treat as their own devices but look into the internal subcircuits
         self.components_as_subcircuits = [
