@@ -42,8 +42,8 @@ def compute_cross_section_modes(
     Defines a "straight" component of the cross_section, and calls compute_component_slice_modes.
 
     Args:
-        cross_section:
-        layer_stack:
+        cross_section: gdsfactory cross_section.
+        layer_stack: gdsfactory layer_stack.
         wavelength: in um.
         num_modes: to compute.
         order: order of the mesh elements. 1: linear, 2: quadratic.
@@ -126,6 +126,7 @@ def compute_component_slice_modes(
         metallic_boundaries: if True, will set the boundaries to be metallic.
         n_guess: initial guess for the effective index.
         solver: can be slepc or scipy.
+        material_name_to_index: dictionary mapping material names to refractive indices.
         kwargs: kwargs for get_mesh
 
     Keyword Args:

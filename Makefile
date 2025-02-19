@@ -25,6 +25,11 @@ meep:
 
 test:
 	pytest
+	
+uv-test:
+	@for plugin in femwell gmsh meow sax tidy3d klayout vlsir; do \
+		uv run pytest gplugins/$$plugin; \
+	done
 
 cov:
 	pytest --cov=gplugins
