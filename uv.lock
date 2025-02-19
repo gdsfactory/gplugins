@@ -1370,7 +1370,6 @@ dev = [
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "pytest-regressions" },
-    { name = "ray" },
 ]
 devsim = [
     { name = "devsim" },
@@ -1431,6 +1430,7 @@ sax = [
     { name = "jax" },
     { name = "jaxlib" },
     { name = "pyvis" },
+    { name = "ray" },
     { name = "sax" },
     { name = "scikit-learn" },
 ]
@@ -1500,7 +1500,7 @@ requires-dist = [
     { name = "pyvista", marker = "extra == 'devsim'", specifier = "<=0.43.8" },
     { name = "pyvista", marker = "extra == 'gmsh'", specifier = "<=0.43.8" },
     { name = "pyvista", extras = ["all"], marker = "extra == 'docs'", specifier = "<=0.43.8" },
-    { name = "ray", marker = "extra == 'dev'" },
+    { name = "ray", marker = "extra == 'sax'" },
     { name = "sax", marker = "extra == 'sax'", specifier = ">=0.13.1,<0.15.0" },
     { name = "scikit-learn", marker = "extra == 'sax'" },
     { name = "shapely", marker = "extra == 'gfviz'" },

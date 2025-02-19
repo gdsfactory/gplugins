@@ -224,11 +224,11 @@ def density_data_to_meshgrid(
     Xi, Yi = np.meshgrid(unique_x, unique_y)
 
     # Map density values to the grid
-    Zi = np.zeros_like(Xi, dtype=np.float64)
+    Zi = np.zeros_like(Xi)
     for i, (x_val, y_val) in enumerate(zip(x_array, y_array)):
         xi_index = np.where(unique_x == x_val)[0][0]
         yi_index = np.where(unique_y == y_val)[0][0]
-        Zi[yi_index, xi_index] = density[i]
+        Zi[yi_index, xi_index] = density_array[i]
 
     return Xi, Yi, Zi
 
