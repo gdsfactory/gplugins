@@ -32,7 +32,7 @@ uv-test:
 	done
 
 cov:
-	pytest --cov=gplugins
+	uv run pytest --cov=gplugins
 
 test-data:
 	git clone https://github.com/gdsfactory/gdsfactory-test-data.git -b test-data test-data
