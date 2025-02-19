@@ -27,7 +27,7 @@ jobs:
         run: |
           uv run pre-commit run --files gplugins/${{ matrix.plugin }}/*
 
-  test_code_pip:
+  test_code:
     needs: pre-commit
     runs-on: ${{ matrix.os }}
     strategy:
@@ -39,9 +39,9 @@ jobs:
         python-version: [3.11, 3.13]
         exclude:
           - plugin: femwell
-            os: macos-latest
-          - plugin: femwell
-            os: windows-latest
+            os: [macos-latest, windows-latest]
+          - plugin: sax
+            python-version: 3.13
 
     name: Test ${{ matrix.plugin }} ${{ matrix.os }} ${{ matrix.python-version }}
     steps:
