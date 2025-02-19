@@ -39,7 +39,9 @@ jobs:
         python-version: [3.11, 3.13]
         exclude:
           - plugin: femwell
-            os: [macos-latest, windows-latest]
+            os: macos-latest
+          - plugin: femwell
+            os: windows-latest
           - plugin: sax
             python-version: 3.13
 
@@ -47,11 +49,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
-      - name: Install libglu1 for femwell
+      - if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          if [ "${{ matrix.plugin }}" == "femwell" ]; then
-            sudo apt-get install -y libglu1-mesa
-          fi
+          sudo apt-get install -y libglu1-mesa
       - name: Install dependencies
         run: |
           uv venv -p ${{ matrix.python-version }}
