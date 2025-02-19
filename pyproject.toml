@@ -5,17 +5,17 @@ build-backend = "flit_core.buildapi"
 requires = ["flit_core >=3.2,<4"]
 
 [project]
-authors = [{ name = "gdsfactory", email = "contact@gdsfactory.com" }]
+authors = [{name = "gdsfactory", email = "contact@gdsfactory.com"}]
 classifiers = [
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Operating System :: OS Independent"
 ]
 dependencies = ["gdsfactory>=9.0.0", "pint", "gdstk", "tqdm", "numpy"]
 description = "gdsfactory plugins"
 keywords = ["python"]
-license = { file = "LICENSE" }
+license = {file = "LICENSE"}
 name = "gplugins"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -24,46 +24,46 @@ version = "1.2.4"
 [project.optional-dependencies]
 dagster = ["dagster", "dagit"]
 dev = [
-    "pre-commit",
-    "pytest",
-    "pytest-cov",
-    "pytest_regressions",
-    "pyswarms",
-    "ray",
-    "autograd",
+  "pre-commit",
+  "pytest",
+  "pytest-cov",
+  "pytest_regressions",
+  "pyswarms",
+  "ray",
+  "autograd"
 ]
 devsim = ["devsim", "pyvista<=0.43.8", "tidy3d>=2.7.8,<2.8"]
 docs = ["jupytext", "matplotlib", "jupyter-book~=1.0", "pyvista[all]<=0.43.8"]
 femwell = ["femwell~=0.1.11", "meshwell~=1.0.7"]
 gfviz = ["jinja2", "fastapi", "shapely", "natsort"]
 gmsh = [
-    "gmsh==4.13.0",
-    "h5py",
-    "mapbox_earcut",
-    "meshio",
-    "pygmsh",
-    "pyvista<=0.43.8",
-    "trimesh",
-    "shapely",
-    "meshwell~=1.0.7",
+  "gmsh==4.13.0",
+  "h5py",
+  "mapbox_earcut",
+  "meshio",
+  "pygmsh",
+  "pyvista<=0.43.8",
+  "trimesh",
+  "shapely",
+  "meshwell~=1.0.7"
 ]
 klayout = ["klayout", "pyvis<=0.3.1", "vlsir", "vlsirtools"]
 luminescent = ["luminescent>=0.2.12,<0.4.0", "sortedcontainers"]
 maintainer = ["mypy", "tbump", "towncrier"]
 meow = [
-    "jax>=0.4.26",
-    "jaxlib>=0.4.26",
-    "flax>=0.8.2",
-    "meow-sim>=0.11,<0.13",
-    "tidy3d>=2.7.8,<2.8",
+  "jax>=0.4.26",
+  "jaxlib>=0.4.26",
+  "flax>=0.8.2",
+  "meow-sim>=0.11,<0.13",
+  "tidy3d>=2.7.8,<2.8"
 ]
 sax = [
-    "jax>=0.4.26",
-    "jaxlib>=0.4.26",
-    "flax>=0.8.2",
-    "sax>=0.13.1,<0.15.0",
-    "scikit-learn",
-    "pyvis<=0.3.1",
+  "jax>=0.4.26",
+  "jaxlib>=0.4.26",
+  "flax>=0.8.2",
+  "sax>=0.13.1,<0.15.0",
+  "scikit-learn",
+  "pyvis<=0.3.1"
 ]
 schematic = ["bokeh", "ipywidgets", "natsort"]
 tidy3d = ["tidy3d>=2.7.8,<2.8", "meshio", "numpy", "meshwell~=1.0.7"]
@@ -88,17 +88,17 @@ reportUnusedExpression = false
 [tool.pytest.ini_options]
 addopts = '--tb=short'
 norecursedirs = [
-    "extra/*.py",
-    'gplugins/dagster',
-    'gplugins/devsim',
-    'gplugins/sax/integrations',
-    'gplugins/tidy3d/tests/tests_sparameters',
-    'gplugins/fdtdz',
-    'gplugins/elmer',
-    'gplugins/sentaurus',
-    'gplugins/gfviz',
-    'gplugins/gmeep',
-    'gplugins/modes',
+  "extra/*.py",
+  'gplugins/dagster',
+  'gplugins/devsim',
+  'gplugins/sax/integrations',
+  'gplugins/tidy3d/tests/tests_sparameters',
+  'gplugins/fdtdz',
+  'gplugins/elmer',
+  'gplugins/sentaurus',
+  'gplugins/gfviz',
+  'gplugins/gmeep',
+  'gplugins/modes'
 ]
 python_files = ["gplugins/*.py", "notebooks/*.ipynb", "tests/*.py"]
 testpaths = ["gplugins/", "tests"]
@@ -108,48 +108,48 @@ fix = true
 
 [tool.ruff.lint]
 ignore = [
-    "B008",   # do not perform function calls in argument defaults
-    "B028",   # stacklevel
-    "B904",
-    "B905",   # `zip()` without an explicit `strict=` parameter
-    "C408",   # C408 Unnecessary `dict` call (rewrite as a literal)
-    "C901",   # too complex
-    "D100",   # public module docstrings
-    "D101",   # public class docstrings
-    "D102",   # public method docstrings
-    "D103",   # public function docstrings
-    "D104",   # public package docstrings
-    "E501",   # line too long, handled by black
-    "RUF005", # Consider {expression} instead of concatenation
-    "ANN401", # typing.Any is not allowed
-    "RUF015", # Using next() instead of [0]
+  "B008",  # do not perform function calls in argument defaults
+  "B028",  # stacklevel
+  "B904",
+  "B905",  # `zip()` without an explicit `strict=` parameter
+  "C408",  # C408 Unnecessary `dict` call (rewrite as a literal)
+  "C901",  # too complex
+  "D100",  # public module docstrings
+  "D101",  # public class docstrings
+  "D102",  # public method docstrings
+  "D103",  # public function docstrings
+  "D104",  # public package docstrings
+  "E501",  # line too long, handled by black
+  "RUF005",  # Consider {expression} instead of concatenation
+  "ANN401",  # typing.Any is not allowed
+  "RUF015"  # Using next() instead of [0]
 ]
 select = [
-    "B",    # flake8-bugbear
-    "C",    # flake8-comprehensions
-    "D",    # pydocstyle
-    "E",    # pycodestyle errors
-    "F",    # pyflakes
-    "I",    # isort
-    "T10",  # flake8-debugger
-    "UP",   # pyupgrade
-    "W",    # pycodestyle warnings
-    "PERF", # performance improvements
-    "RUF",  # ruff
-    # "ANN",  # flake8-annotations
-    "UP007",
-    "UP035",
-    "UP",    # pyupgrade
+  "B",  # flake8-bugbear
+  "C",  # flake8-comprehensions
+  "D",  # pydocstyle
+  "E",  # pycodestyle errors
+  "F",  # pyflakes
+  "I",  # isort
+  "T10",  # flake8-debugger
+  "UP",  # pyupgrade
+  "W",  # pycodestyle warnings
+  "PERF",  # performance improvements
+  "RUF",  # ruff
+  # "ANN",  # flake8-annotations
+  "UP007",
+  "UP035",
+  "UP"  # pyupgrade
 ]
 
 [tool.ruff.lint.per-file-ignores]
 "docs/notebooks/*.py" = ["F821", 'E402', 'F405', 'F403']
 "docs/notebooks/meep_01_sparameters.py" = ["F821", 'E402']
 "docs/notebooks/tcad_02_analytical_process.py" = [
-    "F821",
-    'E402',
-    'F405',
-    'F403',
+  "F821",
+  'E402',
+  'F405',
+  'F403'
 ]
 
 [tool.ruff.lint.pydocstyle]
