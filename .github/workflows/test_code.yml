@@ -60,7 +60,7 @@ jobs:
       - name: Test with pytest
         run: |
           uv run pytest gplugins/${{ matrix.plugin }}
-          
+
   test_code_pip:
     runs-on: ubuntu-latest
     strategy:
