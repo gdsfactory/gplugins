@@ -105,7 +105,9 @@ def add_simulation_markers(
 
     # Add source
     port = ref.ports[port_source_name]
-    port = port.copy_polar(d=port_source_offset / c.kcl.dbu, angle=port.angle)
+    port = port.copy_polar(
+        d=port_source_offset / c.kcl.dbu, orientation=port.orientation
+    )
     add_pin_rectangle(c, port=port, port_margin=port_margin, layer=layer_source)
 
     layer_stack.layers["source"] = LayerLevel(

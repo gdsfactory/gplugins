@@ -1,4 +1,5 @@
 import uuid
+from typing import Any
 
 import gdsfactory as gf
 import kfactory as kf
@@ -46,6 +47,7 @@ class Region(kdb.Region):
         return size(self, -offset)
 
     def __add__(self, element) -> kdb.Region:
+        """Adds an element to the region."""
         if isinstance(element, float | int):
             return size(self, element)
 
@@ -54,7 +56,8 @@ class Region(kdb.Region):
         else:
             raise ValueError(f"Cannot add type {type(element)} to region")
 
-    def __sub__(self, element) -> kdb.Region | None:
+    def __sub__(self, element: float | int | kdb.Region) -> kdb.Region | None:
+        """Subtracts an element from the region."""
         if isinstance(element, float | int):
             return size(self, -element)
 
@@ -86,15 +89,17 @@ class RegionCollection:
 
     """
 
-    def __init__(self, gdspath, cell_name: str | None = None) -> None:
-        lib = kf.kcell.KCLayout(str(gdspath))
+    def __init__(self, gdspath: PathType, cell_name: str | None = None) -> None:
+        """Initializes the RegionCollection."""
+        lib = kf.KCLayout(str(gdspath))
         lib.read(filename=str(gdspath))
         self.layout = lib.cell_by_name(cell_name) if cell_name else lib.top_cell()
         self.lib = lib
-        self.regions = {}
+        self.regions: dict[tuple[int, int], Region] = {}
         self.cell = lib[lib.top_cell().cell_index()]
 
     def __getitem__(self, layer: tuple[int, int]) -> Region:
+        """Gets a layer from the collection."""
         _assert_is_layer(layer)
 
         if layer in self.regions:
@@ -107,11 +112,12 @@ class RegionCollection:
         return region
 
     def __setitem__(self, layer: tuple[int, int], region: Region) -> None:
+        """Sets a layer in the collection."""
         _assert_is_layer(layer)
         self.regions[layer] = region
 
-    def __contains__(self, item) -> bool:
-        # checks if the layout contains the given layer
+    def __contains__(self, item: tuple[int, int]) -> bool:
+        """Checks if the layout contains the given layer."""
         _assert_is_layer(item)
         layer, datatype = item
         return self.lib.find_layer(layer, datatype) is not None
@@ -157,7 +163,7 @@ class RegionCollection:
             uid = str(uuid.uuid4())[:8]
             cellname += f"_{uid}"
 
-        output_lib = kf.kcell.KCLayout("output")
+        output_lib = kf.KCLayout("output")
         c = kf.KCell(cellname, output_lib)
         if keep_original:
             c.copy_tree(self.layout)
@@ -169,11 +175,12 @@ class RegionCollection:
             c.shapes(output_lib.layer(layer[0], layer[1])).insert(region)
         return c
 
-    def show(self, gdspath: PathType = GDSDIR_TEMP / "out.gds", **kwargs) -> None:
+    def show(self, gdspath: PathType = GDSDIR_TEMP / "out.gds", **kwargs: Any) -> None:
         """Show gds in klayout.
 
         Args:
             gdspath: gdspath.
+            kwargs: keyword arguments.
 
         Keyword Args:
             keep_original: keep original cell.
@@ -183,6 +190,7 @@ class RegionCollection:
         gf.show(gdspath)
 
     def __delattr__(self, element) -> None:
+        """Deletes a layer from the collection."""
         setattr(self, element, Region())
 
 
