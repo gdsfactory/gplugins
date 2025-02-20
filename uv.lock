@@ -1,5 +1,4 @@
 version = 1
-revision = 1
 requires-python = ">=3.11"
 resolution-markers = [
     "python_full_version >= '3.13'",
@@ -1518,7 +1517,6 @@ requires-dist = [
     { name = "vlsirtools", marker = "extra == 'klayout'" },
     { name = "vlsirtools", marker = "extra == 'vlsir'" },
 ]
-provides-extras = ["dagster", "dev", "devsim", "docs", "femwell", "gfviz", "gmsh", "klayout", "luminescent", "maintainer", "meow", "sax", "schematic", "tidy3d", "vlsir"]
 
 [[package]]
 name = "gql"
