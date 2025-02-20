@@ -29,6 +29,7 @@ from tidy3d.plugins import waveguide
 from tqdm.auto import tqdm
 
 from gplugins.tidy3d.materials import MaterialSpecTidy3d, get_medium
+from gplugins.typings import NDArrayF
 
 Precision = Literal["single", "double"]
 nm = 1e-3
@@ -158,7 +159,7 @@ class Waveguide(BaseModel, extra="forbid"):
     _waveguide = pydantic.PrivateAttr()
 
     @pydantic.validator("wavelength")
-    def _fix_wavelength_type(cls, v):
+    def _fix_wavelength_type(cls, v: Any) -> NDArrayF:
         return np.array(v, dtype=float)
 
     @property

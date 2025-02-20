@@ -4,34 +4,21 @@
 build-backend = "flit_core.buildapi"
 requires = ["flit_core >=3.2,<4"]
 
-[lint.per-file-ignores]
-"docs/notebooks/*.py" = ["F821", 'E402', 'F405', 'F403']
-"docs/notebooks/meep_01_sparameters.py" = ["F821", 'E402']
-"docs/notebooks/tcad_02_analytical_process.py" = ["F821", 'E402', 'F405', 'F403']
-
 [project]
-authors = [
-  {name = "gdsfactory", email = "contact@gdsfactory.com"}
-]
+authors = [{name = "gdsfactory", email = "contact@gdsfactory.com"}]
 classifiers = [
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Operating System :: OS Independent"
 ]
-dependencies = [
-  "gdsfactory>=8.5.3",
-  "pint",
-  "gdstk",
-  "tqdm",
-  "numpy"
-]
+dependencies = ["gdsfactory>=9.0.0", "pint", "gdstk", "tqdm", "numpy"]
 description = "gdsfactory plugins"
 keywords = ["python"]
 license = {file = "LICENSE"}
 name = "gplugins"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 version = "1.2.4"
 
 [project.optional-dependencies]
@@ -42,30 +29,12 @@ dev = [
   "pytest-cov",
   "pytest_regressions",
   "pyswarms",
-  "ray",
   "autograd"
 ]
-devsim = [
-  "devsim",
-  "pyvista<=0.43.8",
-  "tidy3d>=2.7.8,<2.8"
-]
-docs = [
-  "jupytext",
-  "matplotlib",
-  "jupyter-book~=1.0",
-  "pyvista[all]<=0.43.8"
-]
-femwell = [
-  "femwell~=0.1.11",
-  "meshwell~=1.0.7"
-]
-gfviz = [
-  "jinja2",
-  "fastapi",
-  "shapely",
-  "natsort"
-]
+devsim = ["devsim", "pyvista<=0.43.8", "tidy3d>=2.7.8,<2.8"]
+docs = ["jupytext", "matplotlib", "jupyter-book~=1.0", "pyvista[all]<=0.43.8"]
+femwell = ["femwell~=0.1.11", "meshwell~=1.0.7"]
+gfviz = ["jinja2", "fastapi", "shapely", "natsort"]
 gmsh = [
   "gmsh==4.13.0",
   "h5py",
@@ -77,27 +46,16 @@ gmsh = [
   "shapely",
   "meshwell~=1.0.7"
 ]
-klayout = [
-  "klayout",
-  "pyvis<=0.3.1",
-  "vlsir",
-  "vlsirtools"
-]
-luminescent = [
-  "luminescent>=0.2.12,<0.4.0",
-  "sortedcontainers"
-]
-maintainer = [
-  "mypy",
-  "tbump",
-  "towncrier"
-]
+klayout = ["klayout", "pyvis<=0.3.1", "vlsir", "vlsirtools"]
+luminescent = ["luminescent>=0.2.12,<0.4.0", "sortedcontainers"]
+maintainer = ["mypy", "tbump", "towncrier"]
 meow = [
   "jax>=0.4.26",
   "jaxlib>=0.4.26",
   "flax>=0.8.2",
   "meow-sim>=0.11,<0.13",
-  "tidy3d>=2.7.8,<2.8"
+  "tidy3d>=2.7.8,<2.8",
+  "scipy<=1.14.1"
 ]
 sax = [
   "jax>=0.4.26",
@@ -105,23 +63,12 @@ sax = [
   "flax>=0.8.2",
   "sax>=0.13.1,<0.15.0",
   "scikit-learn",
-  "pyvis<=0.3.1"
+  "pyvis<=0.3.1",
+  "ray"
 ]
-schematic = [
-  "bokeh",
-  "ipywidgets",
-  "natsort"
-]
-tidy3d = [
-  "tidy3d>=2.7.8,<2.8",
-  "meshio",
-  "numpy",
-  "meshwell~=1.0.7"
-]
-vlsir = [
-  "vlsir",
-  "vlsirtools"
-]
+schematic = ["bokeh", "ipywidgets", "natsort"]
+tidy3d = ["tidy3d>=2.7.8,<2.8", "meshio", "numpy", "meshwell~=1.0.7"]
+vlsir = ["vlsir", "vlsirtools"]
 
 [tool.codespell]
 ignore-words-list = 'te, te/tm, te, ba, fpr, fpr_spacing, ro, nd, donot, schem, Ue'
@@ -175,8 +122,6 @@ ignore = [
   "D104",  # public package docstrings
   "E501",  # line too long, handled by black
   "RUF005",  # Consider {expression} instead of concatenation
-  "ANN101",  # Missing self type annotation
-  "ANN102",  # Missing cls type annotation
   "ANN401",  # typing.Any is not allowed
   "RUF015"  # Using next() instead of [0]
 ]
@@ -196,6 +141,16 @@ select = [
   "UP007",
   "UP035",
   "UP"  # pyupgrade
+]
+
+[tool.ruff.lint.per-file-ignores]
+"docs/notebooks/*.py" = ["F821", 'E402', 'F405', 'F403']
+"docs/notebooks/meep_01_sparameters.py" = ["F821", 'E402']
+"docs/notebooks/tcad_02_analytical_process.py" = [
+  "F821",
+  'E402',
+  'F405',
+  'F403'
 ]
 
 [tool.ruff.lint.pydocstyle]

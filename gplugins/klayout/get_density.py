@@ -6,18 +6,23 @@ import matplotlib.pyplot as plt
 import numpy as np
 from gdsfactory.config import get_number_of_cores
 from gdsfactory.typings import Layer
-from klayout.db import Box, Layout, TileOutputReceiver, TilingProcessor
+from klayout.db import Box, Layout, Polygon, TileOutputReceiver, TilingProcessor
+
+from gplugins.typings import NDArrayF
 
 
 class DensityOutputReceiver(TileOutputReceiver):
     def __init__(self) -> None:
+        """Output receiver for density data."""
         super().__init__()
-        self.data = []
+        self.data: list[tuple[float, float, float]] = []
 
     def put(
         self, ix: int, iy: int, tile: Box, obj: float, dbu: float, clip: bool
     ) -> None:
-        """Arguments:
+        """Put density data into the receiver.
+
+        Arguments:
             ix: index position of the tile along the x-axis in a grid of tiles.
             iy: index position of the tile along the y-axis in a grid of tiles.
             tile: x-y boundaries of the tile (Klayout Box object)
@@ -41,7 +46,7 @@ def calculate_density(
     gdspath: Path,
     layer: tuple[int, int],
     cellname: str | None = None,
-    tile_size: tuple[int, int] = (200, 200),
+    tile_size: tuple[float, float] = (200, 200),
     threads: int = get_number_of_cores(),
 ) -> list[tuple[float, float, float]]:
     """Calculates the density of a given layer in a GDS file and returns the density data.
@@ -51,6 +56,7 @@ def calculate_density(
     Args:
         gdspath (Path): The path to the GDS file.
         layer (Layer): The layer for which to calculate density (layer number, datatype).
+        cellname (str | None, optional): The name of the cell to consider for the density heatmap. Defaults to all top cells.
         tile_size (Tuple, optional): The size of the tiles (width, height) in database units. Defaults to (200, 200).
         threads (int, optional): The number of threads to use for processing. Defaults to total number of threads.
 
@@ -68,7 +74,7 @@ def calculate_density(
 
     # Get GDS
     ly = Layout()
-    ly.read(gdspath)
+    ly.read(str(gdspath))
     li = ly.layer(layer[0], layer[1])
     si = ly.top_cell().begin_shapes_rec(li)
 
@@ -90,12 +96,13 @@ def calculate_density(
 
 def get_layer_polygons(
     gdspath: Path, layer: Layer, cellname: str | None = None
-) -> list[np.array]:
+) -> dict[tuple[int, int] | str | int, list[Polygon]]:
     """Extracts polygons from a specified layer in a GDS file using gdsfactory.
 
     Args:
         gdspath (Path): The path to the GDS file.
         layer (Layer): The layer from which to extract polygons (layer number, datatype).
+        cellname (str | None, optional): The name of the cell to consider for the density heatmap. Defaults to all top cells.
 
     Returns:
         list: A list of polygons from the specified layer.
@@ -116,6 +123,7 @@ def get_gds_bbox(
     Args:
         gdspath (Path): The path to the GDS file.
         layer (Layer): if not None, only consider the bbox of that specific layer
+        cellname (str | None, optional): The name of the cell to consider for the bounding box. Defaults to all top cells.
 
     Returns:
         tuple: ((xmin,ymin),(xmax,ymax))
@@ -127,17 +135,17 @@ def get_gds_bbox(
 
 
 def extend_grid_and_density_to_bbox(
-    x: np.ndarray,
-    y: np.ndarray,
-    density: np.ndarray,
+    x: NDArrayF,
+    y: NDArrayF,
+    density: NDArrayF,
     bbox: tuple[tuple[float, float], tuple[float, float]],
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[NDArrayF, NDArrayF, NDArrayF]:
     """Extends the grid and pads the density arrays with zeros to cover the entire bounding box.
 
     Args:
-        x (np.ndarray): Current x coordinates.
-        y (np.ndarray): Current y coordinates.
-        density (np.ndarray): Density values corresponding to the x and y coordinates.
+        x (NDArrayF): Current x coordinates.
+        y (NDArrayF): Current y coordinates.
+        density (NDArrayF): Density values corresponding to the x and y coordinates.
         bbox (tuple): Bounding box specified as ((xmin, ymin), (xmax, ymax)).
 
     Returns:
@@ -185,7 +193,7 @@ def extend_grid_and_density_to_bbox(
 def density_data_to_meshgrid(
     density_data: list[tuple[float, float, float]],
     bbox: tuple[tuple[float, float], tuple[float, float]] | None = None,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[NDArrayF, NDArrayF, NDArrayF]:
     """Converts density data into a meshgrid for plotting.
 
     Args:
@@ -193,48 +201,50 @@ def density_data_to_meshgrid(
         bbox: ((xmin, ymin), (xmax, ymax)). If None, the processed layer is not padded to the full gds size.
 
     Returns:
-        Tuple[np.ndarray, np.ndarray, np.ndarray]: Three 2D numpy arrays representing the X coordinates, Y coordinates, and density values on a meshgrid.
+        Tuple[NDArrayF, NDArrayF, NDArrayF]: Three 2D numpy arrays representing the X coordinates, Y coordinates, and density values on a meshgrid.
     """
     # Extract x, y, and density values
     x, y, density = zip(*density_data)
 
     # Convert to numpy arrays for plotting
-    x = np.array(x)
-    y = np.array(y)
-    density = np.array(density)
+    x_array = np.array(x)
+    y_array = np.array(y)
+    density_array = np.array(density)
 
     if bbox is not None:
-        x, y, density = extend_grid_and_density_to_bbox(x, y, density, bbox)
+        x_array, y_array, density_array = extend_grid_and_density_to_bbox(
+            x_array, y_array, density_array, bbox
+        )
 
     # Determine unique x and y coordinates for grid
-    unique_x = np.unique(x)
-    unique_y = np.unique(y)
+    unique_x = np.unique(x_array)
+    unique_y = np.unique(y_array)
 
     # Create a grid for plotting
     Xi, Yi = np.meshgrid(unique_x, unique_y)
 
     # Map density values to the grid
     Zi = np.zeros_like(Xi)
-    for i, (x_val, y_val) in enumerate(zip(x, y)):
+    for i, (x_val, y_val) in enumerate(zip(x_array, y_array)):
         xi_index = np.where(unique_x == x_val)[0][0]
         yi_index = np.where(unique_y == y_val)[0][0]
-        Zi[yi_index, xi_index] = density[i]
+        Zi[yi_index, xi_index] = density_array[i]
 
     return Xi, Yi, Zi
 
 
 def estimate_weighted_global_density(
-    Xi: np.ndarray,
-    Yi: np.ndarray,
-    Zi: np.ndarray,
+    Xi: NDArrayF,
+    Yi: NDArrayF,
+    Zi: NDArrayF,
     bbox: tuple[tuple[float, float], tuple[float, float]] | None = None,
 ) -> float:
     """Calculates the mean density within a specified bounding box or overall if bbox is None.
 
     Args:
-        Xi (np.ndarray): 2D array of X coordinates.
-        Yi (np.ndarray): 2D array of Y coordinates.
-        Zi (np.ndarray): 2D array of density values.
+        Xi (NDArrayF): 2D array of X coordinates.
+        Yi (NDArrayF): 2D array of Y coordinates.
+        Zi (NDArrayF): 2D array of density values.
         bbox (tuple[tuple[float, float], tuple[float, float]], optional): Bounding box specified as ((xmin, ymin), (xmax, ymax)). Defaults to None.
 
     Returns:
@@ -303,6 +313,7 @@ def plot_density_heatmap(
     Args:
         gdspath (Path): The path to the GDS file for which the density heatmap is to be plotted.
         layer (Layer): The specific layer within the GDS file for which the density heatmap is to be generated.
+        cellname (str | None, optional): The name of the cell to consider for the density heatmap. Defaults to all top cells.
         tile_size (Tuple, optional): The dimensions (width, height) of each tile, in database units, used for density calculation. Defaults to (200, 200).
         threads (int, optional): The number of threads to utilize for processing the density calculations. Defaults to the total number of threads.
         cmap (Colormap, optional): The matplotlib colormap to use for the heatmap. Defaults to cm.Reds.

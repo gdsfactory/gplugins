@@ -452,7 +452,7 @@ def write_sparameters(
     plot_epsilon: bool = False,
     filepath: PathType | None = None,
     overwrite: bool = False,
-    **kwargs,
+    **kwargs: Any,
 ) -> Sparameters:
     """Writes the S-parameters for a component.
 

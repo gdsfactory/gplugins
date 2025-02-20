@@ -1,3 +1,9 @@
+"""This module provides functions for interfacing with Lumerical Interconnect.
+
+The author of this module switched to using SAX so we recommend SAX instead, which is open-source and more flexible.
+
+"""
+
 from __future__ import annotations
 
 import contextlib
@@ -46,12 +52,12 @@ def add_interconnect_element(
     Args:
         session: Interconnect session.
         label: label for Interconnect component.
-        model:
-        loc:
-        flip_vert:
-        flip_horiz:
-        rotation:
-        extra_props:
+        model: model name for Interconnect component.
+        loc: x,y location for Interconnect component.
+        flip_vert: whether to flip the component vertically.
+        flip_horiz: whether to flip the component horizontally.
+        rotation: rotation angle for the component.
+        simulation_props: properties for the simulation.
 
     """
     props = OrderedDict(
@@ -107,12 +113,19 @@ def send_to_interconnect(
     Args:
         component: component from which to extract netlist.
         session: Interconnect session.
+        ports_in: dictionary of input ports for the component.
+        ports_out: dictionary of output ports for the component.
         placements: x,y pairs for where to place the components in the Interconnect GUI.
         simulation_settings: global settings for Interconnect simulation.
         drop_port_prefix: if components are written with some prefix, drop up to and including
             the prefix character.  (i.e. "c1_input" -> "input").
-        component_distance_scaling: scaling factor for component distances when
+        component_distance_scaling_x: scaling factor for component distances when
             laying out Interconnect schematic.
+        component_distance_scaling_y: scaling factor for component distances when
+            laying out Interconnect schematic.
+        setup_mc: whether to set up Monte-Carlo simulation.
+        exclude_electrical: whether to exclude purely electrical components from the simulation.
+        settings: additional settings for the simulation.
 
     """
     if not session:
@@ -346,18 +359,21 @@ def run_wavelength_sweep(
     extra_ona_props: dict | None = None,
     **kwargs,
 ) -> dict:
-    """Args are the following.
+    """Run a wavelength sweep on a component in Interconnect.
 
-    component:
-    session:
-    setup_simulation: whether to send the component to interconnect before running the sweep.
-    ports_in: specify the port in the Interconnect model to attach the ONA output to.
-    ports_out: specify the ports in the Interconnect models to attach the ONA input to.
-    wavelength_range:
-    n_points:
-    results:
-    extra_ona_props:
-    kwargs:
+    Args:
+        component: component to simulate.
+        session: Interconnect session.
+        setup_simulation: whether to send the component to interconnect before running the sweep.
+        is_top_level: whether the component is a top-level component.
+        ports_in: specify the port in the Interconnect model to attach the ONA output to.
+        ports_out: specify the ports in the Interconnect models to attach the ONA input to.
+        mode: mode to simulate.
+        wavelength_range: range of wavelengths to sweep over.
+        n_points: number of points in the sweep.
+        results: results to return.
+        extra_ona_props: additional properties for the ONA simulation.
+        kwargs: additional arguments for the simulation.
     """
     if len(ports_in) > 1:
         raise ValueError("Only 1 input port is supported at this time")

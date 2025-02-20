@@ -1,3 +1,5 @@
+from typing import Any
+
 import gdsfactory as gf
 import numpy as np
 import shapely
@@ -54,17 +56,14 @@ class LayerStackThickness(Parameter):
         self,
         layer_stack: LayerStack | None = None,
         layername: str | None = "core",
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         """Layerstack thickness parameter.
 
         Arguments:
             layer_stack: LayerStack
             layername: Name of the layer in the layer_stack
-            min_value: minimum value of the parameter. Default to layer thickness minus tolerance.
-            max_value: maximum value of the parameter. Default to layer thickness plus tolerance.
-            nominal_value: nominal value of the parameter. Default to layer thickness.
-            step: size of the step going from min_value to max_value when generating data. Default to 3 steps between min and max.
+            kwargs: kwargs for Parameter
         """
         super().__init__(**kwargs)
         self.layer_stack = layer_stack or get_layer_stack()
