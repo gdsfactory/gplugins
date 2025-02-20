@@ -28,7 +28,6 @@ jobs:
           uv run pre-commit run --files gplugins/${{ matrix.plugin }}/*
 
   test_code:
-    needs: pre-commit
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
