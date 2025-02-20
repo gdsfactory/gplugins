@@ -22,7 +22,6 @@ requires-python = ">=3.11"
 version = "1.2.4"
 
 [project.optional-dependencies]
-dagster = ["dagster", "dagit"]
 dev = [
   "pre-commit",
   "pytest",
@@ -90,7 +89,6 @@ reportUnusedExpression = false
 addopts = '--tb=short'
 norecursedirs = [
   "extra/*.py",
-  'gplugins/dagster',
   'gplugins/devsim',
   'gplugins/sax/integrations',
   'gplugins/tidy3d/tests/tests_sparameters',
