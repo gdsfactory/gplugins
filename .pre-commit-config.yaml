@@ -20,7 +20,9 @@ repos:
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix, --config=pyproject.toml]
+        files: ^gplugins/(femwell|gmsh|meow|sax|tidy3d|klayout|vlsir)/
       - id: ruff-format
+        files: ^gplugins/(femwell|gmsh|meow|sax|tidy3d|klayout|vlsir)/
 
   # - repo: https://github.com/shellcheck-py/shellcheck-py
   #   rev: v0.9.0.5
