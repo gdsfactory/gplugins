@@ -60,6 +60,40 @@ jobs:
       - name: Test with pytest
         run: |
           uv run pytest gplugins/${{ matrix.plugin }}
+          
+  test_code_pip:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 12
+      matrix:
+        plugin: [femwell, gmsh, meow, sax, tidy3d, klayout, vlsir]
+
+    name: Test ${{ matrix.plugin }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Mambaforge
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+            miniforge-version: latest
+            activate-environment: env
+            use-mamba: true
+            python-version: "3.11"
+      - name: Add conda to system path
+        run: |
+          echo $CONDA/bin >> $GITHUB_PATH
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Install dependencies
+        env:
+          UV_SYSTEM_PYTHON: 1
+        run: |
+          sudo apt-get install -y libglu1-mesa
+          make uv venv test-data
+      - name: Test with pytest
+        run: |
+          uv pip install .[${{ matrix.plugin }},dev] setuptools
+          uv run pytest gplugins/${{ matrix.plugin }}
 
   test_code_coverage:
     runs-on: ubuntu-latest
