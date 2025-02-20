@@ -1,6 +1,5 @@
 import gdsfactory as gf
 import numpy as np
-import pytest
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 
@@ -67,25 +66,24 @@ def test_cells() -> None:
 
 
 if __name__ == "__main__":
-    pytest.main([__file__])
     # test_cells()
     # test_meow_defaults()
-    # c = gf.components.taper_cross_section_linear()
-    # filtered_layer_stack = LayerStack(
-    #     layers={
-    #         k: get_layer_stack().layers[k]
-    #         for k in (
-    #             "slab90",
-    #             "core",
-    #             "box",
-    #             "clad",
-    #         )
-    #     }
-    # )
+    c = gf.components.taper_cross_section_linear()
+    filtered_layer_stack = LayerStack(
+        layers={
+            k: get_layer_stack().layers[k]
+            for k in (
+                "slab90",
+                "core",
+                "box",
+                "clad",
+            )
+        }
+    )
 
-    # sp = MEOW(
-    #     component=c,
-    #     layer_stack=filtered_layer_stack,
-    #     wavelength=1.55,
-    #     overwrite=True,
-    # ).compute_sparameters()
+    sp = MEOW(
+        component=c,
+        layer_stack=filtered_layer_stack,
+        wavelength=1.55,
+        overwrite=True,
+    ).compute_sparameters()
