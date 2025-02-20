@@ -6,7 +6,7 @@ venv:
 
 install:
 	uv venv --python 3.11
-	uv pip install -e .[dev,docs,devsim,femwell,gmsh,klayout,meow,meshwell,ray,sax,schematic,tidy3d,vlsir]
+	uv pip install -e .[dev,docs,devsim,femwell,gmsh,klayout,meow,sax,schematic,tidy3d,vlsir]
 	uv run pre-commit install
 
 dev: test-data gmsh elmer install
@@ -32,7 +32,7 @@ uv-test:
 	done
 
 cov:
-	uv run pytest --cov=gplugins
+	uv run pytest gplugins/femwell gplugins/gmsh gplugins/meow gplugins/sax gplugins/tidy3d gplugins/klayout gplugins/vlsir --cov=gplugins/femwell --cov=gplugins/gmsh --cov=gplugins/meow --cov=gplugins/sax --cov=gplugins/tidy3d --cov=gplugins/klayout --cov=gplugins/vlsir
 
 test-data:
 	git clone https://github.com/gdsfactory/gdsfactory-test-data.git -b test-data test-data

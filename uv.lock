@@ -1423,7 +1423,6 @@ meow = [
     { name = "jax" },
     { name = "jaxlib" },
     { name = "meow-sim" },
-    { name = "scipy" },
     { name = "tidy3d" },
 ]
 sax = [
@@ -1504,7 +1503,6 @@ requires-dist = [
     { name = "ray", marker = "extra == 'sax'" },
     { name = "sax", marker = "extra == 'sax'", specifier = ">=0.13.1,<0.15.0" },
     { name = "scikit-learn", marker = "extra == 'sax'" },
-    { name = "scipy", marker = "extra == 'meow'", specifier = "<=1.14.0" },
     { name = "shapely", marker = "extra == 'gfviz'" },
     { name = "shapely", marker = "extra == 'gmsh'" },
     { name = "sortedcontainers", marker = "extra == 'luminescent'" },
