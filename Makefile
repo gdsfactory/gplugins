@@ -64,4 +64,13 @@ notebooks:
 docs:
 	uv run jb build docs
 
+clean:
+	rm -rf dist
+	rm -rf build
+	rm -rf .eggs
+	rm -rf .pytest_cache
+	rm -rf .mypy_cache
+	rm -rf .ruff_cache
+	rm -rf .venv
+
 .PHONY: drc doc docs
