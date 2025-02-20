@@ -8,24 +8,11 @@ on:
 
 jobs:
   pre-commit:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      max-parallel: 12
-      matrix:
-        plugin: [femwell, gmsh, meow, sax, tidy3d, klayout, vlsir]
-        os: [ubuntu-latest]
-        python-version: [3.11]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
-      - name: Install dependencies
-        run: |
-          uv venv -p ${{ matrix.python-version }}
-          uv pip install .[${{ matrix.plugin }},dev] setuptools
-      - name: Test pre-commit hooks
-        run: |
-          uv run pre-commit run --files gplugins/${{ matrix.plugin }}/*
+      - uses: actions/setup-python@v3
+      - uses: pre-commit/action@v3.0.1
 
   test_code:
     runs-on: ${{ matrix.os }}
