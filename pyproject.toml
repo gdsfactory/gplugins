@@ -46,7 +46,7 @@ gmsh = [
   "meshwell~=1.0.7"
 ]
 klayout = ["klayout", "pyvis<=0.3.1", "vlsir", "vlsirtools"]
-luminescent = ["luminescent>=0.2.12,<0.4.0", "sortedcontainers"]
+luminescent = ["luminescent>=0.2.12,<1.1.0", "sortedcontainers"]
 maintainer = ["mypy", "tbump", "towncrier"]
 meow = [
   "jax>=0.4.26",
