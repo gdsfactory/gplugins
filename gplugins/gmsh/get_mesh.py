@@ -98,9 +98,7 @@ def get_mesh(
 
     # Default meshing flags (all True)
     if layer_meshbool_map is None:
-        layer_meshbool_map = {
-            layer_name: True for layer_name in layer_stack.layers.keys()
-        }
+        layer_meshbool_map = dict.fromkeys(layer_stack.layers.keys(), True)
     else:
         for layer_name in layer_stack.layers.keys():
             if layer_name not in layer_physical_map.keys():
