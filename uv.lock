@@ -1,4 +1,5 @@
 version = 1
+revision = 1
 requires-python = ">=3.11"
 resolution-markers = [
     "python_full_version >= '3.13'",
@@ -1353,9 +1354,9 @@ requires-dist = [
     { name = "shapely", marker = "extra == 'gmsh'" },
     { name = "sortedcontainers", marker = "extra == 'luminescent'" },
     { name = "tbump", marker = "extra == 'maintainer'" },
-    { name = "tidy3d", marker = "extra == 'devsim'", specifier = ">=2.7.8,<2.8" },
-    { name = "tidy3d", marker = "extra == 'meow'", specifier = ">=2.7.8,<2.8" },
-    { name = "tidy3d", marker = "extra == 'tidy3d'", specifier = ">=2.7.8,<2.8" },
+    { name = "tidy3d", marker = "extra == 'devsim'", specifier = ">=2.7.8" },
+    { name = "tidy3d", marker = "extra == 'meow'", specifier = ">=2.7.8" },
+    { name = "tidy3d", marker = "extra == 'tidy3d'", specifier = ">=2.7.8" },
     { name = "towncrier", marker = "extra == 'maintainer'" },
     { name = "tqdm" },
     { name = "trimesh", marker = "extra == 'gmsh'" },
@@ -1364,6 +1365,7 @@ requires-dist = [
     { name = "vlsirtools", marker = "extra == 'klayout'" },
     { name = "vlsirtools", marker = "extra == 'vlsir'" },
 ]
+provides-extras = ["dev", "devsim", "docs", "femwell", "gfviz", "gmsh", "klayout", "luminescent", "maintainer", "meow", "sax", "schematic", "tidy3d", "vlsir"]
 
 [[package]]
 name = "graphviz"
