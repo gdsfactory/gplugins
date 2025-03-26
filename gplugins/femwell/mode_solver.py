@@ -68,8 +68,8 @@ def compute_cross_section_modes(
     """
     # Get meshable component from cross-section
     c = gf.components.straight(length=10, cross_section=cross_section)
-    dx = c.dxsize
-    dy = c.dysize
+    dx = c.xsize
+    dy = c.ysize
 
     xsection_bounds = [
         [dx / 2, dy - wafer_padding],

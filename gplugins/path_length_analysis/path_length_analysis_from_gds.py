@@ -348,11 +348,11 @@ def extract_paths(
             # Unfortunately klayout does not have an easy way to split, so
             # we will use shapely to do it and then go back to klayout
 
-            y_val = (simplified_component.dymax + simplified_component.dymin) / 2
+            y_val = (simplified_component.ymax + simplified_component.ymin) / 2
             slice = sh.LineString(
                 [
-                    [simplified_component.dxmin, y_val],
-                    [simplified_component.dxmax, y_val],
+                    [simplified_component.xmin, y_val],
+                    [simplified_component.xmax, y_val],
                 ]
             )
 

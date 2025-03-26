@@ -501,8 +501,8 @@ def get_port_1D_eigenmode(
         frequency=fsrc,
     )
     ys_waveguide = np.linspace(
-        center_waveguide.dy - size_waveguide.dy / 2,
-        center_waveguide.dy + size_waveguide.dy / 2,
+        center_waveguide.y - size_waveguide.y / 2,
+        center_waveguide.y + size_waveguide.y / 2,
         int(sim.resolution * size_waveguide.y),
     )
     x_waveguide = center_waveguide.x
@@ -518,8 +518,8 @@ def get_port_1D_eigenmode(
         frequency=fsrc,
     )
     xs_fiber = np.linspace(
-        center_fiber.dx - size_fiber.dx / 2,
-        center_fiber.dx + size_fiber.dx / 2,
+        center_fiber.x - size_fiber.x / 2,
+        center_fiber.x + size_fiber.x / 2,
         int(sim.resolution * size_fiber.x),
     )
     y_fiber = center_fiber.y

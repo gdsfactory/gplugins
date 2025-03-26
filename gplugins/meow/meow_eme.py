@@ -147,10 +147,10 @@ class MEOW:
 
         # Process simulation bounds
         z_min, x_min, z_max, x_max = (
-            component.dxmin,
-            component.dymin,
-            component.dxmax,
-            component.dymax,
+            component.xmin,
+            component.ymin,
+            component.xmax,
+            component.ymax,
         )
         z_min, z_max = min(z_min, z_max) + 1e-10, max(z_min, z_max) - 1e-10
         x_min, x_max = min(x_min, x_max) + 1e-10, max(x_min, x_max) - 1e-10

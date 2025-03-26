@@ -93,8 +93,8 @@ def get_sparameters_fdtdz(
     """
     # Checks from gmeep
     component_ref = component.ref()
-    component_ref.dx = 0
-    component_ref.dy = 0
+    component_ref.x = 0
+    component_ref.y = 0
 
     optical_port_names = list(component_ref.get_ports_dict(port_type="optical").keys())
 
@@ -129,8 +129,8 @@ def get_sparameters_fdtdz(
             omega=omega,
             port=component.ports[portname],
             epsilon=epsilon,
-            xmin=component_extended.dxmin,
-            ymin=component_extended.dymin,
+            xmin=component_extended.xmin,
+            ymin=component_extended.ymin,
             nm_per_pixel=nm_per_pixel,
             port_extent_xy=port_margin,
         )

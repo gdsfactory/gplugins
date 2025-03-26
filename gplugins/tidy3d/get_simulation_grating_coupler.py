@@ -455,7 +455,7 @@ def get_simulation_grating_coupler(
         )
 
     fiber_port = component_with_booleans.ports[fiber_port_name]
-    fiber_port_x = fiber_port.dcenter[0] + fiber_xoffset - component_with_booleans.dx
+    fiber_port_x = fiber_port.dcenter[0] + fiber_xoffset - component_with_booleans.x
 
     if not (-sim_size[0] / 2 <= fiber_port_x <= sim_size[0] / 2):
         xmin = float(np.round(-sim_size[0] / 2, 3))
