@@ -1207,6 +1207,7 @@ dependencies = [
     { name = "numpy" },
     { name = "pint" },
     { name = "tqdm" },
+    { name = "xarray" },
 ]
 
 [package.optional-dependencies]
@@ -1364,6 +1365,7 @@ requires-dist = [
     { name = "vlsir", marker = "extra == 'vlsir'" },
     { name = "vlsirtools", marker = "extra == 'klayout'" },
     { name = "vlsirtools", marker = "extra == 'vlsir'" },
+    { name = "xarray", specifier = "==2025.1.2" },
 ]
 provides-extras = ["dev", "devsim", "docs", "femwell", "gfviz", "gmsh", "klayout", "luminescent", "maintainer", "meow", "sax", "schematic", "tidy3d", "vlsir"]
 

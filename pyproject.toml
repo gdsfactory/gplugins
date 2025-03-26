@@ -12,7 +12,14 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Operating System :: OS Independent"
 ]
-dependencies = ["gdsfactory>=9.0.0", "pint", "gdstk", "tqdm", "numpy"]
+dependencies = [
+  "gdsfactory>=9.0.0",
+  "pint",
+  "gdstk",
+  "tqdm",
+  "numpy",
+  "xarray==2025.1.2"
+]
 description = "gdsfactory plugins"
 keywords = ["python"]
 license = {file = "LICENSE"}
