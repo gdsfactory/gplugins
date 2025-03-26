@@ -197,10 +197,9 @@ def write_sparameters_lumerical(
             suffix `a` for angle in radians and `m` for module.
 
     """
-    component = gf.get_component(component)
-    sim_settings = dict(simulation_settings)
-
     layer_stack = layer_stack or get_layer_stack()
+    component = component
+    sim_settings = dict(simulation_settings)
 
     layer_to_thickness = layer_stack.get_layer_to_thickness()
     layer_to_zmin = layer_stack.get_layer_to_zmin()
@@ -267,19 +266,29 @@ def write_sparameters_lumerical(
     y_min = (component_extended.dymin - ymargin) * 1e-6
     y_max = (component_extended.dymax + ymargin) * 1e-6
 
+    index_to_thickness = {}
+    index_to_zmin = {}
+    for level in layer_stack.layers.values():
+        if level.derived_layer is None:
+            index_to_thickness[level.layer.layer] = level.thickness
+            index_to_zmin[level.layer.layer] = level.thickness
+        else:
+            index_to_thickness[level.derived_layer.layer] = level.zmin
+            index_to_zmin[level.derived_layer.layer] = level.zmin
+
     layers_thickness = [
-        layer_to_thickness[layer]
+        index_to_thickness[gf.get_layer(layer)]
         for layer in component_with_booleans.layers
-        if layer in layer_to_thickness
+        if gf.get_layer(layer) in index_to_thickness
     ]
     if not layers_thickness:
         raise ValueError(
             f"no layers for component {component.layers}in layer stack {layer_stack}"
         )
     layers_zmin = [
-        layer_to_zmin[layer]
+        index_to_zmin[gf.get_layer(layer)]
         for layer in component_with_booleans.layers
-        if layer in layer_to_zmin
+        if gf.get_layer(layer) in index_to_zmin
     ]
     component_thickness = max(layers_thickness)
     component_zmin = min(layers_zmin)
