@@ -99,10 +99,10 @@ def initialize_sprocess(
         ymin = 0
         ymax = 0
     else:
-        xmin = component.dxmin
-        xmax = component.dxmax
-        ymin = component.dymin
-        ymax = component.dymax
+        xmin = component.xmin
+        xmax = component.xmax
+        ymin = component.ymin
+        ymax = component.ymax
 
     # Initial z-mesh from waferstack and resolutions
     z_map = {}
@@ -595,19 +595,19 @@ if __name__ == "__main__":
         component=test_straight, domain=[[0, -4], [0, 4], [length, 4], [length, -4]]
     )
 
-    yp = (test_component.dymax + test_component.dymin) / 2 + test_component.dysize / 2
-    ym = (test_component.dymax + test_component.dymin) / 2 - test_component.dysize / 2
+    yp = (test_component.ymax + test_component.ymin) / 2 + test_component.ysize / 2
+    ym = (test_component.ymax + test_component.ymin) / 2 - test_component.ysize / 2
     c.add_port(
         name="e1",
         center=(length / 2, yp),
-        width=test_component.dysize / 2,
+        width=test_component.ysize / 2,
         orientation=0,
         layer=LAYER.VIAC,
     )
     c.add_port(
         name="e2",
         center=(length / 2, ym),
-        width=test_component.dysize / 2,
+        width=test_component.ysize / 2,
         orientation=0,
         layer=LAYER.VIAC,
     )
@@ -632,8 +632,8 @@ if __name__ == "__main__":
     )
 
     contact_str = f"""contact name=cathode aluminum silicon xlo=0.0 xhi=0.2 ylo=0.0 yhi=1 zlo=0 zhi=0
-contact name=anode aluminum silicon xlo=0.0 xhi=0.2 ylo={c.dysize - 1:1.3f} yhi={c.dysize:1.3f} zlo=0 zhi=0
-contact name=substrate box silicon xlo=4.2 xhi=4.3 ylo=0.0 yhi={c.dysize:1.3f} zlo=0 zhi=0
+contact name=anode aluminum silicon xlo=0.0 xhi=0.2 ylo={c.ysize - 1:1.3f} yhi={c.ysize:1.3f} zlo=0 zhi=0
+contact name=substrate box silicon xlo=4.2 xhi=4.3 ylo=0.0 yhi={c.ysize:1.3f} zlo=0 zhi=0
     """
 
     write_sprocess(
@@ -642,8 +642,8 @@ contact name=substrate box silicon xlo=4.2 xhi=4.3 ylo=0.0 yhi={c.dysize:1.3f} z
         layermap=LAYER,
         process=get_process(),
         xsection_bounds=(
-            ((test_component.dxmin + test_component.dxmax) / 2, test_component.dymin),
-            ((test_component.dxmin + test_component.dxmax) / 2, test_component.dymax),
+            ((test_component.xmin + test_component.xmax) / 2, test_component.ymin),
+            ((test_component.xmin + test_component.xmax) / 2, test_component.ymax),
         ),
         save_directory="./sprocess/",
         filename="sprocess_2D_fps.cmd",

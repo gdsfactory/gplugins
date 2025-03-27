@@ -70,8 +70,8 @@ if __name__ == "__main__":
     c = gf.Component()
     r1 = c << gf.components.rectangle(size=(w, w), layer=(1, 0))
     r2 = c << gf.components.rectangle(size=(w, w), layer=(2, 0))
-    r1.dxmax = 0
-    r2.dxmin = space
+    r1.xmax = 0
+    r2.xmin = space
     gdspath = c
     gf.show(gdspath)
     print(check_exclusion(c))

@@ -68,10 +68,10 @@ def initialize_sde(
         ymin = 0
         ymax = 0
     else:
-        xmin = component.dxmin
-        xmax = component.dxmax
-        ymin = component.dymin
-        ymax = component.dymax
+        xmin = component.xmin
+        xmax = component.xmax
+        ymin = component.ymin
+        ymax = component.ymax
 
     # Initialize
     output_str += header_str
@@ -282,8 +282,8 @@ if __name__ == "__main__":
         component=test_straight, domain=[[0, -4], [0, 4], [length, 4], [length, -4]]
     )
 
-    yp = (test_component.dymax + test_component.dymin) / 2 + test_component.dysize / 2
-    ym = (test_component.dymax + test_component.dymin) / 2 - test_component.dysize / 2
+    yp = (test_component.ymax + test_component.ymin) / 2 + test_component.ysize / 2
+    ym = (test_component.ymax + test_component.ymin) / 2 - test_component.ysize / 2
 
     WAFER_STACK.layers["substrate"].material = "Silicon"
     WAFER_STACK.layers["substrate"].thickness = 1
