@@ -151,8 +151,8 @@ def get_meep_adjoint_optimizer(
         Vector3(*cell_size)
         if cell_size
         else Vector3(
-            c.dxsize + 2 * sim.boundary_layers[0].thickness,
-            c.dysize + 2 * sim.boundary_layers[0].thickness,
+            c.xsize + 2 * sim.boundary_layers[0].thickness,
+            c.ysize + 2 * sim.boundary_layers[0].thickness,
             cell_thickness,
         )
     )
@@ -262,10 +262,10 @@ def get_component_from_sim(
     """
     grid_resolution = upscale_factor * sim.resolution
     sim_center, sim_size = get_2D_dimensions(sim, output_plane=None)
-    xmin = sim_center.dx - sim_size.dx / 2
-    xmax = sim_center.dx + sim_size.dx / 2
-    ymin = sim_center.dy - sim_size.dy / 2
-    ymax = sim_center.dy + sim_size.dy / 2
+    xmin = sim_center.x - sim_size.x / 2
+    xmax = sim_center.x + sim_size.x / 2
+    ymin = sim_center.y - sim_size.y / 2
+    ymax = sim_center.y + sim_size.y / 2
     Nx = int((xmax - xmin) * grid_resolution + 1)
     Ny = int((ymax - ymin) * grid_resolution + 1)
     xtics = np.linspace(xmin, xmax, Nx)

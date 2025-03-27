@@ -12,7 +12,14 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Operating System :: OS Independent"
 ]
-dependencies = ["gdsfactory>=9.0.0", "pint", "gdstk", "tqdm", "numpy"]
+dependencies = [
+  "gdsfactory>=9.0.0",
+  "pint",
+  "gdstk",
+  "tqdm",
+  "numpy",
+  "xarray==2025.1.2"
+]
 description = "gdsfactory plugins"
 keywords = ["python"]
 license = {file = "LICENSE"}
@@ -30,7 +37,7 @@ dev = [
   "pyswarms",
   "autograd"
 ]
-devsim = ["devsim", "pyvista<=0.43.8", "tidy3d>=2.7.8"]
+devsim = ["devsim", "pyvista<=0.43.8", "tidy3d>=2.7.8,<2.8"]
 docs = ["jupytext", "matplotlib", "jupyter-book~=1.0", "pyvista[all]<=0.43.8"]
 femwell = ["femwell~=0.1.11", "meshwell~=1.0.7"]
 gfviz = ["jinja2", "fastapi", "shapely", "natsort"]
@@ -53,7 +60,7 @@ meow = [
   "jaxlib>=0.4.26",
   "flax>=0.8.2",
   "meow-sim>=0.11,<0.13",
-  "tidy3d>=2.7.8",
+  "tidy3d>=2.7.8,<2.8",
   "scipy<=1.14.1"
 ]
 sax = [
@@ -66,7 +73,7 @@ sax = [
   "ray"
 ]
 schematic = ["bokeh", "ipywidgets", "natsort"]
-tidy3d = ["tidy3d>=2.7.8", "meshio", "numpy", "meshwell~=1.0.7"]
+tidy3d = ["tidy3d>=2.7.8,<2.8", "meshio", "numpy", "meshwell~=1.0.7"]
 vlsir = ["vlsir", "vlsirtools"]
 
 [tool.codespell]
@@ -182,6 +189,9 @@ src = "pyproject.toml"
 
 [[tool.tbump.file]]
 src = "gplugins/__init__.py"
+
+[[tool.tbump.file]]
+src = "uv.lock"
 
 [tool.tbump.git]
 message_template = "Bump to {new_version}"

@@ -261,10 +261,10 @@ def write_sparameters_lumerical(
         print(run_false_warning)
 
     logger.info(f"Writing Sparameters to {filepath_npz.absolute()!r}")
-    x_min = (component_extended.dxmin - xmargin) * 1e-6
-    x_max = (component_extended.dxmax + xmargin) * 1e-6
-    y_min = (component_extended.dymin - ymargin) * 1e-6
-    y_max = (component_extended.dymax + ymargin) * 1e-6
+    x_min = (component_extended.xmin - xmargin) * 1e-6
+    x_max = (component_extended.xmax + xmargin) * 1e-6
+    y_min = (component_extended.ymin - ymargin) * 1e-6
+    y_max = (component_extended.ymax + ymargin) * 1e-6
 
     index_to_thickness = {}
     index_to_zmin = {}
@@ -402,8 +402,8 @@ def write_sparameters_lumerical(
 
         s.addport()
         p = f"FDTD::ports::port {i + 1}"
-        s.setnamed(p, "x", port.dx * 1e-6)
-        s.setnamed(p, "y", port.dy * 1e-6)
+        s.setnamed(p, "x", port.x * 1e-6)
+        s.setnamed(p, "y", port.y * 1e-6)
         s.setnamed(p, "z", z * 1e-6)
         s.setnamed(p, "z span", zspan * 1e-6)
         s.setnamed(p, "frequency dependent profile", ss.frequency_dependent_profile)

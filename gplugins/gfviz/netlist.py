@@ -167,10 +167,10 @@ def get_ports(child, parent=None):
     else:
         ports = ports1
 
-    x0 = c.dxmin
-    x1 = c.dxmax
-    y0 = c.dymin
-    y1 = c.dymax
+    x0 = c.xmin
+    x1 = c.xmax
+    y0 = c.ymin
+    y1 = c.ymax
     x0, x1 = min(x0, x1), max(x0, x1)
     y0, y1 = min(y0, y1), max(y0, y1)
 
@@ -271,7 +271,7 @@ def _line_dists(points, start, end):
 
 
 def sort_ports(ports) -> list[gf.Port]:
-    return natsorted(ports, key=lambda port: port.dx)
+    return natsorted(ports, key=lambda port: port.x)
 
 
 def wrap_component_in_netlist(name):
