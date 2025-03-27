@@ -4,6 +4,11 @@
 
 <!-- towncrier release notes start -->
 
+## [1.3.2](https://github.com/gdsfactory/gplugins/releases/tag/v1.3.2) - 2025-03-26
+
+No significant changes.
+
+
 ## [1.3.1](https://github.com/gdsfactory/gplugins/releases/tag/v1.3.1) - 2025-03-25
 
 No significant changes.
