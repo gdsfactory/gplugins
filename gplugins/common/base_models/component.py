@@ -248,4 +248,3 @@ class LayeredComponentBase(BaseModel):
     def get_layer_center(self, layername: str) -> tuple[float, float, float]:
         bbox = self.get_layer_bbox(layername)
         return tuple(np.mean(bbox, axis=0))
-

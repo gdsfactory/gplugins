@@ -27,9 +27,9 @@ from gdsfactory.component import Component
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 from pydantic import NonNegativeFloat
+from tidy3d.components.geometry.base import from_shapely
 from tidy3d.components.types import Symmetry
 from tidy3d.plugins.smatrix import ComponentModeler, Port
-from tidy3d.components.geometry.base import from_shapely
 
 from gplugins.common.base_models.component import LayeredComponentBase
 from gplugins.tidy3d.get_results import _executor
@@ -93,13 +93,13 @@ class Tidy3DComponent(LayeredComponentBase):
             bbox = self.get_layer_bbox(name)
             shape = self.polygons[name].buffer(distance=0.0, join_style="mitre")
             geom = from_shapely(
-                        shape, 
-                        axis=2, 
-                        slab_bounds=(bbox[0][2], bbox[1][2]), 
-                        dilation=self.dilation, 
-                        sidewall_angle=np.deg2rad(layer.sidewall_angle), 
-                        reference_plane=self.reference_plane,
-                    )
+                shape,
+                axis=2,
+                slab_bounds=(bbox[0][2], bbox[1][2]),
+                dilation=self.dilation,
+                sidewall_angle=np.deg2rad(layer.sidewall_angle),
+                reference_plane=self.reference_plane,
+            )
             slabs[name] = geom
 
         return slabs
