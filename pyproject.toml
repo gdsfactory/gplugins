@@ -60,7 +60,7 @@ meow = [
   "jaxlib>=0.4.26",
   "flax>=0.8.2",
   "meow-sim>=0.11,<0.13",
-  "tidy3d>=2.7.8,<2.8",
+  "tidy3d>=2.8.2,<2.8.3",
   "scipy<=1.14.1"
 ]
 sax = [
@@ -73,7 +73,7 @@ sax = [
   "ray"
 ]
 schematic = ["bokeh", "ipywidgets", "natsort"]
-tidy3d = ["tidy3d>=2.7.8,<2.8", "meshio", "numpy", "meshwell~=1.0.7"]
+tidy3d = ["tidy3d>=2.8.2,<2.8.3", "meshio", "numpy", "meshwell~=1.0.7"]
 vlsir = ["vlsir", "vlsirtools"]
 
 [tool.codespell]
