@@ -112,19 +112,14 @@ class Tidy3DComponent(LayeredComponentBase):
             list[td.Structure]: A list of Structure instances.
         """
         structures = []
-        for name, polys in self.polyslabs.items():
-            structures.extend(
-                [
-                    td.Structure(
-                        geometry=poly,
-                        medium=self.material_mapping[
-                            self.geometry_layers[name].material
-                        ],
-                        name=f"{name}_{idx}",
-                    )
-                    for idx, poly in enumerate(polys)
-                ]
+        for name, poly in self.polyslabs.items():
+            structure = td.Structure(
+                geometry=poly,
+                medium=self.material_mapping[self.geometry_layers[name].material],
+                name=name,
             )
+            structures.append(structure)
+
         return structures
 
     def get_ports(
