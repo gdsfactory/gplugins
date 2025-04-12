@@ -18,7 +18,8 @@ dependencies = [
   "gdstk",
   "tqdm",
   "numpy",
-  "xarray==2025.1.2"
+  "xarray==2025.1.2",
+  "scipy<=1.15.1"
 ]
 description = "gdsfactory plugins"
 keywords = ["python"]
@@ -61,7 +62,6 @@ meow = [
   "flax>=0.8.2",
   "meow-sim>=0.12,<0.13",
   "tidy3d>=2.8.2,<2.8.3",
-  "scipy<=1.15.1"
 ]
 sax = [
   "jax>=0.4.26",
