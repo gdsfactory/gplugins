@@ -19,7 +19,6 @@ dependencies = [
   "tqdm",
   "numpy",
   "xarray==2025.1.2",
-  "scipy<=1.15.1"
 ]
 description = "gdsfactory plugins"
 keywords = ["python"]
