@@ -12,8 +12,6 @@ gplugins/klayout/layers.lyp
 gplugins/klayout/tech.lyt
 notebooks/luminescent_runs/
 
-uv.lock
-
 # C extensions
 *.csv
 *.npz

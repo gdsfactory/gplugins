@@ -22,7 +22,7 @@ jobs:
       matrix:
         plugin: [femwell, gmsh, meow, sax, tidy3d, klayout, vlsir]
         os: [ubuntu-latest]
-        python-version: [3.11]
+        python-version: [3.12]
         exclude:
           - plugin: femwell
             os: macos-latest
