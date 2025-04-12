@@ -59,7 +59,7 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
         self._integer_to_string_map = value
 
     @override
-    def wants_subcircuit(self, name: str):
+    def wants_subcircuit(self, name: str) -> bool:
         """Model all SPICE models that start with `WG` as devices in order to support parameters."""
         return "WG" in name or super().wants_subcircuit(name)
 
@@ -105,7 +105,7 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
         value: Any,
         nets: Sequence[kdb.Net],
         parameters: dict[str, int | float | str],
-    ):
+    ) -> bool:
         # Handle non-'X' elements with standard KLayout processing
         if element != "X":
             # Other devices with standard KLayout
@@ -145,6 +145,8 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
                 ),
             )
 
+        return True
+
 
 class GdsfactorySpiceReader(CalibreSpiceReader):
     """KLayout Spice reader for Gdsfactory-extracted KLayout LayoutToNetlist.
@@ -175,7 +177,7 @@ class GdsfactorySpiceReader(CalibreSpiceReader):
         ]
 
     @override
-    def wants_subcircuit(self, name: str):
+    def wants_subcircuit(self, name: str) -> bool:
         """Model all basic gdsfactory components as devices in order to support parameters."""
         return all(
             cell not in name.casefold() for cell in self.components_as_subcircuits

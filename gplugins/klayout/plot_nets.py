@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from gdsfactory.typings import PathType
 from klayout.db import NetlistSpiceReaderDelegate
+from matplotlib.figure import Figure
 
 from gplugins.klayout.netlist_graph import networkx_from_spice
 from gplugins.klayout.netlist_spice_reader import (
@@ -19,7 +20,7 @@ def plot_nets(
     top_cell: str | None = None,
     nodes_to_reduce: Collection[str] | None = None,
     spice_reader: type[NetlistSpiceReaderDelegate] = GdsfactorySpiceReader,
-) -> None | plt.Figure:
+) -> None | Figure:
     """Plots the connectivity between the components in the KLayout LayoutToNetlist file from :func:`~get_l2n`.
 
     Args:
@@ -91,6 +92,7 @@ def plot_nets(
             font_size=12,
         )
         return fig
+    return
 
 
 if __name__ == "__main__":

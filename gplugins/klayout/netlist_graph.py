@@ -8,6 +8,7 @@ import klayout.db as kdb
 import networkx as nx
 from gdsfactory import logger
 from gdsfactory.typings import PathType
+from klayout.db import NetlistSpiceReaderDelegate
 
 import gplugins.vlsir
 from gplugins.klayout.netlist_spice_reader import (
@@ -109,8 +110,8 @@ def networkx_from_spice(
     filepath: PathType,
     include_labels: bool = True,
     top_cell: str | None = None,
-    spice_reader: type[NetlistSpiceReaderDelegateWithStrings]
-    | NetlistSpiceReaderDelegateWithStrings = GdsfactorySpiceReader,
+    spice_reader: type[NetlistSpiceReaderDelegate]
+    | NetlistSpiceReaderDelegate = GdsfactorySpiceReader,
     **kwargs: Any,
 ) -> nx.Graph:
     """Returns a networkx Graph from a SPICE netlist file or KLayout LayoutToNetlist.
