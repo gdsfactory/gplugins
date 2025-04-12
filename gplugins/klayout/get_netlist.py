@@ -1,4 +1,3 @@
-# type: ignore
 from typing import Any
 
 import gdsfactory as gf
@@ -35,7 +34,8 @@ def get_l2n(
         klayout_tech_path = tech_dir / "tech.lyt"
 
     # klayout tech path is now assumed to contain a `tech.lyt`` file to use
-    technology = Tech.load(str(klayout_tech_path))
+    Tech.load(str(klayout_tech_path))
+    technology = Tech
 
     lib.read(filename=str(gdspath))
     c = lib.top_kcell()
@@ -45,6 +45,7 @@ def get_l2n(
 
     reversed_layer_map = {}
     layers = gf.get_active_pdk().layers
+    assert layers is not None
 
     # Reversed layer map with names as sets in order to support layer aliases
     for k, v in {layer.name: (layer.layer, layer.datatype) for layer in layers}.items():

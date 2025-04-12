@@ -26,7 +26,7 @@ def list_unique_layer_stack_z(
 def map_unique_layer_stack_z(
     layer_stack: LayerStack,
     include_zmax: bool = True,
-):
+) -> dict[str, set[float]]:
     """Map unique LayerStack z coordinates to various layers.
 
     Args:
@@ -57,7 +57,7 @@ def map_unique_layer_stack_z(
 def get_layer_overlaps_z(
     layer_stack: LayerStack,
     include_zmax: bool = True,
-):
+) -> dict[float, set[str]]:
     """Maps layers to unique LayerStack z coordinates.
 
     Args:
@@ -67,7 +67,7 @@ def get_layer_overlaps_z(
     """
     z_grid = list_unique_layer_stack_z(layer_stack)
     unique_z_dict = map_unique_layer_stack_z(layer_stack, include_zmax)
-    intersection_z_dict = {}
+    intersection_z_dict: dict[float, set[str]] = {}
     for z in z_grid:
         current_layers = {
             layername for layername, layer_zs in unique_z_dict.items() if z in layer_zs
@@ -77,11 +77,12 @@ def get_layer_overlaps_z(
     return intersection_z_dict
 
 
-def get_layers_at_z(layer_stack: LayerStack, z: float):
+def get_layers_at_z(layer_stack: LayerStack, z: float) -> list[str]:
     """Returns layers present at a given z-position.
 
     Args:
         layer_stack: LayerStack
+        z: float
     Returns:
         List of layers
     """
@@ -93,11 +94,11 @@ def get_layers_at_z(layer_stack: LayerStack, z: float):
         raise ValueError("Requested z-value is above the minimum layer_stack z")
     for z_unique in intersection_z_dict.keys():
         if z <= z_unique:
-            return intersection_z_dict[z_unique]
+            return list(intersection_z_dict[z_unique])
     raise AssertionError("Could not find z-value in layer_stack z-range.")
 
 
-def order_layer_stack(layer_stack: LayerStack):
+def order_layer_stack(layer_stack: LayerStack) -> list[str]:
     """Orders layer_stack according to mesh_order.
 
     Args:
