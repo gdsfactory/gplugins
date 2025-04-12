@@ -18,7 +18,7 @@ dependencies = [
   "gdstk",
   "tqdm",
   "numpy",
-  "xarray==2025.1.2",
+  "xarray==2025.1.2"
 ]
 description = "gdsfactory plugins"
 keywords = ["python"]
@@ -34,8 +34,7 @@ dev = [
   "pytest",
   "pytest-cov",
   "pytest_regressions",
-  "pyswarms",
-  "autograd"
+  "pyswarms"
 ]
 devsim = ["devsim", "pyvista<=0.43.8", "tidy3d>=2.8.2,<2.8.3"]
 docs = ["jupytext", "matplotlib", "jupyter-book~=1.0", "pyvista[all]<=0.43.8"]
@@ -92,7 +91,7 @@ strict = true
 reportUnusedExpression = false
 
 [tool.pytest.ini_options]
-addopts = '--tb=short'
+addopts = "--assert=plain"
 norecursedirs = [
   "extra/*.py",
   'gplugins/devsim',

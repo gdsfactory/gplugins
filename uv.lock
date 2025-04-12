@@ -1202,7 +1202,6 @@ dependencies = [
 
 [package.optional-dependencies]
 dev = [
-    { name = "autograd" },
     { name = "pre-commit" },
     { name = "pyswarms" },
     { name = "pytest" },
@@ -1290,7 +1289,6 @@ vlsir = [
 
 [package.metadata]
 requires-dist = [
-    { name = "autograd", marker = "extra == 'dev'" },
     { name = "bokeh", marker = "extra == 'schematic'" },
     { name = "devsim", marker = "extra == 'devsim'" },
     { name = "fastapi", marker = "extra == 'gfviz'" },
