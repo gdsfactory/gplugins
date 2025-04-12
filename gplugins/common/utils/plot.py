@@ -4,13 +4,17 @@ import re
 from collections.abc import Sequence
 from functools import partial
 from itertools import combinations
+from typing import Any
 
-import gdsfactory as gf
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt
+from matplotlib.axes import Axes
 
 
-def _check_ports(sp: dict[str, np.ndarray], ports: Sequence[str]) -> None:
+def _check_ports(
+    sp: dict[str, npt.NDArray[np.floating[Any]]], ports: Sequence[str]
+) -> None:
     """Ensure ports exist in Sparameters."""
     for port in ports:
         if port not in sp:
@@ -18,7 +22,7 @@ def _check_ports(sp: dict[str, np.ndarray], ports: Sequence[str]) -> None:
 
 
 def plot_sparameters(
-    sp: dict[str, np.ndarray],
+    sp: dict[str, npt.NDArray[np.floating[Any]]],
     logscale: bool = True,
     plot_phase: bool = False,
     keys: tuple[str, ...] | None = None,
@@ -39,7 +43,7 @@ def plot_sparameters(
 
     """
     w = sp["wavelengths"] * units
-    keys = keys or [key for key in sp if not key.lower().startswith("wav")]
+    keys = keys or tuple(key for key in sp if not key.lower().startswith("wav"))
 
     for key in keys:
         if with_simpler_input_keys:
@@ -74,9 +78,12 @@ def plot_sparameters(
 
 
 def plot_imbalance(
-    sp: dict[str, np.ndarray], ports: Sequence[str], ax: plt.Axes | None = None
+    sp: dict[str, npt.NDArray[np.floating[Any]]],
+    ports: Sequence[str],
+    ax: Axes | None = None,
 ) -> None:
     """Plots imbalance in dB for coupler.
+
     The imbalance is always defined between two ports, so this function plots the
     imbalance between all unique port combinations.
 
@@ -107,7 +114,9 @@ def plot_imbalance(
 
 
 def plot_loss(
-    sp: dict[str, np.ndarray], ports: Sequence[str], ax: plt.Axes | None = None
+    sp: dict[str, npt.NDArray[np.floating[Any]]],
+    ports: Sequence[str],
+    ax: Axes | None = None,
 ) -> None:
     """Plots loss dB for coupler.
 
@@ -137,7 +146,9 @@ def plot_loss(
 
 
 def plot_reflection(
-    sp: dict[str, np.ndarray], ports: Sequence[str], ax: plt.Axes | None = None
+    sp: dict[str, npt.NDArray[np.floating[Any]]],
+    ports: Sequence[str],
+    ax: Axes | None = None,
 ) -> None:
     """Plots reflection in dB for coupler.
 
@@ -172,11 +183,3 @@ plot_imbalance1x2 = partial(plot_imbalance, ports=["o1@0,o2@0", "o1@0,o3@0"])
 plot_imbalance2x2 = partial(plot_imbalance, ports=["o1@0,o3@0", "o1@0,o4@0"])
 plot_reflection1x2 = partial(plot_reflection, ports=["o1@0,o1@0"])
 plot_reflection2x2 = partial(plot_reflection, ports=["o1@0,o1@0", "o2@0,o1@0"])
-
-if __name__ == "__main__":
-    import gplugins as sim
-
-    sp = sim.get_sparameters_data_tidy3d(component=gf.components.mmi1x2)
-    # plot_sparameters(sp, logscale=False, keys=["o1@0,o2@0"])
-    # plot_sparameters(sp, logscale=False, keys=["S21"])
-    # plt.show()
