@@ -23,7 +23,6 @@ jobs:
         env:
           SIMCLOUD_APIKEY: ${{ secrets.SIMCLOUD_APIKEY }}
         run: |
-          make uv
           make install test-data
           uv run jb build docs
       - name: Upload artifact
