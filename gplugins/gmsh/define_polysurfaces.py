@@ -37,7 +37,7 @@ def define_polysurfaces(
                     origin=(0, 0, 0),
                 ),
                 model=model,
-                resolution=resolutions.get(layername, None),
+                resolutions=resolutions.get(layername, None),
                 mesh_order=layer_stack_.mesh_order,
                 physical_name=layer_physical_map[layername]
                 if layername in layer_physical_map
