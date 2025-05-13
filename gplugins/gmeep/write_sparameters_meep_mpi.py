@@ -164,7 +164,7 @@ def write_sparameters_meep_mpi(
     with open(parameters_file, "wb") as outp:
         pickle.dump(settings, outp, pickle.HIGHEST_PROTOCOL)
 
-    # Save component to disk through gds for gdstk compatibility
+    # Save component to disk through gds 
     component_file = tempfile.with_suffix(".gds")
     component.write_gds(component_file, with_metadata=True)
 
