@@ -70,7 +70,7 @@ sax = [
   "ray"
 ]
 schematic = ["bokeh", "ipywidgets", "natsort"]
-tidy3d = ["tidy3d>=2.8.2,<2.9", "meshio", "numpy", "meshwell~=1.0.7"]
+tidy3d = ["tidy3d>=2.8.2,<2.9", "meshio", "numpy", "meshwell~=1.0.7", "gdstk"]
 vlsir = ["vlsir", "vlsirtools"]
 
 [tool.codespell]
