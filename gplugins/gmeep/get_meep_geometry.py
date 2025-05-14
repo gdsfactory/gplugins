@@ -3,7 +3,7 @@ from __future__ import annotations
 import gdsfactory as gf
 import meep as mp
 import numpy as np
-from gdsfactory.pdk import get_layer_stack
+from gdsfactory.pdk import get_layer_stack, get_layer, get_layer_name
 from gdsfactory.technology import LayerStack
 from gdsfactory.typings import ComponentSpec, CrossSectionSpec
 
@@ -43,14 +43,18 @@ def get_meep_geometry_from_component(
     geometry = []
     layer_to_polygons = component_with_booleans.get_polygons_points()
 
-    ordered_layer_stack_keys = order_layer_stack(layer_stack)[::-1]
+    # ordered_layer_stack_keys = order_layer_stack(layer_stack)[::-1]
 
-    for layername in ordered_layer_stack_keys:
-        layer = layer_stack.layers[layername].layer
+    for layer_tuple in component_with_booleans.layers:
+        layer_index = get_layer(layer_tuple)
+        layer = get_layer_name(layer_index)
 
-        if layer not in layer_to_polygons:
-            continue
-        polygons = layer_to_polygons[layer]
+        # layer_material 
+
+        # if layer_index not in layer_to_polygons:
+        #     continue
+        polygons = layer_to_polygons[layer_index]
+
         print(f"layer: {layer}, polygons: {polygons}")
 
         if layer in layer_to_thickness and layer in layer_to_material:
