@@ -19,6 +19,8 @@ from gplugins.gmsh.parse_gds import cleanup_component
 
 from ..types import AnyShapelyPolygon, GFComponent
 
+from gdsfactory.pdk import get_layer_stack, get_layer, get_layer_name
+
 Coordinate: TypeAlias = tuple[float, float]
 
 
@@ -223,13 +225,22 @@ class LayeredComponentBase(BaseModel):
         )
 
     def get_port_layers(self, port: gf.Port) -> tuple[str, ...]:
-        # FIXME: extract actual layer
-        # this needs to be a list of all layers and derived layers that are
-        # associated with the port layer enum
-        return ("core",)
-        return tuple(
-            k for k, v in self.layer_stack.layers.items() if port.layer in v.layer
-        )
+        layer_name = get_layer_name(port.layer)
+
+        derived_layers = []
+        for l_name, level in self.layer_stack.layers.items():
+            if layer_name in str(level.layer):
+                derived_layers.append(l_name)
+
+        return derived_layers
+
+
+
+
+        # return ("core",)
+        # return tuple(
+        #     k for k, v in self.layer_stack.layers.items() if port.layer in v.layer
+        # )
 
     def get_layer_bbox(
         self, layername: str
