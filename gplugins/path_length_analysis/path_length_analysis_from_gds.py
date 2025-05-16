@@ -244,7 +244,7 @@ def centerline_single_poly_2_ports(poly, under_sampling, port_list) -> np.ndarra
 
 
 def extract_paths(
-    component: gf.Component | kf.Instance,
+    component: gf.Component | kf.DInstance,
     layer: tuple[int, int] = (1, 0),
     plot: bool = False,
     filter_function: Callable | None = None,
@@ -317,7 +317,7 @@ def extract_paths(
         layer
     ]
 
-    paths = dict()
+    paths: dict[str, gf.Path] = dict()
 
     if len(polys) == 1:
         # Single polygon - we need to act differently depending on the number
@@ -348,11 +348,11 @@ def extract_paths(
             # Unfortunately klayout does not have an easy way to split, so
             # we will use shapely to do it and then go back to klayout
 
-            y_val = (simplified_component.dymax + simplified_component.dymin) / 2
+            y_val = (simplified_component.ymax + simplified_component.ymin) / 2
             slice = sh.LineString(
                 [
-                    [simplified_component.dxmin, y_val],
-                    [simplified_component.dxmax, y_val],
+                    [simplified_component.xmin, y_val],
+                    [simplified_component.xmax, y_val],
                 ]
             )
 
@@ -373,16 +373,18 @@ def extract_paths(
     if len(polys) > 1:
         # Multiple polygons - iterate through each one
 
-        all_ports = []
+        all_ports: list[gf.Port] = []
 
         for poly in polys:
             # Need to check how many ports does that specific polygon contain
-            ports_poly = []
 
-            for port in ports_list:
-                if poly.sized(0.005).inside(DPoint(port.center[0], port.center[1])):
-                    ports_poly.append(port)  # noqa: PERF401
-
+            ports_poly = [
+                port
+                for port in ports_list
+                if poly.sized(0.005).inside(
+                    DPoint(port.center[0], port.center[1]).to_itype(component.kcl.dbu)
+                )
+            ]
             if len(ports_poly) == 2:
                 # Each polygon has two ports - simple case
                 centerline = centerline_single_poly_2_ports(

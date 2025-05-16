@@ -108,8 +108,8 @@ class LayeredComponentBase(BaseModel):
     def ports(self) -> tuple[gf.Port, ...]:
         p = tuple(
             p.copy_polar(
-                p.kcl.to_dbu(self.extend_ports + self.pad_xy_inner - self.port_offset),
-                angle=p.angle,
+                self.extend_ports + self.pad_xy_inner - self.port_offset,
+                orientation=p.orientation,
             )
             for p in self.component.ports
         )
@@ -248,14 +248,3 @@ class LayeredComponentBase(BaseModel):
     def get_layer_center(self, layername: str) -> tuple[float, float, float]:
         bbox = self.get_layer_bbox(layername)
         return tuple(np.mean(bbox, axis=0))
-
-    def get_vertices(self, layer_name: str, buffer: float = 0.0):
-        poly = self.polygons[layer_name].buffer(buffer, join_style="mitre")
-        match poly:
-            case MultiPolygon():
-                verts = tuple(tuple(p.exterior.coords) for p in poly.geoms)
-            case Polygon():
-                verts = (tuple(poly.exterior.coords),)
-            case _:
-                raise TypeError(f"Invalid polygon type: {type(poly)}")
-        return verts

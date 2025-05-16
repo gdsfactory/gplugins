@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import OrderedDict
+from typing import Any
 
 import gdsfactory as gf
 import numpy as np
@@ -77,9 +78,9 @@ def xy_xsection_mesh(
     gmsh_version: float | None = None,
     interface_delimiter: str = "___",
     layer_port_delimiter: str | None = None,
-    background_remeshing_file=None,
+    background_remeshing_file: str | None = None,
     optimization_flags: tuple[tuple[str, int]] | None = None,
-    **kwargs,
+    **kwargs: Any,
 ):
     """Mesh xy cross-section of component at height z.
 
@@ -90,20 +91,25 @@ def xy_xsection_mesh(
         layer_physical_map: map layer names to physical names
         layer_meshbool_map: map layer names to mesh_bool (True: mesh the prisms, False: don't mesh)
         resolutions (Dict): Pairs {"layername": {"resolution": float, "distance": "float}} to roughly control mesh refinement
-        mesh_scaling_factor (float): factor multiply mesh geometry by
-        default_resolution_min (float): gmsh minimal edge length
-        default_resolution_max (float): gmsh maximal edge length
+        default_characteristic_length: default characteristic length for the mesh
         background_tag (str): name of the background layer to add (default: no background added)
         background_padding (Tuple): [xleft, ydown, xright, yup] distances to add to the components and to fill with background_tag
         background_mesh_order (int, float): mesh order to assign to the background
+        global_scaling: scaling factor for the mesh
+        global_scaling_premesh: scaling factor for the mesh before meshing
+        global_2D_algorithm: gmsh 2D algorithm to use
         filename (str, path): where to save the .msh file
-        global_meshsize_array: np array [x,y,z,lc] to parametrize the mesh
-        global_meshsize_interpolant_func: interpolating function for global_meshsize_array
-        extra_shapes_dict: Optional[OrderedDict] = OrderedDict of {key: geo} with key a label and geo a shapely (Multi)Polygon or (Multi)LineString of extra shapes to override component
+        verbosity: verbosity level for gmsh
         round_tol: during gds --> mesh conversion cleanup, number of decimal points at which to round the gdsfactory/shapely points before introducing to gmsh
         simplify_tol: during gds --> mesh conversion cleanup, shapely "simplify" tolerance (make it so all points are at least separated by this amount)
-        atol: tolerance used to establish equivalency between vertices
+        n_threads: number of threads to use for mesh generation
+        port_names: list of port names to mesh
+        gmsh_version: gmsh version to use
+        interface_delimiter: delimiter to use for new layers generated for interfaces: "layer{interface_delimiter}interface_name".
         layer_port_delimiter: Delimiter to use for new layers generated for ports: "layer{delimiter}port_name".
+        background_remeshing_file: filename to load background remeshing from.
+        optimization_flags: flags for Model.mesh
+        kwargs: kwargs for Model.mesh
     """
     if port_names:
         mesh_component = gf.Component()

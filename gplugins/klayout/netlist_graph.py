@@ -2,11 +2,13 @@ import itertools
 from collections.abc import Callable
 from pathlib import Path
 from tempfile import NamedTemporaryFile
+from typing import Any
 
 import klayout.db as kdb
 import networkx as nx
 from gdsfactory import logger
 from gdsfactory.typings import PathType
+from klayout.db import NetlistSpiceReaderDelegate
 
 import gplugins.vlsir
 from gplugins.klayout.netlist_spice_reader import (
@@ -108,9 +110,9 @@ def networkx_from_spice(
     filepath: PathType,
     include_labels: bool = True,
     top_cell: str | None = None,
-    spice_reader: type[NetlistSpiceReaderDelegateWithStrings]
-    | NetlistSpiceReaderDelegateWithStrings = GdsfactorySpiceReader,
-    **kwargs,
+    spice_reader: type[NetlistSpiceReaderDelegate]
+    | NetlistSpiceReaderDelegate = GdsfactorySpiceReader,
+    **kwargs: Any,
 ) -> nx.Graph:
     """Returns a networkx Graph from a SPICE netlist file or KLayout LayoutToNetlist.
 
@@ -120,6 +122,7 @@ def networkx_from_spice(
         include_labels: Whether to include labels in the graph connected to corresponding cells.
         top_cell: The name of the top cell to consider for the NetworkX graph. Defaults to all top cells.
         spice_reader: The KLayout Spice reader to use for parsing SPICE netlists.
+        kwargs: kwargs for spice_reader
     """
     spice_reader_instance = None
     match Path(filepath).suffix:

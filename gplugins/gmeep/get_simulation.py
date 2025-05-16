@@ -144,8 +144,8 @@ def get_simulation(
 
     dummy_component = gf.Component()
     component_ref = dummy_component << component
-    component_ref.dx = 0
-    component_ref.dy = 0
+    component_ref.x = 0
+    component_ref.y = 0
 
     wavelength = (wavelength_start + wavelength_stop) / 2
 
@@ -158,9 +158,9 @@ def get_simulation(
         port_source_name = port_source.name
         warnings.warn(f"Selecting port_source_name={port_source_name!r} instead.")
 
-    assert isinstance(
-        component, Component
-    ), f"component needs to be a gf.Component, got Type {type(component)}"
+    assert isinstance(component, Component), (
+        f"component needs to be a gf.Component, got Type {type(component)}"
+    )
 
     component_extended = (
         gf.c.extend_ports(
@@ -195,8 +195,8 @@ def get_simulation(
     cell_thickness = tpml + zmargin_bot + t_core + zmargin_top + tpml if is_3d else 0
 
     cell_size = mp.Vector3(
-        component.dxsize + 2 * tpml,
-        component.dysize + 2 * tpml,
+        component.xsize + 2 * tpml,
+        component.ysize + 2 * tpml,
         cell_thickness,
     )
 

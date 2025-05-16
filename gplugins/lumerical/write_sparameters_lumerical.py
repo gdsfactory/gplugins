@@ -197,10 +197,9 @@ def write_sparameters_lumerical(
             suffix `a` for angle in radians and `m` for module.
 
     """
-    component = gf.get_component(component)
-    sim_settings = dict(simulation_settings)
-
     layer_stack = layer_stack or get_layer_stack()
+    component = component
+    sim_settings = dict(simulation_settings)
 
     layer_to_thickness = layer_stack.get_layer_to_thickness()
     layer_to_zmin = layer_stack.get_layer_to_zmin()
@@ -262,25 +261,34 @@ def write_sparameters_lumerical(
         print(run_false_warning)
 
     logger.info(f"Writing Sparameters to {filepath_npz.absolute()!r}")
-    x_min = (component_extended.dxmin - xmargin) * 1e-6
-    x_max = (component_extended.dxmax + xmargin) * 1e-6
-    y_min = (component_extended.dymin - ymargin) * 1e-6
-    y_max = (component_extended.dymax + ymargin) * 1e-6
+    x_min = (component_extended.xmin - xmargin) * 1e-6
+    x_max = (component_extended.xmax + xmargin) * 1e-6
+    y_min = (component_extended.ymin - ymargin) * 1e-6
+    y_max = (component_extended.ymax + ymargin) * 1e-6
+
+    index_to_thickness = {}
+    index_to_zmin = {}
+    for level in layer_stack.layers.values():
+        if level.derived_layer is None:
+            index_to_thickness[level.layer.layer] = level.thickness
+            index_to_zmin[level.layer.layer] = level.thickness
+        else:
+            index_to_thickness[level.derived_layer.layer] = level.zmin
+            index_to_zmin[level.derived_layer.layer] = level.zmin
 
     layers_thickness = [
-        layer_to_thickness[layer]
+        index_to_thickness[gf.get_layer(layer)]
         for layer in component_with_booleans.layers
-        if layer in layer_to_thickness
+        if gf.get_layer(layer) in index_to_thickness
     ]
     if not layers_thickness:
         raise ValueError(
-            f"no layers for component {component.layers}"
-            f"in layer stack {layer_stack}"
+            f"no layers for component {component.layers}in layer stack {layer_stack}"
         )
     layers_zmin = [
-        layer_to_zmin[layer]
+        index_to_zmin[gf.get_layer(layer)]
         for layer in component_with_booleans.layers
-        if layer in layer_to_zmin
+        if gf.get_layer(layer) in index_to_zmin
     ]
     component_thickness = max(layers_thickness)
     component_zmin = min(layers_zmin)
@@ -300,7 +308,7 @@ def write_sparameters_lumerical(
     )
 
     logger.info(
-        f"Simulation size = {x_span*1e6:.3f}, {y_span*1e6:.3f}, {z_span*1e6:.3f} um"
+        f"Simulation size = {x_span * 1e6:.3f}, {y_span * 1e6:.3f}, {z_span * 1e6:.3f} um"
     )
 
     # from pprint import pprint
@@ -393,9 +401,9 @@ def write_sparameters_lumerical(
         zspan = 2 * ss.port_margin + thickness
 
         s.addport()
-        p = f"FDTD::ports::port {i+1}"
-        s.setnamed(p, "x", port.dx * 1e-6)
-        s.setnamed(p, "y", port.dy * 1e-6)
+        p = f"FDTD::ports::port {i + 1}"
+        s.setnamed(p, "x", port.x * 1e-6)
+        s.setnamed(p, "y", port.y * 1e-6)
         s.setnamed(p, "z", z * 1e-6)
         s.setnamed(p, "z span", zspan * 1e-6)
         s.setnamed(p, "frequency dependent profile", ss.frequency_dependent_profile)

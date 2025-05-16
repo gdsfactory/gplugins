@@ -1,7 +1,7 @@
-# type: ignore
 from __future__ import annotations
 
 from collections.abc import Sequence
+from typing import Any
 
 import gdsfactory as gf
 import numpy as np
@@ -206,12 +206,12 @@ def uz_xsection_mesh(
     component: ComponentOrReference,
     xsection_bounds: tuple[tuple[float, float], tuple[float, float]],
     layer_stack: LayerStack,
-    layer_physical_map: dict,
-    layer_meshbool_map: dict,
-    resolutions: dict | None = None,
+    layer_physical_map: dict[str, Any],
+    layer_meshbool_map: dict[str, Any],
+    resolutions: dict[str, Any] | None = None,
     default_characteristic_length: float = 0.5,
     background_tag: str | None = None,
-    background_padding: Sequence[float, float, float, float, float, float] = (2.0,) * 6,
+    background_padding: Sequence[float] = (2.0,) * 6,
     background_mesh_order: int | float = 2**63 - 1,
     global_scaling: float = 1,
     global_scaling_premesh: float = 1,
@@ -225,9 +225,9 @@ def uz_xsection_mesh(
     n_threads: int = get_number_of_cores(),
     gmsh_version: float | None = None,
     interface_delimiter: str = "___",
-    background_remeshing_file=None,
+    background_remeshing_file: str | None = None,
     optimization_flags: tuple[tuple[str, int]] | None = None,
-    **kwargs,
+    **kwargs: Any,
 ):
     """Mesh uz cross-section of component along line u = [[x1,y1] , [x2,y2]].
 

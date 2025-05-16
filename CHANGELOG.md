@@ -1,13 +1,47 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.2.2...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.3.0...main)
 
 <!-- towncrier release notes start -->
 
-## [1.2.3](https://github.com/gdsfactory/gplugins/releases/tag/v1.2.3) - 2024-12-25
+## [1.3.4](https://github.com/gdsfactory/gplugins/releases/tag/v1.3.4) - 2025-05-14
 
 No significant changes.
 
+
+## [1.3.3](https://github.com/gdsfactory/gplugins/releases/tag/v1.3.3) - 2025-04-13
+
+No significant changes.
+
+
+## [1.3.2](https://github.com/gdsfactory/gplugins/releases/tag/v1.3.2) - 2025-03-26
+
+No significant changes.
+
+
+## [1.3.1](https://github.com/gdsfactory/gplugins/releases/tag/v1.3.1) - 2025-03-25
+
+No significant changes.
+
+
+## [1.3.0](https://github.com/gdsfactory/gplugins/releases/tag/v1.3.0) - 2025-02-20
+
+- GDSFactory 9 [#549](https://github.com/gdsfactory/gplugins/pull/549)
+- remove broken code from docs [#545](https://github.com/gdsfactory/gplugins/pull/545)
+- remove dagster plugin [#550](https://github.com/gdsfactory/gplugins/pull/550)
+- GDSFactory 9 [#549](https://github.com/gdsfactory/gplugins/pull/549)
+- Update meow-sim requirement from ~=0.11.0 to >=0.11,<0.13 [#546](https://github.com/gdsfactory/gplugins/pull/546)
+
+## [1.2.4](https://github.com/gdsfactory/gplugins/releases/tag/v1.2.4) - 2025-01-11
+
+- Fix ruff [#535](https://github.com/gdsfactory/gplugins/pull/535)
+- fix tidy3d cache [#534](https://github.com/gdsfactory/gplugins/pull/534)
+- fix flatten [#529](https://github.com/gdsfactory/gplugins/pull/529)
+- Fix X SPICE element parsing for Calibre-style model names [#528](https://github.com/gdsfactory/gplugins/pull/528)
+
+## [1.2.3](https://github.com/gdsfactory/gplugins/releases/tag/v1.2.3) - 2024-12-25
+
+- fix grating couplers in tidy3d [#522](https://github.com/gdsfactory/gplugins/pull/522)
 
 ## [1.2.2](https://github.com/gdsfactory/gplugins/releases/tag/v1.2.2) - 2024-12-20
 

@@ -18,8 +18,7 @@ def check_exclusion(
     min_projection: None = None,
     max_projection: None = None,
 ) -> int:
-    """Reads layer from top cell and returns a the area that violates min \
-    exclusion if 0 no area violates exclusion.
+    """Reads layer from top cell and returns a the area that violates min exclusion if 0 no area violates exclusion.
 
     Args:
         gdspath: path to GDS.
@@ -38,7 +37,7 @@ def check_exclusion(
         gdspath = gf.import_gds(gdspath)
 
     layout = gdspath.kcl
-    cell = gdspath._kdb_cell
+    cell = gdspath.kdb_cell
     a = pya.Region(cell.begin_shapes_rec(layout.layer(layer1[0], layer1[1])))
     b = pya.Region(cell.begin_shapes_rec(layout.layer(layer2[0], layer2[1])))
 
@@ -71,8 +70,8 @@ if __name__ == "__main__":
     c = gf.Component()
     r1 = c << gf.components.rectangle(size=(w, w), layer=(1, 0))
     r2 = c << gf.components.rectangle(size=(w, w), layer=(2, 0))
-    r1.dxmax = 0
-    r2.dxmin = space
+    r1.xmax = 0
+    r2.xmin = space
     gdspath = c
     gf.show(gdspath)
     print(check_exclusion(c))

@@ -10,7 +10,7 @@ from gplugins.klayout.plot_nets import plot_nets
 
 
 @pytest.fixture(scope="session")
-def klayout_netlist(tmpdir_factory) -> str:
+def klayout_netlist(tmpdir_factory: pytest.TempdirFactory) -> str:
     """Get KLayout netlist file for `pads_correct`. Cached for session scope."""
     tmp_path = tmpdir_factory.mktemp("data")
     c = pads_correct()
@@ -22,7 +22,7 @@ def klayout_netlist(tmpdir_factory) -> str:
 
 
 @pytest.fixture(scope="session")
-def spice_netlist(tmpdir_factory) -> str:
+def spice_netlist(tmpdir_factory: pytest.TempdirFactory) -> str:
     """Get SPICE netlist file for `pads_correct`. Cached for session scope."""
     tmp_path = tmpdir_factory.mktemp("data")
     c = pads_correct()
@@ -42,10 +42,10 @@ def spice_netlist(tmpdir_factory) -> str:
     "nodes_to_reduce", [None, {"straight"}, {"straight", "bend_euler"}]
 )
 def test_plot_nets(
-    klayout_netlist,
-    interactive,
-    include_labels,
-    nodes_to_reduce,
+    klayout_netlist: str,
+    interactive: bool,
+    include_labels: bool,
+    nodes_to_reduce: list[str] | None,
 ) -> None:
     plot_nets(
         klayout_netlist,
@@ -58,5 +58,5 @@ def test_plot_nets(
         assert Path("connectivity.html").exists()
 
 
-def test_plot_nets_spice(spice_netlist) -> None:
+def test_plot_nets_spice(spice_netlist: str) -> None:
     plot_nets(spice_netlist)

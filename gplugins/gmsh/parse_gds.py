@@ -30,14 +30,16 @@ def fuse_polygons(component, layer, round_tol=4, simplify_tol=1e-4, offset_tol=N
     # TODO: do all polygon processing in KLayout at the gplugins level for speed
     shapely_polygons = []
     for klayout_polygon in layer_region.each_merged():
-        exterior_points = []
+        exterior_points = [
+            (point.x / 1000, point.y / 1000)
+            for point in klayout_polygon.each_point_hull()
+        ]
         interior_points = []
-        for point in klayout_polygon.each_point_hull():
-            exterior_points.append((point.x / 1000, point.y / 1000))
         for hole_index in range(klayout_polygon.holes()):
-            holes_points = []
-            for point in klayout_polygon.each_point_hole(hole_index):
-                holes_points.append((point.x / 1000, point.y / 1000))
+            holes_points = [
+                (point.x / 1000, point.y / 1000)
+                for point in klayout_polygon.each_point_hole(hole_index)
+            ]
             interior_points.append(holes_points)
 
         shapely_polygons.append(

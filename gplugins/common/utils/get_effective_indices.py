@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal, cast
 
 import numpy as np
+import numpy.typing as npt
 from scipy.optimize import fsolve
 
 
@@ -19,9 +20,9 @@ def get_effective_indices(
     """Returns the effective refractive indices for a 1D mode.
 
     Args:
-        epsilon_core: Relative permittivity of the film.
-        epsilon_substrate: Relative permittivity of the substrate.
-        epsilon_cladding: Relative permittivity of the cladding.
+        core_material: Refractive index of the core material.
+        nsubstrate: Refractive index of the substrate.
+        clad_materialding: Refractive index of the cladding.
         thickness: Thickness of the film in um.
         wavelength: Wavelength in um.
         polarization: Either "te" or "tm".
@@ -66,18 +67,20 @@ def get_effective_indices(
 
     k_0 = 2 * np.pi / wavelength
 
-    def k_f(e_eff):
+    def k_f(e_eff: npt.NDArray[np.floating[Any]]) -> npt.NDArray[np.floating[Any]]:
         return k_0 * np.sqrt(epsilon_core - e_eff) / (epsilon_core if tm else 1)
 
-    def k_s(e_eff):
+    def k_s(e_eff: npt.NDArray[np.floating[Any]]) -> npt.NDArray[np.floating[Any]]:
         return (
             k_0 * np.sqrt(e_eff - epsilon_substrate) / (epsilon_substrate if tm else 1)
         )
 
-    def k_c(e_eff):
+    def k_c(e_eff: npt.NDArray[np.floating[Any]]) -> npt.NDArray[np.floating[Any]]:
         return k_0 * np.sqrt(e_eff - epsilon_cladding) / (epsilon_cladding if tm else 1)
 
-    def objective(e_eff):
+    def objective(
+        e_eff: npt.NDArray[np.floating[Any]],
+    ) -> npt.NDArray[np.floating[Any]]:
         return 1 / np.tan(k_f(e_eff) * thickness) - (
             k_f(e_eff) ** 2 - k_s(e_eff) * k_c(e_eff)
         ) / (k_f(e_eff) * (k_s(e_eff) + k_c(e_eff)))
@@ -92,14 +95,14 @@ def get_effective_indices(
         return []
 
     # and then use fsolve to get exact indices
-    indices_temp = fsolve(objective, indices_temp)
+    indices_temp = cast(npt.NDArray[np.floating[Any]], fsolve(objective, indices_temp))
 
-    indices = []
+    indices: list[float] = []
     for index in indices_temp:
         if not any(np.isclose(index, i, atol=1e-5) for i in indices):
             indices.append(index)
 
-    return np.sqrt(indices).tolist()
+    return cast(list[float], np.sqrt(indices).tolist())
 
 
 def test_effective_index() -> None:

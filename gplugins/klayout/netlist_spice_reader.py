@@ -44,17 +44,31 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
 
     n_nodes: int = 0
     calibre_location_pattern: str = r"\$X=(-?\d+) \$Y=(-?\d+)"
-    integer_to_string_map: MutableMapping[int, str] = {}
+
+    def __init__(self) -> None:
+        """Calibre Spice reader."""
+        super().__init__()
+        self._integer_to_string_map: MutableMapping[int, str] = {}
+
+    @property
+    def integer_to_string_map(self) -> MutableMapping[int, str]:
+        return self._integer_to_string_map
+
+    @integer_to_string_map.setter
+    def integer_to_string_map(self, value: MutableMapping[int, str]) -> None:
+        self._integer_to_string_map = value
 
     @override
-    def wants_subcircuit(self, name: str):
+    def wants_subcircuit(self, name: str) -> bool:
         """Model all SPICE models that start with `WG` as devices in order to support parameters."""
         return "WG" in name or super().wants_subcircuit(name)
 
     @override
     def parse_element(self, s: str, element: str) -> kdb.ParseElementData:
         # Allow Calibre-style model name given as `$[model_name]` by removing the brackets
-        s = re.sub(r"\$\[([^\]]+)\]", r"\1", s)
+        # This is used for resistors and capacitors
+        if element != "X":
+            s = re.sub(r"\$\[([^\]]+)\]", r"\1", s)
 
         x_value, y_value = None, None
         if "$" in s:
@@ -91,7 +105,7 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
         value: Any,
         nets: Sequence[kdb.Net],
         parameters: dict[str, int | float | str],
-    ):
+    ) -> bool:
         # Handle non-'X' elements with standard KLayout processing
         if element != "X":
             # Other devices with standard KLayout
@@ -131,6 +145,8 @@ class CalibreSpiceReader(NetlistSpiceReaderDelegateWithStrings):
                 ),
             )
 
+        return True
+
 
 class GdsfactorySpiceReader(CalibreSpiceReader):
     """KLayout Spice reader for Gdsfactory-extracted KLayout LayoutToNetlist.
@@ -145,6 +161,12 @@ class GdsfactorySpiceReader(CalibreSpiceReader):
         components_as_subcircuits: Sequence[str] | None = None,
         components_as_devices: Sequence[str] | None = None,
     ) -> None:
+        """Gdsfactory Spice reader.
+
+        Args:
+            components_as_subcircuits: components to not treat as their own devices but look into the internal subcircuits
+            components_as_devices: components to treat as their own devices
+        """
         super().__init__()
         # Define default components to not treat as their own devices but look into the internal subcircuits
         self.components_as_subcircuits = [
@@ -155,7 +177,7 @@ class GdsfactorySpiceReader(CalibreSpiceReader):
         ]
 
     @override
-    def wants_subcircuit(self, name: str):
+    def wants_subcircuit(self, name: str) -> bool:
         """Model all basic gdsfactory components as devices in order to support parameters."""
         return all(
             cell not in name.casefold() for cell in self.components_as_subcircuits

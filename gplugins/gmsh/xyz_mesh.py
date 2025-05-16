@@ -26,10 +26,10 @@ from gplugins.gmsh.parse_gds import cleanup_component
 
 
 def define_edgeport(
-    port,
-    port_dict,
-    model,
-    layerlevel,
+    port: gf.Port,
+    port_dict: dict[str, Any],
+    model: Model,
+    layerlevel: LayerLevel,
 ):
     """Creates an unmeshed box at the port location to tag the edge port surfaces in the final mesh."""
     zmin = port_dict.get("zmin") or layerlevel.zmin
@@ -73,12 +73,12 @@ def define_edgeport(
 
 
 def define_prisms(
-    layer_polygons_dict: dict,
+    layer_polygons_dict: dict[str, Any],
     layer_stack: LayerStack,
-    layer_physical_map: dict,
-    layer_meshbool_map: dict,
+    layer_physical_map: dict[str, Any],
+    layer_meshbool_map: dict[str, Any],
     model: Any,
-    resolutions: dict,
+    resolutions: dict[str, Any] | None = None,
     scale_factor: float = 1,
 ):
     """Define meshwell prism dimtags from gdsfactory information.
@@ -92,7 +92,7 @@ def define_prisms(
         resolutions: Pairs {"layername": {"resolution": float, "distance": "float}} to roughly control mesh refinement..
         scale_factor: scaling factor to apply to the polygons (default: 1).
     """
-    prisms_list = []
+    prisms_list: list[Prism] = []
     buffered_layer_stack = bufferize(layer_stack)
 
     if resolutions is None:
@@ -102,14 +102,19 @@ def define_prisms(
         if layer_polygons_dict[layername].is_empty:
             continue
 
-        coords = np.array(buffered_layer_stack.layers[layername].z_to_bias[0])
+        layer_ = buffered_layer_stack.layers[layername]
+
+        z_to_bias = layer_.z_to_bias
+
+        if z_to_bias is None:
+            continue
+
+        coords = np.array(z_to_bias[0])
         zs = (
             coords * buffered_layer_stack.layers[layername].thickness * scale_factor
             + buffered_layer_stack.layers[layername].zmin * scale_factor
         )
-        buffers = (
-            np.array(buffered_layer_stack.layers[layername].z_to_bias[1]) * scale_factor
-        )
+        buffers = np.array(z_to_bias[1]) * scale_factor
 
         buffer_dict = dict(zip(zs, buffers))
 
@@ -137,9 +142,9 @@ def define_prisms(
 def xyz_mesh(
     component: ComponentOrReference,
     layer_stack: LayerStack,
-    layer_physical_map: dict,
-    layer_meshbool_map: dict,
-    resolutions: dict | None = None,
+    layer_physical_map: dict[str, Any],
+    layer_meshbool_map: dict[str, Any],
+    resolutions: dict[str, Any] | None = None,
     default_characteristic_length: float = 0.5,
     background_tag: str | None = None,
     background_padding: tuple[float, float, float, float, float, float] = (2.0,) * 6,

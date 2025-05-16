@@ -25,8 +25,8 @@ def gap_min(gap: float = 0.1) -> Component:
     c = gf.Component()
     r1 = c << gf.components.rectangle(size=(1, 1), layer=layer)
     r2 = c << gf.components.rectangle(size=(1, 1), layer=layer)
-    r1.dxmax = 0
-    r2.dxmin = gap
+    r1.xmax = 0
+    r2.xmin = gap
     return c
 
 
@@ -37,8 +37,8 @@ def separation(
     c = gf.Component()
     r1 = c << gf.components.rectangle(size=(1, 1), layer=layer1)
     r2 = c << gf.components.rectangle(size=(1, 1), layer=layer2)
-    r1.dxmax = 0
-    r2.dxmin = gap
+    r1.xmax = 0
+    r2.xmin = gap
     return c
 
 
@@ -46,8 +46,7 @@ def separation(
 def enclosing(
     enclosing: float = 0.1, layer1: Layer = (40, 0), layer2: Layer = (41, 0)
 ) -> Component:
-    """Layer1 must be enclosed by layer2 by value.
-    checks if layer1 encloses (is bigger than) layer2 by value.
+    """Layer1 must be enclosed by layer2 by value, checks if layer1 encloses (is bigger than) layer2 by value.
 
     Args:
         enclosing: value to enclose layer1 by layer2.
@@ -69,8 +68,8 @@ def snapping_error(gap: float = 1e-3) -> Component:
     c = gf.Component()
     r1 = c << gf.components.rectangle(size=(1, 1), layer=layer)
     r2 = c << gf.components.rectangle(size=(1, 1), layer=layer)
-    r1.dxmax = 0
-    r2.dxmin = gap
+    r1.xmax = 0
+    r2.xmin = gap
     return c
 
 

@@ -15,31 +15,21 @@ jobs:
     name: Sphinx docs to gh-pages
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Mambaforge
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-            miniforge-version: latest
-            activate-environment: env
-            use-mamba: true
-            python-version: "3.11"
-      - name: Add conda to system path
+      - uses: astral-sh/setup-uv@v5
+      - name: Install libglu1-mesa
         run: |
-          echo $CONDA/bin >> $GITHUB_PATH
-      - name: Install dependencies
-        run: |
-          sudo apt update
           sudo apt-get install -y libglu1-mesa
       - name: Build docs
         env:
           SIMCLOUD_APIKEY: ${{ secrets.SIMCLOUD_APIKEY }}
         run: |
-          make uv
           make install test-data
           uv run jb build docs
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: "./docs/_build/html/"
+
   deploy-docs:
     needs: build-docs
     if: ${{ github.ref == 'refs/heads/main' }}
