@@ -19,7 +19,7 @@ from gdsfactory.component import Component
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.serialization import clean_value_json
 from gdsfactory.technology import LayerStack
-from gdsfactory.typings import ComponentSpec, PathType, Port, PortSymmetries
+from gdsfactory.typings import ComponentSpec, PathType, Port, PortSymmetries, LayerSpec
 from tqdm.auto import tqdm
 
 from gplugins.common.utils import port_symmetries
@@ -151,6 +151,7 @@ def write_sparameters_meep(
     plot_args: dict | None = None,
     only_return_filepath_sim_settings=False,
     verbosity: int = 0,
+    padding_layers: tuple[LayerSpec, ...] = ("PADDING",),
     **settings,
 ) -> dict[str, np.ndarray]:
     r"""Returns Sparameters and writes them to npz filepath.
@@ -340,6 +341,7 @@ def write_sparameters_meep(
 
     component = gf.add_padding_container(
         component,
+        layers=padding_layers,
         default=0,
         top=ymargin_top,
         bottom=ymargin_bot,
