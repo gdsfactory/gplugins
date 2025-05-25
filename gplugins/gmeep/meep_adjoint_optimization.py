@@ -189,7 +189,7 @@ def run_meep_adjoint_optimizer(
     cost_function: LambdaType,
     update_variable: np.ndarray,
     maximize_cost_function: bool = True,
-    algorithm: str = "LD_MMA",
+    algorithm_name: str = "LD_MMA",
     lower_bound: Any = 0,
     upper_bound: Any = 1,
     maxeval: int = 10,
@@ -204,7 +204,7 @@ def run_meep_adjoint_optimizer(
         cost_function: cost function to optimize.
         update_variable: variable to update the optimization with.
         maximize_cost_function: if True, maximize the cost function, else minimize it.
-        algorithm: nlopt algorithm to use (default: nlopt.LD_MMA).
+        algorithm_name: nlopt algorithm to use (default: nlopt.LD_MMA).
         lower_bound: lower bound for the optimization.
         upper_bound: upper bound for the optimization.
         maxeval: maximum number of evaluations.
@@ -220,7 +220,7 @@ def run_meep_adjoint_optimizer(
     """
     import nlopt
 
-    algorithm = getattr(nlopt, algorithm)
+    algorithm = getattr(nlopt, algorithm_name)
     solver = nlopt.opt(algorithm, number_of_params)
     solver.set_lower_bounds(lower_bound)
     solver.set_upper_bounds(upper_bound)
