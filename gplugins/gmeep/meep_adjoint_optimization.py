@@ -5,7 +5,6 @@ from types import LambdaType
 from typing import Any
 
 import gdsfactory as gf
-import nlopt
 import numpy as np
 from gdsfactory import Component
 from gdsfactory.technology import LayerStack
@@ -190,7 +189,7 @@ def run_meep_adjoint_optimizer(
     cost_function: LambdaType,
     update_variable: np.ndarray,
     maximize_cost_function: bool = True,
-    algorithm: int = nlopt.LD_MMA,
+    algorithm: str = "LD_MMA",
     lower_bound: Any = 0,
     upper_bound: Any = 1,
     maxeval: int = 10,
@@ -219,6 +218,9 @@ def run_meep_adjoint_optimizer(
         threshold_offset_from_max: threshold offset from max eps value.
         layer: layer to apply to the optimized component.
     """
+    import nlopt
+
+    algorithm = getattr(nlopt, algorithm)
     solver = nlopt.opt(algorithm, number_of_params)
     solver.set_lower_bounds(lower_bound)
     solver.set_upper_bounds(upper_bound)
