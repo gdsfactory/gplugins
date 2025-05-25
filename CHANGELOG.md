@@ -6,22 +6,17 @@
 
 ## [1.3.4](https://github.com/gdsfactory/gplugins/releases/tag/v1.3.4) - 2025-05-14
 
-No significant changes.
-
+- Fix meep [#587](https://github.com/gdsfactory/gplugins/pull/587)
+- add padding_layers to write_sparameters_meep, meep geometry fix, get_port_layers fix in base_models [#584](https://github.com/gdsfactory/gplugins/pull/584)
+- simpler flow [#570](https://github.com/gdsfactory/gplugins/pull/570)
+- removing gdstk dependencies anywhere other than the tidy3d module [#583](https://github.com/gdsfactory/gplugins/pull/583)
 
 ## [1.3.3](https://github.com/gdsfactory/gplugins/releases/tag/v1.3.3) - 2025-04-13
 
-No significant changes.
-
-
-## [1.3.2](https://github.com/gdsfactory/gplugins/releases/tag/v1.3.2) - 2025-03-26
-
-No significant changes.
-
-
-## [1.3.1](https://github.com/gdsfactory/gplugins/releases/tag/v1.3.1) - 2025-03-25
-
-No significant changes.
+- Fix tidy3d holes and update tidy3d [#567](https://github.com/gdsfactory/gplugins/pull/567)
+- Fix mypy [#568](https://github.com/gdsfactory/gplugins/pull/568)
+- [pre-commit.ci] pre-commit autoupdate [#563](https://github.com/gdsfactory/gplugins/pull/563)
+- update meow [#569](https://github.com/gdsfactory/gplugins/pull/569)
 
 
 ## [1.3.0](https://github.com/gdsfactory/gplugins/releases/tag/v1.3.0) - 2025-02-20
@@ -383,8 +378,8 @@ No significant changes.
 
 - move klayout/dataprep from gdsfactory into gplugins/klayout. Add tests.
 - improve tidy3d plugin
-    - Enable sidewall angles in FDTD simulations
-    - improve tidy3d mode solver and tests [PR](https://github.com/gdsfactory/gplugins/pull/25)
+- Enable sidewall angles in FDTD simulations
+- improve tidy3d mode solver and tests [PR](https://github.com/gdsfactory/gplugins/pull/25)
 
 ## [0.1.0](https://github.com/gdsfactory/gplugins/compare/v0.0.3...v0.1.0)
 
