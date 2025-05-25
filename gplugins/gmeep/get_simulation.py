@@ -170,12 +170,8 @@ def get_simulation(
         else component
     )
 
-    component_extended.show()
-    # component_extended.flatten()
-
-    # geometry_center = [component_extended.x, component_extended.y]
-    # geometry_center = [0, 0]
-    # print(geometry_center)
+    component_extended = component_extended.copy()
+    component_extended.flatten()
 
     layers_thickness = [
         layer_to_thickness[layer]
