@@ -65,7 +65,8 @@ sax = [
 ]
 schematic = ["bokeh", "ipywidgets", "natsort"]
 tidy3d = [
-  "tidy3d>=2.8.2,<2.9"
+  "tidy3d>=2.8.2,<2.9",
+  "gdstk"
 ]
 vlsir = ["vlsir", "vlsirtools"]
 
