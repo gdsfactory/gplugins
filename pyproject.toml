@@ -64,7 +64,10 @@ sax = [
   "sax>=0.13.1,<0.15.0"
 ]
 schematic = ["bokeh", "ipywidgets", "natsort"]
-tidy3d = ["tidy3d>=2.8.2,<2.9"]
+tidy3d = [
+  "tidy3d>=2.8.2,<2.9",
+  "meshio"
+]
 vlsir = ["vlsir", "vlsirtools"]
 
 [tool.codespell]
