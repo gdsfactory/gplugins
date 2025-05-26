@@ -36,7 +36,7 @@ dev = [
   "pyswarms"
 ]
 devsim = ["devsim", "pyvista<=0.43.8", "tidy3d>=2.8.2,<2.9"]
-docs = ["jupytext", "matplotlib", "jupyter-book~=1.0", "pyvista[all]<=0.43.8", "bokeh"]
+docs = ["jupytext", "matplotlib", "jupyter-book~=1.0", "pyvista[all]<=0.43.8", "bokeh", "scikit-learn"]
 femwell = ["femwell~=0.1.11", "meshwell~=1.0.7"]
 gfviz = ["jinja2", "fastapi", "shapely", "natsort"]
 gmsh = [
@@ -61,16 +61,13 @@ meow = [
   "tidy3d>=2.8.2,<2.9"
 ]
 sax = [
-  "jax>=0.4.26",
-  "jaxlib>=0.4.26",
-  "flax>=0.8.2",
-  "sax>=0.13.1,<0.15.0",
-  "scikit-learn",
-  "pyvis<=0.3.1",
-  "ray"
+  "sax>=0.13.1,<0.15.0"
 ]
 schematic = ["bokeh", "ipywidgets", "natsort"]
-tidy3d = ["tidy3d>=2.8.2,<2.9", "meshio", "numpy", "meshwell~=1.0.7", "gdstk"]
+tidy3d = [
+  "tidy3d>=2.8.2,<2.9",
+  "gdstk"
+]
 vlsir = ["vlsir", "vlsirtools"]
 
 [tool.codespell]
