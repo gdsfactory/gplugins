@@ -2,6 +2,7 @@ from functools import cached_property
 from hashlib import md5
 from typing import TypeAlias
 
+import shapely
 import gdsfactory as gf
 import numpy as np
 from gdsfactory.component import Component
@@ -15,13 +16,75 @@ from pydantic import (
 )
 from shapely import MultiPolygon, Polygon
 
-from gplugins.gmsh.parse_gds import cleanup_component
 
 from ..types import AnyShapelyPolygon, GFComponent
 
 from gdsfactory.pdk import get_layer_stack, get_layer, get_layer_name
 
 Coordinate: TypeAlias = tuple[float, float]
+
+
+def round_coordinates(geom, ndigits=4):
+    """Round coordinates to n_digits to eliminate floating point errors."""
+
+    def _round_coords(x, y, z=None):
+        x = round(x, ndigits)
+        y = round(y, ndigits)
+
+        if z is not None:
+            z = round(x, ndigits)
+
+        return [c for c in (x, y, z) if c is not None]
+
+    return shapely.ops.transform(_round_coords, geom)
+
+
+def fuse_polygons(component, layer, round_tol=4, simplify_tol=1e-4, offset_tol=None):
+    """Take all polygons from a layer, and returns a single (Multi)Polygon shapely object."""
+    layer_region = layer.get_shapes(component)
+
+    # Convert polygons to shapely
+    # TODO: do all polygon processing in KLayout at the gplugins level for speed
+    shapely_polygons = []
+    for klayout_polygon in layer_region.each_merged():
+        exterior_points = [
+            (point.x / 1000, point.y / 1000)
+            for point in klayout_polygon.each_point_hull()
+        ]
+        interior_points = []
+        for hole_index in range(klayout_polygon.holes()):
+            holes_points = [
+                (point.x / 1000, point.y / 1000)
+                for point in klayout_polygon.each_point_hole(hole_index)
+            ]
+            interior_points.append(holes_points)
+
+        shapely_polygons.append(
+            round_coordinates(
+                shapely.geometry.Polygon(shell=exterior_points, holes=interior_points),
+                round_tol,
+            )
+        )
+
+    return shapely.ops.unary_union(shapely_polygons).simplify(
+        simplify_tol, preserve_topology=False
+    )
+
+
+def cleanup_component(component, layer_stack, round_tol=2, simplify_tol=1e-2):
+    """Process component polygons before meshing."""
+    layer_stack_dict = layer_stack.to_dict()
+
+    return {
+        layername: fuse_polygons(
+            component,
+            layer["layer"],
+            round_tol=round_tol,
+            simplify_tol=simplify_tol,
+        )
+        for layername, layer in layer_stack_dict.items()
+        if layer["layer"] is not None
+    }
 
 
 def move_polar_rad_copy(
@@ -233,9 +296,6 @@ class LayeredComponentBase(BaseModel):
                 derived_layers.append(l_name)
 
         return derived_layers
-
-
-
 
         # return ("core",)
         # return tuple(
