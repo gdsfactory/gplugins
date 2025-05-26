@@ -36,7 +36,7 @@ dev = [
   "pyswarms"
 ]
 devsim = ["devsim", "pyvista<=0.43.8", "tidy3d>=2.8.2,<2.9"]
-docs = ["jupytext", "matplotlib", "jupyter-book~=1.0", "pyvista[all]<=0.43.8", "bokeh"]
+docs = ["jupytext", "matplotlib", "jupyter-book~=1.0", "pyvista[all]<=0.43.8", "bokeh", "scikit-learn"]
 femwell = ["femwell~=0.1.11", "meshwell~=1.0.7"]
 gfviz = ["jinja2", "fastapi", "shapely", "natsort"]
 gmsh = [
