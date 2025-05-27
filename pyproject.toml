@@ -69,6 +69,7 @@ tidy3d = [
   "gdstk"
 ]
 vlsir = ["vlsir", "vlsirtools"]
+emode = ["emodeconnection"]
 
 [tool.codespell]
 ignore-words-list = 'te, te/tm, te, ba, fpr, fpr_spacing, ro, nd, donot, schem, Ue'
