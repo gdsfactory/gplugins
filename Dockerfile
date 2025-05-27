@@ -43,7 +43,8 @@ COPY . .
 
 # Install the rest of your requirements
 RUN uv pip install -e ".[dev,docs,femwell,gmsh,meow,sax,tidy3d,klayout,vlsir]"
-RUN uv pip install uvicorn
+
+USER non-root
 
 # Set the default command
-CMD ["uvicorn", "gplugins.server:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["bash"]
