@@ -604,8 +604,8 @@ settings_write_sparameters_meep = set(sig.parameters.keys()).union(
 )
 
 if __name__ == "__main__":
-    wavelength_start = 1.26
-    wavelength_stop = 1.36
+    wavelength_start = 1.5
+    wavelength_stop = 1.6
     sim_settings = dict(
         wavelength_start=wavelength_start, wavelength_stop=wavelength_stop
     )
@@ -620,8 +620,9 @@ if __name__ == "__main__":
     sp = write_sparameters_meep(
         c,
         run=True,
-        animate=True,
+        #animate=True,
         is_3d=False,
+        ymargin=3,
         plot_args={
             "eps_parameters": {"contour": True},
             "field_parameters": {
