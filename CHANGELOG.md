@@ -1,23 +1,21 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.3.0...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.3.7...main)
 
 <!-- towncrier release notes start -->
 
 ## [1.3.7](https://github.com/gdsfactory/gplugins/releases/tag/v1.3.7) - 2025-05-30
 
-No significant changes.
-
+- improve meep plugin and add tests [#592](https://github.com/gdsfactory/gplugins/pull/592)
 
 ## [1.3.6](https://github.com/gdsfactory/gplugins/releases/tag/v1.3.6) - 2025-05-26
 
-No significant changes.
-
+- remove meshwell dep from tidy3d plugin for easier arm installation [#589](https://github.com/gdsfactory/gplugins/pull/589)
 
 ## [1.3.5](https://github.com/gdsfactory/gplugins/releases/tag/v1.3.5) - 2025-05-25
 
-No significant changes.
-
+- Fix meep [#587](https://github.com/gdsfactory/gplugins/pull/587)
+- add padding_layers to write_sparameters_meep, meep geometry fix, get_port_layers fix in base_models [#584](https://github.com/gdsfactory/gplugins/pull/584)
 
 ## [1.3.4](https://github.com/gdsfactory/gplugins/releases/tag/v1.3.4) - 2025-05-14
 
