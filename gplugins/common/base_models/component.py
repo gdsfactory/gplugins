@@ -290,6 +290,9 @@ class LayeredComponentBase(BaseModel):
     def get_port_layers(self, port: gf.Port) -> tuple[str, ...]:
         layer_name = get_layer_name(port.layer)
 
+        if "_intent" in layer_name:
+            layer_name = layer_name.replace("_intent", "")
+
         derived_layers = []
         for l_name, level in self.layer_stack.layers.items():
             if layer_name in str(level.layer):
