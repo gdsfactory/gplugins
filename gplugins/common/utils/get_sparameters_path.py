@@ -31,8 +31,7 @@ def _get_sparameters_path(
     dirpath: PathType | None = PATH.sparameters,
     **kwargs,
 ) -> Path:
-    """Return Sparameters npz filepath hashing simulation settings for \
-            a consistent unique name.
+    """Return Sparameters npz filepath hashing simulation settings for a consistent unique name.
 
     Args:
         component: component or component factory.
@@ -47,7 +46,7 @@ def _get_sparameters_path(
 
     dirpath = pathlib.Path(dirpath)
     dirpath = (
-        dirpath / component.function_name
+        dirpath / component.name
         if hasattr(component, "function_name")
         else dirpath
     )
