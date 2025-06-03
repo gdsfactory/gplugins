@@ -1,7 +1,6 @@
 import emodeconnection as emc
 from gdsfactory import CrossSection
 from gdsfactory.technology import LayerStack
-import numbers
 
 
 class EMode(emc.EMode):
