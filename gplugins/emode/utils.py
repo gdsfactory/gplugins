@@ -2,7 +2,6 @@ import emodeconnection as emc
 from gdsfactory import CrossSection
 from gdsfactory.technology import LayerStack
 
-
 class EMode(emc.EMode):
     def build_waveguide(
         self,
@@ -17,7 +16,7 @@ class EMode(emc.EMode):
             layer_stack: A GDSFactory LayerStack object defining the material layers.
             **kwargs: Additional keyword arguments to be passed directly to EMode's settings() function.
         """
-        nm = 1e-3 # convert microns to nanometers
+        nm = 1e3 # convert microns to nanometers
         dim_keys = [
             'wavelength',
             'x_resolution',
@@ -34,33 +33,30 @@ class EMode(emc.EMode):
         kwargs = {key: (value * nm if key in dim_keys else value) for key, value in kwargs.items()}
         self.settings(**kwargs)
 
+        # Get a list of EMode materials for cleaning GDSFactory material names
+        emode_materials = self.get('materials')
+
         # Process layer_stack to create EMode shapes
+        max_order = max([info.mesh_order for name, info in layer_stack.layers.items()])
+        min_zmin = min([info.zmin for name, info in layer_stack.layers.items()])
+
         for layer_name, layer_info in layer_stack.layers.items():
+
+            material = next(
+                (mat for mat in emode_materials if mat.lower() == layer_info.material.lower()),
+                layer_info.material
+            )
+
             shape_info = {
                 'name': layer_name,
-                'refractive_index': layer_info.material,
+                'refractive_index': material,
                 'height': layer_info.thickness * nm,
-                'width': layer_info.width_to_z * nm,
+                'mask': layer_info.width_to_z * nm,
                 'sidewall_angle': layer_info.sidewall_angle,
+                'etch_depth': layer_info.thickness * nm if layer_info.width_to_z > 0 else 0,
+                'position': [0.0, (layer_info.zmin - min_zmin + layer_info.thickness/2) * nm],
+                'priority': max_order - layer_info.mesh_order + 1,
             }
-            # material = layer_info.material
-            # thickness = layer_info.thickness
-            # z_min = layer_info.zmin
-            # layer=((WG - DEEP_ETCH) - SHALLOW_ETCH)
-            # derived_layer=WG
-            # thickness=0.22
-            # thickness_tolerance=None
-            # width_tolerance=None
-            # zmin=0.0
-            # zmin_tolerance=None
-            # sidewall_angle=10.0
-            # sidewall_angle_tolerance=None
-            # width_to_z=0.5
-            # z_to_bias=None
-            # bias=None
-            # mesh_order=2
-            # material='si'
-            # info={}
 
             # Find a matching CrossSection for this layer
             xsection_ind = [k for k, s in enumerate(cross_section.sections) if str(layer_info.layer) == str(s.layer) or str(layer_info.derived_layer) == str(s.layer)]
@@ -68,13 +64,8 @@ class EMode(emc.EMode):
             # Apply settings from the matching CrossSection
             if len(xsection_ind) > 0:
                 xsection = cross_section.sections[xsection_ind[0]]
-                shape_info['width'] = xsection.width * nm
-                shape_info['position'] = xsection.offset * nm
-
-            # cross_section.sections[0]
-            # Section(width=0.6, offset=0.0, insets=None, layer='WG', port_names=('o1', 'o2'), port_types=('optical', 'optical'), name='_default', hidden=False, simplify=None, width_function=None, offset_function=None)
-            # cross_section.sections[1]
-            # Section(width=6.6, offset=0.0, insets=None, layer='SLAB90', port_names=(None, None), port_types=('optical', 'optical'), name='cladding_0', hidden=False, simplify=0.05, width_function=None, offset_function=None)
+                shape_info['mask'] = xsection.width * nm
+                shape_info['mask_offset'] = xsection.offset * nm
 
             self.shape(**shape_info)
 

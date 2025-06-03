@@ -18,17 +18,22 @@ layer_stack = LayerStack(
     }
 )
 
-layer_stack.layers[
-    "core"
-].thickness = 0.22
+layer_stack.layers["core"].thickness = 0.22
+layer_stack.layers["core"].zmin = 0
 
-layer_stack.layers[
-    "slab90"
-].thickness = 0.09
+layer_stack.layers["slab90"].thickness = 0.09
+layer_stack.layers["slab90"].zmin = 0
+
+layer_stack.layers["box"].thickness = 1.5
+layer_stack.layers["box"].zmin = -1.5
+
+layer_stack.layers["clad"].thickness = 1.5
+layer_stack.layers["clad"].zmin = 0
 
 ## Connect and initialize EMode
 em = emc.EMode()
 
+## build_waveguide converts units to nanometers, which EMode's default
 modes = em.build_waveguide(
     cross_section=rib(width=0.6),
     layer_stack=layer_stack,
@@ -36,27 +41,11 @@ modes = em.build_waveguide(
     num_modes=1,
     x_resolution=0.010,
     y_resolution=0.010,
-    window_width = w_core + w_trench*2,
-    window_height = h_core + h_clad*2,
+    window_width = 3.0,
+    window_height = 3.0,
     background_refractive_index='Air',
     max_effective_index=2.631,
 )
-
-em.plot()
-
-em.close()
-
-quit()
-
-## Settings
-em.settings(
-    wavelength = wavelength, x_resolution = dx, y_resolution = dy,
-    window_width = w_core + w_trench*2, window_height = h_core + h_clad*2,
-    num_modes = num_modes, background_refractive_index = 'Air')
-
-## Draw shapes
-em.shape(name = 'BOX', refractive_index = 'SiO2', height = h_clad)
-em.shape(name = 'core', refractive_index = 'Si', width = w_core, height = h_core)
 
 ## Launch FDM solver
 em.FDM()
