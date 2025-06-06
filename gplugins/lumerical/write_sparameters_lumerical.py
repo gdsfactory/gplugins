@@ -140,6 +140,7 @@ def write_sparameters_lumerical(
         ymargin_top: top distance from component to PML.
         ymargin_bot: bottom distance from component to PML.
         zmargin: thickness for cladding above and below core.
+        settings: additional simulation settings to overwrite
 
     Keyword Args:
         background_material: for the background.
