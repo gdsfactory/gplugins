@@ -388,7 +388,6 @@ def write_sparameters_lumerical(
         simulation_time=ss.simulation_time,
         simulation_temperature=ss.simulation_temperature,
     )
-    component_layers = component_with_booleans.layers
 
     exclude_layers = exclude_layers or []
     polygons_per_layer = component_extended_beyond_pml.get_polygons_points(merge=True)
@@ -417,7 +416,6 @@ def write_sparameters_lumerical(
             continue
 
         zmin = level.zmin
-        zmin_um = layer_to_zmin[layer]
 
         if zmin is not None:
             thickness = level.thickness
