@@ -281,8 +281,11 @@ def write_sparameters_lumerical(
             assert level.derived_layer is not None
             assert isinstance(level.derived_layer.layer, tuple | LayerEnum)
             layer_tuple = cast(tuple[int, int], tuple(level.derived_layer.layer))
+        elif isinstance(layer, tuple):
+            # Handle plain tuple layers directly
+            layer_tuple = cast(tuple[int, int], layer)
         else:
-            raise ValueError(f"Layer {layer!r} is not a DerivedLayer or LogicalLayer")
+            raise ValueError(f"Layer {layer!r} is not a DerivedLayer, LogicalLayer, or tuple")
 
         layer_index = int(gf.get_layer(layer_tuple))
 
