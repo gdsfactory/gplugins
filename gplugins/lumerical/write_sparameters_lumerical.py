@@ -443,9 +443,9 @@ def write_sparameters_lumerical(
             )
 
     for i, port in enumerate(ports):
-        port_layer_tuple = gf.get_layer_tuple(port.layer)
-        zmin = layer_to_zmin[port_layer_tuple]
-        thickness = layer_to_thickness[port_layer_tuple]
+        port_layer_index = gf.get_layer(port.layer)
+        zmin = index_to_zmin[port_layer_index]
+        thickness = index_to_thickness[port_layer_index]
         z = (zmin + thickness) / 2
         zspan = 2 * ss.port_margin + thickness
 
