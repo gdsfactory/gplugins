@@ -1,13 +1,12 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.3.7...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.3.8...main)
 
 <!-- towncrier release notes start -->
 
 ## [1.3.8](https://github.com/gdsfactory/gplugins/releases/tag/v1.3.8) - 2025-06-06
 
-No significant changes.
-
+- Fix lumerical extension [#594](https://github.com/gdsfactory/gplugins/pull/594)
 
 ## [1.3.7](https://github.com/gdsfactory/gplugins/releases/tag/v1.3.7) - 2025-05-30
 
