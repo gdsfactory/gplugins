@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import shutil
 import time
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import gdsfactory as gf
 import numpy as np
@@ -17,6 +17,8 @@ from gdsfactory.generic_tech.simulation_settings import (
 )
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
+from gdsfactory.technology.layer_stack import DerivedLayer, LogicalLayer
+from gdsfactory.typings import LayerEnum
 
 from gplugins.common.utils.get_sparameters_path import (
     get_sparameters_path_lumerical as get_sparameters_path,
@@ -270,12 +272,22 @@ def write_sparameters_lumerical(
     index_to_thickness = {}
     index_to_zmin = {}
     for level in layer_stack.layers.values():
-        if level.derived_layer is None:
-            index_to_thickness[level.layer.layer] = level.thickness
-            index_to_zmin[level.layer.layer] = level.thickness
+        layer = level.layer
+
+        if isinstance(layer, LogicalLayer):
+            assert isinstance(layer.layer, tuple | LayerEnum)
+            layer_tuple = cast(tuple[int, int], tuple(layer.layer))
+        elif isinstance(layer, DerivedLayer):
+            assert level.derived_layer is not None
+            assert isinstance(level.derived_layer.layer, tuple | LayerEnum)
+            layer_tuple = cast(tuple[int, int], tuple(level.derived_layer.layer))
         else:
-            index_to_thickness[level.derived_layer.layer] = level.zmin
-            index_to_zmin[level.derived_layer.layer] = level.zmin
+            raise ValueError(f"Layer {layer!r} is not a DerivedLayer or LogicalLayer")
+
+        layer_index = int(gf.get_layer(layer_tuple))
+
+        index_to_thickness[layer_index] = level.thickness
+        index_to_zmin[layer_index] = level.zmin
 
     layers_thickness = [
         index_to_thickness[gf.get_layer(layer)]
