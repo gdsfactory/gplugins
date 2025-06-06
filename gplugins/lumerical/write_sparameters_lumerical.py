@@ -374,6 +374,9 @@ def write_sparameters_lumerical(
         name="clad",
     )
 
+    # Set cladding opacity
+    s.setnamed("clad", "alpha", 0.1)
+
     material_name_to_lumerical_new = material_name_to_lumerical or {}
     material_name_to_lumerical = ss.material_name_to_lumerical.copy()
     material_name_to_lumerical.update(**material_name_to_lumerical_new)
