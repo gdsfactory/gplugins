@@ -44,7 +44,7 @@ pip install "gdsfactory[full]" --upgrade
 or
 
 ```bash
-pip install "gplugins[devsim,femwell,gmsh,schematic,meow,meshwell,ray,sax,tidy3d]" --upgrade
+pip install "gplugins[devsim,femwell,gmsh,schematic,meow,meshwell,sax,tidy3d]" --upgrade
 ```
 
 Or install only the plugins you need. For example:
