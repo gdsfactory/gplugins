@@ -245,6 +245,9 @@ def write_sparameters_lumerical(
     component_extended_beyond_pml = gf.components.extension.extend_ports(
         component=component_extended, length=ss.port_extension
     )
+    component_extended_beyond_pml = component_extended_beyond_pml.copy()
+    component_extended_beyond_pml.flatten()
+
     gdspath = component_extended_beyond_pml.write_gds()
 
     filepath_npz = get_sparameters_path(
@@ -387,7 +390,7 @@ def write_sparameters_lumerical(
     component_layers = component_with_booleans.layers
 
     exclude_layers = exclude_layers or []
-    polygons_per_layer = component.get_polygons_points(merge=True)
+    polygons_per_layer = component_extended_beyond_pml.get_polygons_points(merge=True)
 
     for level in layer_stack.layers.values():
         layer = level.layer
