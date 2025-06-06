@@ -1,11 +1,13 @@
+from __future__ import annotations
+
 import uuid
 from typing import Any
 
 import gdsfactory as gf
 import kfactory as kf
+import klayout.db as kdb
 from gdsfactory.component import GDSDIR_TEMP
 from gdsfactory.typings import PathType
-from kfactory import kdb
 
 
 def size(region: kdb.Region, offset: float, dbu=1e3) -> kdb.Region:
@@ -24,7 +26,7 @@ def copy(region: kdb.Region) -> kdb.Region:
     return region.dup()
 
 
-def _is_layer(value: any) -> bool:
+def _is_layer(value: Any) -> bool:
     try:
         layer, datatype = value
     except Exception:
@@ -32,21 +34,21 @@ def _is_layer(value: any) -> bool:
     return isinstance(layer, int) and isinstance(datatype, int)
 
 
-def _assert_is_layer(value: any) -> None:
+def _assert_is_layer(value: Any) -> None:
     if not _is_layer(value):
         raise ValueError(f"Layer must be a tuple of two integers. Got {value!r}")
 
 
 class Region(kdb.Region):
-    def __iadd__(self, offset) -> kdb.Region:
+    def __iadd__(self, offset: float | int) -> Region:
         """Adds an offset to the layer."""
         return size(self, offset)
 
-    def __isub__(self, offset) -> kdb.Region:
+    def __isub__(self, offset: float | int) -> Region:
         """Adds an offset to the layer."""
         return size(self, -offset)
 
-    def __add__(self, element) -> kdb.Region:
+    def __add__(self, element: float | int | kdb.Region) -> Region:
         """Adds an element to the region."""
         if isinstance(element, float | int):
             return size(self, element)
@@ -56,15 +58,17 @@ class Region(kdb.Region):
         else:
             raise ValueError(f"Cannot add type {type(element)} to region")
 
-    def __sub__(self, element: float | int | kdb.Region) -> kdb.Region | None:
+    def __sub__(self, element: float | int | kdb.Region) -> Region:
         """Subtracts an element from the region."""
         if isinstance(element, float | int):
             return size(self, -element)
 
         elif isinstance(element, kdb.Region):
             return boolean_not(self, element)
+        else:
+            raise ValueError(f"Cannot subtract type {type(element)} from region")
 
-    def copy(self) -> kdb.Region:
+    def copy(self) -> Region:
         return self.dup()
 
 

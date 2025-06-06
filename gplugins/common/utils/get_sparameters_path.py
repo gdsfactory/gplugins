@@ -70,7 +70,8 @@ def _get_sparameters_data(**kwargs: Any) -> np.ndarray[Any, Any]:
 
     """
     filepath = _get_sparameters_path(**kwargs)
-    return np.load(filepath)
+    data = np.load(filepath)
+    return np.array(data)
 
 
 get_sparameters_path_meow = partial(_get_sparameters_path, tool="meow")
