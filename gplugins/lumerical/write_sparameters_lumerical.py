@@ -434,14 +434,12 @@ def write_sparameters_lumerical(
             zmax = zmin + thickness
             z = (zmax + zmin) / 2
 
-            s.gdsimport(str(gdspath), "top", f"{layer[0]}:{layer[1]}")
+            s.gdsimport(str(gdspath), "top", f"{layer_tuple[0]}:{layer_tuple[1]}")
             layername = f"GDS_LAYER_{layer[0]}:{layer[1]}"
             s.setnamed(layername, "z", z * 1e-6)
             s.setnamed(layername, "z span", thickness * 1e-6)
             set_material(session=s, structure=layername, material=material)
-            logger.info(
-                f"adding {layer}, thickness = {thickness} um, zmin = {zmin} um "
-            )
+            logger.info(f"adding {layer_tuple}, thickness = {thickness} um, zmin = {zmin} um ")
 
     for i, port in enumerate(ports):
         zmin = layer_to_zmin[port.layer]
