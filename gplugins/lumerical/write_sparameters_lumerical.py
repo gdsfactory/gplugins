@@ -383,6 +383,8 @@ def write_sparameters_lumerical(
     component_layers = component_with_booleans.layers
 
     for layer, thickness in layer_to_thickness.items():
+        layer = gf.get_layer_tuple(layer)
+
         if layer not in component_layers:
             continue
 
