@@ -247,6 +247,7 @@ def write_sparameters_lumerical(
     )
     component_extended_beyond_pml = component_extended_beyond_pml.copy()
     component_extended_beyond_pml.flatten()
+    component_extended_beyond_pml.name = 'top'
 
     gdspath = component_extended_beyond_pml.write_gds()
 
