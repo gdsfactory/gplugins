@@ -87,10 +87,10 @@ def write_sparameters_lumerical(
     delete_fsp_files: bool = True,
     xmargin: float = 0,
     ymargin: float = 3,
-    xmargin_left: float|None = None,
-    xmargin_right: float|None = None,
-    ymargin_top: float|None = None,
-    ymargin_bot: float|None = None,
+    xmargin_left: float | None = None,
+    xmargin_right: float | None = None,
+    ymargin_top: float | None = None,
+    ymargin_bot: float | None = None,
     zmargin: float = 1.0,
     exclude_layers: list[int] | None = None,
     **settings,
@@ -205,6 +205,7 @@ def write_sparameters_lumerical(
     layer_stack = layer_stack or get_layer_stack()
     component = component
     sim_settings = dict(simulation_settings)
+
 
     xmargin_left = xmargin_left or xmargin
     xmargin_right = xmargin_right or xmargin
