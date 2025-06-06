@@ -7,12 +7,12 @@ import jax.numpy as jnp
 import sax
 
 
-def straight(wl=1.5, length=10.0, neff=2.4) -> sax.SDict:
+def straight(wl: float = 1.5, length: float = 10.0, neff: float = 2.4) -> sax.SDict:
     """Straight model."""
     return sax.reciprocal({("o1", "o2"): jnp.exp(2j * jnp.pi * neff * length / wl)})
 
 
-def mmi1x2():
+def mmi1x2() -> sax.SDict:
     """Assumes a perfect 1x2 splitter."""
     return sax.reciprocal(
         {
@@ -22,7 +22,7 @@ def mmi1x2():
     )
 
 
-def bend_euler(wl=1.5, length=20.0):
+def bend_euler(wl: float = 1.5, length: float = 20.0) -> sax.SDict:
     """Assumes reduced transmission for the euler bend compared to a straight."""
     return {k: 0.99 * v for k, v in straight(wl=wl, length=length).items()}
 
@@ -34,9 +34,9 @@ models = {
 }
 
 
-def module(S) -> None:
+def module(S: sax.SDict) -> None:
     for k, v in S.items():
-        S[k] = np.abs(v) ** 2
+        S[k] = jnp.abs(v) ** 2
 
 
 if __name__ == "__main__":

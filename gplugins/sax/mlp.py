@@ -1,4 +1,8 @@
 # flake8: noqa
+from __future__ import annotations
+
+from typing import Callable
+
 import jax
 import jax.numpy as jnp
 import jax.random as jran
@@ -6,8 +10,8 @@ import numpy as np
 
 
 def mlp_regression(
-    input_vectors,
-    output_vectors,
+    input_vectors: jnp.ndarray,
+    output_vectors: jnp.ndarray,
     training_test_split: float = 0.8,
     num_layers: int = 3,
     num_neurons_per_layer: int = 5,
@@ -16,7 +20,7 @@ def mlp_regression(
     batch_size: int = 3,
     seed: int = 0,
     save: str = "weights",
-):
+) -> list[Callable[[jnp.ndarray], jnp.ndarray]]:
     """Fit multilayer perceptron inference model for vectors [self.num_inputs] --> [self.num_outputs].
     Regression task using SeLu activation on all hidden layers. Adapted from https://gist.github.com/aphearin/0da99f715906715e1d7d6b004c2dbb73.
     TODO:
@@ -50,7 +54,9 @@ def mlp_regression(
         output_vectors[test_idx],
     )
 
-    def feedforward_prediction(params, abscissa):
+    def feedforward_prediction(
+        params: list[tuple[jnp.ndarray, jnp.ndarray]], abscissa: jnp.ndarray
+    ) -> jnp.ndarray:
         """Each neuron is just the activation function applied to y = w*x + b, except for the final layer, when no activation function is used.
         Parameters
         ----------
@@ -76,7 +82,9 @@ def mlp_regression(
         final_outputs = jnp.dot(w_final, activations) + b_final
         return final_outputs  # Final layer is just w*x + b with no activation
 
-    def get_random_layer_params(m, n, ran_key, scale=0.01):
+    def get_random_layer_params(
+        m: int, n: int, ran_key: jax.random.PRNGKey, scale: float = 0.01
+    ) -> tuple[jnp.ndarray, jnp.ndarray]:
         """Helper function to randomly initialize.
         weights and biases using the JAX-defined randoms.
         """
@@ -85,7 +93,9 @@ def mlp_regression(
         ran_biases = scale * jran.normal(b_key, (n,))
         return ran_weights, ran_biases
 
-    def get_init_network_params(sizes, ran_key):
+    def get_init_network_params(
+        sizes: list[int], ran_key: jax.random.PRNGKey
+    ) -> list[tuple[jnp.ndarray, jnp.ndarray]]:
         """Initialize all layers for a fully-connected neural network."""
         keys = jran.split(ran_key, len(sizes))
         return [
@@ -93,7 +103,9 @@ def mlp_regression(
             for m, n, k in zip(sizes[:-1], sizes[1:], keys)
         ]
 
-    def get_network_layer_sizes(n_features, n_targets, n_layers, n_neurons_per_layer):
+    def get_network_layer_sizes(
+        n_features: int, n_targets: int, n_layers: int, n_neurons_per_layer: int
+    ) -> list[int]:
         dense_layer_sizes = [n_neurons_per_layer] * n_layers
         layer_sizes = [n_features, *dense_layer_sizes, n_targets]
         return layer_sizes
@@ -114,13 +126,22 @@ def mlp_regression(
     batched_prediction = jax.vmap(feedforward_prediction, in_axes=(None, 0))
 
     # @jax.jit
-    def mse_loss(params, abscissa, targets):
+    def mse_loss(
+        params: list[tuple[jnp.ndarray, jnp.ndarray]],
+        abscissa: jnp.ndarray,
+        targets: jnp.ndarray,
+    ) -> jnp.ndarray:
         preds = batched_prediction(params, abscissa)
         diff = preds - targets
         return jnp.sum(diff * diff) / preds.shape[0]
 
     # @jax.jit
-    def update(params, x, y, learning_rate):
+    def update(
+        params: list[tuple[jnp.ndarray, jnp.ndarray]],
+        x: jnp.ndarray,
+        y: jnp.ndarray,
+        learning_rate: float,
+    ) -> list[tuple[jnp.ndarray, jnp.ndarray]]:
         grads = jax.grad(mse_loss)(params, x, y)
         return [
             (w - learning_rate * dw, b - learning_rate * db)
