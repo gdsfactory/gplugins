@@ -86,11 +86,11 @@ def write_sparameters_lumerical(
     material_name_to_lumerical: dict[str, MaterialSpec] | None = None,
     delete_fsp_files: bool = True,
     xmargin: float = 0,
-    ymargin: float = 0,
-    xmargin_left: float = 0,
-    xmargin_right: float = 0,
-    ymargin_top: float = 0,
-    ymargin_bot: float = 0,
+    ymargin: float = 3,
+    xmargin_left: float|None = None,
+    xmargin_right: float|None = None,
+    ymargin_top: float|None = None,
+    ymargin_bot: float|None = None,
     zmargin: float = 1.0,
     exclude_layers: list[int] | None = None,
     **settings,
@@ -206,6 +206,11 @@ def write_sparameters_lumerical(
     component = component
     sim_settings = dict(simulation_settings)
 
+    xmargin_left = xmargin_left or xmargin
+    xmargin_right = xmargin_right or xmargin
+    ymargin_top = ymargin_top or ymargin
+    ymargin_bot = ymargin_bot or ymargin
+
     layer_to_thickness = layer_stack.get_layer_to_thickness()
     layer_to_zmin = layer_stack.get_layer_to_zmin()
     layer_to_material = layer_stack.get_layer_to_material()
@@ -228,10 +233,10 @@ def write_sparameters_lumerical(
     component_with_padding = gf.add_padding_container(
         component_with_booleans,
         default=0,
-        top=ymargin or ymargin_top,
-        bottom=ymargin or ymargin_bot,
-        left=xmargin or xmargin_left,
-        right=xmargin or xmargin_right,
+        top=ymargin_top,
+        bottom=ymargin_bot,
+        left=xmargin_left,
+        right=xmargin_right,
     )
 
     component_extended = gf.components.extend_ports(
