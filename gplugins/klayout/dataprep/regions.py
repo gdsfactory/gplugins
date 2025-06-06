@@ -10,7 +10,7 @@ from gdsfactory.component import GDSDIR_TEMP
 from gdsfactory.typings import PathType
 
 
-def size(region: kdb.Region, offset: float, dbu=1e3) -> kdb.Region:
+def size(region: kdb.Region, offset: float, dbu: float = 1e3) -> kdb.Region:
     return region.dup().size(int(offset * dbu))
 
 
