@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from functools import partial
+from typing import TypeAlias
 
 import tidy3d as td
 from tidy3d.components.medium import PoleResidue
@@ -12,7 +13,7 @@ material_name_to_tidy3d = {
     "sin": td.material_library["Si3N4"]["Luke2015PMLStable"],
 }
 
-MaterialSpecTidy3d = (
+MaterialSpecTidy3d: TypeAlias = (
     float
     | int
     | str
@@ -54,13 +55,13 @@ def get_index(
         spec=spec,
     )
     n, _ = td.Medium.eps_complex_to_nk(eps_complex)
-    return n
+    return float(n)
 
 
 def get_nk(
     spec: MaterialSpecTidy3d,
     wavelength: float = 1.55,
-) -> float:
+) -> tuple[float, float]:
     """Return refractive index and optical extinction coefficient from material database.
 
     Args:
@@ -85,11 +86,11 @@ def get_medium(spec: MaterialSpecTidy3d) -> td.Medium:
         return td.Medium(permittivity=spec**2)
     elif isinstance(spec, td.Medium | td.Medium2D | td.CustomMedium):
         return spec
-    elif spec in material_name_to_tidy3d:
+    elif isinstance(spec, str) and spec in material_name_to_tidy3d:
         return material_name_to_tidy3d[spec]
     elif isinstance(spec, PoleResidue):
         return spec
-    elif spec in td.material_library:
+    elif isinstance(spec, str) and spec in td.material_library:
         variants = td.material_library[spec].variants
         if len(variants) == 1:
             return list(variants.values())[0].medium
