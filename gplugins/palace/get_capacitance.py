@@ -71,7 +71,9 @@ def _generate_json(
         palace_json_data = json.load(fp)
 
     material_to_attributes_map = {
-        v["material"]: physical_name_to_dimtag_map[k][1] for k, v in bodies.items()
+        v["material"]: physical_name_to_dimtag_map[k][1]
+        for k, v in bodies.items()
+        if k in physical_name_to_dimtag_map
     }
 
     palace_json_data["Model"]["Mesh"] = f"{name}.msh"
@@ -261,16 +263,26 @@ def run_capacitive_simulation_palace(
     }
 
     # Signals are converted to Boundaries
-    ground_layers = {
-        next(k for k, v in layer_stack.layers.items() if v.layer == port.layer)
-        for port in component.get_ports()
-    }  # ports allowed only on metal
+    ground_layers = set()
+    for port in component.ports:
+        # Find layer stack layer that corresponds to this port layer
+        for layer_name, layer_info in layer_stack.layers.items():
+            # Check if the layer definition contains or matches the port layer
+            if hasattr(layer_info.layer, 'value') and layer_info.layer.value == port.layer:
+                ground_layers.add(layer_name)
+                break
+            elif str(layer_info.layer) == str(port.layer):
+                ground_layers.add(layer_name)
+                break
+            elif "WG" in str(layer_info.layer) and port.layer == 1:  # WG layer typically has value 1
+                ground_layers.add(layer_name)
+                break
     metal_surfaces = [
         e for e in mesh_surface_entities if any(ground in e for ground in ground_layers)
     ]
     # Group signal BCs by ports
     metal_signal_surfaces_grouped = [
-        [e for e in metal_surfaces if port in e] for port in component.ports
+        [e for e in metal_surfaces if port.name in e] for port in component.ports
     ]
     metal_ground_surfaces = set(metal_surfaces) - set(
         itertools.chain.from_iterable(metal_signal_surfaces_grouped)
@@ -318,3 +330,9 @@ def run_capacitive_simulation_palace(
     )
     temp_dir.cleanup()
     return results
+
+
+if __name__ == "__main__":
+    c = gf.components.interdigital_capacitor()
+    r = run_capacitive_simulation_palace(c)
+    print(r)
