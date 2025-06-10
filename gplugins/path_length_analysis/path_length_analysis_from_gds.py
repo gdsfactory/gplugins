@@ -11,7 +11,9 @@ import shapely.ops as ops
 from gdsfactory import logger
 from klayout.db import DPoint, Polygon
 from scipy.signal import savgol_filter
-from scipy.spatial import distance
+from scipy.spatial import Voronoi, distance
+
+from gplugins.path_length_analysis.utils import sort_points_nearest_neighbor
 
 filter_savgol_filter = partial(savgol_filter, window_length=11, polyorder=3, axis=0)
 fix_values = [0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6, 7, -7, 8, -8]
@@ -53,6 +55,48 @@ def _check_midpoint_found(inner_points, outer_points, port_list) -> bool:
         return False
     else:
         return False
+
+
+def centerline_voronoi_2_ports(
+    poly: Polygon, under_sampling: int = 1, port_list: list[gf.Port] | None = None
+) -> np.ndarray:
+    """Returns the centerline for a single polygon that has 2 ports.
+
+    We assume that the ports are at min_x and max_x respectively.
+    """
+    if port_list is None or len(port_list) != 2:
+        raise ValueError(
+            "port_list must be a list of 2 ports, got: "
+            f"{port_list} with length {len(port_list)}"
+        )
+    # Simplify points that are too close to each other
+    r = gf.kdb.Region(poly)
+    r = r.smoothed(0.05, True)
+
+    # Get polygon points from klayout DPolygon
+    points = [(pt.x, pt.y) for pt in r[0].each_point_hull()]
+
+    # Use Voronoi to find the centerline
+    voronoi = Voronoi(points)
+
+    # Filter Voronoi vertices to keep only those inside the original polygon
+    shapely_poly = sh.Polygon(points)
+    centerline = [v for v in voronoi.vertices if shapely_poly.contains(sh.Point(v))]
+
+    # Add ports as start and end points
+    centerline = np.vstack((port_list[0].dcenter, centerline, port_list[1].dcenter))
+
+    # The points are not guaranteed to be ordered, so we need to sort them
+    # Initially sort the centerline by euclidean distance from (0, 0)
+    centerline = centerline[np.argsort(np.linalg.norm(centerline, axis=1))]
+    centerline = sort_points_nearest_neighbor(centerline)
+    # Convert to microns
+    centerline *= 1e-3
+
+    # Apply undersampling if necessary
+    centerline = centerline[::under_sampling]
+
+    return centerline
 
 
 def centerline_single_poly_2_ports(poly, under_sampling, port_list) -> np.ndarray:
@@ -330,8 +374,10 @@ def extract_paths(
             if poly[0].is_box():  # only 4 points, no undersampling
                 centerline = centerline_single_poly_2_ports(poly, 1, ports_list)
             else:
-                centerline = centerline_single_poly_2_ports(
-                    poly, under_sampling, ports_list
+                centerline = centerline_voronoi_2_ports(
+                    poly,
+                    under_sampling,
+                    ports_list,
                 )
             if filter_function is not None:
                 centerline = filter_function(centerline)
