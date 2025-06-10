@@ -300,6 +300,7 @@ def run_scattering_simulation_palace(
     mesh_file: Path | str | None = None,
 ) -> DrivenFullWaveResults:
     """Run full-wave finite element method simulations using Palace.
+
     Returns the field solution and resulting scattering matrix.
 
     .. note:: You should have `palace` in your PATH.
@@ -500,3 +501,8 @@ def run_scattering_simulation_palace(
     )
     temp_dir.cleanup()
     return results
+
+if __name__ == "__main__":
+    c = gf.components.interdigital_capacitor()
+    r = run_scattering_simulation_palace(c)
+    print(r)
