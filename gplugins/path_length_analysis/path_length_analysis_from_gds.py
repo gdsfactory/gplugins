@@ -11,9 +11,13 @@ import shapely.ops as ops
 from gdsfactory import logger
 from klayout.db import DPoint, Polygon
 from scipy.signal import savgol_filter
-from scipy.spatial import Voronoi, distance
+from scipy.spatial import Voronoi, distance, voronoi_plot_2d
 
-from gplugins.path_length_analysis.utils import sort_points_nearest_neighbor
+from gplugins.path_length_analysis.utils import (
+    interpolate_polygon_points,
+    resample_polyline,
+    sort_points_nearest_neighbor,
+)
 
 filter_savgol_filter = partial(savgol_filter, window_length=11, polyorder=3, axis=0)
 fix_values = [0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6, 7, -7, 8, -8]
@@ -58,13 +62,27 @@ def _check_midpoint_found(inner_points, outer_points, port_list) -> bool:
 
 
 def centerline_voronoi_2_ports(
-    poly: Polygon, under_sampling: int = 1, port_list: list[gf.Port] | None = None
+    poly: Polygon,
+    port_list: list[gf.Port],
+    polygon_interpolation_resolution: int = 50,
+    centerline_resolution: int = 150,
+    plot: bool = False,
 ) -> np.ndarray:
     """Returns the centerline for a single polygon that has 2 ports.
 
-    We assume that the ports are at min_x and max_x respectively.
+    This function uses Voronoi tessellation to find the centerline of a polygon.
+
+    Args:
+        poly: The KLayout Polygon object representing the waveguide or structure.
+        port_list: List of two ports (gf.Port objects) corresponding to the start and end ports of the polygon.
+        polygon_interpolation_resolution: Minimum resolution for interpolating the polygon points.
+        centerline_resolution: Resolution for resampling the centerline.
+        plot: If True, plots the Voronoi diagram and the centerline.
+
+    Returns:
+        np.ndarray: An array of (x, y) points representing the calculated centerline in microns.
     """
-    if port_list is None or len(port_list) != 2:
+    if len(port_list) != 2:
         raise ValueError(
             "port_list must be a list of 2 ports, got: "
             f"{port_list} with length {len(port_list)}"
@@ -73,28 +91,62 @@ def centerline_voronoi_2_ports(
     r = gf.kdb.Region(poly)
     r = r.smoothed(0.05, True)
 
-    # Get polygon points from klayout DPolygon
+    # Get polygon points from klayout DPolygon and resample
     points = [(pt.x, pt.y) for pt in r[0].each_point_hull()]
+    if len(points) < 3:
+        raise ValueError(
+            "The polygon must have at least 3 points to compute a centerline."
+        )
+    shapely_poly_original = sh.Polygon(points)
+
+    # Infer port widths to be 2x the distance between the port center and the nearest point on the polygon
+    port_widths = []
+    for port in port_list:
+        # Compute distances from each point to port center
+        distances = distance.cdist([port.center], points)
+        # Find the minimum distance
+        min_distance = np.min(distances)
+        port_widths.append(min_distance * 2)
+
+    # Interpolate between the points to ensure enough sampling
+    points = interpolate_polygon_points(
+        points, min_resolution=polygon_interpolation_resolution
+    )  # Note these are in dbu
+
+    # Remove interpolated points that are too close to the ports
+    for port, width in zip(port_list, port_widths):
+        distances = distance.cdist([port.center], points)
+        # Keep points that are at least half a width away from the port center
+        mask = distances[0] >= width / 2
+        points = points[mask]
 
     # Use Voronoi to find the centerline
     voronoi = Voronoi(points)
 
+    if plot:
+        fig = voronoi_plot_2d(voronoi)
+        plt.gca().set_aspect("equal", adjustable="box")  # Force equilateral axes
+        plt.show()
+
     # Filter Voronoi vertices to keep only those inside the original polygon
-    shapely_poly = sh.Polygon(points)
-    centerline = [v for v in voronoi.vertices if shapely_poly.contains(sh.Point(v))]
+    centerline = [
+        v for v in voronoi.vertices if shapely_poly_original.contains(sh.Point(v))
+    ]
 
     # Add ports as start and end points
-    centerline = np.vstack((port_list[0].dcenter, centerline, port_list[1].dcenter))
+    centerline = np.vstack((port_list[0].center, centerline, port_list[1].center))
 
     # The points are not guaranteed to be ordered, so we need to sort them
     # Initially sort the centerline by euclidean distance from (0, 0)
     centerline = centerline[np.argsort(np.linalg.norm(centerline, axis=1))]
     centerline = sort_points_nearest_neighbor(centerline)
+    # Resample the centerline to have a specific resolution for more robust curvature post-processing
+    centerline = resample_polyline(centerline, resolution=centerline_resolution)
+    # Resort, this is inefficient but works for now
+    centerline = sort_points_nearest_neighbor(centerline)
+
     # Convert to microns
     centerline *= 1e-3
-
-    # Apply undersampling if necessary
-    centerline = centerline[::under_sampling]
 
     return centerline
 
@@ -306,7 +358,7 @@ def extract_paths(
         component: gdsfactory component or instance to extract from.
         layer: layer to extract the centerline from.
         plot: If True, we plot the extracted paths.
-        filter_function: optional Function to filter the centerline.
+        filter_function: optional function to filter the centerline.
         under_sampling: under sampling factor of the polygon points.
         evanescent_coupling: if True, it assumes that there is evanescent coupling
             between ports not physically connected.
@@ -376,13 +428,11 @@ def extract_paths(
             else:
                 centerline = centerline_voronoi_2_ports(
                     poly,
-                    under_sampling,
                     ports_list,
                 )
             if filter_function is not None:
                 centerline = filter_function(centerline)
-            p = gf.Path(centerline)
-            paths[f"{ports_list[0].name};{ports_list[1].name}"] = p
+            paths[f"{ports_list[0].name};{ports_list[1].name}"] = gf.Path(centerline)
 
         else:
             # Single polygon and more than 2 ports - MMI
@@ -436,8 +486,9 @@ def extract_paths(
                 )
                 if filter_function is not None:
                     centerline = filter_function(centerline)
-                p = gf.Path(centerline)
-                paths[f"{ports_poly[0].name};{ports_poly[1].name}"] = p
+                paths[f"{ports_poly[0].name};{ports_poly[1].name}"] = gf.Path(
+                    centerline
+                )
 
             elif len(ports_poly) == 0:
                 # No ports in the polygon - continue
@@ -467,11 +518,9 @@ def extract_paths(
                     if port1 == port2:
                         # Same port - skip
                         continue
-                    if (
-                        f"{port1};{port2}" in paths
-                        or f"{port2};{port1}" in paths
-                        or f"{port1};{port2}" in ev_paths
-                        or f"{port2};{port1}" in ev_paths
+                    if any(
+                        s in paths | ev_paths
+                        for s in (f"{port1};{port2}", f"{port2};{port1}")
                     ):
                         # The path has already been computed
                         continue
@@ -579,7 +628,7 @@ def extract_paths(
             plt.plot(
                 centerline.points[:, 0],
                 centerline.points[:, 1],
-                "--",
+                "x--",
                 label=ports,
             )
         plt.legend()
@@ -587,6 +636,7 @@ def extract_paths(
         plt.xlabel("X-coordinate")
         plt.ylabel("Y-coordinate")
         plt.grid(True)
+        plt.gca().set_aspect("equal", adjustable="box")  # Force equilateral axes
 
         if ev_paths is not None:
             plt.figure()
