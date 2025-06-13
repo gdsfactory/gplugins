@@ -685,8 +685,9 @@ def get_min_radius_and_length_path_dict(path_dict: dict) -> dict:
 def get_min_radius_and_length(path: gf.Path) -> tuple[float, float]:
     """Get the minimum radius of curvature and the length of a path."""
     _, K = path.curvature()
-    # Ignore the end points as these may have artifacts
-    K = K[1:-1]
+    # Ignore the end points if possible as these may have artifacts
+    if len(K) > 3:
+        K = K[1:-1]
     radius = 1 / K
     min_radius = np.nanmin(np.abs(radius))
     return min_radius, path.length()
