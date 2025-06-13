@@ -1,96 +1,85 @@
 import numpy as np
 import numpy.typing as npt
+from scipy.interpolate import PchipInterpolator, PPoly
+from scipy.interpolate._polyint import _Interpolator1D
+from scipy.signal import savgol_filter
 
 
-def interpolate_polygon_points(
-    points: list[tuple[int | float, int | float]] | npt.NDArray,
-    min_resolution: int | float = 100,
+def resample_polygon_points_w_interpolator(
+    points: npt.NDArray,
+    n_samples_coeff: float | int = 1,
+    interpolator: type[PPoly] | type[_Interpolator1D] = PchipInterpolator,
 ) -> npt.NDArray:
-    """Interpolates polygon points to ensure a minimum distance between consecutive points.
+    """Resample polygon points equidistantly using PCHIP interpolation.
 
-    This function keeps all original points and adds interpolated points where necessary
-    for minimum distance resolution. The returned points are not guaranteed to be equidistant.
+    Uses Piecewise Cubic Hermite Interpolating Polynomial because it preserves the shape (no overshoot).
 
     Args:
-        points: (N, 2) array of polygon points.
-        min_resolution: minimum allowed distance between consecutive points.
-
-    Returns:
-        (M, 2) array of interpolated points, where M >= N.
+        points: (N, 2) array of points representing the polygon.
+        n_samples_coeff: Coefficient to determine the number of samples. The number of samples will be
+            ``int(max(len(points), 5) * n_samples_coeff)``.
+        interpolator: SciPy :class:`Interpolator` to use for resampling. Defaults to PchipInterpolator.
     """
-    # Ensure points is a numpy array
-    points = np.asarray(points)
+    # Parameterize the points by cumulative distance
+    point_diffs = np.diff(points, axis=0)
+    distances = np.linalg.norm(point_diffs, axis=1)
+    cumulative_distance = np.insert(
+        np.cumsum(distances), 0, 0
+    )  # Insert 0 at the start for cumulative distance
+    total_length = cumulative_distance[-1]
+    # This is effectively arc-length parameterized
+    pchip_x = interpolator(cumulative_distance, points[:, 0])
+    pchip_y = interpolator(cumulative_distance, points[:, 1])
 
-    # Compute distances between consecutive points
-    diffs = np.diff(points, axis=0)
-    dists = np.linalg.norm(diffs, axis=1)
-
-    # For closed polygons, add the segment from last to first
-    is_closed = np.allclose(points[0], points[-1])
-    if is_closed:
-        diffs = np.vstack([diffs, points[0] - points[-1]])
-        dists = np.append(dists, np.linalg.norm(points[0] - points[-1]))
-
-    new_points = [points[0]]
-    for i in range(len(dists)):
-        n_segments = max(int(np.ceil(dists[i] / min_resolution)), 1)
-        for j in range(1, n_segments + 1):
-            interp_point = points[i] + (diffs[i] * j / n_segments)
-            # Only add interpolated points if not exactly at the next original point
-            if n_segments > 1 and j < n_segments:
-                new_points.append(interp_point)
-        # Always add the next original point
-        next_idx = (i + 1) % len(points) if is_closed else i + 1
-        if next_idx < len(points):
-            new_points.append(points[next_idx])
-    # For open polygons, ensure last point is included only once
-    if not is_closed and not np.allclose(new_points[-1], points[-1]):
-        new_points.append(points[-1])
-    # Remove possible duplicates (within tolerance)
-    new_points = np.array(new_points)
-    _, unique_indices = np.unique(
-        np.round(new_points, decimals=8), axis=0, return_index=True
+    # Interpolate the points with a higher resolution
+    number_of_original_samples = max(len(points), 5)  # Ensure at least 5 samples
+    arc_distance_samples = np.linspace(
+        0,
+        total_length,
+        int(number_of_original_samples * n_samples_coeff),
+        endpoint=True,
     )
-    new_points = new_points[np.sort(unique_indices)]
-    return new_points
+    interpolated_points = np.column_stack(
+        (pchip_x(arc_distance_samples), pchip_y(arc_distance_samples))
+    )
+    return interpolated_points
 
 
-def resample_polyline(
-    points: list[tuple[int | float, int | float]],
-    resolution: int | float,
-    min_points: int = 5,
+def smoothed_savgol_filter(
+    data: npt.NDArray, window_length: int = 11, polyorder: int = 3
 ) -> np.ndarray:
-    """Resample a polyline to have a specific resolution for points.
+    """Simple wrapper on SciPy Savitzky-Golay filter that handles data not long enough.
 
-    The resampled polyline will have points spaced as evenly as possible along the polyline,
-    but will not necessarily include the original points.
-
-    Args:
-        points (List[Tuple[float, float]]): List of (x, y) coordinates representing the polyline.
-        resolution (float): Desired distance between consecutive points in the resampled polyline.
-        min_points (int): Minimum number of points in the resampled polyline in case the resolution is too large.
-
-    Returns:
-        np.ndarray: Array of shape (num_points, 2) with resampled (x, y) coordinates.
+    Also ensures that the end points are not affected by the filter.
     """
-    points = np.asarray(points)
-    # Calculate cumulative distance along the polyline
-    deltas = np.diff(points, axis=0)
-    seg_lengths = np.linalg.norm(deltas, axis=1)
-    cumulative = np.insert(np.cumsum(seg_lengths), 0, 0)
-    total_length = cumulative[-1]
-    if total_length == 0:
-        return points[[0]].copy()
-    num_points = max(int(np.floor(total_length / resolution)) + 1, min_points)
-    even_distances = np.linspace(0, total_length, num_points)
-    resampled = np.empty((num_points, 2))
-    for i, d in enumerate(even_distances):
-        idx = np.searchsorted(cumulative, d) - 1
-        idx = np.clip(idx, 0, len(points) - 2)
-        seg_len = seg_lengths[idx]
-        t = (d - cumulative[idx]) / seg_len if seg_len > 0 else 0.0
-        resampled[i] = (1 - t) * points[idx] + t * points[idx + 1]
-    return resampled
+    # Ensure window_length is odd
+    if window_length % 2 == 0:
+        window_length += 1
+
+    # Adjust window_length if it is larger than the data size
+    data_length = data.shape[0]
+    if data_length < window_length:
+        # Make window_length smaller than data_length and ensure it is odd
+        window_length = min(data_length - (data_length % 2 == 0), 5)
+
+        # Ensure window_length is at least 3
+        window_length = max(window_length, 3)
+
+        # Adjust polyorder if needed (must be less than window_length)
+        polyorder = min(polyorder, window_length - 2)
+
+    # Apply the filter
+    filtered_data = savgol_filter(
+        data, window_length=window_length, polyorder=polyorder, axis=0, mode="nearest"
+    )
+
+    # Preserve the original end points to ensure they are not affected by the filter
+    # filtered_data = np.insert(filtered_data, 0, data[0], axis=0)
+    # filtered_data = np.append(filtered_data, [data[-1]], axis=0)
+    # filtered_data[0] = data[0]
+    # filtered_data[-1] = data[-1]
+
+    return filtered_data
 
 
 def sort_points_nearest_neighbor(points: np.ndarray) -> np.ndarray:
