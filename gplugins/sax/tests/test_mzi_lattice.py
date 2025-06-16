@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import gdsfactory as gf
 import jax.numpy as jnp
 import numpy as np
@@ -35,7 +37,7 @@ def mmi1x2() -> sax.SDict:
     )
 
 
-def bend_euler(wl=1.5, length=20.0):
+def bend_euler(wl: float = 1.5, length: float = 20.0) -> sax.SDict:
     """Assumes reduced transmission for the euler bend compared to a straight."""
     return {k: 0.99 * v for k, v in straight(wl=wl, length=length).items()}
 
@@ -47,14 +49,14 @@ models = {
 }
 
 
-def module(S) -> list[float]:
+def module(S: sax.SDict) -> sax.SDict:
     """Rounds to 3 decimals and converts numpy to lists for serialization."""
     for k, v in S.items():
         S[k] = [float(i) for i in np.round(np.abs(v) ** 2, 3)]
     return S
 
 
-def test_mzi_lattice(data_regression, check: bool = True) -> None:
+def test_mzi_lattice(data_regression: Any, check: bool = True) -> None:
     c = mzis()
     netlist = c.get_netlist(recursive=True)
     circuit, _ = sax.circuit(netlist=netlist, models=models)
@@ -63,7 +65,7 @@ def test_mzi_lattice(data_regression, check: bool = True) -> None:
     S = circuit(wl=wl)
     S = module(S)
     if check:
-        d = dict(S21=S["o1", "o2"], S11=S["o1", "o1"])
+        d = dict(S21=S[("o1", "o2")], S11=S[("o1", "o1")])
         data_regression.check(d)
 
 
@@ -76,7 +78,7 @@ if __name__ == "__main__":
     wl = np.linspace(1.5, 1.6, 3)
     S = circuit(wl=wl)
     S = module(S)
-    d = dict(S21=S["o1", "o2"], S11=S["o1", "o1"])
+    d = dict(S21=S[("o1", "o2")], S11=S[("o1", "o1")])
 
     # import matplotlib.pyplot as plt
 

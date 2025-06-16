@@ -19,7 +19,7 @@ def count_drc(rdb_path: PathType, threshold: int = 0) -> dict[str, int]:
         threshold: Minimum number of errors to be included in the output.
     """
     rdb_path = pathlib.Path(rdb_path)
-    errors_dict = {}
+    errors_dict: dict[str, int] = {}
 
     if not rdb_path.exists():
         raise FileNotFoundError(f"Cannot find {rdb_path}")
@@ -27,14 +27,17 @@ def count_drc(rdb_path: PathType, threshold: int = 0) -> dict[str, int]:
     if not rdb_path.is_dir():
         return _get_errors(rdb_path, threshold, errors_dict)
     for rdb_file in rdb_path.glob("*.rdb"):
-        errors_dict[rdb_file.stem] = count_drc(rdb_file)
+        sub_result = count_drc(rdb_file, threshold)
+        errors_dict.update(sub_result)
 
     return errors_dict
 
 
-def _get_errors(rdb_path, threshold, errors_dict):
-    r = rdb.ReportDatabase()
-    r.load(rdb_path)
+def _get_errors(
+    rdb_path: PathType, threshold: int, errors_dict: dict[str, int]
+) -> dict[str, int]:
+    r = rdb.ReportDatabase("name")
+    r.load(str(rdb_path))
 
     categories = {cat.rdb_id(): cat for cat in r.each_category()}
 
@@ -72,7 +75,7 @@ def plot_drc(errors: dict[str, int]) -> None:
     Args:
         errors: Dict of error names to number of errors.
     """
-    plt.bar(errors.keys(), errors.values())
+    plt.bar(list(errors.keys()), list(errors.values()))
     plt.title("DRC Errors")
     plt.xlabel("Categories")
     plt.ylabel("Error count")

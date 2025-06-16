@@ -61,8 +61,11 @@ def get_meep_geometry_from_component(
             layer_tuple = gf.get_layer_tuple(layer.layer)
         elif isinstance(layer, DerivedLayer):
             layer_tuple = gf.get_layer_tuple(level.derived_layer.layer)
+        elif isinstance(layer, tuple):
+            # Handle plain tuple layers directly
+            layer_tuple = layer
         else:
-            raise ValueError(f"Layer {layer!r} is not a DerivedLayer or LogicalLayer")
+            raise ValueError(f"Layer {layer!r} is not a DerivedLayer, LogicalLayer, or tuple")
 
         layer_index = int(get_layer(layer_tuple))
 
