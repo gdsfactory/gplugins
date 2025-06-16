@@ -1,3 +1,4 @@
+import numba
 import numpy as np
 import numpy.typing as npt
 from scipy.interpolate import PchipInterpolator, PPoly
@@ -82,26 +83,51 @@ def smoothed_savgol_filter(
     return filtered_data
 
 
-def sort_points_nearest_neighbor(points: np.ndarray) -> np.ndarray:
+@numba.njit(parallel=True)
+def sort_points_nearest_neighbor(points: np.ndarray, start_idx: int = 0) -> np.ndarray:
     """Sorts points so that each point is next to its Euclidean nearest neighbors.
 
     Args:
         points: (N, 2) array of unordered points.
+        start_idx: Index of the starting point.
 
     Returns:
         (N, 2) array of ordered points.
     """
-    if len(points) <= 1:
+    n = len(points)
+    if n <= 1:
         return points.copy()
-    points = points.copy()
-    N = len(points)
-    ordered = [points[0]]
-    used = set([0])  # noqa: C405
-    for _ in range(1, N):
-        last = ordered[-1]
-        dists = np.linalg.norm(points - last, axis=1)
-        dists[list(used)] = np.inf
-        next_idx = np.argmin(dists)
-        ordered.append(points[next_idx])
-        used.add(next_idx)
-    return np.array(ordered)
+
+    # Initialize result array and mask for remaining points
+    result = np.zeros_like(points)
+    remaining = np.ones(n, dtype=np.bool_)
+
+    # Start with the leftmost point (smallest x-coordinate)
+    result[0] = points[start_idx]
+    remaining[start_idx] = False
+
+    # Iteratively find the nearest neighbor
+    for i in range(1, n):
+        last_point = result[i - 1]
+        remaining_points = points[remaining]
+
+        if len(remaining_points) == 0:
+            break
+
+        # Calculate distances to the last point in parallel
+        distances = np.zeros(len(remaining_points))
+        for j in numba.prange(len(remaining_points)):
+            distances[j] = np.sum((remaining_points[j] - last_point) ** 2)
+
+        # Find the index of the closest point in the remaining set
+        min_idx = np.argmin(distances)
+
+        # Convert from index in remaining_points to index in original points
+        original_indices = np.where(remaining)[0]
+        next_idx = original_indices[min_idx]
+
+        # Add to result and mark as used
+        result[i] = points[next_idx]
+        remaining[next_idx] = False
+
+    return result
