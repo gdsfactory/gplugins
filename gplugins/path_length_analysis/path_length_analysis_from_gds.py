@@ -128,19 +128,23 @@ def centerline_voronoi_2_ports(
         [v for v in voronoi.vertices if shapely_poly_original.contains(sh.Point(v))]
     )
 
-    # The points are not guaranteed to be ordered, so we need to sort them
-    # Initially sort the centerline by euclidean distance from (0, 0)
-    centerline = centerline[np.argsort(np.linalg.norm(centerline, axis=1))]
-    centerline = sort_points_nearest_neighbor(centerline)
-
     # Add ports as start and end points
     centerline = np.vstack((port_list[0].center, centerline, port_list[1].center))
+    # The points are not guaranteed to be ordered, so we need to sort them
+    # Initially sort the centerline by euclidean distance from (0, 0)
+    # centerline = centerline[np.argsort(np.linalg.norm(centerline, axis=1))]
+    centerline = sort_points_nearest_neighbor(centerline, start_idx=0)
 
     # Because of Voronoi tessellation zig-zagging on less sampled polygons,
     # take only half the points by averaging consecutive pairs
     if len(centerline) % 2 != 0:
         centerline = centerline[:-1]  # Ensure even number of points
     centerline = (centerline[::2] + centerline[1::2]) / 2
+
+    # Filter again just in case
+    centerline = np.array(
+        [v for v in centerline if shapely_poly_original.contains(sh.Point(v))]
+    )
 
     # Re-add ports as start and end points
     centerline = np.vstack((port_list[0].center, centerline, port_list[1].center))
@@ -492,8 +496,10 @@ def extract_paths(
 
             if len(ports_poly) == 2:
                 # Each polygon has two ports - simple case
-                centerline = centerline_single_poly_2_ports(
-                    poly, under_sampling, ports_poly
+                centerline = centerline_voronoi_2_ports(
+                    poly,
+                    ports_poly,
+                    **kwargs,
                 )
                 if filter_function is not None:
                     centerline = filter_function(centerline)
