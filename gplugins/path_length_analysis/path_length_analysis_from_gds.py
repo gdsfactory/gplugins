@@ -572,8 +572,8 @@ def extract_paths(
                         # Find the point closest to the center of the polygon
                         center = np.array(
                             [
-                                simplified_component.dcenter.x,
-                                simplified_component.dcenter.y,
+                                simplified_component.dcenter[0],
+                                simplified_component.dcenter[1],
                             ]
                         )
 
