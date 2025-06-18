@@ -7,10 +7,10 @@ from scipy.signal import savgol_filter
 
 
 def resample_polygon_points_w_interpolator(
-    points: npt.NDArray,
+    points: np.ndarray,
     n_samples_coeff: float | int = 1,
     interpolator: type[PPoly] | type[_Interpolator1D] = PchipInterpolator,
-) -> npt.NDArray:
+) -> np.ndarray:
     """Resample polygon points equidistantly using PCHIP interpolation.
 
     Uses Piecewise Cubic Hermite Interpolating Polynomial because it preserves the shape (no overshoot).
@@ -21,28 +21,33 @@ def resample_polygon_points_w_interpolator(
             ``int(max(len(points), 5) * n_samples_coeff)``.
         interpolator: SciPy :class:`Interpolator` to use for resampling. Defaults to PchipInterpolator.
     """
+    # Convert to numpy array if not already
+    points_array = np.asarray(points, dtype=np.float64)
+
     # Parameterize the points by cumulative distance
     point_diffs = np.diff(points, axis=0)
     distances = np.linalg.norm(point_diffs, axis=1)
-    cumulative_distance = np.insert(
-        np.cumsum(distances), 0, 0
-    )  # Insert 0 at the start for cumulative distance
+    cumulative_distance = np.zeros(len(points_array))
+    np.cumsum(distances, out=cumulative_distance[1:])
     total_length = cumulative_distance[-1]
+
     # This is effectively arc-length parameterized
-    pchip_x = interpolator(cumulative_distance, points[:, 0])
-    pchip_y = interpolator(cumulative_distance, points[:, 1])
+    pchip_x = interpolator(cumulative_distance, points_array[:, 0])
+    pchip_y = interpolator(cumulative_distance, points_array[:, 1])
 
     # Interpolate the points with a higher resolution
-    number_of_original_samples = max(len(points), 5)  # Ensure at least 5 samples
-    arc_distance_samples = np.linspace(
-        0,
-        total_length,
-        int(number_of_original_samples * n_samples_coeff),
-        endpoint=True,
-    )
-    interpolated_points = np.column_stack(
-        (pchip_x(arc_distance_samples), pchip_y(arc_distance_samples))
-    )
+    number_of_original_samples = max(len(points_array), 5)  # Ensure at least 5 samples
+    num_samples = int(number_of_original_samples * n_samples_coeff)
+
+    # Pre-allocate result array
+    interpolated_points = np.empty((num_samples, 2), dtype=np.float64)
+
+    # Generate sample points
+    arc_distance_samples = np.linspace(0, total_length, num_samples, endpoint=True)
+
+    interpolated_points[:, 0] = pchip_x(arc_distance_samples)
+    interpolated_points[:, 1] = pchip_y(arc_distance_samples)
+
     return interpolated_points
 
 
