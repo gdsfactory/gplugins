@@ -91,7 +91,7 @@ def centerline_voronoi_2_ports(
             "The polygon must have at least 3 points to compute a centerline."
         )
     # Ensure the polygon is closed by appending the first point to the end
-    # This ensres resampling for all edges later on
+    # This ensures resampling for all edges later on
     points = np.vstack((points, points[0]))
     shapely_poly_original = sh.Polygon(points)
 
