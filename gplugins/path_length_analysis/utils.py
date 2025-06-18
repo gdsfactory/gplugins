@@ -138,43 +138,52 @@ def sort_points_nearest_neighbor(points: np.ndarray, start_idx: int = 0) -> np.n
     return result
 
 
+@numba.njit(parallel=True)
+def _filter_points_by_std_distance(
+    points: np.ndarray, std_multiplier: float | int = 1
+) -> np.ndarray:
+    """Inner implementation of filter_points_by_std_distance for Numba JIT compilation."""
+    # Calculate distances between consecutive points
+    point_diffs = points[1:] - points[:-1]
+    point_distances = np.sqrt(np.sum(np.power(point_diffs, 2), axis=1))
+    # point_distances = np.linalg.norm(point_diffs, axis=1)
+
+    # Calculate mean and standard deviation of distances
+    mean_distance = np.mean(point_distances)
+    std_distance = np.std(point_distances)
+
+    # Identify outliers - points where distance to next point is > mean + std_multiplier*std
+    threshold = mean_distance + std_multiplier * std_distance
+
+    # Create a mask of points to keep (all True initially)
+    keep_mask = np.ones(len(points), dtype=np.bool_)
+
+    # Mark outlier points for removal - skip first and last points
+    for i in range(len(point_distances)):
+        if point_distances[i] > threshold and 0 < i + 1 < len(points) - 1:
+            keep_mask[i + 1] = False
+
+    # Apply the mask to filter the points
+    return points[keep_mask]
+
+
 def filter_points_by_std_distance(
-    points: np.ndarray, std_multiplier: float = 1
+    points: np.ndarray, std_multiplier: float | int = 1
 ) -> np.ndarray:
     """Filters out points that are outliers based on the distance to their neighbors.
 
-    Assumes that the points are ordered in a way that makes sense (e.g., sorted or nearest neighbor).
+    Warning:
+        Assumes that the points are ordered in a way that makes sense (e.g., sorted or nearest neighbor).
+
+    Args:
+        points: (N, 2) array of points representing the path.
+        std_multiplier: Multiplier for the standard deviation to determine outlier threshold.
+
+    Returns:
+        (M, 2) array of filtered points, where M ≤ N.
     """
-    # Calculate distances between consecutive points
-    if len(points) > 2:
-        point_diffs = np.diff(points, axis=0)
-        point_distances = np.sqrt(np.sum(point_diffs**2, axis=1))
+    # Early return for small arrays
+    if len(points) <= 2:
+        return points
 
-        # Calculate mean and standard deviation of distances
-        mean_distance = np.mean(point_distances)
-        try:
-            std_distance = np.std(point_distances, mean=mean_distance, ddof=1)
-        except TypeError:
-            # For older numpy versions that don't support `mean` argument
-            std_distance = np.std(point_distances, ddof=1)
-
-        # Identify outliers - points where distance to next point is > mean + 3*std
-        threshold = mean_distance + std_multiplier * std_distance
-        outlier_indices = np.where(point_distances > threshold)[0]
-
-        # Filter out the outliers
-        if len(outlier_indices) > 0:
-            # Create a mask of points to keep (all True initially)
-            keep_mask = np.ones(len(points), dtype=bool)
-
-            # Mark outlier points for removal
-            # We keep the start and end points (ports)
-            for idx in outlier_indices:
-                # Don't remove the first or last point (ports)
-                if 0 < idx + 1 < len(points) - 1:
-                    keep_mask[idx + 1] = False
-
-            # Apply the mask to filter the points
-            points = points[keep_mask]
-
-    return points
+    return _filter_points_by_std_distance(points, std_multiplier=std_multiplier)
