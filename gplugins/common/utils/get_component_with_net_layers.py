@@ -1,6 +1,7 @@
 import copy
 
 import gdsfactory as gf
+import klayout.db as kdb
 from gdsfactory import Component
 from gdsfactory.technology import LayerStack, LogicalLayer
 
@@ -35,8 +36,8 @@ def get_component_layer_stack(
 
 
 def get_component_with_net_layers(
-    component,
-    layer_stack,
+    component: Component,
+    layer_stack: LayerStack,
     port_names: list[str],
     delimiter: str = "#",
     new_layers_init: tuple[int, int] = (10010, 0),
@@ -74,7 +75,9 @@ def get_component_with_net_layers(
         net_component = net_component.remove_layers(layers=(port.layer,))
         for polygon in polygons:
             # If polygon belongs to port, create a unique new layer, and add the polygon to it
-            if polygon.sized(3 * gf.kcl.dbu).inside(port.center):
+            if polygon.sized(int(3 * gf.kcl.dbu)).inside(
+                kdb.Point(*port.to_itype().center)
+            ):
                 # if gdstk.inside(
                 #     [port.center],
                 #     gdstk.offset(gdstk.Polygon(polygon), gf.get_active_pdk().grid_size),
@@ -111,8 +114,3 @@ def get_component_with_net_layers(
 
     net_component.name = f"{component.name}_net_layers"
     return net_component
-
-
-if __name__ == "__main__":
-    c = get_component_with_net_layers()
-    c.show()

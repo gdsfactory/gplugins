@@ -66,7 +66,7 @@ if __name__ == "__main__":
             coupling=coupling,
             loss=loss,
         )
-        plt.plot(wl, p, label=f"{int(width*1e3)}nm")
+        plt.plot(wl, p, label=f"{int(width * 1e3)}nm")
 
     # for thickness, ng in zip(thicknesses, ngs):
     #     p = ring(

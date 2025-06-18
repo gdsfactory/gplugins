@@ -1,13 +1,16 @@
+from __future__ import annotations
+
 import uuid
+from typing import Any
 
 import gdsfactory as gf
 import kfactory as kf
+import klayout.db as kdb
 from gdsfactory.component import GDSDIR_TEMP
 from gdsfactory.typings import PathType
-from kfactory import kdb
 
 
-def size(region: kdb.Region, offset: float, dbu=1e3) -> kdb.Region:
+def size(region: kdb.Region, offset: float, dbu: float = 1e3) -> kdb.Region:
     return region.dup().size(int(offset * dbu))
 
 
@@ -23,7 +26,7 @@ def copy(region: kdb.Region) -> kdb.Region:
     return region.dup()
 
 
-def _is_layer(value: any) -> bool:
+def _is_layer(value: Any) -> bool:
     try:
         layer, datatype = value
     except Exception:
@@ -31,21 +34,22 @@ def _is_layer(value: any) -> bool:
     return isinstance(layer, int) and isinstance(datatype, int)
 
 
-def _assert_is_layer(value: any) -> None:
+def _assert_is_layer(value: Any) -> None:
     if not _is_layer(value):
         raise ValueError(f"Layer must be a tuple of two integers. Got {value!r}")
 
 
 class Region(kdb.Region):
-    def __iadd__(self, offset) -> kdb.Region:
+    def __iadd__(self, offset: float | int) -> Region:
         """Adds an offset to the layer."""
         return size(self, offset)
 
-    def __isub__(self, offset) -> kdb.Region:
+    def __isub__(self, offset: float | int) -> Region:
         """Adds an offset to the layer."""
         return size(self, -offset)
 
-    def __add__(self, element) -> kdb.Region:
+    def __add__(self, element: float | int | kdb.Region) -> Region:
+        """Adds an element to the region."""
         if isinstance(element, float | int):
             return size(self, element)
 
@@ -54,14 +58,17 @@ class Region(kdb.Region):
         else:
             raise ValueError(f"Cannot add type {type(element)} to region")
 
-    def __sub__(self, element) -> kdb.Region | None:
+    def __sub__(self, element: float | int | kdb.Region) -> Region:
+        """Subtracts an element from the region."""
         if isinstance(element, float | int):
             return size(self, -element)
 
         elif isinstance(element, kdb.Region):
             return boolean_not(self, element)
+        else:
+            raise ValueError(f"Cannot subtract type {type(element)} from region")
 
-    def copy(self) -> kdb.Region:
+    def copy(self) -> Region:
         return self.dup()
 
 
@@ -86,15 +93,17 @@ class RegionCollection:
 
     """
 
-    def __init__(self, gdspath, cell_name: str | None = None) -> None:
-        lib = kf.kcell.KCLayout(str(gdspath))
+    def __init__(self, gdspath: PathType, cell_name: str | None = None) -> None:
+        """Initializes the RegionCollection."""
+        lib = kf.KCLayout(str(gdspath))
         lib.read(filename=str(gdspath))
         self.layout = lib.cell_by_name(cell_name) if cell_name else lib.top_cell()
         self.lib = lib
-        self.regions = {}
+        self.regions: dict[tuple[int, int], Region] = {}
         self.cell = lib[lib.top_cell().cell_index()]
 
     def __getitem__(self, layer: tuple[int, int]) -> Region:
+        """Gets a layer from the collection."""
         _assert_is_layer(layer)
 
         if layer in self.regions:
@@ -107,11 +116,12 @@ class RegionCollection:
         return region
 
     def __setitem__(self, layer: tuple[int, int], region: Region) -> None:
+        """Sets a layer in the collection."""
         _assert_is_layer(layer)
         self.regions[layer] = region
 
-    def __contains__(self, item) -> bool:
-        # checks if the layout contains the given layer
+    def __contains__(self, item: tuple[int, int]) -> bool:
+        """Checks if the layout contains the given layer."""
         _assert_is_layer(item)
         layer, datatype = item
         return self.lib.find_layer(layer, datatype) is not None
@@ -157,7 +167,7 @@ class RegionCollection:
             uid = str(uuid.uuid4())[:8]
             cellname += f"_{uid}"
 
-        output_lib = kf.kcell.KCLayout("output")
+        output_lib = kf.KCLayout("output")
         c = kf.KCell(cellname, output_lib)
         if keep_original:
             c.copy_tree(self.layout)
@@ -169,11 +179,12 @@ class RegionCollection:
             c.shapes(output_lib.layer(layer[0], layer[1])).insert(region)
         return c
 
-    def show(self, gdspath: PathType = GDSDIR_TEMP / "out.gds", **kwargs) -> None:
+    def show(self, gdspath: PathType = GDSDIR_TEMP / "out.gds", **kwargs: Any) -> None:
         """Show gds in klayout.
 
         Args:
             gdspath: gdspath.
+            kwargs: keyword arguments.
 
         Keyword Args:
             keep_original: keep original cell.
@@ -183,6 +194,7 @@ class RegionCollection:
         gf.show(gdspath)
 
     def __delattr__(self, element) -> None:
+        """Deletes a layer from the collection."""
         setattr(self, element, Region())
 
 

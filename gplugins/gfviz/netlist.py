@@ -1,9 +1,9 @@
 from functools import lru_cache
 
 import gdsfactory as gf
-import gdstk
 import numpy as np
 import shapely.geometry as sg
+import shapely.ops as so
 from natsort import natsorted
 
 
@@ -167,10 +167,10 @@ def get_ports(child, parent=None):
     else:
         ports = ports1
 
-    x0 = c.dxmin
-    x1 = c.dxmax
-    y0 = c.dymin
-    y1 = c.dymax
+    x0 = c.xmin
+    x1 = c.xmax
+    y0 = c.ymin
+    y1 = c.ymax
     x0, x1 = min(x0, x1), max(x0, x1)
     y0, y1 = min(y0, y1), max(y0, y1)
 
@@ -225,10 +225,12 @@ def get_icon_poly(name):
     polys = min(polys_priority.items(), key=lambda x: x[0])[1]
     if not polys:
         return default
-    polys = gdstk.boolean(polys, [], operation="or")
+    polys = [sg.Polygon(p) for p in polys]
+    polys = so.unary_union(polys)
+    polys = _extract_vertices(polys)
     if not polys:
         return default
-    poly = rdp(polys[0].points)
+    poly = rdp(polys[0])
     if (poly.shape[0] < 3) or (poly.shape[0] > 100):
         return default
     poly = (poly - c.bbox_np()[0:1]) / (c.bbox_np()[1:2] - c.bbox_np()[0:1])
@@ -241,6 +243,14 @@ def get_icon_poly(name):
         ]
     return poly
 
+
+def _extract_vertices(geometry):
+    if geometry.geom_type == 'Polygon':
+        return [list(geometry.exterior.coords)]
+    elif geometry.geom_type == 'MultiPolygon':
+        return [list(p.exterior.coords) for p in geometry.geoms]
+    else:
+        raise TypeError(f"Unhandled geometry type: {geometry.geom_type}")
 
 def rdp(poly, eps=0.1):
     poly = np.asarray(poly)
@@ -271,7 +281,7 @@ def _line_dists(points, start, end):
 
 
 def sort_ports(ports) -> list[gf.Port]:
-    return natsorted(ports, key=lambda port: port.dx)
+    return natsorted(ports, key=lambda port: port.x)
 
 
 def wrap_component_in_netlist(name):

@@ -1,4 +1,5 @@
 import time
+from typing import Any
 
 import gdsfactory as gf
 import numpy as np
@@ -34,20 +35,21 @@ def compute_cross_section_modes(
     order: int = 1,
     radius: float = np.inf,
     wafer_padding: float = 2.0,
-    **kwargs,
+    **kwargs: Any,
 ) -> Modes:
     """Calculate effective index of a cross-section.
 
     Defines a "straight" component of the cross_section, and calls compute_component_slice_modes.
 
     Args:
-        cross_section:
-        layer_stack:
+        cross_section: gdsfactory cross_section.
+        layer_stack: gdsfactory layer_stack.
         wavelength: in um.
         num_modes: to compute.
         order: order of the mesh elements. 1: linear, 2: quadratic.
         radius: defaults to inf.
         wafer_padding: in um.
+        kwargs: kwargs for compute_component_slice_modes
 
     Keyword Args:
         solver: can be slepc or scipy.
@@ -66,8 +68,8 @@ def compute_cross_section_modes(
     """
     # Get meshable component from cross-section
     c = gf.components.straight(length=10, cross_section=cross_section)
-    dx = c.dxsize
-    dy = c.dysize
+    dx = c.xsize
+    dy = c.ysize
 
     xsection_bounds = [
         [dx / 2, dy - wafer_padding],
@@ -108,7 +110,7 @@ def compute_component_slice_modes(
     n_guess: float | None = None,
     solver: str = "scipy",
     material_name_to_index: dict[str, float] | None = None,
-    **kwargs,
+    **kwargs: Any,
 ) -> Modes:
     """Calculate effective index of component slice.
 
@@ -124,6 +126,8 @@ def compute_component_slice_modes(
         metallic_boundaries: if True, will set the boundaries to be metallic.
         n_guess: initial guess for the effective index.
         solver: can be slepc or scipy.
+        material_name_to_index: dictionary mapping material names to refractive indices.
+        kwargs: kwargs for get_mesh
 
     Keyword Args:
         resolutions (Dict): Pairs {"layername": {"resolution": float, "distance": "float}}

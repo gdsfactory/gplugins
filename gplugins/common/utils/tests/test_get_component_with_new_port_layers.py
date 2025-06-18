@@ -21,9 +21,9 @@ def test_component_with_new_port_layers() -> None:
     layernames_after = set(layer_stack.layers.keys())
 
     # Check we have two new layers in the LayerStack
-    assert (
-        len(layernames_after - layernames_before) == 2
-    ), "Two new layers should be added to the LayerStack"
+    assert len(layernames_after - layernames_before) == 2, (
+        "Two new layers should be added to the LayerStack"
+    )
 
     # Check we have one new layer in Component (all metal3 is removed by these operations)
     # assert len(new_component.get_layers()) == len(original_component.get_layers()) + 1

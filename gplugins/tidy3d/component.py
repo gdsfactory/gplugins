@@ -27,6 +27,7 @@ from gdsfactory.component import Component
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 from pydantic import NonNegativeFloat
+from tidy3d.components.geometry.base import from_shapely
 from tidy3d.components.types import Symmetry
 from tidy3d.plugins.smatrix import ComponentModeler, Port
 
@@ -80,7 +81,7 @@ class Tidy3DComponent(LayeredComponentBase):
     reference_plane: Literal["bottom", "middle", "top"] = "middle"
 
     @cached_property
-    def polyslabs(self) -> dict[str, tuple[td.PolySlab, ...]]:
+    def polyslabs(self) -> dict[str, tuple[td.Geometry, ...]]:
         """Returns a dictionary of PolySlab instances for each layer in the component.
 
         Returns:
@@ -88,20 +89,18 @@ class Tidy3DComponent(LayeredComponentBase):
         """
         slabs = {}
         layers = sort_layers(self.geometry_layers, sort_by="mesh_order", reverse=True)
-
         for name, layer in layers.items():
             bbox = self.get_layer_bbox(name)
-            slabs[name] = tuple(
-                td.PolySlab(
-                    vertices=v,
-                    axis=2,
-                    slab_bounds=(bbox[0][2], bbox[1][2]),
-                    sidewall_angle=np.deg2rad(layer.sidewall_angle),
-                    reference_plane=self.reference_plane,
-                    dilation=self.dilation,
-                )
-                for v in self.get_vertices(name)
+            shape = self.polygons[name].buffer(distance=0.0, join_style="mitre")
+            geom = from_shapely(
+                shape,
+                axis=2,
+                slab_bounds=(bbox[0][2], bbox[1][2]),
+                dilation=self.dilation,
+                sidewall_angle=np.deg2rad(layer.sidewall_angle),
+                reference_plane=self.reference_plane,
             )
+            slabs[name] = geom
 
         return slabs
 
@@ -113,19 +112,14 @@ class Tidy3DComponent(LayeredComponentBase):
             list[td.Structure]: A list of Structure instances.
         """
         structures = []
-        for name, polys in self.polyslabs.items():
-            structures.extend(
-                [
-                    td.Structure(
-                        geometry=poly,
-                        medium=self.material_mapping[
-                            self.geometry_layers[name].material
-                        ],
-                        name=f"{name}_{idx}",
-                    )
-                    for idx, poly in enumerate(polys)
-                ]
+        for name, poly in self.polyslabs.items():
+            structure = td.Structure(
+                geometry=poly,
+                medium=self.material_mapping[self.geometry_layers[name].material],
+                name=name,
             )
+            structures.append(structure)
+
         return structures
 
     def get_ports(
@@ -366,24 +360,23 @@ class Tidy3DComponent(LayeredComponentBase):
         for name, layer in layers.items():
             if name not in self.polyslabs:
                 continue
-            polys = self.polyslabs[name]
+            poly = self.polyslabs[name]
 
-            for idx, poly in enumerate(polys):
-                axis, position = poly.parse_xyz_kwargs(x=x, y=y, z=z)
-                xlim, ylim = poly._get_plot_limits(axis=axis, buffer=0)
-                xmin, xmax = min(xmin, xlim[0]), max(xmax, xlim[1])
-                ymin, ymax = min(ymin, ylim[0]), max(ymax, ylim[1])
-                for shape in poly.intersections_plane(x=x, y=y, z=z):
-                    _shape = td.Geometry.evaluate_inf_shape(shape)
-                    patch = td.components.viz.polygon_patch(
-                        _shape,
-                        facecolor=colors[name],
-                        edgecolor="k",
-                        linewidth=0.5,
-                        label=name if idx == 0 else None,
-                        zorder=order_map[layer.mesh_order],
-                    )
-                    ax.add_artist(patch)
+            axis, position = poly.parse_xyz_kwargs(x=x, y=y, z=z)
+            xlim, ylim = poly._get_plot_limits(axis=axis, buffer=0)
+            xmin, xmax = min(xmin, xlim[0]), max(xmax, xlim[1])
+            ymin, ymax = min(ymin, ylim[0]), max(ymax, ylim[1])
+            for idx, shape in enumerate(poly.intersections_plane(x=x, y=y, z=z)):
+                _shape = td.Geometry.evaluate_inf_shape(shape)
+                patch = td.components.viz.polygon_patch(
+                    _shape,
+                    facecolor=colors[name],
+                    edgecolor="k",
+                    linewidth=0.5,
+                    label=name if idx == 0 else None,
+                    zorder=order_map[layer.mesh_order],
+                )
+                ax.add_artist(patch)
 
         size = list(self.size)
         cmin = list(self.bbox[0])
@@ -452,7 +445,7 @@ def write_sparameters(
     plot_epsilon: bool = False,
     filepath: PathType | None = None,
     overwrite: bool = False,
-    **kwargs,
+    **kwargs: Any,
 ) -> Sparameters:
     """Writes the S-parameters for a component.
 
@@ -713,8 +706,8 @@ if __name__ == "__main__":
         center_z="core",
         # plot_simulation_x=10,
         # plot_simulation_layer_name="core",
-        # plot_epsilon=True,
-        filepath="straight2",
+        plot_epsilon=True,
+        # filepath="straight2",
         # plot_mode_port_name="o1",
         # plot_mode_index=1,
         # mode_spec=mode_spec,

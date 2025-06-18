@@ -4,6 +4,7 @@ import hashlib
 import pathlib
 from functools import partial
 from pathlib import Path
+from typing import Any
 
 import gdsfactory as gf
 import numpy as np
@@ -12,7 +13,7 @@ from gdsfactory.name import clean_value
 from gdsfactory.typings import ComponentSpec, PathType
 
 
-def get_kwargs_hash(**kwargs) -> str:
+def get_kwargs_hash(**kwargs: Any) -> str:
     """Returns kwargs parameters hash."""
     kwargs_list = [f"{key}={clean_value(kwargs[key])}" for key in sorted(kwargs.keys())]
     kwargs_string = "_".join(kwargs_list)
@@ -29,10 +30,9 @@ def get_component_hash(component: gf.Component) -> str:
 def _get_sparameters_path(
     component: ComponentSpec,
     dirpath: PathType | None = PATH.sparameters,
-    **kwargs,
+    **kwargs: Any,
 ) -> Path:
-    """Return Sparameters npz filepath hashing simulation settings for \
-            a consistent unique name.
+    """Return Sparameters npz filepath hashing simulation settings for a consistent unique name.
 
     Args:
         component: component or component factory.
@@ -47,7 +47,7 @@ def _get_sparameters_path(
 
     dirpath = pathlib.Path(dirpath)
     dirpath = (
-        dirpath / component.function_name
+        dirpath / component.name
         if hasattr(component, "function_name")
         else dirpath
     )
@@ -60,7 +60,7 @@ def _get_sparameters_path(
     return dirpath / f"{component.name}_{simulation_hash}.npz"
 
 
-def _get_sparameters_data(**kwargs) -> np.ndarray:
+def _get_sparameters_data(**kwargs: Any) -> np.ndarray[Any, Any]:
     """Returns Sparameters data in a pandas DataFrame.
 
     Keyword Args:
@@ -70,7 +70,8 @@ def _get_sparameters_data(**kwargs) -> np.ndarray:
 
     """
     filepath = _get_sparameters_path(**kwargs)
-    return np.load(filepath)
+    data = np.load(filepath)
+    return np.array(data)
 
 
 get_sparameters_path_meow = partial(_get_sparameters_path, tool="meow")

@@ -1,4 +1,5 @@
-# type: ignore
+from typing import Any
+
 import gdsfactory as gf
 import kfactory as kf
 import klayout.db as kdb
@@ -23,7 +24,7 @@ def get_l2n(
         kdb.LayoutToNetlist: The layout to netlist object.
 
     """
-    lib = kf.kcell.KCLayout(str(gdspath))
+    lib = kf.KCLayout(str(gdspath))
     Tech = kdb.Technology()
 
     tech_dir = PATH.klayout
@@ -33,7 +34,8 @@ def get_l2n(
         klayout_tech_path = tech_dir / "tech.lyt"
 
     # klayout tech path is now assumed to contain a `tech.lyt`` file to use
-    technology = Tech.load(str(klayout_tech_path))
+    Tech.load(str(klayout_tech_path))
+    technology = Tech
 
     lib.read(filename=str(gdspath))
     c = lib.top_kcell()
@@ -43,6 +45,7 @@ def get_l2n(
 
     reversed_layer_map = {}
     layers = gf.get_active_pdk().layers
+    assert layers is not None
 
     # Reversed layer map with names as sets in order to support layer aliases
     for k, v in {layer.name: (layer.layer, layer.datatype) for layer in layers}.items():
@@ -89,14 +92,15 @@ def get_l2n(
     return l2n
 
 
-def get_netlist(gdspath: PathType, **kwargs) -> kdb.Netlist:
+def get_netlist(
+    gdspath: PathType,
+    **kwargs: Any,
+) -> kdb.Netlist:
     """Returns the SPICE netlist from a given GDS and klayout technology file.
 
     Args:
         gdspath: Path to the GDS file.
-
-    Keyword Args:
-        klayout_tech_path: Path to the klayout technology file.
+        kwargs: kwargs for get_l2n
 
     Returns:
         kdb.Netlist: The SPICE netlist of the GDS file.

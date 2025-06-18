@@ -45,7 +45,7 @@ def write_sparameters_meep_mpi(
     cores: int = core_materials,
     filepath: PathType | None = None,
     dirpath: PathType | None = None,
-    temp_dir: Path = temp_dir_default,
+    temp_dir: Path|str = temp_dir_default,
     temp_file_str: str = "write_sparameters_meep_mpi",
     live_output: bool = False,
     overwrite: bool = False,
@@ -152,6 +152,7 @@ def write_sparameters_meep_mpi(
         filepath.unlink()
 
     # Save all the simulation arguments for later retrieval
+    temp_dir = Path(temp_dir)
     temp_dir.mkdir(exist_ok=True, parents=True)
     tempfile = temp_dir / temp_file_str
     filepath_json = tempfile.with_suffix(".json")
@@ -164,7 +165,7 @@ def write_sparameters_meep_mpi(
     with open(parameters_file, "wb") as outp:
         pickle.dump(settings, outp, pickle.HIGHEST_PROTOCOL)
 
-    # Save component to disk through gds for gdstk compatibility
+    # Save component to disk through gds
     component_file = tempfile.with_suffix(".gds")
     component.write_gds(component_file, with_metadata=True)
 
@@ -178,7 +179,7 @@ def write_sparameters_meep_mpi(
         "if __name__ == '__main__':\n",
         f"\twith open(\"{parameters_file}\", 'rb') as inp:\n",
         "\t\tparameters_dict = pickle.load(inp)\n\n",
-        f"\tcomponent = import_gds({str(component_file)!r}, read_metadata=True)\n",
+        f"\tcomponent = import_gds({str(component_file)!r})\n",
         f"\tfilepath_json = pathlib.Path({str(filepath_json)!r})\n",
         "\tlayer_stack = LayerStack.parse_raw(filepath_json.read_text())\n",
         f"\twrite_sparameters_meep(component=component, overwrite={overwrite}, "
@@ -254,6 +255,7 @@ if __name__ == "__main__":
         temp_dir="./test/",
         filepath="instance_dict.csv",
         resolution=20,
+        is_3d=False,
     )
     sp = np.load(filepath)
     print(list(sp.keys()))

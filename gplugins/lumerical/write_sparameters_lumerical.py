@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import shutil
 import time
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import gdsfactory as gf
 import numpy as np
@@ -17,6 +17,8 @@ from gdsfactory.generic_tech.simulation_settings import (
 )
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
+from gdsfactory.technology.layer_stack import DerivedLayer, LogicalLayer
+from gdsfactory.typings import LayerEnum
 
 from gplugins.common.utils.get_sparameters_path import (
     get_sparameters_path_lumerical as get_sparameters_path,
@@ -84,12 +86,13 @@ def write_sparameters_lumerical(
     material_name_to_lumerical: dict[str, MaterialSpec] | None = None,
     delete_fsp_files: bool = True,
     xmargin: float = 0,
-    ymargin: float = 0,
-    xmargin_left: float = 0,
-    xmargin_right: float = 0,
-    ymargin_top: float = 0,
-    ymargin_bot: float = 0,
+    ymargin: float = 3,
+    xmargin_left: float | None = None,
+    xmargin_right: float | None = None,
+    ymargin_top: float | None = None,
+    ymargin_bot: float | None = None,
     zmargin: float = 1.0,
+    exclude_layers: list[int] | None = None,
     **settings,
 ) -> np.ndarray:
     r"""Returns and writes component Sparameters using Lumerical FDTD.
@@ -140,6 +143,8 @@ def write_sparameters_lumerical(
         ymargin_top: top distance from component to PML.
         ymargin_bot: bottom distance from component to PML.
         zmargin: thickness for cladding above and below core.
+        exclude_layers: list of layer indices to exclude from simulation.
+        settings: additional simulation settings to overwrite
 
     Keyword Args:
         background_material: for the background.
@@ -197,10 +202,15 @@ def write_sparameters_lumerical(
             suffix `a` for angle in radians and `m` for module.
 
     """
-    component = gf.get_component(component)
+    layer_stack = layer_stack or get_layer_stack()
+    component = component
     sim_settings = dict(simulation_settings)
 
-    layer_stack = layer_stack or get_layer_stack()
+
+    xmargin_left = xmargin_left or xmargin
+    xmargin_right = xmargin_right or xmargin
+    ymargin_top = ymargin_top or ymargin
+    ymargin_bot = ymargin_bot or ymargin
 
     layer_to_thickness = layer_stack.get_layer_to_thickness()
     layer_to_zmin = layer_stack.get_layer_to_zmin()
@@ -224,10 +234,10 @@ def write_sparameters_lumerical(
     component_with_padding = gf.add_padding_container(
         component_with_booleans,
         default=0,
-        top=ymargin or ymargin_top,
-        bottom=ymargin or ymargin_bot,
-        left=xmargin or xmargin_left,
-        right=xmargin or xmargin_right,
+        top=ymargin_top,
+        bottom=ymargin_bot,
+        left=xmargin_left,
+        right=xmargin_right,
     )
 
     component_extended = gf.components.extend_ports(
@@ -241,6 +251,10 @@ def write_sparameters_lumerical(
     component_extended_beyond_pml = gf.components.extension.extend_ports(
         component=component_extended, length=ss.port_extension
     )
+    component_extended_beyond_pml = component_extended_beyond_pml.copy()
+    component_extended_beyond_pml.flatten()
+    component_extended_beyond_pml.name = "top"
+
     gdspath = component_extended_beyond_pml.write_gds()
 
     filepath_npz = get_sparameters_path(
@@ -262,25 +276,49 @@ def write_sparameters_lumerical(
         print(run_false_warning)
 
     logger.info(f"Writing Sparameters to {filepath_npz.absolute()!r}")
-    x_min = (component_extended.dxmin - xmargin) * 1e-6
-    x_max = (component_extended.dxmax + xmargin) * 1e-6
-    y_min = (component_extended.dymin - ymargin) * 1e-6
-    y_max = (component_extended.dymax + ymargin) * 1e-6
+    x_min = (component_extended.xmin - xmargin) * 1e-6
+    x_max = (component_extended.xmax + xmargin) * 1e-6
+    y_min = (component_extended.ymin - ymargin) * 1e-6
+    y_max = (component_extended.ymax + ymargin) * 1e-6
+
+    index_to_thickness = {}
+    index_to_zmin = {}
+    for level in layer_stack.layers.values():
+        layer = level.layer
+
+        if isinstance(layer, LogicalLayer):
+            assert isinstance(layer.layer, tuple | LayerEnum)
+            layer_tuple = cast(tuple[int, int], tuple(layer.layer))
+        elif isinstance(layer, DerivedLayer):
+            assert level.derived_layer is not None
+            assert isinstance(level.derived_layer.layer, tuple | LayerEnum)
+            layer_tuple = cast(tuple[int, int], tuple(level.derived_layer.layer))
+        elif isinstance(layer, tuple):
+            # Handle plain tuple layers directly
+            layer_tuple = cast(tuple[int, int], layer)
+        else:
+            raise ValueError(
+                f"Layer {layer!r} is not a DerivedLayer, LogicalLayer, or tuple"
+            )
+
+        layer_index = int(gf.get_layer(layer_tuple))
+
+        index_to_thickness[layer_index] = level.thickness
+        index_to_zmin[layer_index] = level.zmin
 
     layers_thickness = [
-        layer_to_thickness[layer]
+        index_to_thickness[gf.get_layer(layer)]
         for layer in component_with_booleans.layers
-        if layer in layer_to_thickness
+        if gf.get_layer(layer) in index_to_thickness
     ]
     if not layers_thickness:
         raise ValueError(
-            f"no layers for component {component.layers}"
-            f"in layer stack {layer_stack}"
+            f"no layers for component {component.layers}in layer stack {layer_stack}"
         )
     layers_zmin = [
-        layer_to_zmin[layer]
+        index_to_zmin[gf.get_layer(layer)]
         for layer in component_with_booleans.layers
-        if layer in layer_to_zmin
+        if gf.get_layer(layer) in index_to_zmin
     ]
     component_thickness = max(layers_thickness)
     component_zmin = min(layers_zmin)
@@ -300,7 +338,7 @@ def write_sparameters_lumerical(
     )
 
     logger.info(
-        f"Simulation size = {x_span*1e6:.3f}, {y_span*1e6:.3f}, {z_span*1e6:.3f} um"
+        f"Simulation size = {x_span * 1e6:.3f}, {y_span * 1e6:.3f}, {z_span * 1e6:.3f} um"
     )
 
     # from pprint import pprint
@@ -336,6 +374,9 @@ def write_sparameters_lumerical(
         name="clad",
     )
 
+    # Set cladding opacity
+    s.setnamed("clad", "alpha", 0.1)
+
     material_name_to_lumerical_new = material_name_to_lumerical or {}
     material_name_to_lumerical = ss.material_name_to_lumerical.copy()
     material_name_to_lumerical.update(**material_name_to_lumerical_new)
@@ -356,46 +397,71 @@ def write_sparameters_lumerical(
         simulation_time=ss.simulation_time,
         simulation_temperature=ss.simulation_temperature,
     )
-    component_layers = component_with_booleans.layers
 
-    for layer, thickness in layer_to_thickness.items():
-        if layer not in component_layers:
+    exclude_layers = exclude_layers or []
+    polygons_per_layer = component_extended_beyond_pml.get_polygons_points(merge=True)
+
+    for level in layer_stack.layers.values():
+        layer = level.layer
+
+        if isinstance(layer, LogicalLayer):
+            layer_tuple = gf.get_layer_tuple(layer.layer)
+        elif isinstance(layer, DerivedLayer):
+            layer_tuple = gf.get_layer_tuple(level.derived_layer.layer)
+        elif isinstance(layer, tuple):
+            # Handle plain tuple layers directly
+            layer_tuple = layer
+        else:
+            raise ValueError(
+                f"Layer {layer!r} is not a DerivedLayer, LogicalLayer, or tuple"
+            )
+
+        layer_index = int(gf.get_layer(layer_tuple))
+
+        if layer_index in exclude_layers:
             continue
 
-        if layer not in layer_to_material:
-            raise ValueError(f"{layer} not in {layer_to_material.keys()}")
+        if layer_index not in polygons_per_layer:
+            continue
 
-        material_name = layer_to_material[layer]
-        if material_name not in material_name_to_lumerical:
-            raise ValueError(
-                f"{material_name!r} not in {list(material_name_to_lumerical.keys())}"
+        zmin = level.zmin
+
+        if zmin is not None:
+            thickness = level.thickness
+            material_name = layer_to_material[layer]
+            if material_name not in material_name_to_lumerical:
+                raise ValueError(
+                    f"{material_name!r} not in {list(material_name_to_lumerical.keys())}"
+                )
+            material = material_name_to_lumerical[material_name]
+
+            if layer not in layer_to_zmin:
+                raise ValueError(f"{layer} not in {list(layer_to_zmin.keys())}")
+
+            zmin = layer_to_zmin[layer]
+            zmax = zmin + thickness
+            z = (zmax + zmin) / 2
+
+            s.gdsimport(str(gdspath), "top", f"{layer_tuple[0]}:{layer_tuple[1]}")
+            layername = f"GDS_LAYER_{layer_tuple[0]}:{layer_tuple[1]}"
+            s.setnamed(layername, "z", z * 1e-6)
+            s.setnamed(layername, "z span", thickness * 1e-6)
+            set_material(session=s, structure=layername, material=material)
+            logger.info(
+                f"adding {layer_tuple}, thickness = {thickness} um, zmin = {zmin} um "
             )
-        material = material_name_to_lumerical[material_name]
-
-        if layer not in layer_to_zmin:
-            raise ValueError(f"{layer} not in {list(layer_to_zmin.keys())}")
-
-        zmin = layer_to_zmin[layer]
-        zmax = zmin + thickness
-        z = (zmax + zmin) / 2
-
-        s.gdsimport(str(gdspath), "top", f"{layer[0]}:{layer[1]}")
-        layername = f"GDS_LAYER_{layer[0]}:{layer[1]}"
-        s.setnamed(layername, "z", z * 1e-6)
-        s.setnamed(layername, "z span", thickness * 1e-6)
-        set_material(session=s, structure=layername, material=material)
-        logger.info(f"adding {layer}, thickness = {thickness} um, zmin = {zmin} um ")
 
     for i, port in enumerate(ports):
-        zmin = layer_to_zmin[port.layer]
-        thickness = layer_to_thickness[port.layer]
+        port_layer_index = gf.get_layer(port.layer)
+        zmin = index_to_zmin[port_layer_index]
+        thickness = index_to_thickness[port_layer_index]
         z = (zmin + thickness) / 2
         zspan = 2 * ss.port_margin + thickness
 
         s.addport()
-        p = f"FDTD::ports::port {i+1}"
-        s.setnamed(p, "x", port.dx * 1e-6)
-        s.setnamed(p, "y", port.dy * 1e-6)
+        p = f"FDTD::ports::port {i + 1}"
+        s.setnamed(p, "x", port.x * 1e-6)
+        s.setnamed(p, "y", port.y * 1e-6)
         s.setnamed(p, "z", z * 1e-6)
         s.setnamed(p, "z span", zspan * 1e-6)
         s.setnamed(p, "frequency dependent profile", ss.frequency_dependent_profile)

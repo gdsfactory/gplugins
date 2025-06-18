@@ -10,11 +10,11 @@ import numpy as np
 import pandas as pd
 import sax
 import yaml
-from gdsfactory import logger
+from gdsfactory import Component, logger
 from gdsfactory.config import PATH
 from gdsfactory.pdk import get_active_pdk, get_layer_stack
 from gdsfactory.technology import DerivedLayer, LayerStack
-from gdsfactory.typings import Component, LayerSpec, PathType
+from gdsfactory.typings import LayerSpec, PathType
 from tqdm.auto import tqdm
 
 from gplugins.common.utils.get_sparameters_path import (
@@ -147,10 +147,10 @@ class MEOW:
 
         # Process simulation bounds
         z_min, x_min, z_max, x_max = (
-            component.dxmin,
-            component.dymin,
-            component.dxmax,
-            component.dymax,
+            component.xmin,
+            component.ymin,
+            component.xmax,
+            component.ymax,
         )
         z_min, z_max = min(z_min, z_max) + 1e-10, max(z_min, z_max) - 1e-10
         x_min, x_max = min(x_min, x_max) + 1e-10, max(x_min, x_max) - 1e-10

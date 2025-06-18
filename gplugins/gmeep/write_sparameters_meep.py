@@ -19,7 +19,7 @@ from gdsfactory.component import Component
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.serialization import clean_value_json
 from gdsfactory.technology import LayerStack
-from gdsfactory.typings import ComponentSpec, PathType, Port, PortSymmetries
+from gdsfactory.typings import ComponentSpec, PathType, Port, PortSymmetries, LayerSpec
 from tqdm.auto import tqdm
 
 from gplugins.common.utils import port_symmetries
@@ -54,8 +54,7 @@ def remove_simulation_kwargs(d: dict[str, Any]) -> dict[str, Any]:
 def parse_port_eigenmode_coeff(
     port_name: str, ports: dict[str, Port], sim_dict: dict, port_mode: int = 0
 ):
-    """Returns the coefficients relative to whether the wavevector is entering or \
-            exiting simulation.
+    """Returns the coefficients relative to whether the wavevector is entering or exiting simulation.
 
     Args:
         port_index: index of port.
@@ -151,6 +150,7 @@ def write_sparameters_meep(
     plot_args: dict | None = None,
     only_return_filepath_sim_settings=False,
     verbosity: int = 0,
+    padding_layers: tuple[LayerSpec, ...] = ("PADDING",),
     **settings,
 ) -> dict[str, np.ndarray]:
     r"""Returns Sparameters and writes them to npz filepath.
@@ -319,7 +319,7 @@ def write_sparameters_meep(
     filepath = filepath or get_sparameters_path(
         component=component,
         dirpath=dirpath,
-        layer_stack=layer_stack,
+        layer_stack=layer_stack.to_dict(),
         **sim_settings,
     )
 
@@ -340,6 +340,7 @@ def write_sparameters_meep(
 
     component = gf.add_padding_container(
         component,
+        layers=padding_layers,
         default=0,
         top=ymargin_top,
         bottom=ymargin_bot,
@@ -603,8 +604,8 @@ settings_write_sparameters_meep = set(sig.parameters.keys()).union(
 )
 
 if __name__ == "__main__":
-    wavelength_start = 1.26
-    wavelength_stop = 1.36
+    wavelength_start = 1.5
+    wavelength_stop = 1.6
     sim_settings = dict(
         wavelength_start=wavelength_start, wavelength_stop=wavelength_stop
     )
@@ -619,8 +620,9 @@ if __name__ == "__main__":
     sp = write_sparameters_meep(
         c,
         run=True,
-        animate=True,
+        #animate=True,
         is_3d=False,
+        ymargin=3,
         plot_args={
             "eps_parameters": {"contour": True},
             "field_parameters": {

@@ -3,9 +3,13 @@ from __future__ import annotations
 import gdsfactory as gf
 import meep as mp
 import numpy as np
-from gdsfactory.pdk import get_layer_stack
+from kfactory import LayerEnum
+from typing import cast
+import shapely
+from gdsfactory.pdk import get_layer_stack, get_layer, get_layer_name
 from gdsfactory.technology import LayerStack
-from gdsfactory.typings import ComponentSpec, CrossSectionSpec
+from gdsfactory.technology import DerivedLayer, LayerStack, LayerViews, LogicalLayer
+from gdsfactory.typings import ComponentSpec, CrossSectionSpec, LayerSpecs
 
 from gplugins.common.utils.parse_layer_stack import order_layer_stack
 from gplugins.gmeep.get_material import get_material
@@ -18,6 +22,7 @@ def get_meep_geometry_from_component(
     wavelength: float = 1.55,
     is_3d: bool = False,
     dispersive: bool = False,
+    exclude_layers: LayerSpecs | None = None,
     **kwargs,
 ) -> list[mp.GeometricObject]:
     """Returns Meep geometry from a gdsfactory component.
@@ -32,6 +37,9 @@ def get_meep_geometry_from_component(
         kwargs: settings.
     """
     component = gf.get_component(component=component, **kwargs)
+    polygons_per_layer = component.get_polygons_points(merge=True)
+
+
     layer_stack = layer_stack or get_layer_stack()
 
     layer_to_thickness = layer_stack.get_layer_to_thickness()
@@ -41,24 +49,40 @@ def get_meep_geometry_from_component(
     component_with_booleans = layer_stack.get_component_with_derived_layers(component)
 
     geometry = []
+    exclude_layers = exclude_layers or []
     layer_to_polygons = component_with_booleans.get_polygons_points()
 
-    ordered_layer_stack_keys = order_layer_stack(layer_stack)[::-1]
+    # ordered_layer_stack_keys = order_layer_stack(layer_stack)[::-1]
 
-    for layername in ordered_layer_stack_keys:
-        layer = layer_stack.layers[layername].layer
+    for level in layer_stack.layers.values():
+        layer = level.layer
 
-        if layer not in layer_to_polygons:
+        if isinstance(layer, LogicalLayer):
+            layer_tuple = gf.get_layer_tuple(layer.layer)
+        elif isinstance(layer, DerivedLayer):
+            layer_tuple = gf.get_layer_tuple(level.derived_layer.layer)
+        elif isinstance(layer, tuple):
+            # Handle plain tuple layers directly
+            layer_tuple = layer
+        else:
+            raise ValueError(f"Layer {layer!r} is not a DerivedLayer, LogicalLayer, or tuple")
+
+        layer_index = int(get_layer(layer_tuple))
+
+        if layer_index in exclude_layers:
             continue
-        polygons = layer_to_polygons[layer]
-        print(f"layer: {layer}, polygons: {polygons}")
 
-        if layer in layer_to_thickness and layer in layer_to_material:
-            height = layer_to_thickness[layer] if is_3d else mp.inf
-            zmin_um = layer_to_zmin[layer] if is_3d else 0
-            # center = mp.Vector3(0, 0, (zmin_um + height) / 2)
+        if layer_index not in polygons_per_layer:
+            continue
 
+        zmin = level.zmin
+        zmin_um = layer_to_zmin[layer] if is_3d else 0
+        if zmin is not None:
+            has_polygons = True
+            polygons = polygons_per_layer[layer_index]
+            height = level.thickness
             for polygon in polygons:
+                p = shapely.geometry.Polygon(polygon)
                 vertices = [mp.Vector3(p[0], p[1], zmin_um) for p in polygon]
                 material_name = layer_to_material[layer]
 
@@ -80,6 +104,7 @@ def get_meep_geometry_from_component(
                             # center=center
                         )
                     )
+
     return geometry
 
 
@@ -163,7 +188,7 @@ if __name__ == "__main__":
 
     import gplugins.gmeep as gm
 
-    c = gf.components.taper_strip_to_ridge_trenches()
+    c = gf.components.straight()
     sp = gm.write_sparameters_meep(
         c, run=False, ymargin_top=3, ymargin_bot=3, is_3d=True
     )

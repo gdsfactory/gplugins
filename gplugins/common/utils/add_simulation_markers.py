@@ -91,9 +91,9 @@ def add_simulation_markers(
         port_source_name = port_source.name
         warnings.warn(f"Selecting port_source_name={port_source_name!r} instead.")
 
-    assert isinstance(
-        component, Component
-    ), f"component needs to be a gf.Component, got Type {type(component)}"
+    assert isinstance(component, Component), (
+        f"component needs to be a gf.Component, got Type {type(component)}"
+    )
 
     # Add port monitors
     for port_name in port_names:
@@ -105,7 +105,9 @@ def add_simulation_markers(
 
     # Add source
     port = ref.ports[port_source_name]
-    port = port.copy_polar(d=port_source_offset / c.kcl.dbu, angle=port.angle)
+    port = port.copy_polar(
+        d=port_source_offset / c.kcl.dbu, orientation=port.orientation
+    )
     add_pin_rectangle(c, port=port, port_margin=port_margin, layer=layer_source)
 
     layer_stack.layers["source"] = LayerLevel(

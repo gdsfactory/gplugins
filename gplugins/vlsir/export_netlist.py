@@ -10,8 +10,10 @@ Todo:
     - Thoroughly test the parser with more complex netlists.
 """
 
+from collections.abc import Iterator
 from io import StringIO
 from itertools import count
+from typing import Any
 
 import vlsirtools
 from klayout.db import (
@@ -35,27 +37,27 @@ from vlsir.utils_pb2 import Param, Reference
 __SUPPORTED_FORMATS = ["spice", "spectre", "xyce", "verilog"]
 
 
-def _lref(name) -> Reference:
+def _lref(name: str) -> Reference:
     """Create a local `Reference` to a local `Module` with the given name."""
     return Reference(local=name)
 
 
-def _connections(**kwargs) -> list[Connection]:
+def _connections(**kwargs: Any) -> list[Connection]:
     """Create a list of `Connection`s from keyword args of the form `portname=conn_target`, where `conn_target` is a `ConnectionTarget`."""
     return [Connection(portname=key, target=value) for key, value in kwargs.items()]
 
 
-def _params(**kwargs) -> list[Param]:
+def _params(**kwargs: Any) -> list[Param]:
     """Create a list of `Param`s from keyword args of the form r=ParamValue(double_value=1e3)."""
     return [Param(name=key, value=value) for key, value in kwargs.items()]
 
 
-def _temp_net(counter) -> str:
+def _temp_net(counter: Iterator[int]) -> str:
     """Return a new unique net name, Used for naming temporary nets."""
     return f"__temp_net_{next(counter)}__"
 
 
-def _net_name(net: Net, counter) -> str:
+def _net_name(net: Net, counter: Iterator[int]) -> str:
     """Get the name of a `Net`."""
     if net.name is None:
         return _temp_net(counter)
@@ -63,7 +65,7 @@ def _net_name(net: Net, counter) -> str:
     return net_name.replace("$", "")
 
 
-def _instance_name(instance: SubCircuit, counter) -> str:
+def _instance_name(instance: SubCircuit, counter: Iterator[int]) -> str:
     """Get the name of a `SubCircuit` instance."""
     if instance.name is None:
         return _temp_net(counter)
@@ -71,7 +73,9 @@ def _instance_name(instance: SubCircuit, counter) -> str:
     return instance_name.replace("$", "")
 
 
-def _subcircuit_instance(instance: SubCircuit, counter, **kwargs) -> Instance:
+def _subcircuit_instance(
+    instance: SubCircuit, counter: Iterator[int], **kwargs: Any
+) -> Instance:
     """Create a new VLSIR Instance from the klayout.db SubCircuit and return it to include in the respective Module (SubCircuit)."""
     subckt_name = _instance_name(instance, counter)
     ref = instance.circuit_ref()
@@ -103,7 +107,7 @@ def _subcircuit_instance(instance: SubCircuit, counter, **kwargs) -> Instance:
 
 
 def _circuit_module(
-    circuit: Circuit, counter, verbose: bool = False, **kwargs
+    circuit: Circuit, counter: Iterator[int], verbose: bool = False, **kwargs: Any
 ) -> Module:
     """Convert a Klayout DB `Circuit` to a VLSIR 'Module' and return it to include it in the package.
 
@@ -147,7 +151,9 @@ def _circuit_module(
     return mod
 
 
-def kdb_vlsir(kdbnet: Netlist, domain: str, verbose: bool = False, **kwargs) -> Package:
+def kdb_vlsir(
+    kdbnet: Netlist, domain: str, verbose: bool = False, **kwargs: Any
+) -> Package:
     """Create a VLSIR `Package` circuit netlist from a KLayout DB `Netlist`.
 
     Args:
@@ -164,7 +170,7 @@ def kdb_vlsir(kdbnet: Netlist, domain: str, verbose: bool = False, **kwargs) -> 
     return Package(domain=domain, modules=modules)
 
 
-def export_netlist(pkg: Package, fmt: str = "spice", dest=None) -> str:
+def export_netlist(pkg: Package, fmt: str = "spice", dest: Any = None) -> str:
     """Export a VLSIR `Package` circuit netlist to a string in the specified format.
 
     Args:

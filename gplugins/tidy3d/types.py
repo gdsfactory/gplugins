@@ -7,15 +7,15 @@ from pydantic.functional_validators import AfterValidator
 
 
 # Function to validate the medium
-def validate_medium(v):
+def validate_medium(v: Any) -> td.AbstractMedium:
     # Check if the input is an instance of td.Medium
-    assert isinstance(
-        v, td.AbstractMedium
-    ), f"Input should be a tidy3d medium, but got {type(v)} instead"
+    assert isinstance(v, td.AbstractMedium), (
+        f"Input should be a tidy3d medium, but got {type(v)} instead"
+    )
     return v
 
 
-Sparameters = dict[str, np.ndarray]
+Sparameters = dict[str, np.ndarray[Any, Any]]
 
 # Annotated type for Tidy3D medium with validation and serialization
 Tidy3DMedium = Annotated[

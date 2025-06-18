@@ -5,7 +5,6 @@ from types import LambdaType
 from typing import Any
 
 import gdsfactory as gf
-import nlopt
 import numpy as np
 from gdsfactory import Component
 from gdsfactory.technology import LayerStack
@@ -151,8 +150,8 @@ def get_meep_adjoint_optimizer(
         Vector3(*cell_size)
         if cell_size
         else Vector3(
-            c.dxsize + 2 * sim.boundary_layers[0].thickness,
-            c.dysize + 2 * sim.boundary_layers[0].thickness,
+            c.xsize + 2 * sim.boundary_layers[0].thickness,
+            c.ysize + 2 * sim.boundary_layers[0].thickness,
             cell_thickness,
         )
     )
@@ -190,7 +189,7 @@ def run_meep_adjoint_optimizer(
     cost_function: LambdaType,
     update_variable: np.ndarray,
     maximize_cost_function: bool = True,
-    algorithm: int = nlopt.LD_MMA,
+    algorithm_name: str = "LD_MMA",
     lower_bound: Any = 0,
     upper_bound: Any = 1,
     maxeval: int = 10,
@@ -205,7 +204,7 @@ def run_meep_adjoint_optimizer(
         cost_function: cost function to optimize.
         update_variable: variable to update the optimization with.
         maximize_cost_function: if True, maximize the cost function, else minimize it.
-        algorithm: nlopt algorithm to use (default: nlopt.LD_MMA).
+        algorithm_name: nlopt algorithm to use (default: nlopt.LD_MMA).
         lower_bound: lower bound for the optimization.
         upper_bound: upper bound for the optimization.
         maxeval: maximum number of evaluations.
@@ -219,6 +218,9 @@ def run_meep_adjoint_optimizer(
         threshold_offset_from_max: threshold offset from max eps value.
         layer: layer to apply to the optimized component.
     """
+    import nlopt
+
+    algorithm = getattr(nlopt, algorithm_name)
     solver = nlopt.opt(algorithm, number_of_params)
     solver.set_lower_bounds(lower_bound)
     solver.set_upper_bounds(upper_bound)
@@ -262,10 +264,10 @@ def get_component_from_sim(
     """
     grid_resolution = upscale_factor * sim.resolution
     sim_center, sim_size = get_2D_dimensions(sim, output_plane=None)
-    xmin = sim_center.dx - sim_size.dx / 2
-    xmax = sim_center.dx + sim_size.dx / 2
-    ymin = sim_center.dy - sim_size.dy / 2
-    ymax = sim_center.dy + sim_size.dy / 2
+    xmin = sim_center.x - sim_size.x / 2
+    xmax = sim_center.x + sim_size.x / 2
+    ymin = sim_center.y - sim_size.y / 2
+    ymax = sim_center.y + sim_size.y / 2
     Nx = int((xmax - xmin) * grid_resolution + 1)
     Ny = int((ymax - ymin) * grid_resolution + 1)
     xtics = np.linspace(xmin, xmax, Nx)

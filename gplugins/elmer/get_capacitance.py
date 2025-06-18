@@ -153,7 +153,7 @@ def _read_elmer_results(
                 field_file_location=simulation_folder
                 / raw_name
                 / "results"
-                / f'{raw_name}_t0001.{"pvtu" if n_processes > 1 else "vtu"}',
+                / f"{raw_name}_t0001.{'pvtu' if n_processes > 1 else 'vtu'}",
             )
         ),
     )
