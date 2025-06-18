@@ -12,7 +12,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
+        with:
+          python-version-file: pyproject.toml
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: ${{ env.pythonLocation }}-${{ hashFiles('.pre-commit-config.yaml') }}
+      - run: pip install pre-commit
+      - name: Set base and target commit SHA
+        if: github.event_name == 'pull_request'
+        id: commit-shas
+        run: |
+          echo "BASE=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_OUTPUT"
+          echo "TARGET=${{ github.event.pull_request.head.sha }}" >> "$GITHUB_OUTPUT"
+      - name: Run pre-commit hooks on diff files
+        if: github.event_name == 'pull_request'
+        run: |
+          pre-commit run --show-diff-on-failure --color=always \
+            --from-ref ${{ steps.commit-shas.outputs.BASE }} \
+            --to-ref ${{ steps.commit-shas.outputs.TARGET }}
       - uses: pre-commit/action@v3.0.1
+        if: github.event_name != 'pull_request'
 
   test_code:
     runs-on: ${{ matrix.os }}
