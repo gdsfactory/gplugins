@@ -73,6 +73,7 @@ sax = ["sax>=0.13.1,<0.15.0"]
 schematic = ["bokeh", "ipywidgets", "natsort"]
 tidy3d = ["tidy3d>=2.8.2,<2.9", "gdstk"]
 vlsir = ["vlsir", "vlsirtools"]
+emode = ["emodeconnection"]
 
 [tool.codespell]
 ignore-words-list = 'te, te/tm, te, ba, fpr, fpr_spacing, ro, nd, donot, schem, Ue'
