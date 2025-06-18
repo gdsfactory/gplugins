@@ -57,6 +57,7 @@ def _check_midpoint_found(inner_points, outer_points, port_list) -> bool:
     else:
         return False
 
+
 def centerline_voronoi_2_ports(
     poly: Polygon,
     port_list: list[gf.Port],
@@ -153,6 +154,7 @@ def centerline_voronoi_2_ports(
 
     # Re-add ports as start and end points
     centerline = np.vstack((port_list[0].center, centerline, port_list[1].center))
+    centerline = sort_points_nearest_neighbor(centerline)
 
     # Resample the centerline to have a specific resolution for more robust curvature post-processing
     # Use a fraction of the original number of samples to avoid oversampling
