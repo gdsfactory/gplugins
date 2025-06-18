@@ -136,3 +136,45 @@ def sort_points_nearest_neighbor(points: np.ndarray, start_idx: int = 0) -> np.n
         remaining[next_idx] = False
 
     return result
+
+
+def filter_points_by_std_distance(
+    points: np.ndarray, std_multiplier: float = 1
+) -> np.ndarray:
+    """Filters out points that are outliers based on the distance to their neighbors.
+
+    Assumes that the points are ordered in a way that makes sense (e.g., sorted or nearest neighbor).
+    """
+    # Calculate distances between consecutive points
+    if len(points) > 2:
+        point_diffs = np.diff(points, axis=0)
+        point_distances = np.sqrt(np.sum(point_diffs**2, axis=1))
+
+        # Calculate mean and standard deviation of distances
+        mean_distance = np.mean(point_distances)
+        try:
+            std_distance = np.std(point_distances, mean=mean_distance, ddof=1)
+        except TypeError:
+            # For older numpy versions that don't support `mean` argument
+            std_distance = np.std(point_distances, ddof=1)
+
+        # Identify outliers - points where distance to next point is > mean + 3*std
+        threshold = mean_distance + std_multiplier * std_distance
+        outlier_indices = np.where(point_distances > threshold)[0]
+
+        # Filter out the outliers
+        if len(outlier_indices) > 0:
+            # Create a mask of points to keep (all True initially)
+            keep_mask = np.ones(len(points), dtype=bool)
+
+            # Mark outlier points for removal
+            # We keep the start and end points (ports)
+            for idx in outlier_indices:
+                # Don't remove the first or last point (ports)
+                if 0 < idx + 1 < len(points) - 1:
+                    keep_mask[idx + 1] = False
+
+            # Apply the mask to filter the points
+            points = points[keep_mask]
+
+    return points

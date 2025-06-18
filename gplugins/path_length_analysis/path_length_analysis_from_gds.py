@@ -12,6 +12,7 @@ from klayout.db import DPoint, Polygon
 from scipy.spatial import Voronoi, distance, voronoi_plot_2d
 
 from gplugins.path_length_analysis.utils import (
+    filter_points_by_std_distance,
     resample_polygon_points_w_interpolator,
     sort_points_nearest_neighbor,
 )
@@ -55,7 +56,6 @@ def _check_midpoint_found(inner_points, outer_points, port_list) -> bool:
         return False
     else:
         return False
-
 
 def centerline_voronoi_2_ports(
     poly: Polygon,
@@ -130,6 +130,11 @@ def centerline_voronoi_2_ports(
 
     # Add ports as start and end points
     centerline = np.vstack((port_list[0].center, centerline, port_list[1].center))
+
+    # Consider points that are 3× the standard deviation away from the mean distance to be artifacts
+    centerline = sort_points_nearest_neighbor(centerline, start_idx=0)
+    centerline = filter_points_by_std_distance(centerline)
+
     # The points are not guaranteed to be ordered, so we need to sort them
     # Initially sort the centerline by euclidean distance from (0, 0)
     # centerline = centerline[np.argsort(np.linalg.norm(centerline, axis=1))]
