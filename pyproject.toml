@@ -64,7 +64,7 @@ maintainer = ["mypy", "tbump", "towncrier"]
 meow = [
   "meow-sim>=0.14.1,<0.15",
   "sax>=0.15.4,<0.16.0",
-  "tidy3d>=2.8.2,<2.9",
+  "tidy3d>=2.8.2,<2.9"
 ]
 path_length_analysis = ["bokeh", "numba", "shapely"]
 sax = ["sax>=0.15.4,<0.16.0"]
