@@ -17,7 +17,7 @@ dependencies = [
   "pint",
   "tqdm",
   "numpy==2.2",  # numpy 2.2 is required for numba
-  "xarray==2025.1.2"
+  "xarray==2025.6.1"
 ]
 description = "gdsfactory plugins"
 keywords = ["python"]
