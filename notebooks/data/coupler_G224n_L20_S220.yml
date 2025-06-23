@@ -1,0 +1,16 @@
+background_material: SiO2 (Glass) - Palik
+layer2material:
+- 1_0_Si (Silicon) - Palik
+- 111_0_SiO2 (Glass) - Palik
+- 34_0_Si3N4 (Silicon Nitride) - Phillip
+layer2nm:
+- '1_0_220'
+mesh_accuracy: 2
+port_extension_um: 1
+port_height: 1.5e-06
+port_width: 3.0e-06
+remove_layers:
+- - 111
+  - 0
+ymargin: 2.0e-06
+zmargin: 1.0e-06
