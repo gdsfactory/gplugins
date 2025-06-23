@@ -16,7 +16,7 @@ dependencies = [
   "gdsfactory>=9.3.5",
   "pint",
   "tqdm",
-  "numpy",
+  "numpy==2.2",  # numpy 2.2 is required for numba
   "xarray==2025.1.2"
 ]
 description = "gdsfactory plugins"
@@ -63,11 +63,11 @@ luminescent = ["luminescent>=0.2.12,<0.4.0", "sortedcontainers"]
 maintainer = ["mypy", "tbump", "towncrier"]
 meow = [
   "meow-sim>=0.14.1,<0.15",
-  "sax>=0.15.4,<0.16.0",
+  "sax>=0.15.5,<0.16.0",
   "tidy3d>=2.8.2,<2.9"
 ]
 path_length_analysis = ["bokeh", "numba", "shapely"]
-sax = ["sax>=0.15.4,<0.16.0"]
+sax = ["sax>=0.15.5,<0.16.0"]
 schematic = ["bokeh", "ipywidgets", "natsort"]
 tidy3d = ["tidy3d>=2.8.2,<2.9", "gdstk"]
 vlsir = ["vlsir", "vlsirtools"]
