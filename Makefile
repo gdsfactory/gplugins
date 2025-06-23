@@ -1,5 +1,5 @@
 uv:
-	curl -LsSf https://astral.sh/uv/0.5.5/install.sh | sh
+	curl -LsSf https://astral.sh/uv/install.sh | sh
 
 venv:
 	uv venv --python 3.11

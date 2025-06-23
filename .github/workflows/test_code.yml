@@ -67,6 +67,7 @@ jobs:
           conda activate mp
           conda install -c conda-forge pymeep pymeep-extras gdsfactory -y
           pip install .[meep,dev] setuptools
+          pip install "numpy<2.0"
           make test-data
       - name: Test with pytest
         shell: bash -l {0}
