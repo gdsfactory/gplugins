@@ -21,6 +21,10 @@ from sax.models import (
     straight,
     unitary,
 )
+from sax.models import coupler_ideal as coupler_single_wavelength
+from sax.models import (
+    crossing_ideal as crossing,
+)
 from sax.saxtypes import Float, FloatArray
 
 nm = 1e-3
@@ -33,6 +37,8 @@ __all__ = [
     "copier",
     "coupler",
     "coupler_ideal",
+    "coupler_single_wavelength",
+    "crossing",
     "crossing_ideal",
     "grating_coupler",
     "mmi1x2",

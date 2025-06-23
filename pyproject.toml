@@ -69,7 +69,7 @@ meow = [
   "tidy3d>=2.8.2,<2.9"
 ]
 path_length_analysis = ["bokeh", "numba", "shapely"]
-sax = ["sax>=0.15.0,<0.16.0"]
+sax = ["sax>=0.15.4,<0.16.0"]
 schematic = ["bokeh", "ipywidgets", "natsort"]
 tidy3d = ["tidy3d>=2.8.2,<2.9", "gdstk"]
 vlsir = ["vlsir", "vlsirtools"]

@@ -1302,7 +1302,7 @@ requires-dist = [
     { name = "pyvista", marker = "extra == 'devsim'", specifier = "<=0.43.8" },
     { name = "pyvista", marker = "extra == 'gmsh'", specifier = "<=0.43.8" },
     { name = "pyvista", extras = ["all"], marker = "extra == 'docs'", specifier = "<=0.43.8" },
-    { name = "sax", marker = "extra == 'sax'", specifier = ">=0.15.1,<0.16.0" },
+    { name = "sax", marker = "extra == 'sax'", specifier = ">=0.15.4,<0.16.0" },
     { name = "scikit-learn", marker = "extra == 'docs'" },
     { name = "shapely", marker = "extra == 'gfviz'" },
     { name = "shapely", marker = "extra == 'gmsh'" },
@@ -4229,7 +4229,7 @@ wheels = [
 
 [[package]]
 name = "sax"
-version = "0.15.1"
+version = "0.15.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "flax" },
@@ -4246,7 +4246,7 @@ dependencies = [
     { name = "xarray" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/68/14/bddf0ca854831277d2811fe42f3da19d15f6a918d58229c3eca7c18b4fb1/sax-0.15.1-py3-none-any.whl", hash = "sha256:7696807ac1ae407744db4d4ca4ce6918327f0992ad9b02d2b0303cf20ee9b7d2", size = 92932, upload-time = "2025-06-20T21:58:07.637Z" },
+    { url = "https://files.pythonhosted.org/packages/b2/ba/9a73456ebad96ff6887a57545ee684dc023396501d9c3a377ad52eea29b1/sax-0.15.4-py3-none-any.whl", hash = "sha256:3924a76e3a5d61e5795473b894bb22229bf9c70de9d432c5fa913fab80d749f9", size = 93232, upload-time = "2025-06-23T03:26:34.718Z" },
 ]
 
 [[package]]
