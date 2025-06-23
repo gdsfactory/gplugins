@@ -4,6 +4,11 @@
 
 <!-- towncrier release notes start -->
 
+## [1.4.0](https://github.com/gdsfactory/gplugins/releases/tag/v1.4.0) - 2025-06-22
+
+No significant changes.
+
+
 ## [1.3.8](https://github.com/gdsfactory/gplugins/releases/tag/v1.3.8) - 2025-06-06
 
 - Fix lumerical extension [#594](https://github.com/gdsfactory/gplugins/pull/594)
