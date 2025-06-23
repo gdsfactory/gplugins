@@ -59,8 +59,7 @@ def module(S: sax.SDict) -> sax.SDict:
 def test_mzi_lattice(data_regression: Any, check: bool = True) -> None:
     c = mzis()
     netlist = c.get_netlist(recursive=True)
-    circuit, _ = sax.circuit(netlist=netlist, models=models)
-    c.show()
+    circuit, _ = sax.circuit(netlist=sax.Netlist(netlist), models=models)
     wl = np.linspace(1.5, 1.6, 3)
     S = circuit(wl=wl)
     S = module(S)
