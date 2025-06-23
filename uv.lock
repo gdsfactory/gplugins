@@ -1230,10 +1230,8 @@ maintainer = [
     { name = "towncrier" },
 ]
 meow = [
-    { name = "flax" },
-    { name = "jax" },
-    { name = "jaxlib" },
     { name = "meow-sim" },
+    { name = "sax" },
     { name = "tidy3d" },
 ]
 path-length-analysis = [
@@ -1266,15 +1264,12 @@ requires-dist = [
     { name = "devsim", marker = "extra == 'devsim'" },
     { name = "fastapi", marker = "extra == 'gfviz'" },
     { name = "femwell", marker = "extra == 'femwell'", specifier = "~=0.1.11" },
-    { name = "flax", marker = "extra == 'meow'", specifier = ">=0.8.2" },
     { name = "gdsfactory", specifier = ">=9.3.5" },
     { name = "gdstk", marker = "extra == 'tidy3d'" },
     { name = "gmsh", marker = "extra == 'gmsh'", specifier = "==4.13.0" },
     { name = "h5py", marker = "extra == 'gmsh'" },
     { name = "hypothesis", marker = "extra == 'dev'" },
     { name = "ipywidgets", marker = "extra == 'schematic'" },
-    { name = "jax", marker = "extra == 'meow'", specifier = ">=0.4.26" },
-    { name = "jaxlib", marker = "extra == 'meow'", specifier = ">=0.4.26" },
     { name = "jinja2", marker = "extra == 'gfviz'" },
     { name = "jupyter-book", marker = "extra == 'docs'", specifier = "~=1.0" },
     { name = "jupytext", marker = "extra == 'docs'" },
@@ -1282,7 +1277,7 @@ requires-dist = [
     { name = "luminescent", marker = "extra == 'luminescent'", specifier = ">=0.2.12,<0.4.0" },
     { name = "mapbox-earcut", marker = "extra == 'gmsh'" },
     { name = "matplotlib", marker = "extra == 'docs'" },
-    { name = "meow-sim", marker = "extra == 'meow'", specifier = ">=0.13,<0.14" },
+    { name = "meow-sim", marker = "extra == 'meow'", specifier = ">=0.14.1,<0.15" },
     { name = "meshio", marker = "extra == 'gmsh'" },
     { name = "meshwell", marker = "extra == 'femwell'", specifier = "~=1.0.7" },
     { name = "meshwell", marker = "extra == 'gmsh'", specifier = "~=1.0.7" },
@@ -1302,6 +1297,7 @@ requires-dist = [
     { name = "pyvista", marker = "extra == 'devsim'", specifier = "<=0.43.8" },
     { name = "pyvista", marker = "extra == 'gmsh'", specifier = "<=0.43.8" },
     { name = "pyvista", extras = ["all"], marker = "extra == 'docs'", specifier = "<=0.43.8" },
+    { name = "sax", marker = "extra == 'meow'", specifier = ">=0.15.4,<0.16.0" },
     { name = "sax", marker = "extra == 'sax'", specifier = ">=0.15.4,<0.16.0" },
     { name = "scikit-learn", marker = "extra == 'docs'" },
     { name = "shapely", marker = "extra == 'gfviz'" },
@@ -2488,23 +2484,24 @@ wheels = [
 
 [[package]]
 name = "meow-sim"
-version = "0.13.0"
+version = "0.14.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
+    { name = "jax" },
+    { name = "klujax" },
     { name = "matplotlib" },
     { name = "numpy" },
     { name = "orjson" },
-    { name = "packaging" },
     { name = "pydantic" },
+    { name = "pyyaml" },
     { name = "sax" },
-    { name = "scipy" },
     { name = "shapely" },
     { name = "tidy3d" },
+    { name = "tqdm" },
     { name = "trimesh", extra = ["easy"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4d/6d/3f43b0aa0823908baa26fa2e84f6a638c472621fc673b77fb8b32faa3fa4/meow_sim-0.13.0.tar.gz", hash = "sha256:3d79d6264abb6818e29564e921d546b5c3d9415fe12b66658bae4c88adb29d65", size = 49028, upload-time = "2025-04-13T13:08:32.047Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/53/61/b8bf36c4b2bb82b0727115c2f311759aeee6b9e0edb842dd1d82c527bb01/meow_sim-0.13.0-py3-none-any.whl", hash = "sha256:e2658309cfeb6e6ee415bb9cdaf950673cdc74ed8da13517af72e065204dce3d", size = 53051, upload-time = "2025-04-13T13:08:30.585Z" },
+    { url = "https://files.pythonhosted.org/packages/75/b9/e3ae314597c1d50cdf29a789e6360a4bab11611cfd9fe14df93c5424c928/meow_sim-0.14.1-py3-none-any.whl", hash = "sha256:e43de1f2ae18d42c246f81962cd6fc559e947203e616dc657949504fd2ce8a08", size = 58887, upload-time = "2025-06-23T04:06:51.38Z" },
 ]
 
 [[package]]
