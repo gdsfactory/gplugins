@@ -15,6 +15,7 @@ from gplugins.path_length_analysis.utils import (
     filter_points_by_std_distance,
     resample_polygon_points_w_interpolator,
     sort_points_nearest_neighbor,
+    smoothed_savgol_filter,
 )
 
 fix_values = [0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6, 7, -7, 8, -8]
@@ -658,7 +659,7 @@ def extract_paths(
                 centerline.points[:, 0],
                 centerline.points[:, 1],
                 "x--",
-                label=ports,
+                label=f"Ports {ports}",
             )
         plt.legend()
         plt.title("Direct paths")
@@ -678,13 +679,14 @@ def extract_paths(
                     centerline.points[:, 0],
                     centerline.points[:, 1],
                     "--",
-                    label=ports,
+                    label=f"Ports {ports}",
                 )
             plt.legend()
             plt.title("Evanescent paths")
             plt.xlabel("X-coordinate")
             plt.ylabel("Y-coordinate")
             plt.grid(True)
+            plt.gca().set_aspect("equal", adjustable="box")  # Force equilateral axes
 
         plt.show()
 
@@ -711,7 +713,7 @@ def get_min_radius_and_length(path: gf.Path) -> tuple[float, float]:
     return min_radius, path.length()
 
 
-def plot_curvature(path: gf.Path, rmax: int | float = 200) -> None:
+def plot_curvature(path: gf.Path, rmax: int | float = 200) -> plt.Figure:
     """Plot the curvature of a path.
 
     Args:
@@ -724,11 +726,14 @@ def plot_curvature(path: gf.Path, rmax: int | float = 200) -> None:
     curvature2 = K[valid_indices]
     s2 = s[valid_indices]
 
+    smoothed_curvature = smoothed_savgol_filter(curvature2)
+
     plt.figure(figsize=(10, 5))
-    plt.plot(s2, curvature2, ".-")
-    plt.xlabel("Position along curve (arc length)")
+    plt.plot(s2, curvature2, ".-", label="Raw")
+    plt.plot(s2, smoothed_curvature, ".-", label="Savitzky–Golay filtered")
+    plt.xlabel("Position along arc length (units)")
     plt.ylabel("Curvature (units⁻¹)")
-    plt.show()
+    plt.legend()
     return plt
 
 
@@ -747,7 +752,7 @@ def plot_radius(path: gf.Path, rmax: float = 200) -> plt.Figure:
 
     fig, ax = plt.subplots(1, 1, figsize=(15, 5))
     ax.plot(s2, radius2, ".-")
-    ax.set_xlabel("Position along curve (arc length)")
+    ax.xlabel("Position along arc length (units)")
     ax.set_ylabel("Radius of curvature (units)")
     ax.grid(True)
     return fig
