@@ -27,12 +27,12 @@ test:
 	pytest
 
 uv-test:
-	@for plugin in femwell gmsh meow sax tidy3d klayout vlsir; do \
+	@for plugin in femwell gmsh meow sax tidy3d klayout vlsir path_length_analysis; do \
 		uv run pytest gplugins/$$plugin; \
 	done
 
 cov:
-	uv run pytest gplugins/femwell gplugins/gmsh gplugins/meow gplugins/sax gplugins/tidy3d gplugins/klayout gplugins/vlsir --cov=gplugins/femwell --cov=gplugins/gmsh --cov=gplugins/meow --cov=gplugins/sax --cov=gplugins/tidy3d --cov=gplugins/klayout --cov=gplugins/vlsir
+	uv run pytest gplugins/femwell gplugins/gmsh gplugins/meow gplugins/sax gplugins/tidy3d gplugins/klayout gplugins/vlsir gplugins/path_length_analysis --cov=gplugins/femwell --cov=gplugins/gmsh --cov=gplugins/meow --cov=gplugins/sax --cov=gplugins/tidy3d --cov=gplugins/klayout --cov=gplugins/vlsir --cov=gplugins/path_length_analysis
 
 test-data:
 	git clone https://github.com/gdsfactory/gdsfactory-test-data.git -b test-data test-data
