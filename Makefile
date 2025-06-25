@@ -73,4 +73,4 @@ clean:
 	rm -rf .ruff_cache
 	rm -rf .venv
 
-.PHONY: drc doc docs
+.PHONY: drc doc docs dev
