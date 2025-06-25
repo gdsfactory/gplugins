@@ -80,6 +80,8 @@ def centerline_voronoi_2_ports(
             "port_list must be a list of 2 ports, got: "
             f"{port_list} with length {len(port_list)}"
         )
+    port_list = [p.to_itype() for p in port_list]
+
     # Simplify points that are too close to each other
     r = gf.kdb.Region(poly)
     r = r.smoothed(0.05, True)
@@ -96,6 +98,7 @@ def centerline_voronoi_2_ports(
     shapely_poly_original = sh.Polygon(points)
 
     # Infer port widths to be 2x the distance between the port center and the nearest point on the polygon
+    # This is done such that port_positions is supported
     port_widths = []
     for port in port_list:
         # Compute distances from each point to port center
