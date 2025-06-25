@@ -752,7 +752,7 @@ def plot_radius(path: gf.Path, rmax: float = 200) -> plt.Figure:
 
     fig, ax = plt.subplots(1, 1, figsize=(15, 5))
     ax.plot(s2, radius2, ".-")
-    ax.xlabel("Position along arc length (units)")
+    ax.set_xlabel("Position along arc length (units)")
     ax.set_ylabel("Radius of curvature (units)")
     ax.grid(True)
     return fig
