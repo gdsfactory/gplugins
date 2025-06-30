@@ -1,6 +1,5 @@
 # type: ignore
 from collections.abc import Callable
-from functools import partial
 
 import gdsfactory as gf
 import kfactory as kf
@@ -10,10 +9,15 @@ import shapely as sh
 import shapely.ops as ops
 from gdsfactory import logger
 from klayout.db import DPoint, Polygon
-from scipy.signal import savgol_filter
-from scipy.spatial import distance
+from scipy.spatial import Voronoi, distance, voronoi_plot_2d
 
-filter_savgol_filter = partial(savgol_filter, window_length=11, polyorder=3, axis=0)
+from gplugins.path_length_analysis.utils import (
+    filter_points_by_std_distance,
+    resample_polygon_points_w_interpolator,
+    sort_points_nearest_neighbor,
+    smoothed_savgol_filter,
+)
+
 fix_values = [0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6, 7, -7, 8, -8]
 
 
@@ -53,6 +57,121 @@ def _check_midpoint_found(inner_points, outer_points, port_list) -> bool:
         return False
     else:
         return False
+
+
+def centerline_voronoi_2_ports(
+    poly: Polygon,
+    port_list: list[gf.Port],
+    plot: bool = False,
+) -> np.ndarray:
+    """Returns the centerline for a single polygon that has 2 ports.
+
+    This function uses Voronoi tessellation to find the centerline of a polygon.
+
+    Args:
+        poly: The KLayout Polygon object representing the waveguide or structure.
+        port_list: List of two ports (gf.Port objects) corresponding to the start and end ports of the polygon.
+        plot: If True, plots the Voronoi diagram and the centerline.
+
+    Returns:
+        np.ndarray: An array of (x, y) points representing the calculated centerline in microns.
+    """
+    if len(port_list) != 2:
+        raise ValueError(
+            "port_list must be a list of 2 ports, got: "
+            f"{port_list} with length {len(port_list)}"
+        )
+    port_list = [p.to_itype() for p in port_list]
+
+    # Simplify points that are too close to each other
+    r = gf.kdb.Region(poly)
+    r = r.smoothed(0.05, True)
+
+    # Get polygon points from klayout DPolygon and resample
+    points = np.array([(pt.x, pt.y) for pt in r[0].each_point_hull()])
+    if len(points) < 3:
+        raise ValueError(
+            "The polygon must have at least 3 points to compute a centerline."
+        )
+    # Ensure the polygon is closed by appending the first point to the end
+    # This ensures resampling for all edges later on
+    points = np.vstack((points, points[0]))
+    shapely_poly_original = sh.Polygon(points)
+
+    # Infer port widths to be 2x the distance between the port center and the nearest point on the polygon
+    # This is done such that port_positions is supported
+    port_widths = []
+    for port in port_list:
+        # Compute distances from each point to port center
+        distances = distance.cdist([port.center], points)
+        # Find the minimum distance
+        min_distance = np.min(distances)
+        port_widths.append(min_distance * 2)
+
+    # Interpolate between the points to ensure enough sampling using Pchip interpolation
+    interpolated_points = resample_polygon_points_w_interpolator(
+        points, n_samples_coeff=2
+    )
+
+    # Remove interpolated points that are too close to the ports
+    for port, width in zip(port_list, port_widths):
+        distances = distance.cdist([port.center], interpolated_points)
+        # Keep points that are at least half a width away from the port center
+        mask = distances[0] > (width - 1) / 2
+        interpolated_points = interpolated_points[mask]
+
+    # Use Voronoi to find the centerline
+    voronoi = Voronoi(interpolated_points)
+
+    if plot:
+        voronoi_plot_2d(voronoi)
+        plt.gca().set_aspect("equal", adjustable="box")  # Force equilateral axes
+        plt.show()
+
+    # Filter Voronoi vertices to keep only those inside the original polygon
+    centerline = np.array(
+        [v for v in voronoi.vertices if shapely_poly_original.contains(sh.Point(v))]
+    )
+
+    # Add ports as start and end points
+    centerline = np.vstack((port_list[0].center, centerline, port_list[1].center))
+
+    # Consider points that are 3× the standard deviation away from the mean distance to be artifacts
+    centerline = sort_points_nearest_neighbor(centerline, start_idx=0)
+    centerline = filter_points_by_std_distance(centerline)
+
+    # The points are not guaranteed to be ordered, so we need to sort them
+    # Initially sort the centerline by euclidean distance from (0, 0)
+    # centerline = centerline[np.argsort(np.linalg.norm(centerline, axis=1))]
+    centerline = sort_points_nearest_neighbor(centerline, start_idx=0)
+
+    # Because of Voronoi tessellation zig-zagging on less sampled polygons,
+    # take only half the points by averaging consecutive pairs
+    if len(centerline) % 2 != 0:
+        centerline = centerline[:-1]  # Ensure even number of points
+    centerline = (centerline[::2] + centerline[1::2]) / 2
+
+    # Filter again just in case
+    centerline = np.array(
+        [v for v in centerline if shapely_poly_original.contains(sh.Point(v))]
+    )
+
+    # Re-add ports as start and end points
+    centerline = np.vstack((port_list[0].center, centerline, port_list[1].center))
+    centerline = sort_points_nearest_neighbor(centerline)
+
+    # Resample the centerline to have a specific resolution for more robust curvature post-processing
+    # Use a fraction of the original number of samples to avoid oversampling
+    centerline = resample_polygon_points_w_interpolator(
+        centerline, n_samples_coeff=1 / 3
+    )
+    # This is inefficient but works for now
+    centerline = sort_points_nearest_neighbor(centerline)
+
+    # Convert to microns
+    centerline *= 1e-3
+
+    return centerline
 
 
 def centerline_single_poly_2_ports(poly, under_sampling, port_list) -> np.ndarray:
@@ -252,6 +371,7 @@ def extract_paths(
     evanescent_coupling: bool = False,
     consider_ports: list[str] | None = None,
     port_positions: list[tuple[float, float]] | None = None,
+    **kwargs,
 ) -> dict:
     """Extracts the centerline of a component or instance from a GDS file.
 
@@ -262,7 +382,7 @@ def extract_paths(
         component: gdsfactory component or instance to extract from.
         layer: layer to extract the centerline from.
         plot: If True, we plot the extracted paths.
-        filter_function: optional Function to filter the centerline.
+        filter_function: optional function to filter the centerline.
         under_sampling: under sampling factor of the polygon points.
         evanescent_coupling: if True, it assumes that there is evanescent coupling
             between ports not physically connected.
@@ -275,6 +395,7 @@ def extract_paths(
             Note - this will not work in cases where the specified port positions are only coupled
             evanescently. A workaround for this limitation is to specify one additional port that is
             physically connected to the ports of interest, for each port of interest.
+        **kwargs: Extra keyword arguments to pass to the centerline extraction function.
     """
     ev_paths = None
 
@@ -330,13 +451,14 @@ def extract_paths(
             if poly[0].is_box():  # only 4 points, no undersampling
                 centerline = centerline_single_poly_2_ports(poly, 1, ports_list)
             else:
-                centerline = centerline_single_poly_2_ports(
-                    poly, under_sampling, ports_list
+                centerline = centerline_voronoi_2_ports(
+                    poly,
+                    ports_list,
+                    **kwargs,
                 )
             if filter_function is not None:
                 centerline = filter_function(centerline)
-            p = gf.Path(centerline)
-            paths[f"{ports_list[0].name};{ports_list[1].name}"] = p
+            paths[f"{ports_list[0].name};{ports_list[1].name}"] = gf.Path(centerline)
 
         else:
             # Single polygon and more than 2 ports - MMI
@@ -387,13 +509,16 @@ def extract_paths(
             ]
             if len(ports_poly) == 2:
                 # Each polygon has two ports - simple case
-                centerline = centerline_single_poly_2_ports(
-                    poly, under_sampling, ports_poly
+                centerline = centerline_voronoi_2_ports(
+                    poly,
+                    ports_poly,
+                    **kwargs,
                 )
                 if filter_function is not None:
                     centerline = filter_function(centerline)
-                p = gf.Path(centerline)
-                paths[f"{ports_poly[0].name};{ports_poly[1].name}"] = p
+                paths[f"{ports_poly[0].name};{ports_poly[1].name}"] = gf.Path(
+                    centerline
+                )
 
             elif len(ports_poly) == 0:
                 # No ports in the polygon - continue
@@ -423,11 +548,9 @@ def extract_paths(
                     if port1 == port2:
                         # Same port - skip
                         continue
-                    if (
-                        f"{port1};{port2}" in paths
-                        or f"{port2};{port1}" in paths
-                        or f"{port1};{port2}" in ev_paths
-                        or f"{port2};{port1}" in ev_paths
+                    if any(
+                        s in paths | ev_paths
+                        for s in (f"{port1};{port2}", f"{port2};{port1}")
                     ):
                         # The path has already been computed
                         continue
@@ -462,8 +585,8 @@ def extract_paths(
                         # Find the point closest to the center of the polygon
                         center = np.array(
                             [
-                                simplified_component.dcenter.x,
-                                simplified_component.dcenter.y,
+                                simplified_component.dcenter[0],
+                                simplified_component.dcenter[1],
                             ]
                         )
 
@@ -535,14 +658,15 @@ def extract_paths(
             plt.plot(
                 centerline.points[:, 0],
                 centerline.points[:, 1],
-                "--",
-                label=ports,
+                "x--",
+                label=f"Ports {ports}",
             )
         plt.legend()
         plt.title("Direct paths")
         plt.xlabel("X-coordinate")
         plt.ylabel("Y-coordinate")
         plt.grid(True)
+        plt.gca().set_aspect("equal", adjustable="box")  # Force equilateral axes
 
         if ev_paths is not None:
             plt.figure()
@@ -555,13 +679,14 @@ def extract_paths(
                     centerline.points[:, 0],
                     centerline.points[:, 1],
                     "--",
-                    label=ports,
+                    label=f"Ports {ports}",
                 )
             plt.legend()
             plt.title("Evanescent paths")
             plt.xlabel("X-coordinate")
             plt.ylabel("Y-coordinate")
             plt.grid(True)
+            plt.gca().set_aspect("equal", adjustable="box")  # Force equilateral axes
 
         plt.show()
 
@@ -580,12 +705,15 @@ def get_min_radius_and_length_path_dict(path_dict: dict) -> dict:
 def get_min_radius_and_length(path: gf.Path) -> tuple[float, float]:
     """Get the minimum radius of curvature and the length of a path."""
     _, K = path.curvature()
+    # Ignore the end points if possible as these may have artifacts
+    if len(K) > 3:
+        K = K[1:-1]
     radius = 1 / K
     min_radius = np.nanmin(np.abs(radius))
     return min_radius, path.length()
 
 
-def plot_curvature(path: gf.Path, rmax: int | float = 200) -> None:
+def plot_curvature(path: gf.Path, rmax: int | float = 200) -> plt.Figure:
     """Plot the curvature of a path.
 
     Args:
@@ -595,14 +723,18 @@ def plot_curvature(path: gf.Path, rmax: int | float = 200) -> None:
     s, K = path.curvature()
     radius = 1 / K
     valid_indices = (radius > -rmax) & (radius < rmax)
-    radius2 = radius[valid_indices]
+    curvature2 = K[valid_indices]
     s2 = s[valid_indices]
 
+    smoothed_curvature = smoothed_savgol_filter(curvature2)
+
     plt.figure(figsize=(10, 5))
-    plt.plot(s2, radius2, ".-")
-    plt.xlabel("Position along curve (arc length)")
-    plt.ylabel("Radius of curvature")
-    plt.show()
+    plt.plot(s2, curvature2, ".-", label="Raw")
+    plt.plot(s2, smoothed_curvature, ".-", label="Savitzky–Golay filtered")
+    plt.xlabel("Position along arc length (units)")
+    plt.ylabel("Curvature (units⁻¹)")
+    plt.legend()
+    return plt
 
 
 def plot_radius(path: gf.Path, rmax: float = 200) -> plt.Figure:
@@ -620,8 +752,8 @@ def plot_radius(path: gf.Path, rmax: float = 200) -> plt.Figure:
 
     fig, ax = plt.subplots(1, 1, figsize=(15, 5))
     ax.plot(s2, radius2, ".-")
-    ax.set_xlabel("Position along curve (arc length)")
-    ax.set_ylabel("Radius of curvature")
+    ax.set_xlabel("Position along arc length (units)")
+    ax.set_ylabel("Radius of curvature (units)")
     ax.grid(True)
     return fig
 

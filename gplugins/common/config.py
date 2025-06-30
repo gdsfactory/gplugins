@@ -25,6 +25,8 @@ class Path:
     klayout_tech = klayout / "tech.lyt"
     extra = repo / "extra"
     cwd = pathlib.Path.cwd()
+    notebooks = repo / "notebooks"
+    notebooks_data = notebooks / "data"
 
 
 PATH = Path()

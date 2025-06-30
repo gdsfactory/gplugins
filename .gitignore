@@ -13,7 +13,6 @@ gplugins/klayout/tech.lyt
 notebooks/luminescent_runs/
 
 # C extensions
-*.csv
 *.npz
 *.xdmf
 *.h5
@@ -24,11 +23,9 @@ notebooks/luminescent_runs/
 *.fsp
 *.hdf5
 *.msh
-*.dat
 *.gds
 *.pkl
 *.txt
-*.csv
 test-data/
 _autosummary/
 gplugins/path_length_analysis/test_pathlength_reporting/

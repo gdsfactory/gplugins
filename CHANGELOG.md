@@ -1,8 +1,19 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.3.8...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.4.0...main)
 
 <!-- towncrier release notes start -->
+
+## [1.4.0](https://github.com/gdsfactory/gplugins/releases/tag/v1.4.0) - 2025-06-22
+
+- More Voronoi extraction tests [#608](https://github.com/gdsfactory/gplugins/pull/608)
+- Add codeowners file [#607](https://github.com/gdsfactory/gplugins/pull/607)
+- Improve centerline extraction plugin [#602](https://github.com/gdsfactory/gplugins/pull/602)
+- Remove mypy from pre-commit [#606](https://github.com/gdsfactory/gplugins/pull/606)
+- fix palace [#597](https://github.com/gdsfactory/gplugins/pull/597)
+- fix_mypy [#596](https://github.com/gdsfactory/gplugins/pull/596)
+- update readme [#595](https://github.com/gdsfactory/gplugins/pull/595)
+- bump sax [#609](https://github.com/gdsfactory/gplugins/pull/609)
 
 ## [1.3.8](https://github.com/gdsfactory/gplugins/releases/tag/v1.3.8) - 2025-06-06
 
