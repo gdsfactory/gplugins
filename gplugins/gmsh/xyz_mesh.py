@@ -29,11 +29,10 @@ def define_edgeport(
     port: gf.Port,
     port_dict: dict[str, Any],
     model: Model,
-    layerlevel: LayerLevel,
 ):
     """Creates an unmeshed box at the port location to tag the edge port surfaces in the final mesh."""
-    zmin = port_dict.get("zmin") or layerlevel.zmin
-    zmax = port_dict.get("zmax") or zmin + layerlevel.thickness
+    zmin = port_dict.get("zmin")
+    zmax = port_dict.get("zmax")
 
     dz = zmax - zmin
     x, y = port.center
@@ -288,18 +287,16 @@ def xyz_mesh(
     # Add edgeports
     if edge_ports is not None:
         ports = component.ports
-        port_layernames = layer_stack.get_layer_to_layername()
-        for portname, edge_ports_dict in edge_ports:
+        for portname, edge_ports_dict in edge_ports.items():
             port = ports[portname]
             prisms_list.append(
                 define_edgeport(
                     port,
                     edge_ports_dict,
                     model,
-                    layerlevel=layer_stack.layers[port_layernames[port.layer][0]],
+
                 )
             )
-
     import copy
 
     resolutions = copy.deepcopy(resolutions)
