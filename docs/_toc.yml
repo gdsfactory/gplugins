@@ -29,7 +29,7 @@ parts:
       - file: plugins_mode_solver
         sections:
           - file: notebooks/femwell_01_modes
-          - file: notebooks/tidy3d_01_tidy3d_modes
+          - file: notebooks/mode_solver_fdfd
           - file: notebooks/mpb_001_mpb_waveguide
           - file: notebooks/meow_01
       - file: plugins_fdtd
