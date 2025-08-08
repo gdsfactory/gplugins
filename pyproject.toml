@@ -17,7 +17,7 @@ dependencies = [
   "pint",
   "tqdm",
   "numpy==2.2",  # numpy 2.2 is required for numba
-  "xarray==2025.1.2"
+  "xarray==2025.7.1"
 ]
 description = "gdsfactory plugins"
 keywords = ["python"]
@@ -49,7 +49,7 @@ docs = [
 femwell = ["femwell~=0.1.11", "meshwell~=1.0.7"]
 gfviz = ["jinja2", "fastapi", "shapely", "natsort"]
 gmsh = [
-  "gmsh==4.13.0",
+  "gmsh==4.14.0",
   "h5py",
   "mapbox_earcut",
   "meshio",
