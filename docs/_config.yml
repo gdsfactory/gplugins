@@ -26,7 +26,6 @@ execute:
     - "*elmer_01_electrostatic*"
     - "*meep_*"
     - "*meow_01*"
-    - "*femwell_01_modes*"
     - "*luminescent*"
     - "*pso*"
     - "*mpb*"
