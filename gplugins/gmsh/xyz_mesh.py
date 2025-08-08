@@ -294,7 +294,6 @@ def xyz_mesh(
                     port,
                     edge_ports_dict,
                     model,
-
                 )
             )
     import copy
