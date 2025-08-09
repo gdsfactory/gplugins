@@ -4,6 +4,11 @@
 
 <!-- towncrier release notes start -->
 
+## [1.4.1](https://github.com/gdsfactory/gplugins/releases/tag/v1.4.1) - 2025-08-09
+
+No significant changes.
+
+
 ## [1.4.0](https://github.com/gdsfactory/gplugins/releases/tag/v1.4.0) - 2025-06-22
 
 - More Voronoi extraction tests [#608](https://github.com/gdsfactory/gplugins/pull/608)
