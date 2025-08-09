@@ -1,13 +1,18 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.4.0...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.4.1...main)
 
 <!-- towncrier release notes start -->
 
 ## [1.4.1](https://github.com/gdsfactory/gplugins/releases/tag/v1.4.1) - 2025-08-09
 
-No significant changes.
-
+- better title for plot model [#620](https://github.com/gdsfactory/gplugins/pull/620)
+- Improve path-length extraction notebook [#611](https://github.com/gdsfactory/gplugins/pull/611)
+- improve femwell mode solver notebooks [#619](https://github.com/gdsfactory/gplugins/pull/619)
+- Fixed/updated edgeports in gmsh plugin [#614](https://github.com/gdsfactory/gplugins/pull/614)
+- Bump xarray from 2025.1.2 to 2025.7.1 [#615](https://github.com/gdsfactory/gplugins/pull/615)
+- Bump gmsh from 4.13.0 to 4.14.0 [#613](https://github.com/gdsfactory/gplugins/pull/613)
+- [pre-commit.ci] pre-commit autoupdate [#599](https://github.com/gdsfactory/gplugins/pull/599)
 
 ## [1.4.0](https://github.com/gdsfactory/gplugins/releases/tag/v1.4.0) - 2025-06-22
 
