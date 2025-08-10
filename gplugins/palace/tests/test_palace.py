@@ -3,8 +3,8 @@ from math import inf
 import gdsfactory as gf
 import pytest
 from gdsfactory.component import Component
-from gdsfactory.components.interdigital_capacitor_enclosed import (
-    interdigital_capacitor_enclosed,
+from gdsfactory.components.analog.interdigital_capacitor import (
+    interdigital_capacitor,
 )
 from gdsfactory.generic_tech import LAYER
 from gdsfactory.technology import LayerStack
@@ -45,9 +45,7 @@ material_spec = {
 def geometry(lumped_ports=False) -> Component:
     simulation_box = [[-200, -200], [200, 200]]
     c = gf.Component()
-    cap = c << interdigital_capacitor_enclosed(
-        metal_layer=LAYER.WG, gap_layer=LAYER.DEEPTRENCH, enclosure_box=simulation_box
-    )
+    cap = c << interdigital_capacitor()
     if lumped_ports:
         lumped_port_1_1 = gf.components.bbox(((-40, 11), (-46, 5)), layer=LAYER.PORT)
         lumped_port_1_2 = gf.components.bbox(((-40, -11), (-46, -5)), layer=LAYER.PORT)
@@ -100,7 +98,7 @@ def get_reasonable_mesh_parameters_capacitance(c: Component):
     )
 
 
-@pytest.mark.skip(reason="Palace not in CI")
+# @pytest.mark.skip(reason="Palace not in CI")
 def test_palace_capacitance_simulation_runs(geometry) -> None:
     c = geometry
     run_capacitive_simulation_palace(

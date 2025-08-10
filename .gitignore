@@ -187,3 +187,6 @@ cython_debug/
 *.BAK
 *.sav
 *.plt
+
+
+notebooks/*.py

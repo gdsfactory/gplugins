@@ -25,7 +25,7 @@ def get_component_layer_stack(
     layernames_dict = new_layer_stack.get_layer_to_layername()
     layernames_present = [
         name
-        for sublist in [layernames_dict[layer] for layer in layers_present]
+        for sublist in [layernames_dict[LogicalLayer(layer=layer)] for layer in layers_present]
         for name in sublist
     ]
     for key in list(new_layer_stack.layers.keys()):
