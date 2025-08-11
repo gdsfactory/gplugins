@@ -78,7 +78,7 @@ jobs:
   test_palace:
     runs-on: ubuntu-latest
     container:
-      image: benvial/palace:latest
+      image: benvial/palace:dev
     name: Test palace-latest docker 3.11
     steps:
       - uses: actions/checkout@v4
