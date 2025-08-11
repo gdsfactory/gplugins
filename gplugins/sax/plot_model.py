@@ -19,6 +19,7 @@ def plot_model(
     wavelength_stop: float = 1.6,
     wavelength_points: int = 2000,
     phase: bool = False,
+    title: str | None = None,
 ) -> None:
     """Plot Model Sparameters Magnitude.
 
@@ -32,6 +33,7 @@ def plot_model(
         wavelength_stop: wavelength max (um).
         wavelength_points: number of wavelength steps.
         phase: plot phase instead of magnitude.
+        title: plot title.
 
     .. plot::
         :include-source:
@@ -67,7 +69,8 @@ def plot_model(
                 y = 20 * np.log10(y) if logscale else y
                 ylabel = "|S (dB)|" if logscale else "|S|"
             ax.plot(wavelengths, y, label=port2)
-    ax.set_title(port1)
+
+    ax.set_title(title or f"{model.__name__} S-Parameters")
     ax.set_xlabel("wavelength (um)")
     ax.set_ylabel(ylabel)
     plt.legend()
