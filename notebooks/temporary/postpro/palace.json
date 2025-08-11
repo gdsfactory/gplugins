@@ -1,7 +1,0 @@
-{
-  "GitTag": "v0.13.0-567-gfe3b414b",
-  "Problem": {
-    "MPISize": 1,
-    "OpenMPThreads": 1
-  }
-}

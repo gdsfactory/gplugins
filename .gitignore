@@ -11,6 +11,9 @@ gplugins/klayout/d25/
 gplugins/klayout/layers.lyp
 gplugins/klayout/tech.lyt
 notebooks/luminescent_runs/
+notebooks/temporary
+notebooks/*.py
+
 
 # C extensions
 *.npz
@@ -187,6 +190,3 @@ cython_debug/
 *.BAK
 *.sav
 *.plt
-
-
-notebooks/*.py

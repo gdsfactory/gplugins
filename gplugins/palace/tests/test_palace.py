@@ -81,22 +81,15 @@ def get_reasonable_mesh_parameters_capacitance(c: Component):
     )
 
 
-from math import inf
-from pathlib import Path
-import os
-# @pytest.mark.skip(reason="Palace not in CI")
 def test_palace_capacitance_simulation_runs(geometry) -> None:
     c = geometry
     run_capacitive_simulation_palace(
         c,
-        # simulation_folder=Path(os.getcwd()) / "temporary",
         layer_stack=layer_stack,
         material_spec=material_spec,
         mesh_parameters=get_reasonable_mesh_parameters_capacitance(c),
     )
 
-
-# @pytest.mark.skip(reason="TODO")
 @pytest.mark.parametrize("n_processes", [(1), (2), (4)])
 def test_palace_capacitance_simulation_n_processes(geometry, n_processes) -> None:
     c = geometry
@@ -108,8 +101,6 @@ def test_palace_capacitance_simulation_n_processes(geometry, n_processes) -> Non
         mesh_parameters=get_reasonable_mesh_parameters_capacitance(c),
     )
 
-
-# @pytest.mark.skip(reason="TODO")
 @pytest.mark.parametrize("element_order", [(1), (2), (3)])
 def test_palace_capacitance_simulation_element_order(geometry, element_order) -> None:
     c = geometry
