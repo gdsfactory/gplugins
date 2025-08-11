@@ -21,7 +21,7 @@ execute:
     - "*ray_optimiser*"
     - "*03_numerical_implantation*"
     - "*02_model_extraction*"
-    - "*palace*"
+    - "*02_fullwave*"
     - "*fdtdz*"
     - "*elmer_01_electrostatic*"
     - "*meep_*"
