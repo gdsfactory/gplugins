@@ -42,29 +42,12 @@ material_spec = {
 
 @pytest.fixture
 @gf.cell
-def geometry(lumped_ports=False) -> Component:
-    simulation_box = [[-200, -200], [200, 200]]
+def geometry() -> Component:
     c = gf.Component()
     cap = c << interdigital_capacitor()
-    if lumped_ports:
-        lumped_port_1_1 = gf.components.bbox(((-40, 11), (-46, 5)), layer=LAYER.PORT)
-        lumped_port_1_2 = gf.components.bbox(((-40, -11), (-46, -5)), layer=LAYER.PORT)
-        c << lumped_port_1_1
-        c << lumped_port_1_2
-        c.add_port("o1_1", lumped_port_1_1.center, layer=LAYER.PORT, width=1)
-        c.add_port("o1_2", lumped_port_1_2.center, layer=LAYER.PORT, width=1)
-
-        lumped_port_2_1 = gf.components.bbox(((40, 11), (46, 5)), layer=LAYER.PORT)
-        lumped_port_2_2 = gf.components.bbox(((40, -11), (46, -5)), layer=LAYER.PORT)
-        c << lumped_port_2_1
-        c << lumped_port_2_2
-        c.add_port("o2_1", lumped_port_2_1.center, layer=LAYER.PORT, width=1)
-        c.add_port("o2_2", lumped_port_2_2.center, layer=LAYER.PORT, width=1)
-    else:
-        c.add_ports(cap.ports)
-    substrate = gf.components.bbox(bbox=simulation_box, layer=LAYER.WAFER)
+    c.add_ports(cap.ports)
+    substrate = gf.components.bbox(c, layer=LAYER.WAFER)
     c << substrate
-    c.flatten()
     return c
 
 
@@ -72,44 +55,48 @@ def get_reasonable_mesh_parameters_capacitance(c: Component):
     return dict(
         background_tag="vacuum",
         background_padding=(0,) * 5 + (700,),
-        port_names=c.ports,
-        default_characteristic_length=200,
+        port_names=[port.name for port in c.ports],
+        default_characteristic_length=5,
         resolutions={
             "bw": {
-                "resolution": 15,
+                "resolution": 4,
             },
             "substrate": {
-                "resolution": 40,
+                "resolution": 6,
             },
             "vacuum": {
-                "resolution": 40,
+                "resolution": 6,
             },
-            **{
-                f"bw{port}": {
-                    "resolution": 20,
-                    "DistMax": 30,
-                    "DistMin": 10,
-                    "SizeMax": 14,
-                    "SizeMin": 3,
-                }
-                for port in c.ports
-            },
+            # **{
+            #     f"bw__{port.name}": {  # `__` is used as the layer to port delimiter for Palace
+            #         "resolution": 4,
+            #         "DistMax": 30,
+            #         "DistMin": 10,
+            #         "SizeMax": 10,
+            #         "SizeMin": 1,
+            #     }
+            #     for port in c.ports
+            # },
         },
     )
 
 
+from math import inf
+from pathlib import Path
+import os
 # @pytest.mark.skip(reason="Palace not in CI")
 def test_palace_capacitance_simulation_runs(geometry) -> None:
     c = geometry
     run_capacitive_simulation_palace(
         c,
+        # simulation_folder=Path(os.getcwd()) / "temporary",
         layer_stack=layer_stack,
         material_spec=material_spec,
         mesh_parameters=get_reasonable_mesh_parameters_capacitance(c),
     )
 
 
-@pytest.mark.skip(reason="TODO")
+# @pytest.mark.skip(reason="TODO")
 @pytest.mark.parametrize("n_processes", [(1), (2), (4)])
 def test_palace_capacitance_simulation_n_processes(geometry, n_processes) -> None:
     c = geometry
@@ -122,7 +109,7 @@ def test_palace_capacitance_simulation_n_processes(geometry, n_processes) -> Non
     )
 
 
-@pytest.mark.skip(reason="TODO")
+# @pytest.mark.skip(reason="TODO")
 @pytest.mark.parametrize("element_order", [(1), (2), (3)])
 def test_palace_capacitance_simulation_element_order(geometry, element_order) -> None:
     c = geometry

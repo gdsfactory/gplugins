@@ -1,0 +1,79 @@
+{
+    "Problem": {
+        "Type": "Electrostatic",
+        "Verbose": 3,
+        "Output": "postpro"
+    },
+    "Model": {
+        "Mesh": "Unnamed_0.msh",
+        "L0": 1e-06
+    },
+    "Domains": {
+        "Materials": [
+            {
+                "Attributes": [
+                    3
+                ],
+                "Permittivity": 1
+            },
+            {
+                "Attributes": [
+                    2
+                ],
+                "Permittivity": 11.45
+            }
+        ]
+    },
+    "Boundaries": {
+        "Ground": {
+            "Attributes": [
+                6,
+                8
+            ]
+        },
+        "Terminal": [
+            {
+                "Index": 1,
+                "Attributes": [
+                    7
+                ]
+            },
+            {
+                "Index": 2,
+                "Attributes": [
+                    4
+                ]
+            }
+        ],
+        "Postprocessing": {
+            "SurfaceFlux": [
+                {
+                    "Index": 1,
+                    "Attributes": [
+                        7
+                    ],
+                    "Type": "Electric"
+                },
+                {
+                    "Index": 2,
+                    "Attributes": [
+                        4
+                    ],
+                    "Type": "Electric"
+                }
+            ]
+        }
+    },
+    "Solver": {
+        "Order": 1,
+        "Electrostatic": {
+            "Save": 2
+        },
+        "Linear": {
+            "Type": "BoomerAMG",
+            "KSPType": "CG",
+            "Tol": 1e-08,
+            "MaxIts": 100
+        }
+    }
+}

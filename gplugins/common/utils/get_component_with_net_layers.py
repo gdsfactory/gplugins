@@ -72,7 +72,7 @@ def get_component_with_net_layers(
             .get_polygons()
             .get(port.layer, [])
         )
-        net_component = net_component.remove_layers(layers=(port.layer,))
+        net_component = net_component.remove_layers(layers=(port.layer,),recursive=False)
         for polygon in polygons:
             # If polygon belongs to port, create a unique new layer, and add the polygon to it
             if polygon.sized(int(3 * gf.kcl.dbu)).inside(

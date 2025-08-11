@@ -80,9 +80,9 @@ def _generate_json(
     # Debug: Show the physical name to dimtag mapping
     print(f"🔍 DEBUG: Physical surface mapping...")
     print(f"   Available physical surfaces and their IDs:")
-    for name, (dim, tag) in physical_name_to_dimtag_map.items():
+    for _name, (dim, tag) in physical_name_to_dimtag_map.items():
         if dim == 2:  # Surface entities
-            print(f"     {name}: ID = {tag}")
+            print(f"     {_name}: ID = {tag}")
 
     # Show what we're assigning to boundaries
     print(f"   Ground layers: {ground_layers}")
@@ -136,10 +136,12 @@ def _generate_json(
         for i, signal_group in enumerate(signals, 1)
     ]
     # TODO try do we get energy method without this??
-    palace_json_data["Boundaries"]["Postprocessing"]["Capacitance"] = palace_json_data[
-        "Boundaries"
-    ]["Terminal"]
-
+    surf_flux = []
+    for attr in palace_json_data["Boundaries"]["Terminal"]:
+        attr_new = attr.copy()
+        attr_new["Type"] = "Electric"
+        surf_flux.append(attr_new)
+    palace_json_data["Boundaries"]["Postprocessing"]["SurfaceFlux"] = surf_flux
     palace_json_data["Solver"]["Order"] = element_order
     palace_json_data["Solver"]["Electrostatic"]["Save"] = len(signals)
     if simulator_params is not None:
@@ -528,10 +530,11 @@ def run_capacitive_simulation_palace(
         simulator_params,
     )
     _palace(simulation_folder, filename, n_processes)
+
     results = _read_palace_results(
         simulation_folder,
         filename,
-        component.ports,
+        [port.name for port in component.ports],
         is_temporary=str(simulation_folder) == temp_dir.name,
     )
     temp_dir.cleanup()
