@@ -83,10 +83,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
+      - name: Install libglu1-mesa
+        run: |
+          sudo apt-get install -y libglu1-mesa
       - name: Install dependencies
         run: |
           uv venv -p 3.11
-          uv pip install .[palace,gmsh,dev]
+          uv pip install .[gmsh,dev]
       - name: Test with pytest
         run: |
           uv run pytest gplugins/palace
