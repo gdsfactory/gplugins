@@ -83,9 +83,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
-      - name: Install libglu1-mesa
+      - name: Install mesa-libGLU
         run: |
-          sudo apt-get install -y libglu1-mesa
+          dnf install -y mesa-libGLU
       - name: Install dependencies
         run: |
           uv venv -p 3.11
