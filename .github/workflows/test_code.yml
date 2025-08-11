@@ -86,7 +86,7 @@ jobs:
       - name: Install dependencies
         run: |
           uv venv -p 3.11
-          uv pip install .[palace,dev]
+          uv pip install .[palace,gmsh,dev]
       - name: Test with pytest
         run: |
           uv run pytest gplugins/palace
