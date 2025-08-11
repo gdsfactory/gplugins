@@ -56,27 +56,27 @@ def get_reasonable_mesh_parameters_capacitance(c: Component):
         background_tag="vacuum",
         background_padding=(0,) * 5 + (700,),
         port_names=[port.name for port in c.ports],
-        default_characteristic_length=5,
+        default_characteristic_length=10,
         resolutions={
             "bw": {
-                "resolution": 4,
+                "resolution": 10,
             },
             "substrate": {
-                "resolution": 6,
+                "resolution": 10,
             },
             "vacuum": {
-                "resolution": 6,
+                "resolution": 10,
             },
-            # **{
-            #     f"bw__{port.name}": {  # `__` is used as the layer to port delimiter for Palace
-            #         "resolution": 4,
-            #         "DistMax": 30,
-            #         "DistMin": 10,
-            #         "SizeMax": 10,
-            #         "SizeMin": 1,
-            #     }
-            #     for port in c.ports
-            # },
+            **{
+                f"bw__{port.name}": {  # `__` is used as the layer to port delimiter for Palace
+                    "resolution": 10,
+                    "DistMax": 30,
+                    "DistMin": 10,
+                    "SizeMax": 10,
+                    "SizeMin": 1,
+                }
+                for port in c.ports
+            },
         },
     )
 

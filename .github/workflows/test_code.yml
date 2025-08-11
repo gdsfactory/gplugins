@@ -79,7 +79,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: benvial/palace:dev
-    name: Test palace-latest docker 3.11
+    name: Test palace:dev docker 3.11
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6

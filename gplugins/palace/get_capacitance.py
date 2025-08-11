@@ -214,9 +214,11 @@ def _palace(simulation_folder: Path, name: str, n_processes: int = 1) -> None:
         try:
             run_async_with_event_loop(
                 execute_and_stream_output(
-                    [palace, json_file]
-                    if n_processes == 1
-                    else [palace, "-np", str(n_processes), json_file],
+                    (
+                        [palace, json_file]
+                        if n_processes == 1
+                        else [palace, "-np", str(n_processes), json_file]
+                    ),
                     shell=False,
                     log_file_dir=simulation_folder,
                     log_file_str=json_file.stem + "_palace",
@@ -391,10 +393,9 @@ def run_capacitive_simulation_palace(
         )
     )
     gmsh.merge(str(simulation_folder / filename))
-    mesh_surface_entities = {
-        gmsh.model.getPhysicalName(*dimtag)
-        for dimtag in gmsh.model.getPhysicalGroups(dim=2)
-    }
+    mesh_surface_entities = [
+        gmsh.model.getPhysicalName(*dimtag) for dimtag in gmsh.model.getPhysicalGroups(dim=2)
+    ]
 
     # Signals are converted to Boundaries
     ground_layers = set()
@@ -439,13 +440,15 @@ def run_capacitive_simulation_palace(
         # For interdigital capacitor, both ports use the same metal layer
         # but we need to create distinct boundaries for Palace
         metal_signal_surfaces_grouped = [
-            [metal_surfaces[0]]
-            if i == 0 and len(metal_surfaces) > 0
-            else [metal_surfaces[1]]
-            if i == 1 and len(metal_surfaces) > 1
-            else []
+            (
+                [metal_surfaces[0]]
+                if i == 0 and len(metal_surfaces) > 0
+                else [metal_surfaces[1]] if i == 1 and len(metal_surfaces) > 1 else []
+            )
             for i, port in enumerate(component.ports)
         ]
+        for i, port in enumerate(component.ports):
+            print(i, port)
         # If we only have one type of metal surface, assign it to the first port
         if len(metal_surfaces) == 1:
             metal_signal_surfaces_grouped = [[metal_surfaces[0]], []]
@@ -514,6 +517,7 @@ def run_capacitive_simulation_palace(
         gmsh.model.getPhysicalName(*dimtag): dimtag
         for dimtag in gmsh.model.getPhysicalGroups()
     }
+    # gmsh.fltk.run()
     gmsh.finalize()
 
     _generate_json(
