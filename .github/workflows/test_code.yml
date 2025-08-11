@@ -76,21 +76,20 @@ jobs:
           pytest gplugins/gmeep
 
   test_palace:
-    docker-job:
-      runs-on: ubuntu-latest
-      container:
-        image: benvial/palace:latest
-      name: Test palace-latest docker 3.11
-      steps:
-        - uses: actions/checkout@v4
-        - uses: astral-sh/setup-uv@v6
-        - name: Install dependencies
-          run: |
-            uv venv -p 3.11
-            uv pip install .[palace,dev]
-        - name: Test with pytest
-          run: |
-            uv run pytest gplugins/palace
+    runs-on: ubuntu-latest
+    container:
+      image: benvial/palace:latest
+    name: Test palace-latest docker 3.11
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Install dependencies
+        run: |
+          uv venv -p 3.11
+          uv pip install .[palace,dev]
+      - name: Test with pytest
+        run: |
+          uv run pytest gplugins/palace
 
 
   test_code_coverage:
