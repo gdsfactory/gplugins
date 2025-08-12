@@ -37,7 +37,7 @@ dev = [
   "pytest-cov",
   "pytest_regressions"
 ]
-devsim = ["devsim", "pyvista<=0.43.8", "tidy3d>=2.8.2,<2.9"]
+devsim = ["devsim", "pyvista<=0.43.8", "tidy3d>=2.8.2,<2.10"]
 docs = [
   "jupytext",
   "matplotlib",
@@ -65,12 +65,12 @@ maintainer = ["mypy", "tbump", "towncrier"]
 meow = [
   "meow-sim>=0.14.1,<0.15",
   "sax>=0.15.6,<0.16.0",
-  "tidy3d>=2.8.2,<2.9"
+  "tidy3d>=2.8.2,<2.10"
 ]
 path_length_analysis = ["bokeh", "numba", "shapely"]
 sax = ["sax>=0.15.6,<0.16.0"]
 schematic = ["bokeh", "ipywidgets", "natsort"]
-tidy3d = ["tidy3d>=2.8.2,<2.9", "gdstk"]
+tidy3d = ["tidy3d>=2.8.2,<2.10", "gdstk"]
 vlsir = ["vlsir", "vlsirtools"]
 
 [tool.codespell]
