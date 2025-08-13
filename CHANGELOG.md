@@ -1,12 +1,14 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.4.1...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.4.2...main)
 
 <!-- towncrier release notes start -->
 
 ## [1.4.2](https://github.com/gdsfactory/gplugins/releases/tag/v1.4.2) - 2025-08-13
 
-No significant changes.
+- fix docs [#625](https://github.com/gdsfactory/gplugins/pull/625)
+- sax plot_model: better log scaling, better labelling [#621](https://github.com/gdsfactory/gplugins/pull/621)
+- improve changelog [#626](https://github.com/gdsfactory/gplugins/pull/626)
 
 
 ## [1.4.1](https://github.com/gdsfactory/gplugins/releases/tag/v1.4.1) - 2025-08-09
