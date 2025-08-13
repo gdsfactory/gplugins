@@ -77,7 +77,17 @@ def plot_model(
         if current_ylim[1] - current_ylim[0] < min_db_range:
             ax.set_ylim(y.mean() - min_db_range / 2, y.mean() + min_db_range / 2)
 
-    ax.set_title(title or f"{model.__name__} S-Parameters")
+    if title:
+        ax.set_title(title)
+    else:
+        # Handle functools.partial objects
+        if hasattr(model, "func"):
+            # It's a partial object
+            model_name = getattr(model.func, "__name__", "model")
+        else:
+            # Regular function
+            model_name = getattr(model, "__name__", "model")
+        ax.set_title(f"{model_name} S-Parameters")
     ax.set_xlabel("wavelength (µm)")
     ax.set_ylabel(ylabel)
     plt.legend()
