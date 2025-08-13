@@ -4,6 +4,11 @@
 
 <!-- towncrier release notes start -->
 
+## [1.4.2](https://github.com/gdsfactory/gplugins/releases/tag/v1.4.2) - 2025-08-13
+
+No significant changes.
+
+
 ## [1.4.1](https://github.com/gdsfactory/gplugins/releases/tag/v1.4.1) - 2025-08-09
 
 - better title for plot model [#620](https://github.com/gdsfactory/gplugins/pull/620)
