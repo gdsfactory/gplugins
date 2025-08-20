@@ -43,7 +43,7 @@ You can install most plugins with:
 pip install "gdsfactory[full]" --upgrade
 ```
 
-Or list the plugins individaully:
+Or list the plugins individually:
 
 ```bash
 pip install "gplugins[devsim,femwell,gmsh,schematic,meow,meshwell,sax,tidy3d]" --upgrade
