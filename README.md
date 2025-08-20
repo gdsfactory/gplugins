@@ -6,7 +6,9 @@
 [![MIT](https://img.shields.io/github/license/gdsfactory/gplugins)](https://choosealicense.com/licenses/mit/)
 [![codecov](https://img.shields.io/codecov/c/github/gdsfactory/gplugins)](https://codecov.io/gh/gdsfactory/gdsfactory/tree/main/gplugins)
 
-GDSFactory plugins:
+## GDSFactory plugins
+
+Run simulations with GDSFactory by installing plugins.
 
 - Device simulators
     - Meshing
@@ -41,7 +43,7 @@ You can install most plugins with:
 pip install "gdsfactory[full]" --upgrade
 ```
 
-or
+Or list the plugins individaully:
 
 ```bash
 pip install "gplugins[devsim,femwell,gmsh,schematic,meow,meshwell,sax,tidy3d]" --upgrade
@@ -51,7 +53,6 @@ Or install only the plugins you need. For example:
 
 ```bash
 pip install "gplugins[schematic,femwell,meow,sax,tidy3d]" --upgrade
-
 ```
 
 ### Non-pip plugins
@@ -64,7 +65,8 @@ The following plugins require special installation as they can't be installed wi
 
 ## Installation for contributors
 
-We recommend `uv` for installing GDSFactory:
+We recommend `uv` for installing GDSfactory. 
+If you don't already have uv, install with the following command:
 
 ```bash
 # On macOS and Linux.
@@ -76,16 +78,16 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-Then you can install gdsfactory with:
+Then you can install GDSFctory with:
 
 ```bash
-uv venv --python 3.11
+uv venv --python 3.12
 uv sync --extra docs --extra dev
 ```
 
-
 ## Getting started
 
-- [Read docs](https://gdsfactory.github.io/gplugins/)
-- [Read gdsfactory docs](https://gdsfactory.github.io/gdsfactory/)
-- [![Join the chat at https://gitter.im/gdsfactory-dev/community](https://badges.gitter.im/gdsfactory-dev/community.svg)](https://gitter.im/gdsfactory-dev/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+- [Read the gplugins docs](https://gdsfactory.github.io/gplugins/)
+- [Read the GDSFactory docs](https://gdsfactory.github.io/gdsfactory/)
+- [Read the GDSFactory+ docs](https://gdsfactory.com/plus/))
+- [Join the discussion at GDSFactory Community Slack](https://join.slack.com/t/gdsfactory-community/shared_invite/zt-3aoygv7cg-r5BH6yvL4YlHfY8~UXp0Wg)
