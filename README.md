@@ -78,7 +78,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-Then you can install GDSFctory with:
+-Then you can install GDSFactory with:
 
 ```bash
 uv venv --python 3.12
