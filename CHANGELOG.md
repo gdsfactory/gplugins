@@ -1,8 +1,15 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.4.1...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.4.2...main)
 
 <!-- towncrier release notes start -->
+
+## [1.4.2](https://github.com/gdsfactory/gplugins/releases/tag/v1.4.2) - 2025-08-13
+
+- fix docs [#625](https://github.com/gdsfactory/gplugins/pull/625)
+- sax plot_model: better log scaling, better labelling [#621](https://github.com/gdsfactory/gplugins/pull/621)
+- improve changelog [#626](https://github.com/gdsfactory/gplugins/pull/626)
+
 
 ## [1.4.1](https://github.com/gdsfactory/gplugins/releases/tag/v1.4.1) - 2025-08-09
 
@@ -150,9 +157,7 @@
 - update sax notebook [#454](https://github.com/gdsfactory/gplugins/pull/454)
 - fix docs [#450](https://github.com/gdsfactory/gplugins/pull/450)
 - Fix klayout netlist [#442](https://github.com/gdsfactory/gplugins/pull/442)
-- Improve path extraction from GDS [#447](https://github.com/gdsfactory/gplugins/pull/447)
 - fixed plot_model xlabel [#443](https://github.com/gdsfactory/gplugins/pull/443)
-- fix meow [#441](https://github.com/gdsfactory/gplugins/pull/441)
 - Fix path length [#438](https://github.com/gdsfactory/gplugins/pull/438)
 - Update gdsfactory850 [#435](https://github.com/gdsfactory/gplugins/pull/435)
 - Update path length analysis [#436](https://github.com/gdsfactory/gplugins/pull/436)

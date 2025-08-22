@@ -14,6 +14,7 @@ def plot_model(
     port1: str = "o1",
     ports2: tuple[str, ...] | None = None,
     logscale: bool = True,
+    min_db_range: float = 0.5,
     fig=None,
     wavelength_start: float = 1.5,
     wavelength_stop: float = 1.6,
@@ -28,9 +29,10 @@ def plot_model(
         port1: input port name.
         ports2: list of ports.
         logscale: plots in dB logarithmic scale.
+        min_db_range: minimum dB range. Set to 0 to disable.
         fig: matplotlib figure.
-        wavelength_start: wavelength min (um).
-        wavelength_stop: wavelength max (um).
+        wavelength_start: wavelength min (µm).
+        wavelength_stop: wavelength max (µm).
         wavelength_points: number of wavelength steps.
         phase: plot phase instead of magnitude.
         title: plot title.
@@ -68,10 +70,25 @@ def plot_model(
                 y = np.abs(sdict[(port1, port2)])
                 y = 20 * np.log10(y) if logscale else y
                 ylabel = "|S (dB)|" if logscale else "|S|"
-            ax.plot(wavelengths, y, label=port2)
+            ax.plot(wavelengths, y, label=f"{port1}→{port2}")
 
-    ax.set_title(title or f"{model.__name__} S-Parameters")
-    ax.set_xlabel("wavelength (um)")
+    if logscale:
+        current_ylim = ax.get_ylim()
+        if current_ylim[1] - current_ylim[0] < min_db_range:
+            ax.set_ylim(y.mean() - min_db_range / 2, y.mean() + min_db_range / 2)
+
+    if title:
+        ax.set_title(title)
+    else:
+        # Handle functools.partial objects
+        if hasattr(model, "func"):
+            # It's a partial object
+            model_name = getattr(model.func, "__name__", "model")
+        else:
+            # Regular function
+            model_name = getattr(model, "__name__", "model")
+        ax.set_title(f"{model_name} S-Parameters")
+    ax.set_xlabel("wavelength (µm)")
     ax.set_ylabel(ylabel)
     plt.legend()
     return ax
