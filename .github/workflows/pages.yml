@@ -22,6 +22,8 @@ jobs:
       - name: Build docs
         env:
           SIMCLOUD_APIKEY: ${{ secrets.SIMCLOUD_APIKEY }}
+          PYVISTA_OFF_SCREEN: false
+          PYVISTA_JUPYTER_BACKEND: "html"
         run: |
           make install test-data
           uv run jb build docs
