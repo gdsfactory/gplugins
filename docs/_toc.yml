@@ -32,6 +32,7 @@ parts:
           - file: notebooks/mode_solver_fdfd
           - file: notebooks/mpb_001_mpb_waveguide
           - file: notebooks/meow_01
+          - file: notebooks/emode
       - file: plugins_fdtd
         sections:
           - file: notebooks/tidy3d_00_tidy3d
