@@ -58,7 +58,7 @@ meow = [
 ]
 meshwell = [
   "shapely",
-  "meshwell~=2.0.0"
+  "meshwell~=2.1.0"
 ]
 path_length_analysis = ["bokeh", "numba", "shapely"]
 sax = ["sax~=0.15.14"]
