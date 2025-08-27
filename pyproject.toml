@@ -48,17 +48,6 @@ docs = [
 ]
 femwell = ["femwell~=0.1.11", "meshwell~=1.0.7"]
 gfviz = ["jinja2", "fastapi", "shapely", "natsort"]
-gmsh = [
-  "gmsh==4.14.0",
-  "h5py",
-  "mapbox_earcut",
-  "meshio",
-  "pygmsh",
-  "pyvista<=0.43.8",
-  "trimesh",
-  "shapely",
-  "meshwell~=1.0.7"
-]
 klayout = ["klayout", "pyvis<=0.3.1", "vlsir", "vlsirtools"]
 luminescent = ["luminescent>=0.2.12,<0.4.0", "sortedcontainers"]
 maintainer = ["mypy", "tbump", "towncrier"]
@@ -66,6 +55,10 @@ meow = [
   "meow-sim>=0.14.1,<0.15",
   "sax>=0.15.6,<0.16.0",
   "tidy3d>=2.8.2,<2.9"
+]
+meshwell = [
+  "shapely",
+  "meshwell~=2.0.0"
 ]
 path_length_analysis = ["bokeh", "numba", "shapely"]
 sax = ["sax~=0.15.14"]

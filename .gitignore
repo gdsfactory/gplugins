@@ -187,3 +187,7 @@ cython_debug/
 *.BAK
 *.sav
 *.plt
+
+# Gmsh
+*.msh
+*.xao
