@@ -24,10 +24,12 @@ Run simulations with GDSFactory by installing plugins.
         - `palace` for full-wave driven (S parameter) and electrostatic (capacitive) simulations.
     - EME
         - `meow` Eigen Mode Expansion (EME).
+        - `EMode`
     - Mode Solver
         - Tidy3d
         - Femwell
         - MPB
+        - `EMode`
     - TCAD
         - `devsim` TCAD device simulator.
 - Circuit simulations
@@ -46,7 +48,7 @@ pip install "gdsfactory[full]" --upgrade
 Or list the plugins individually:
 
 ```bash
-pip install "gplugins[devsim,femwell,gmsh,schematic,meow,meshwell,sax,tidy3d]" --upgrade
+pip install "gplugins[devsim,femwell,gmsh,schematic,meow,meshwell,ray,sax,tidy3d,emode]" --upgrade
 ```
 
 Or install only the plugins you need. For example:
