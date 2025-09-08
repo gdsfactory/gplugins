@@ -442,8 +442,12 @@ def run_capacitive_simulation_palace(
         metal_signal_surfaces_grouped = [
             (
                 [metal_surfaces[0]]
-                if i == 0 and len(metal_surfaces) > 0
-                else [metal_surfaces[1]] if i == 1 and len(metal_surfaces) > 1 else []
+                if i == 0 and metal_surfaces
+                else (
+                    [metal_surfaces[1]]
+                    if i == 1 and len(metal_surfaces) > 1
+                    else []
+                )
             )
             for i, port in enumerate(component.ports)
         ]
