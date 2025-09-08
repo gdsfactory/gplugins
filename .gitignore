@@ -20,7 +20,6 @@ notebooks/*.py
 *.xdmf
 *.h5
 *.html
-*.png
 *.so
 *.stl
 *.fsp

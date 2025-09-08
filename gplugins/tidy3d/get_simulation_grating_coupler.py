@@ -409,7 +409,7 @@ def get_simulation_grating_coupler(
 
     # Add input waveguide port
     if port_waveguide_name not in component_with_booleans.ports:
-        available_ports = list(component_with_booleans.ports.keys())
+        available_ports = [port.name for port in component_with_booleans.ports]
         raise ValueError(
             f"port_waveguide_name='{port_waveguide_name}' not found in component ports {available_ports}."
         )
@@ -450,8 +450,9 @@ def get_simulation_grating_coupler(
             break
 
     if fiber_port_name is None:
+        port_names = [p.name for p in component_with_booleans.ports]
         raise ValueError(
-            f"No port starting with prefix '{fiber_port_prefix}' found in component ports {list(component_with_booleans.ports.keys())}."
+            f"No port starting with prefix '{fiber_port_prefix}' found in component ports {port_names}."
         )
 
     fiber_port = component_with_booleans.ports[fiber_port_name]

@@ -206,7 +206,6 @@ def write_sparameters_lumerical(
     component = component
     sim_settings = dict(simulation_settings)
 
-
     xmargin_left = xmargin_left or xmargin
     xmargin_right = xmargin_right or xmargin
     ymargin_top = ymargin_top or ymargin
@@ -625,6 +624,3 @@ if __name__ == "__main__":
     )
     # c = gf.components.coupler_ring(length_x=3)
     # c = gf.components.mmi1x2()
-    # print(r)
-    # print(r.keys())
-    # print(component.ports.keys())
