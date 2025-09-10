@@ -46,7 +46,7 @@ docs = [
   "bokeh",
   "scikit-learn"
 ]
-femwell = ["femwell~=0.1.11", "meshwell~=1.0.7"]
+femwell = ["femwell~=0.1.11", "meshwell~=2.1.0"]
 gfviz = ["jinja2", "fastapi", "shapely", "natsort"]
 klayout = ["klayout", "pyvis<=0.3.1", "vlsir", "vlsirtools"]
 luminescent = ["luminescent>=0.2.12,<0.4.0", "sortedcontainers"]
