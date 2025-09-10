@@ -1161,7 +1161,7 @@ wheels = [
 
 [[package]]
 name = "gplugins"
-version = "1.3.8"
+version = "1.4.2"
 source = { editable = "." }
 dependencies = [
     { name = "gdsfactory" },
@@ -1174,6 +1174,7 @@ dependencies = [
 [package.optional-dependencies]
 dev = [
     { name = "hypothesis" },
+    { name = "numba" },
     { name = "pre-commit" },
     { name = "pyswarms" },
     { name = "pytest" },
@@ -1203,17 +1204,6 @@ gfviz = [
     { name = "natsort" },
     { name = "shapely" },
 ]
-gmsh = [
-    { name = "gmsh" },
-    { name = "h5py" },
-    { name = "mapbox-earcut" },
-    { name = "meshio" },
-    { name = "meshwell" },
-    { name = "pygmsh" },
-    { name = "pyvista" },
-    { name = "shapely" },
-    { name = "trimesh" },
-]
 klayout = [
     { name = "klayout" },
     { name = "pyvis" },
@@ -1233,6 +1223,10 @@ meow = [
     { name = "meow-sim" },
     { name = "sax" },
     { name = "tidy3d" },
+]
+meshwell = [
+    { name = "meshwell" },
+    { name = "shapely" },
 ]
 path-length-analysis = [
     { name = "bokeh" },
@@ -1266,8 +1260,6 @@ requires-dist = [
     { name = "femwell", marker = "extra == 'femwell'", specifier = "~=0.1.11" },
     { name = "gdsfactory", specifier = ">=9.3.5" },
     { name = "gdstk", marker = "extra == 'tidy3d'" },
-    { name = "gmsh", marker = "extra == 'gmsh'", specifier = "==4.13.0" },
-    { name = "h5py", marker = "extra == 'gmsh'" },
     { name = "hypothesis", marker = "extra == 'dev'" },
     { name = "ipywidgets", marker = "extra == 'schematic'" },
     { name = "jinja2", marker = "extra == 'gfviz'" },
@@ -1275,33 +1267,30 @@ requires-dist = [
     { name = "jupytext", marker = "extra == 'docs'" },
     { name = "klayout", marker = "extra == 'klayout'" },
     { name = "luminescent", marker = "extra == 'luminescent'", specifier = ">=0.2.12,<0.4.0" },
-    { name = "mapbox-earcut", marker = "extra == 'gmsh'" },
     { name = "matplotlib", marker = "extra == 'docs'" },
     { name = "meow-sim", marker = "extra == 'meow'", specifier = ">=0.14.1,<0.15" },
-    { name = "meshio", marker = "extra == 'gmsh'" },
-    { name = "meshwell", marker = "extra == 'femwell'", specifier = "~=1.0.7" },
-    { name = "meshwell", marker = "extra == 'gmsh'", specifier = "~=1.0.7" },
+    { name = "meshwell", marker = "extra == 'femwell'", specifier = "~=2.1.0" },
+    { name = "meshwell", marker = "extra == 'meshwell'", specifier = "~=2.1.0" },
     { name = "mypy", marker = "extra == 'maintainer'" },
     { name = "natsort", marker = "extra == 'gfviz'" },
     { name = "natsort", marker = "extra == 'schematic'" },
+    { name = "numba", marker = "extra == 'dev'" },
     { name = "numba", marker = "extra == 'path-length-analysis'" },
     { name = "numpy", specifier = "==2.2" },
     { name = "pint" },
     { name = "pre-commit", marker = "extra == 'dev'" },
-    { name = "pygmsh", marker = "extra == 'gmsh'" },
     { name = "pyswarms", marker = "extra == 'dev'" },
     { name = "pytest", marker = "extra == 'dev'" },
     { name = "pytest-cov", marker = "extra == 'dev'" },
     { name = "pytest-regressions", marker = "extra == 'dev'" },
     { name = "pyvis", marker = "extra == 'klayout'", specifier = "<=0.3.1" },
     { name = "pyvista", marker = "extra == 'devsim'", specifier = "<=0.43.8" },
-    { name = "pyvista", marker = "extra == 'gmsh'", specifier = "<=0.43.8" },
     { name = "pyvista", extras = ["all"], marker = "extra == 'docs'", specifier = "<=0.43.8" },
-    { name = "sax", marker = "extra == 'meow'", specifier = ">=0.15.5,<0.16.0" },
-    { name = "sax", marker = "extra == 'sax'", specifier = ">=0.15.5,<0.16.0" },
+    { name = "sax", marker = "extra == 'meow'", specifier = ">=0.15.6,<0.16.0" },
+    { name = "sax", marker = "extra == 'sax'", specifier = "~=0.15.14" },
     { name = "scikit-learn", marker = "extra == 'docs'" },
     { name = "shapely", marker = "extra == 'gfviz'" },
-    { name = "shapely", marker = "extra == 'gmsh'" },
+    { name = "shapely", marker = "extra == 'meshwell'" },
     { name = "shapely", marker = "extra == 'path-length-analysis'" },
     { name = "sortedcontainers", marker = "extra == 'luminescent'" },
     { name = "tbump", marker = "extra == 'maintainer'" },
@@ -1310,14 +1299,13 @@ requires-dist = [
     { name = "tidy3d", marker = "extra == 'tidy3d'", specifier = ">=2.8.2,<2.9" },
     { name = "towncrier", marker = "extra == 'maintainer'" },
     { name = "tqdm" },
-    { name = "trimesh", marker = "extra == 'gmsh'" },
     { name = "vlsir", marker = "extra == 'klayout'" },
     { name = "vlsir", marker = "extra == 'vlsir'" },
     { name = "vlsirtools", marker = "extra == 'klayout'" },
     { name = "vlsirtools", marker = "extra == 'vlsir'" },
-    { name = "xarray", specifier = "==2025.1.2" },
+    { name = "xarray", specifier = "==2025.7.1" },
 ]
-provides-extras = ["dev", "devsim", "docs", "femwell", "gfviz", "gmsh", "klayout", "luminescent", "maintainer", "meow", "path-length-analysis", "sax", "schematic", "tidy3d", "vlsir"]
+provides-extras = ["dev", "devsim", "docs", "femwell", "gfviz", "klayout", "luminescent", "maintainer", "meow", "meshwell", "path-length-analysis", "sax", "schematic", "tidy3d", "vlsir"]
 
 [[package]]
 name = "graphviz"
@@ -2139,6 +2127,15 @@ wheels = [
 ]
 
 [[package]]
+name = "lark"
+version = "1.2.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/af/60/bc7622aefb2aee1c0b4ba23c1446d3e30225c8770b38d7aedbfb65ca9d5a/lark-1.2.2.tar.gz", hash = "sha256:ca807d0162cd16cef15a8feecb862d7319e7a09bdb13aef927968e45040fed80", size = 252132, upload-time = "2024-08-13T19:49:00.652Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2d/00/d90b10b962b4277f5e64a78b6609968859ff86889f5b898c1a778c06ec00/lark-1.2.2-py3-none-any.whl", hash = "sha256:c2276486b02f0f1b90be155f2c8ba4a8e194d42775786db622faccd652d8e80c", size = 111036, upload-time = "2024-08-13T19:48:58.603Z" },
+]
+
+[[package]]
 name = "latexcodec"
 version = "3.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2519,18 +2516,19 @@ wheels = [
 
 [[package]]
 name = "meshwell"
-version = "1.0.9"
+version = "2.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
+    { name = "gdstk" },
     { name = "gmsh" },
     { name = "meshio" },
     { name = "pydantic" },
     { name = "shapely" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/07/74/8c9850be34c0e6a416217e61836d426e0ab030c924d339dbdb0cd0132b55/meshwell-1.0.9.tar.gz", hash = "sha256:972831c6533c8546774aaf07292f02e54fa8efe14c0cd7a21469cd2c10437464", size = 29134, upload-time = "2024-09-09T17:43:54.581Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c0/60/5e55e13e5cca8325a7fec073a48b4f0b04e76694b5e9ed9ed1526ed5fdf8/meshwell-2.1.0.tar.gz", hash = "sha256:f733f5dc41966c505e868457bed62b79e420b1bdf6f8b5bf4f5c12a844865edf", size = 35715, upload-time = "2025-08-27T05:35:38.947Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ad/c8/d6336cec8a0af55cde45077bcafc0db6d70aa89b280f9c6265de7410ae90/meshwell-1.0.9-py3-none-any.whl", hash = "sha256:0e410e78a9fd2fc13e53c8c6d238af5454d3e8c072b247b713e7ba2bf3032d6f", size = 31219, upload-time = "2024-09-09T17:43:53.357Z" },
+    { url = "https://files.pythonhosted.org/packages/06/3e/3471d5eddb58f972d8455e41e9b78cd53df871d9e984bb9fa5515b1e5fc6/meshwell-2.1.0-py3-none-any.whl", hash = "sha256:e75fd7f110bbf1041cdde596d22222fcc831efe68ac06c3f2422cd7391746d0c", size = 39614, upload-time = "2025-08-27T05:35:37.705Z" },
 ]
 
 [[package]]
@@ -2575,6 +2573,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/88/3b/7fa1fe835e2e93fd6d7b52b2f95ae810cf5ba133e1845f726f5a992d62c2/more-itertools-10.6.0.tar.gz", hash = "sha256:2cd7fad1009c31cc9fb6a035108509e6547547a7a738374f10bd49a09eb3ee3b", size = 125009, upload-time = "2025-01-14T16:22:47.626Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/23/62/0fe302c6d1be1c777cab0616e6302478251dfbf9055ad426f5d0def75c89/more_itertools-10.6.0-py3-none-any.whl", hash = "sha256:6eb054cb4b6db1473f6e15fcc676a08e4732548acd47c708f0e179c2c7c01e89", size = 63038, upload-time = "2025-01-14T16:22:46.014Z" },
+]
+
+[[package]]
+name = "mpmath"
+version = "1.3.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/e0/47/dd32fa426cc72114383ac549964eecb20ecfd886d1e5ccf5340b55b02f57/mpmath-1.3.0.tar.gz", hash = "sha256:7a28eb2a9774d00c7bc92411c19a89209d5da7c4c9a9e227be8330a23a25b91f", size = 508106, upload-time = "2023-03-07T16:47:11.061Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/43/e3/7d92a15f894aa0c9c4b49b8ee9ac9850d6e63b03c9c32c0367a13ae62209/mpmath-1.3.0-py3-none-any.whl", hash = "sha256:a0b2b9fe80bbcd81a6647ff13108738cfb482d481d826cc0e02f5b35e5c88d2c", size = 536198, upload-time = "2023-03-07T16:47:09.197Z" },
 ]
 
 [[package]]
@@ -4226,13 +4233,14 @@ wheels = [
 
 [[package]]
 name = "sax"
-version = "0.15.5"
+version = "0.15.14"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "flax" },
     { name = "jax" },
     { name = "jaxtyping" },
     { name = "klujax" },
+    { name = "lark" },
     { name = "matplotlib" },
     { name = "natsort" },
     { name = "networkx" },
@@ -4240,10 +4248,13 @@ dependencies = [
     { name = "orjson" },
     { name = "pydantic" },
     { name = "pyyaml" },
+    { name = "scikit-rf" },
+    { name = "sympy" },
+    { name = "typing-extensions" },
     { name = "xarray" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/33/41/9c77c27e6d3c50a252325d0a981806ac417d0a00ac41293c64272d022772/sax-0.15.5-py3-none-any.whl", hash = "sha256:bf970283b8d69eec0af63bdb7c950a311ed35690bbab848f75f66436f038dc9b", size = 93251, upload-time = "2025-06-23T05:29:26.264Z" },
+    { url = "https://files.pythonhosted.org/packages/c0/44/ea208b1214f5fe2c6e7870bc7db109f111db75f8c05aff965139484267ed/sax-0.15.14-py3-none-any.whl", hash = "sha256:d735dc24b4d07e6e0eba55a191dafff31dacf164b65148a33759ea8dbd319d75", size = 97948, upload-time = "2025-08-01T07:27:14.604Z" },
 ]
 
 [[package]]
@@ -4333,6 +4344,21 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/d6/54/32fa2ee591af44507eac86406fa6bba968d1eb22831494470d0a2e4a1eb1/scikit_learn-1.6.1-cp313-cp313t-macosx_12_0_arm64.whl", hash = "sha256:6a7aa5f9908f0f28f4edaa6963c0a6183f1911e63a69aa03782f0d924c830a35", size = 11100530, upload-time = "2025-01-10T08:07:23.675Z" },
     { url = "https://files.pythonhosted.org/packages/3f/58/55856da1adec655bdce77b502e94a267bf40a8c0b89f8622837f89503b5a/scikit_learn-1.6.1-cp313-cp313t-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:0650e730afb87402baa88afbf31c07b84c98272622aaba002559b614600ca691", size = 12433852, upload-time = "2025-01-10T08:07:26.817Z" },
     { url = "https://files.pythonhosted.org/packages/ff/4f/c83853af13901a574f8f13b645467285a48940f185b690936bb700a50863/scikit_learn-1.6.1-cp313-cp313t-win_amd64.whl", hash = "sha256:3f59fe08dc03ea158605170eb52b22a105f238a5d512c4470ddeca71feae8e5f", size = 11337256, upload-time = "2025-01-10T08:07:31.084Z" },
+]
+
+[[package]]
+name = "scikit-rf"
+version = "1.8.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "pandas" },
+    { name = "scipy" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c8/66/efa4086ca397b96337aa370b02810355e5da9c6071fb8700118f510a7091/scikit_rf-1.8.0.tar.gz", hash = "sha256:fcf54b90e37792680c09f02d4f0768b17cfb7cb783e16d0210f98e27d1ff30a8", size = 569666, upload-time = "2025-07-06T13:10:25.267Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/be/e5/a9683c068dfe3121d5e131dadc40d1fb071ce32f0979df3f8a00e768514b/scikit_rf-1.8.0-py3-none-any.whl", hash = "sha256:81a4a7d6b9197f20c46949e7a8c17f3e214967074578e92751c023d873aae030", size = 617147, upload-time = "2025-07-06T13:10:23.594Z" },
 ]
 
 [[package]]
@@ -4864,6 +4890,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/33/a0/4983cdedf62c3a1dd42b698813312fc51dd159983333fce9ec4189cd83a9/svg.path-6.3.tar.gz", hash = "sha256:e937740a316a7fec86acd217ab6226e112f51328078524126bb7ea9dbe7b1ade", size = 20920, upload-time = "2023-04-29T16:04:06.778Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d6/ea/ec6101e1710ac74e88b10312e9b59734885155e47d7dbb1171e4d347a364/svg.path-6.3-py2.py3-none-any.whl", hash = "sha256:4bd4747679b527f8db9868e1623bee9f416540b658285d903885768d8a427e5a", size = 16421, upload-time = "2023-04-29T16:04:05.305Z" },
+]
+
+[[package]]
+name = "sympy"
+version = "1.14.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "mpmath" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/83/d3/803453b36afefb7c2bb238361cd4ae6125a569b4db67cd9e79846ba2d68c/sympy-1.14.0.tar.gz", hash = "sha256:d3d3fe8df1e5a0b42f0e7bdf50541697dbe7d23746e894990c030e2b05e72517", size = 7793921, upload-time = "2025-04-27T18:05:01.611Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a2/09/77d55d46fd61b4a135c444fc97158ef34a095e5681d0a6c10b75bf356191/sympy-1.14.0-py3-none-any.whl", hash = "sha256:e091cc3e99d2141a0ba2847328f5479b05d94a6635cb96148ccb3f34671bd8f5", size = 6299353, upload-time = "2025-04-27T18:04:59.103Z" },
 ]
 
 [[package]]
@@ -5522,16 +5560,16 @@ wheels = [
 
 [[package]]
 name = "xarray"
-version = "2025.1.2"
+version = "2025.7.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy" },
     { name = "packaging" },
     { name = "pandas" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/89/c0/edb2f6cfafa5369106f927409f6211141c3296c14877cc634d8ee4c970a4/xarray-2025.1.2.tar.gz", hash = "sha256:e7675c79ac69d274dd3b3c5450ce57176928d2792947576251ed1c7df1783224", size = 3271214, upload-time = "2025-01-31T07:37:12.385Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e8/c5/a31ba8605005ef080c3d35efc696ddd851aee0a7a22420f9afebec386281/xarray-2025.7.1.tar.gz", hash = "sha256:2884bf5672b540fcc6ff8c20a3196bda0d78fbfb4d67398d60526e97c2faceef", size = 3013717, upload-time = "2025-07-10T04:53:07.01Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/05/79/4e19100342fe13d69fd6e77b343e2269924fec681258e2ea21b55576aad2/xarray-2025.1.2-py3-none-any.whl", hash = "sha256:a7ad6a36c6e0becd67f8aff6a7808d20e4bdcd344debb5205f0a34b1a4a7f8d6", size = 1247773, upload-time = "2025-01-31T07:37:09.811Z" },
+    { url = "https://files.pythonhosted.org/packages/b2/ea/9554e5fb78eda4dbc9e9ccaf23034166fe3e9ea9af82ea6204b9578434bc/xarray-2025.7.1-py3-none-any.whl", hash = "sha256:e8647b659e53bd350d7c5a91c34dd4122ad6a3ca0bc41399d424a7c0273c7635", size = 1324464, upload-time = "2025-07-10T04:53:05.104Z" },
 ]
 
 [[package]]
