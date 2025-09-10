@@ -17,7 +17,6 @@ notebooks/luminescent_runs/
 *.xdmf
 *.h5
 *.html
-*.png
 *.so
 *.stl
 *.fsp
