@@ -65,7 +65,7 @@ The following plugins require special installation as they can't be installed wi
 
 ## Installation for contributors
 
-We recommend `uv` for installing GDSfactory. 
+We recommend `uv` for installing GDSfactory.
 If you don't already have uv, install with the following command:
 
 ```bash
