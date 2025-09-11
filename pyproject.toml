@@ -37,7 +37,7 @@ dev = [
   "pytest-cov",
   "pytest_regressions"
 ]
-devsim = ["devsim", "pyvista<=0.46.0", "tidy3d>=2.8.2,<2.9"]
+devsim = ["devsim", "pyvista<=0.46.3", "tidy3d>=2.8.2,<2.9"]
 docs = [
   "jupytext",
   "matplotlib",
@@ -54,7 +54,7 @@ gmsh = [
   "mapbox_earcut",
   "meshio",
   "pygmsh",
-  "pyvista<=0.46.0",
+  "pyvista<=0.46.3",
   "trimesh",
   "shapely",
   "meshwell~=1.0.7"
