@@ -51,7 +51,7 @@
       }
     ],
     "Postprocessing": {
-      "Capacitance": []
+      "SurfaceFlux": []
     }
   },
   "Solver": {
