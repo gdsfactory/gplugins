@@ -83,7 +83,7 @@ def _generate_json(
         for k, v in bodies.items()
         if k in physical_name_to_dimtag_map
     }
-    
+
     palace_json_data["Model"]["Mesh"] = f"{name}.msh"
     palace_json_data["Domains"]["Materials"] = [
         {
