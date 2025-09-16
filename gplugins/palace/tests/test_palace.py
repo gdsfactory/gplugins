@@ -1,6 +1,4 @@
 from math import inf
-import os
-import shutil
 
 import gdsfactory as gf
 import pytest
@@ -40,23 +38,6 @@ material_spec = {
     "Nb": {"relative_permittivity": inf, "relative_permeability": 1},
     "vacuum": {"relative_permittivity": 1, "relative_permeability": 1},
 }
-
-
-def is_palace_available():
-    """Check if Palace is available in the system."""
-    # Check environment variable set by CI
-    if os.environ.get("PALACE_AVAILABLE") == "false":
-        return False
-    
-    # Check if palace command is available
-    return shutil.which("palace") is not None
-
-
-# Skip all tests if Palace is not available
-pytestmark = pytest.mark.skipif(
-    not is_palace_available(), 
-    reason="Palace not available in system PATH"
-)
 
 
 @pytest.fixture
@@ -109,6 +90,7 @@ def test_palace_capacitance_simulation_runs(geometry) -> None:
         mesh_parameters=get_reasonable_mesh_parameters_capacitance(c),
     )
 
+
 @pytest.mark.parametrize("n_processes", [(1), (2), (4)])
 def test_palace_capacitance_simulation_n_processes(geometry, n_processes) -> None:
     c = geometry
@@ -119,6 +101,7 @@ def test_palace_capacitance_simulation_n_processes(geometry, n_processes) -> Non
         n_processes=n_processes,
         mesh_parameters=get_reasonable_mesh_parameters_capacitance(c),
     )
+
 
 @pytest.mark.parametrize("element_order", [(1), (2), (3)])
 def test_palace_capacitance_simulation_element_order(geometry, element_order) -> None:
