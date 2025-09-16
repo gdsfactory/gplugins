@@ -80,9 +80,9 @@ def _generate_json(
     # Debug: Show the physical name to dimtag mapping
     print(f"🔍 DEBUG: Physical surface mapping...")
     print(f"   Available physical surfaces and their IDs:")
-    for name, (dim, tag) in physical_name_to_dimtag_map.items():
+    for _name, (dim, tag) in physical_name_to_dimtag_map.items():
         if dim == 2:  # Surface entities
-            print(f"     {name}: ID = {tag}")
+            print(f"     {_name}: ID = {tag}")
 
     # Show what we're assigning to boundaries
     print(f"   Ground layers: {ground_layers}")
@@ -136,10 +136,12 @@ def _generate_json(
         for i, signal_group in enumerate(signals, 1)
     ]
     # TODO try do we get energy method without this??
-    palace_json_data["Boundaries"]["Postprocessing"]["Capacitance"] = palace_json_data[
-        "Boundaries"
-    ]["Terminal"]
-
+    surf_flux = []
+    for attr in palace_json_data["Boundaries"]["Terminal"]:
+        attr_new = attr.copy()
+        attr_new["Type"] = "Electric"
+        surf_flux.append(attr_new)
+    palace_json_data["Boundaries"]["Postprocessing"]["SurfaceFlux"] = surf_flux
     palace_json_data["Solver"]["Order"] = element_order
     palace_json_data["Solver"]["Electrostatic"]["Save"] = len(signals)
     if simulator_params is not None:
@@ -212,9 +214,11 @@ def _palace(simulation_folder: Path, name: str, n_processes: int = 1) -> None:
         try:
             run_async_with_event_loop(
                 execute_and_stream_output(
-                    [palace, json_file]
-                    if n_processes == 1
-                    else [palace, "-np", str(n_processes), json_file],
+                    (
+                        [palace, json_file]
+                        if n_processes == 1
+                        else [palace, "-np", str(n_processes), json_file]
+                    ),
                     shell=False,
                     log_file_dir=simulation_folder,
                     log_file_str=json_file.stem + "_palace",
@@ -389,10 +393,9 @@ def run_capacitive_simulation_palace(
         )
     )
     gmsh.merge(str(simulation_folder / filename))
-    mesh_surface_entities = {
-        gmsh.model.getPhysicalName(*dimtag)
-        for dimtag in gmsh.model.getPhysicalGroups(dim=2)
-    }
+    mesh_surface_entities = [
+        gmsh.model.getPhysicalName(*dimtag) for dimtag in gmsh.model.getPhysicalGroups(dim=2)
+    ]
 
     # Signals are converted to Boundaries
     ground_layers = set()
@@ -437,13 +440,19 @@ def run_capacitive_simulation_palace(
         # For interdigital capacitor, both ports use the same metal layer
         # but we need to create distinct boundaries for Palace
         metal_signal_surfaces_grouped = [
-            [metal_surfaces[0]]
-            if i == 0 and len(metal_surfaces) > 0
-            else [metal_surfaces[1]]
-            if i == 1 and len(metal_surfaces) > 1
-            else []
+            (
+                [metal_surfaces[0]]
+                if i == 0 and metal_surfaces
+                else (
+                    [metal_surfaces[1]]
+                    if i == 1 and len(metal_surfaces) > 1
+                    else []
+                )
+            )
             for i, port in enumerate(component.ports)
         ]
+        for i, port in enumerate(component.ports):
+            print(i, port)
         # If we only have one type of metal surface, assign it to the first port
         if len(metal_surfaces) == 1:
             metal_signal_surfaces_grouped = [[metal_surfaces[0]], []]
@@ -512,6 +521,7 @@ def run_capacitive_simulation_palace(
         gmsh.model.getPhysicalName(*dimtag): dimtag
         for dimtag in gmsh.model.getPhysicalGroups()
     }
+    # gmsh.fltk.run()
     gmsh.finalize()
 
     _generate_json(
@@ -528,10 +538,11 @@ def run_capacitive_simulation_palace(
         simulator_params,
     )
     _palace(simulation_folder, filename, n_processes)
+
     results = _read_palace_results(
         simulation_folder,
         filename,
-        component.ports,
+        [port.name for port in component.ports],
         is_temporary=str(simulation_folder) == temp_dir.name,
     )
     temp_dir.cleanup()

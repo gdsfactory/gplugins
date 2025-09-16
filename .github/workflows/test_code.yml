@@ -74,3 +74,43 @@ jobs:
         run: |
           conda activate mp
           pytest gplugins/gmeep
+
+  test_palace:
+    runs-on: ubuntu-latest
+    container:
+      image: benvial/palace:dev
+    name: Test palace:dev docker 3.11
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Install mesa-libGLU
+        run: |
+          dnf install -y mesa-libGLU
+      - name: Install dependencies
+        run: |
+          uv venv -p 3.11
+          uv pip install .[gmsh,dev]
+      - name: Test with pytest
+        run: |
+          uv run pytest gplugins/palace
+
+
+  test_code_coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+      - name: Install libglu1-mesa
+        run: |
+          sudo apt-get install -y libglu1-mesa
+      - name: Install dependencies
+        run: |
+          make install test-data
+      - name: Test with pytest
+        run: |
+          make cov
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false

@@ -62,7 +62,7 @@ notebooks:
 	jupytext docs/**/*.py --to ipynb
 
 docs:
-	uv run jb build docs
+	PYVISTA_OFF_SCREEN=0 PYVISTA_JUPYTER_BACKEND=html uv run jb build docs
 
 clean:
 	rm -rf dist
