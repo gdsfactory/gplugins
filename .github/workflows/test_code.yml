@@ -77,14 +77,14 @@ jobs:
 
   test_palace:
     runs-on: ubuntu-latest
-    name: Test palace with apptainer ubuntu-latest 3.11
+    name: Test palace ubuntu-latest 3.11
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
       - name: Setup Apptainer
         uses: eWaterCycle/setup-apptainer@v2
         with:
-          apptainer-version: 1.3.0
+          apptainer-version: 1.4.2
       - name: Install libglu1-mesa
         run: |
           sudo apt-get install -y libglu1-mesa
@@ -101,10 +101,10 @@ jobs:
         run: |
           # First try to pull a pre-built container from various sources
           echo "Attempting to pull pre-built Palace container..."
-          
+
           # Try different registries and tags
           CONTAINER_FOUND=false
-          
+
           # Try GitHub Container Registry
           if apptainer pull palace.sif docker://ghcr.io/awslabs/palace:latest 2>/dev/null; then
             echo "Successfully pulled palace from GitHub Container Registry"
@@ -121,11 +121,11 @@ jobs:
             echo "Successfully pulled palace from benvial/palace:dev"
             CONTAINER_FOUND=true
           fi
-          
+
           if [ "$CONTAINER_FOUND" = "false" ]; then
             echo "No pre-built container found, downloading singularity definition..."
             wget https://raw.githubusercontent.com/awslabs/palace/main/singularity/singularity.def
-            
+
             # Try to build but with a reasonable timeout (build can take 30+ minutes)
             echo "Building Palace container from source (this may take a while)..."
             echo "Note: This is a one-time build that will be cached for future runs"
