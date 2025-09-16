@@ -127,7 +127,6 @@ def get_meshwell_prisms(
 
     return prisms
 
-
 if __name__ == "__main__":
 
     from gdsfactory.components import ge_detector_straight_si_contacts

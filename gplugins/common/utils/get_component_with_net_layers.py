@@ -25,7 +25,7 @@ def get_component_layer_stack(
     layernames_dict = new_layer_stack.get_layer_to_layername()
     layernames_present = [
         name
-        for sublist in [layernames_dict[layer] for layer in layers_present]
+        for sublist in [layernames_dict[LogicalLayer(layer=layer)] for layer in layers_present]
         for name in sublist
     ]
     for key in list(new_layer_stack.layers.keys()):
@@ -70,7 +70,7 @@ def get_component_with_net_layers(
             .get_polygons()
             .get(port.layer, [])
         )
-        net_component = net_component.remove_layers(layers=(port.layer,))
+        net_component = net_component.remove_layers(layers=(port.layer,),recursive=False)
         for polygon in polygons:
             # If polygon belongs to port, create a unique new layer, and add the polygon to it
             if polygon.sized(int(3 * gf.kcl.dbu)).inside(

@@ -5,23 +5,14 @@ API Design
 Meshing
 ************************
 
-.. currentmodule:: gplugins.gmsh
+.. currentmodule:: gplugins.meshwell
 
 .. rubric:: Meshing
 
 .. autosummary::
    :toctree: _autosummary/
 
-    get_layer_overlaps_z
-    get_layers_at_z
-    list_unique_layer_stack_z
-    map_unique_layer_stack_z
-    order_layer_stack
-    get_u_bounds_layers
-    get_u_bounds_polygons
-    get_uz_bounds_layers
-    uz_xsection_mesh
-    xy_xsection_mesh
+    get_meshwell_prisms
 
 
 ************************

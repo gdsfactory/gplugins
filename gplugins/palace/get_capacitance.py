@@ -83,7 +83,7 @@ def _generate_json(
         for k, v in bodies.items()
         if k in physical_name_to_dimtag_map
     }
-
+    
     palace_json_data["Model"]["Mesh"] = f"{name}.msh"
     palace_json_data["Domains"]["Materials"] = [
         {
@@ -154,9 +154,11 @@ def _palace(simulation_folder: Path, name: str, n_processes: int = 1) -> None:
         try:
             run_async_with_event_loop(
                 execute_and_stream_output(
-                    [palace, json_file]
-                    if n_processes == 1
-                    else [palace, "-np", str(n_processes), json_file],
+                    (
+                        [palace, json_file]
+                        if n_processes == 1
+                        else [palace, "-np", str(n_processes), json_file]
+                    ),
                     shell=False,
                     log_file_dir=simulation_folder,
                     log_file_str=json_file.stem + "_palace",
@@ -317,10 +319,9 @@ def run_capacitive_simulation_palace(
         )
     )
     gmsh.merge(str(simulation_folder / filename))
-    mesh_surface_entities = {
-        gmsh.model.getPhysicalName(*dimtag)
-        for dimtag in gmsh.model.getPhysicalGroups(dim=2)
-    }
+    mesh_surface_entities = [
+        gmsh.model.getPhysicalName(*dimtag) for dimtag in gmsh.model.getPhysicalGroups(dim=2)
+    ]
 
     def _derived_layer_equivalent_to_port_layer(
         derived_layer: kdb.DerivedLayer, port: gf.Port
@@ -390,10 +391,11 @@ def run_capacitive_simulation_palace(
         simulator_params,
     )
     _palace(simulation_folder, filename, n_processes)
+
     results = _read_palace_results(
         simulation_folder,
         filename,
-        component.ports,
+        [port.name for port in component.ports],
         is_temporary=str(simulation_folder) == temp_dir.name,
     )
     temp_dir.cleanup()
