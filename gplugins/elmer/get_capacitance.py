@@ -23,6 +23,7 @@ from gplugins.common.utils.async_helpers import (
     execute_and_stream_output,
     run_async_with_event_loop,
 )
+from gplugins.gmsh import get_mesh
 
 ELECTROSTATIC_SIF = "electrostatic.sif"
 ELECTROSTATIC_TEMPLATE = Path(__file__).parent / f"{ELECTROSTATIC_SIF}.j2"
