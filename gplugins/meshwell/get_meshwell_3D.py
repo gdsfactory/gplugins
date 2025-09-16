@@ -24,8 +24,7 @@ def region_to_shapely_polygons(region: kf.kdb.Region) -> List[Polygon]:
         holes = []
         for hole_idx in range(polygon_kdb.holes()):
             hole_coords = []
-            hole = polygon_kdb.hole(hole_idx)
-            for point in hole.each_point():
+            for point in polygon_kdb.each_point_hole(hole_idx):
                 hole_coords.append((gf.kcl.to_um(point.x), gf.kcl.to_um(point.y)))
             holes.append(hole_coords)
 
@@ -101,7 +100,6 @@ def get_meshwell_prisms(
 
         # Convert kfactory Region to Shapely polygons
         shapely_polygons = region_to_shapely_polygons(region)
-
         # Skip if no valid polygons
         if not shapely_polygons:
             continue
