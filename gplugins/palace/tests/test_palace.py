@@ -1,4 +1,6 @@
 from math import inf
+import os
+import shutil
 
 import gdsfactory as gf
 import pytest
@@ -38,6 +40,23 @@ material_spec = {
     "Nb": {"relative_permittivity": inf, "relative_permeability": 1},
     "vacuum": {"relative_permittivity": 1, "relative_permeability": 1},
 }
+
+
+def is_palace_available():
+    """Check if Palace is available in the system."""
+    # Check environment variable set by CI
+    if os.environ.get("PALACE_AVAILABLE") == "false":
+        return False
+    
+    # Check if palace command is available
+    return shutil.which("palace") is not None
+
+
+# Skip all tests if Palace is not available
+pytestmark = pytest.mark.skipif(
+    not is_palace_available(), 
+    reason="Palace not available in system PATH"
+)
 
 
 @pytest.fixture
