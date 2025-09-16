@@ -96,79 +96,34 @@ jobs:
           key: palace-container-v1-${{ runner.os }}
           restore-keys: |
             palace-container-v1-
-      - name: Try to pull pre-built Palace container or build from source
+      - name: Build palace from source
         if: steps.cache-palace.outputs.cache-hit != 'true'
         run: |
-          # First try to pull a pre-built container from various sources
-          echo "Attempting to pull pre-built Palace container..."
+          echo "Downloading singularity definition..."
+          wget https://raw.githubusercontent.com/awslabs/palace/main/singularity/singularity.def
 
-          # Try different registries and tags
-          CONTAINER_FOUND=false
-
-          # Try GitHub Container Registry
-          if apptainer pull palace.sif docker://ghcr.io/awslabs/palace:latest 2>/dev/null; then
-            echo "Successfully pulled palace from GitHub Container Registry"
-            CONTAINER_FOUND=true
-          # Try Docker Hub awslabs
-          elif apptainer pull palace.sif docker://awslabs/palace:latest 2>/dev/null; then
-            echo "Successfully pulled palace from Docker Hub awslabs"
-            CONTAINER_FOUND=true
-          # Try the original benvial image that was in the config
-          elif apptainer pull palace.sif docker://benvial/palace:latest 2>/dev/null; then
-            echo "Successfully pulled palace from benvial/palace:latest"
-            CONTAINER_FOUND=true
-          elif apptainer pull palace.sif docker://benvial/palace:dev 2>/dev/null; then
-            echo "Successfully pulled palace from benvial/palace:dev"
-            CONTAINER_FOUND=true
-          fi
-
-          if [ "$CONTAINER_FOUND" = "false" ]; then
-            echo "No pre-built container found, downloading singularity definition..."
-            wget https://raw.githubusercontent.com/awslabs/palace/main/singularity/singularity.def
-
-            # Try to build but with a reasonable timeout (build can take 30+ minutes)
-            echo "Building Palace container from source (this may take a while)..."
-            echo "Note: This is a one-time build that will be cached for future runs"
-            timeout 1800 apptainer build palace.sif singularity.def || {
-              echo "Build timed out or failed after 30 minutes. Palace tests will be skipped."
-              touch .palace_build_failed
-            }
-          fi
+          # Try to build but with a reasonable timeout (build can take 30+ minutes)
+          echo "Building Palace container from source (this may take a while)..."
+          echo "Note: This is a one-time build that will be cached for future runs"
+          timeout 3600 apptainer build palace.sif singularity.def || {
+            echo "Build timed out or failed after 60 minutes. Palace tests will be skipped."
+            exit 1
+          }
       - name: Create palace alias
         run: |
-          if [[ -f palace.sif ]]; then
-            # Create a shell script that acts as an alias for palace
-            echo '#!/bin/bash' > palace
-            echo 'exec apptainer run "$PWD/palace.sif" "$@"' >> palace
-            chmod +x palace
-            # Add to PATH
-            echo "$PWD" >> $GITHUB_PATH
-            echo "Palace executable created successfully"
-          else
-            echo "Palace container not available, tests will be skipped"
-          fi
+          # Create a shell script that acts as an alias for palace
+          echo '#!/bin/bash' > palace
+          echo 'exec apptainer run "$PWD/palace.sif" "$@"' >> palace
+          chmod +x palace
+          echo "$PWD" >> $GITHUB_PATH
+          echo "Palace executable created successfully"
       - name: Verify Palace installation
         run: |
-          if [[ -f palace.sif ]]; then
-            palace --help || echo "Palace help failed but container exists"
-          else
-            echo "Palace not available for testing"
-          fi
+          palace --help || echo "Palace help failed but container exists"
       - name: Install dependencies
-        run: |
-          uv venv -p 3.11
-          uv pip install .[gmsh,dev]
+        run: uv sync --extra dev --extra meshwell
       - name: Test with pytest
-        run: |
-          # Run tests with conditional skipping if Palace is not available
-          if [[ ! -f palace.sif ]] || [[ -f .palace_build_failed ]]; then
-            echo "Palace not available, running tests with Palace marked as unavailable"
-            export PALACE_AVAILABLE=false
-          else
-            export PALACE_AVAILABLE=true
-          fi
-          uv run pytest gplugins/palace -v
-
+        run: uv run pytest gplugins/palace -v
 
   test_code_coverage:
     runs-on: ubuntu-latest
