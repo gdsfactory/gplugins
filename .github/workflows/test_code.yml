@@ -88,24 +88,49 @@ jobs:
       - name: Install libglu1-mesa
         run: |
           sudo apt-get install -y libglu1-mesa
+      - name: Cache Palace container
+        id: cache-palace
+        uses: actions/cache@v4
+        with:
+          path: palace.sif
+          key: palace-container-v1-${{ runner.os }}
+          restore-keys: |
+            palace-container-v1-
       - name: Try to pull pre-built Palace container or build from source
+        if: steps.cache-palace.outputs.cache-hit != 'true'
         run: |
           # First try to pull a pre-built container from various sources
           echo "Attempting to pull pre-built Palace container..."
           
-          # Try Docker Hub or other registries that might have Palace
-          if apptainer pull palace.sif docker://awslabs/palace:latest 2>/dev/null; then
-            echo "Successfully pulled palace from Docker registry"
+          # Try different registries and tags
+          CONTAINER_FOUND=false
+          
+          # Try GitHub Container Registry
+          if apptainer pull palace.sif docker://ghcr.io/awslabs/palace:latest 2>/dev/null; then
+            echo "Successfully pulled palace from GitHub Container Registry"
+            CONTAINER_FOUND=true
+          # Try Docker Hub awslabs
+          elif apptainer pull palace.sif docker://awslabs/palace:latest 2>/dev/null; then
+            echo "Successfully pulled palace from Docker Hub awslabs"
+            CONTAINER_FOUND=true
+          # Try the original benvial image that was in the config
           elif apptainer pull palace.sif docker://benvial/palace:latest 2>/dev/null; then
             echo "Successfully pulled palace from benvial/palace:latest"
-          else
+            CONTAINER_FOUND=true
+          elif apptainer pull palace.sif docker://benvial/palace:dev 2>/dev/null; then
+            echo "Successfully pulled palace from benvial/palace:dev"
+            CONTAINER_FOUND=true
+          fi
+          
+          if [ "$CONTAINER_FOUND" = "false" ]; then
             echo "No pre-built container found, downloading singularity definition..."
             wget https://raw.githubusercontent.com/awslabs/palace/main/singularity/singularity.def
             
             # Try to build but with a reasonable timeout (build can take 30+ minutes)
             echo "Building Palace container from source (this may take a while)..."
-            timeout 2400 apptainer build palace.sif singularity.def || {
-              echo "Build timed out or failed. Palace tests will be skipped."
+            echo "Note: This is a one-time build that will be cached for future runs"
+            timeout 1800 apptainer build palace.sif singularity.def || {
+              echo "Build timed out or failed after 30 minutes. Palace tests will be skipped."
               touch .palace_build_failed
             }
           fi
