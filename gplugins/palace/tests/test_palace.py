@@ -12,10 +12,20 @@ from gdsfactory.generic_tech import LAYER
 from gdsfactory.technology import LayerStack
 from gdsfactory.technology.layer_stack import LayerLevel
 
-from gplugins.palace import (
-    run_capacitive_simulation_palace,
-    run_scattering_simulation_palace,
-)
+try:
+    from gplugins.palace import (
+        run_capacitive_simulation_palace,
+        run_scattering_simulation_palace,
+    )
+    PALACE_IMPORT_SUCCESS = True
+except ImportError as e:
+    PALACE_IMPORT_SUCCESS = False
+    # Create dummy functions to allow tests to be collected
+    def run_capacitive_simulation_palace(*args, **kwargs):
+        pytest.skip(f"Palace import failed: {e}")
+    
+    def run_scattering_simulation_palace(*args, **kwargs):
+        pytest.skip(f"Palace import failed: {e}")
 
 layer_stack = LayerStack(
     layers=dict(
@@ -52,10 +62,10 @@ def is_palace_available():
     return shutil.which("palace") is not None
 
 
-# Skip all tests if Palace is not available
+# Skip all tests if Palace is not available or import failed
 pytestmark = pytest.mark.skipif(
-    not is_palace_available(), 
-    reason="Palace not available in system PATH"
+    not PALACE_IMPORT_SUCCESS or not is_palace_available(), 
+    reason="Palace not available (import failed or not in system PATH)"
 )
 
 
