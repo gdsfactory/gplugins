@@ -23,7 +23,9 @@ from gplugins.common.utils.async_helpers import (
     execute_and_stream_output,
     run_async_with_event_loop,
 )
-from gplugins.gmsh import get_mesh
+from gplugins.meshwell.get_meshwell_3D import get_meshwell_prisms
+from meshwell.cad import cad
+from meshwell.mesh import mesh
 from gdsfactory.config import home
 
 ELECTROSTATIC_JSON = "electrostatic.json"
@@ -373,14 +375,27 @@ def run_capacitive_simulation_palace(
     if mesh_file:
         shutil.copyfile(str(mesh_file), str(simulation_folder / filename))
     else:
-        get_mesh(
+        prisms = get_meshwell_prisms(
             component=component,
             type="3D",
             filename=simulation_folder / filename,
             layer_stack=layer_stack,
             n_threads=n_processes,
-            gmsh_version=2.2,  # see https://mfem.org/mesh-formats/#gmsh-mesh-formats
-            **((mesh_parameters or {}) | {"layer_port_delimiter": port_delimiter}),
+        )
+        cad(
+            entities_list=prisms,
+            output_file=(
+                cad_output := (simulation_folder / filename).with_suffix(".xao")
+            ),
+            boundary_delimiter=(boundary_delimiter:="boundary"),
+            progress_bars=True,
+        )
+        mesh(
+            input_file=cad_output,
+            output_file=(simulation_folder / filename).with_suffix(".msh"),
+            boundary_delimiter=boundary_delimiter,
+            dim=3,
+            **(mesh_parameters or {}),
         )
 
     # re-read the mesh
