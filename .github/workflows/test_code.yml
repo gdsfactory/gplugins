@@ -101,7 +101,7 @@ jobs:
         run: |
           echo "Building Palace container from source (this may take a while)…"
           echo "Note: This is a one-time build that will be cached for future runs"
-          timeout 3600 apptainer build palace.sif singularity.def || {
+          timeout 3600 sudo apptainer build palace.sif singularity.def || {
             echo "Build timed out or failed after 60 minutes. Palace tests will be skipped."
             exit 1
           }
@@ -115,7 +115,7 @@ jobs:
         run: |
           # Create a shell script that acts as an alias for palace
           echo '#!/bin/bash' > palace
-          echo 'apptainer run --unsquash "$GITHUB_WORKSPACE/palace.sif" "$@"' >> palace
+          echo 'sudo apptainer run "$GITHUB_WORKSPACE/palace.sif" "$@"' >> palace
           chmod +x palace
           echo "$GITHUB_WORKSPACE" >> $GITHUB_PATH
           echo "Palace executable created successfully"
