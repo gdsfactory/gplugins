@@ -13,7 +13,6 @@ from gplugins.vlsir import export_netlist, kdb_vlsir
 def pkg() -> Package:
     """Get VLSIR Package for `pads_correct`. Cached for session scope."""
     c = pads_correct()
-    c.show()
     gdspath = c.write_gds()
     kdbnet = get_netlist(gdspath)
     return kdb_vlsir(kdbnet, domain="gplugins.klayout.example")
