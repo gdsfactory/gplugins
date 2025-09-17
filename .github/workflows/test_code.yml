@@ -88,27 +88,29 @@ jobs:
       - name: Install libglu1-mesa
         run: |
           sudo apt-get install -y libglu1-mesa
-      - name: Cache Palace container
-        id: cache-palace
-        uses: actions/cache@v4
+      - name: Download Palace singularity definition
+        run: wget https://raw.githubusercontent.com/awslabs/palace/main/singularity/singularity.def
+      - name: Cache Palace container restore
+        id: cache-palace-restore
+        uses: actions/cache/restore@v4
         with:
           path: palace.sif
-          key: palace-container-v1-${{ runner.os }}
-          restore-keys: |
-            palace-container-v1-
+          key: palace-container-${{ runner.os }}-${{ hashFiles('singularity.def') }}
       - name: Build palace from source
-        if: steps.cache-palace.outputs.cache-hit != 'true'
+        if: steps.cache-palace-restore.outputs.cache-hit != 'true'
         run: |
-          echo "Downloading singularity definition..."
-          wget https://raw.githubusercontent.com/awslabs/palace/main/singularity/singularity.def
-
-          # Try to build but with a reasonable timeout (build can take 30+ minutes)
-          echo "Building Palace container from source (this may take a while)..."
+          echo "Building Palace container from source (this may take a while)…"
           echo "Note: This is a one-time build that will be cached for future runs"
           timeout 3600 apptainer build palace.sif singularity.def || {
             echo "Build timed out or failed after 60 minutes. Palace tests will be skipped."
             exit 1
           }
+      - name: Cache Palace container save
+        uses: actions/cache/save@v4
+        if: steps.cache-palace-restore.outputs.cache-hit != 'true'
+        with:
+          path: palace.sif
+          key: palace-container-${{ runner.os }}
       - name: Create palace alias
         run: |
           # Create a shell script that acts as an alias for palace
