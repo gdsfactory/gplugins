@@ -123,7 +123,7 @@ jobs:
         run: |
           palace --help || echo "Palace help failed but container exists"
       - name: Install dependencies
-        run: uv sync --extra dev --extra meshwell
+        run: uv sync --extra dev --extra gmsh
       - name: Test with pytest
         run: uv run pytest gplugins/palace -v
 
