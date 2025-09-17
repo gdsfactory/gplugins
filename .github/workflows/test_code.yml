@@ -115,9 +115,9 @@ jobs:
         run: |
           # Create a shell script that acts as an alias for palace
           echo '#!/bin/bash' > palace
-          echo 'exec apptainer run "$PWD/palace.sif" "$@"' >> palace
+          echo 'apptainer run --unsquash "$GITHUB_WORKSPACE/palace.sif" "$@"' >> palace
           chmod +x palace
-          echo "$PWD" >> $GITHUB_PATH
+          echo "$GITHUB_WORKSPACE" >> $GITHUB_PATH
           echo "Palace executable created successfully"
       - name: Verify Palace installation
         run: |
