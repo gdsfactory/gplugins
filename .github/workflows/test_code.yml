@@ -110,7 +110,7 @@ jobs:
         if: steps.cache-palace-restore.outputs.cache-hit != 'true'
         with:
           path: palace.sif
-          key: palace-container-${{ runner.os }}
+          key: palace-container-${{ runner.os }}-${{ hashFiles('singularity.def') }}
       - name: Create palace alias
         run: |
           # Create a shell script that acts as an alias for palace
