@@ -13,7 +13,7 @@ classifiers = [
   "Operating System :: OS Independent"
 ]
 dependencies = [
-  "gdsfactory>=9.3.5",
+  "gdsfactory>=9.15.1",
   "pint",
   "tqdm",
   "numpy==2.2",  # numpy 2.2 is required for numba
