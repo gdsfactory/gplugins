@@ -60,7 +60,7 @@ def get_component_with_net_layers(
     # Initialize returned component
     net_component = component.copy()
 
-    new_layerlevels = list()
+    new_layerlevels = []
     # For each port to consider, convert relevant polygons
     for i, port_name in enumerate(port_names):
         port = component.ports[port_name]
