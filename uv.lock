@@ -1161,7 +1161,7 @@ wheels = [
 
 [[package]]
 name = "gplugins"
-version = "1.4.1"
+version = "1.4.2"
 source = { editable = "." }
 dependencies = [
     { name = "gdsfactory" },
@@ -1300,7 +1300,7 @@ requires-dist = [
     { name = "pyvista", marker = "extra == 'gmsh'", specifier = "<=0.46.0" },
     { name = "pyvista", extras = ["all"], marker = "extra == 'docs'", specifier = "<=0.46.0" },
     { name = "sax", marker = "extra == 'meow'", specifier = ">=0.15.6,<0.16.0" },
-    { name = "sax", marker = "extra == 'sax'", specifier = ">=0.15.6,<0.16.0" },
+    { name = "sax", marker = "extra == 'sax'", specifier = "~=0.15.14" },
     { name = "scikit-learn", marker = "extra == 'docs'" },
     { name = "shapely", marker = "extra == 'gfviz'" },
     { name = "shapely", marker = "extra == 'gmsh'" },
