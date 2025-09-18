@@ -153,26 +153,24 @@ def _generate_json(
 
 def _palace(simulation_folder: Path, name: str, n_processes: int = 1) -> None:
     """Run simulations with Palace."""
-    from gplugins.palace.utils import find_palace_executable
+    # Try to find palace in PATH first
+    palace = shutil.which("palace")
 
-    json_file = simulation_folder / f"{Path(name).stem}.json"
-    
-    print(f"🔍 DEBUG: Running Palace simulation...")
-    print(f"   JSON config file: {json_file}")
-    print(f"   Simulation folder: {simulation_folder}")
-    print(f"   Working directory contents before Palace:")
-    for item in simulation_folder.iterdir():
-        print(f"     - {item.name}")
-
-    # Try to find palace executable (PATH, containers, etc.)
-    palace = find_palace_executable()
-    
+    # If not found, try to load it via Spack
     if palace is None:
-        # Fallback to Spack method
-        print("   Palace not found in PATH or containers, attempting to load via Spack...")
+        print("   Palace not found in PATH, attempting to load via Spack...")
+        # Create a command that sources Spack and then runs palace
+        json_file = simulation_folder / f"{Path(name).stem}.json"
         spack_cmd = f"source {home}/install_new_computer/bash/spack/share/spack/setup-env.fish && spack load palace && palace {json_file.absolute()}"
 
+        print(f"🔍 DEBUG: Running Palace simulation via Spack...")
         print(f"   Command: {spack_cmd}")
+        print(f"   JSON config file: {json_file}")
+        print(f"   Simulation folder: {simulation_folder}")
+        print(f"   Working directory contents before Palace:")
+        for item in simulation_folder.iterdir():
+            print(f"     - {item.name}")
+
         try:
             import subprocess
 
@@ -199,20 +197,27 @@ def _palace(simulation_folder: Path, name: str, n_processes: int = 1) -> None:
         except Exception as e:
             print(f"   ❌ Failed to run Palace via Spack: {e}")
             raise RuntimeError(
-                "palace not found. Make sure it is available in your PATH, "
-                "via Spack, or via an Apptainer/Singularity container."
+                "palace not found. Make sure it is available in your PATH or via Spack."
             )
     else:
-        # Palace found, use async execution method
+        # Palace found in PATH, use the original method
+        json_file = simulation_folder / f"{Path(name).stem}.json"
+
+        print(f"🔍 DEBUG: Running Palace simulation...")
         print(f"   Palace executable: {palace}")
+        print(f"   JSON config file: {json_file}")
+        print(f"   Simulation folder: {simulation_folder}")
+        print(f"   Working directory contents before Palace:")
+        for item in simulation_folder.iterdir():
+            print(f"     - {item.name}")
 
         try:
             run_async_with_event_loop(
                 execute_and_stream_output(
                     (
-                        [palace, str(json_file)]
+                        [palace, json_file]
                         if n_processes == 1
-                        else [palace, "-np", str(n_processes), str(json_file)]
+                        else [palace, "-np", str(n_processes), json_file]
                     ),
                     shell=False,
                     log_file_dir=simulation_folder,
