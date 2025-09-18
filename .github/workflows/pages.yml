@@ -16,9 +16,49 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: astral-sh/setup-uv@v6
+      - name: Setup Apptainer
+        uses: eWaterCycle/setup-apptainer@3f706d898c9db585b1d741b4692e66755f3a1b40
+        with:
+          apptainer-version: 1.4.2
       - name: Install libglu1-mesa
         run: |
           sudo apt-get install -y libglu1-mesa
+      - name: Download Palace singularity definition
+        run: wget https://raw.githubusercontent.com/awslabs/palace/main/singularity/singularity.def
+      - name: Cache Palace container restore
+        id: cache-palace-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: palace.sif
+          key: palace-container-${{ runner.os }}-${{ hashFiles('singularity.def') }}
+      - name: Build palace from source
+        if: steps.cache-palace-restore.outputs.cache-hit != 'true'
+        run: |
+          echo "Building Palace container from source (this may take a while)…"
+          echo "Note: This is a one-time build that will be cached for future runs"
+          timeout 3600 sudo apptainer build palace.sif singularity.def || {
+            echo "Build timed out or failed after 60 minutes. Palace will not be available for docs."
+            exit 0
+          }
+      - name: Cache Palace container save
+        uses: actions/cache/save@v4
+        if: steps.cache-palace-restore.outputs.cache-hit != 'true'
+        with:
+          path: palace.sif
+          key: palace-container-${{ runner.os }}-${{ hashFiles('singularity.def') }}
+      - name: Create palace alias
+        if: hashFiles('palace.sif') != ''
+        run: |
+          # Create a shell script that acts as an alias for palace
+          echo '#!/bin/bash' > palace
+          echo "exec apptainer run $GITHUB_WORKSPACE/palace.sif \"\$@\" " >> palace
+          chmod +x palace
+          echo "$GITHUB_WORKSPACE" >> $GITHUB_PATH
+          echo "Palace executable created successfully"
+      - name: Verify Palace installation
+        if: hashFiles('palace.sif') != ''
+        run: |
+          palace --help || echo "Palace help failed but container exists"
       - name: Build docs
         env:
           SIMCLOUD_APIKEY: ${{ secrets.SIMCLOUD_APIKEY }}

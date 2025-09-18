@@ -212,6 +212,8 @@ async def _palace(
     simulation_folder: Path, json_files: Collection[Path], n_processes: int = 1
 ) -> None:
     """Run simulations with Palace."""
+    from gplugins.palace.utils import find_palace_executable
+
     # split processes as evenly as possible
     quotient, remainder = divmod(n_processes, len(json_files))
     n_processes_per_json = [quotient] * len(json_files)
@@ -220,10 +222,11 @@ async def _palace(
             n_processes_per_json[i] + 1, 1
         )  # need at least one
 
-    palace = shutil.which("palace")
+    palace = find_palace_executable()
     if palace is None:
         raise RuntimeError(
-            "`palace` not found. Make sure it is available in your PATH."
+            "`palace` not found. Make sure it is available in your PATH, "
+            "via Spack, or via an Apptainer/Singularity container."
         )
 
     tasks = [
