@@ -122,10 +122,8 @@ jobs:
       - name: Verify Palace installation
         run: |
           palace --help || echo "Palace help failed but container exists"
-      - name: Install dependencies
-        run: uv sync --extra dev --extra gmsh
       - name: Test with pytest
-        run: uv run pytest gplugins/palace -v
+        run: sudo env "PATH=$PATH" "$(which uv)" run --extra dev --extra gmsh pytest gplugins/palace -v
 
   test_code_coverage:
     runs-on: ubuntu-latest
