@@ -42,23 +42,29 @@ jobs:
           }
       - name: Cache Palace container save
         uses: actions/cache/save@v4
-        if: steps.cache-palace-restore.outputs.cache-hit != 'true'
+        if: steps.cache-palace-restore.outputs.cache-hit != 'true' && hashFiles('palace.sif') != ''
         with:
           path: palace.sif
           key: palace-container-${{ runner.os }}-${{ hashFiles('singularity.def') }}
       - name: Create palace alias
-        if: hashFiles('palace.sif') != ''
         run: |
-          # Create a shell script that acts as an alias for palace
-          echo '#!/bin/bash' > palace
-          echo "exec apptainer run $GITHUB_WORKSPACE/palace.sif \"\$@\" " >> palace
-          chmod +x palace
-          echo "$GITHUB_WORKSPACE" >> $GITHUB_PATH
-          echo "Palace executable created successfully"
+          if [ -f "palace.sif" ]; then
+            # Create a shell script that acts as an alias for palace
+            echo '#!/bin/bash' > palace
+            echo "exec apptainer run $GITHUB_WORKSPACE/palace.sif \"\$@\" " >> palace
+            chmod +x palace
+            echo "$GITHUB_WORKSPACE" >> $GITHUB_PATH
+            echo "Palace executable created successfully"
+          else
+            echo "Palace container not available - notebooks requiring Palace will be skipped"
+          fi
       - name: Verify Palace installation
-        if: hashFiles('palace.sif') != ''
         run: |
-          palace --help || echo "Palace help failed but container exists"
+          if [ -f "palace.sif" ]; then
+            palace --help || echo "Palace help failed but container exists"
+          else
+            echo "Palace container not found, skipping verification"
+          fi
       - name: Build docs
         env:
           SIMCLOUD_APIKEY: ${{ secrets.SIMCLOUD_APIKEY }}

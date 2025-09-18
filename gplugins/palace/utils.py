@@ -26,13 +26,16 @@ def find_palace_executable() -> str | None:
         workspace = Path(os.environ["GITHUB_WORKSPACE"])
         palace_sif = workspace / "palace.sif"
         if palace_sif.exists():
-            # Create a temporary script to run palace via apptainer
-            palace_script = workspace / "palace_runner.sh"
-            palace_script.write_text(
-                f'#!/bin/bash\nexec apptainer run "{palace_sif}" "$@"\n'
-            )
-            palace_script.chmod(0o755)
-            return str(palace_script)
+            # Check if apptainer/singularity is available
+            for container_cmd in ["apptainer", "singularity"]:
+                if shutil.which(container_cmd):
+                    # Create a temporary script to run palace via container
+                    palace_script = workspace / "palace_runner.sh"
+                    palace_script.write_text(
+                        f'#!/bin/bash\nexec {container_cmd} run "{palace_sif}" "$@"\n'
+                    )
+                    palace_script.chmod(0o755)
+                    return str(palace_script)
     
     # Check common container locations
     for sif_path in [
@@ -41,14 +44,14 @@ def find_palace_executable() -> str | None:
         Path("/app/palace.sif"),
     ]:
         if sif_path.exists():
-            # Create a temporary script to run palace via apptainer/singularity
-            script_dir = Path.home() / ".local" / "bin"
-            script_dir.mkdir(parents=True, exist_ok=True)
-            palace_script = script_dir / "palace_apptainer"
-            
             # Try apptainer first, then singularity
             for container_cmd in ["apptainer", "singularity"]:
                 if shutil.which(container_cmd):
+                    # Create a temporary script to run palace via container
+                    script_dir = Path.home() / ".local" / "bin"
+                    script_dir.mkdir(parents=True, exist_ok=True)
+                    palace_script = script_dir / "palace_apptainer"
+                    
                     palace_script.write_text(
                         f'#!/bin/bash\nexec {container_cmd} run "{sif_path}" "$@"\n'
                     )
