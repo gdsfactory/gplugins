@@ -77,23 +77,53 @@ jobs:
 
   test_palace:
     runs-on: ubuntu-latest
-    container:
-      image: benvial/palace:dev
-    name: Test palace:dev docker 3.11
+    name: Test palace ubuntu-latest 3.11
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
-      - name: Install mesa-libGLU
+      - name: Setup Apptainer
+        uses: eWaterCycle/setup-apptainer@3f706d898c9db585b1d741b4692e66755f3a1b40
+        with:
+          apptainer-version: 1.4.2
+      - name: Install libglu1-mesa
         run: |
-          dnf install -y mesa-libGLU
-      - name: Install dependencies
+          sudo apt-get install -y libglu1-mesa
+      - name: Download Palace singularity definition
+        run: wget https://raw.githubusercontent.com/awslabs/palace/main/singularity/singularity.def
+      - name: Cache Palace container restore
+        id: cache-palace-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: palace.sif
+          key: palace-container-${{ runner.os }}-${{ hashFiles('singularity.def') }}
+      - name: Build palace from source
+        if: steps.cache-palace-restore.outputs.cache-hit != 'true'
         run: |
-          uv venv -p 3.11
-          uv pip install .[gmsh,dev]
+          echo "Building Palace container from source (this may take a while)…"
+          echo "Note: This is a one-time build that will be cached for future runs"
+          timeout 3600 sudo apptainer build palace.sif singularity.def || {
+            echo "Build timed out or failed after 60 minutes. Palace tests will be skipped."
+            exit 1
+          }
+      - name: Cache Palace container save
+        uses: actions/cache/save@v4
+        if: steps.cache-palace-restore.outputs.cache-hit != 'true'
+        with:
+          path: palace.sif
+          key: palace-container-${{ runner.os }}-${{ hashFiles('singularity.def') }}
+      - name: Create palace alias
+        run: |
+          # Create a shell script that acts as an alias for palace
+          echo '#!/bin/bash' > palace
+          echo "sudo apptainer run $GITHUB_WORKSPACE/palace.sif \"\$@\" " >> palace
+          chmod +x palace
+          echo "$GITHUB_WORKSPACE" >> $GITHUB_PATH
+          echo "Palace executable created successfully"
+      - name: Verify Palace installation
+        run: |
+          palace --help || echo "Palace help failed but container exists"
       - name: Test with pytest
-        run: |
-          uv run pytest gplugins/palace
-
+        run: sudo env "PATH=$PATH" "$(which uv)" run --extra dev --extra gmsh pytest gplugins/palace -v
 
   test_code_coverage:
     runs-on: ubuntu-latest
