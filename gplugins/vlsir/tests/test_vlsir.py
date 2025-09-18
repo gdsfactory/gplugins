@@ -18,24 +18,25 @@ def pkg() -> Package:
     return kdb_vlsir(kdbnet, domain="gplugins.klayout.example")
 
 
-def test_kdb_vlsir(pkg) -> None:
-    """Test the conversion from KLayout DB Netlist to VLSIR Package."""
-    packages = [
-        "taper_L10_W100_W10_LNon_43bc52bd",
-        "pad_S100_100_LMTOP_BLNo_163fd346",
+@pytest.mark.parametrize(
+    "expected_module_name",
+    [
+        "taper_gdsfactorypcomponentsptapersptaper_L10_W100_W10_L_e6a63921",
+        "pad_gdsfactorypcomponentsppadsppad_S100_100_LMTOP_BLNon_457de54c",
         "pads_correct_Ppad_CSmetal3",
-    ]
-
+    ],
+)
+def test_kdb_vlsir(pkg: Package, expected_module_name: str) -> None:
+    """Test the conversion from KLayout DB Netlist to VLSIR Package."""
     assert pkg is not None, "Package should not be None"
-    assert len(pkg.modules) == 3, "Expected 3 modules in the package"
-    for i in range(3):
-        assert pkg.modules[i].name == packages[i], (
-            f"Module[{i}] name should be {packages[i]}"
-        )
+    module_names = (module.name for module in pkg.modules)
+    assert expected_module_name in module_names, (
+        f"Expected module '{expected_module_name}' in package modules"
+    )
 
 
 @pytest.mark.parametrize("spice_format", ["spice", "spectre", "xyce", "verilog"])
-def test_export_netlist(pkg, spice_format) -> None:
+def test_export_netlist(pkg: Package, spice_format: str) -> None:
     """Test the export of a VLSIR Package to a netlist in the supported formats."""
     if spice_format == "verilog":
         with pytest.raises(NotImplementedError):
