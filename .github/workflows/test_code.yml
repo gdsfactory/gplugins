@@ -115,7 +115,7 @@ jobs:
         run: |
           # Create a shell script that acts as an alias for palace
           echo '#!/bin/bash' > palace
-          echo 'sudo apptainer run "$GITHUB_WORKSPACE/palace.sif" "$@"' >> palace
+          echo "sudo apptainer run $GITHUB_WORKSPACE/palace.sif \"\$@\" " >> palace
           chmod +x palace
           echo "$GITHUB_WORKSPACE" >> $GITHUB_PATH
           echo "Palace executable created successfully"
