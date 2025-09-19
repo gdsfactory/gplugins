@@ -56,16 +56,14 @@ def get_component_with_net_layers(
         new_layers_init: initial layer number for the temporary new layers.
         add_to_layerstack: True by default, but can be set to False to disable parsing of the layerstack.
     """
-    # return NotImplementedError(
-    #     "Meshing component with net layers not implemented in gdsfactory8 yet."
-    # )
 
     # Initialize returned component
     net_component = component.copy()
 
+    new_layerlevels = []
     # For each port to consider, convert relevant polygons
-    for i, portname in enumerate(port_names):
-        port = component.ports[portname]
+    for i, port_name in enumerate(port_names):
+        port = component.ports[port_name]
         # Get original port layer polygons, and modify a new component without that layer
         polygons = (
             net_component.extract(layers=(port.layer,))
@@ -78,35 +76,64 @@ def get_component_with_net_layers(
             if polygon.sized(int(3 * gf.kcl.dbu)).inside(
                 kdb.Point(*port.to_itype().center)
             ):
-                # if gdstk.inside(
-                #     [port.center],
-                #     gdstk.offset(gdstk.Polygon(polygon), gf.get_active_pdk().grid_size),
-                # )[0]:
                 try:
-                    port_layernames = layer_stack.get_layer_to_layername()[
-                        LogicalLayer(layer=port.layer)
+                    derived_layerlevels_touching_port = [
+                        e
+                        for e in layer_stack.layers.values()
+                        if e.derived_layer is not None
+                        and e not in new_layerlevels
+                        and (
+                            e.derived_layer.layer.layer,
+                            e.derived_layer.layer.datatype,
+                        )
+                        == (
+                            port.layer_info.layer,
+                            port.layer_info.datatype,
+                        )
                     ]
+                    logical_layerlevels_touching_port = [
+                        e
+                        for e in layer_stack.layers.values()
+                        if not isinstance(
+                            e.layer, gf.technology.layer_stack.DerivedLayer
+                        )
+                        and e not in new_layerlevels
+                        and (e.layer.layer.layer, e.layer.layer.datatype)
+                        == (port.layer_info.layer, port.layer_info.datatype)
+                    ]
+
+                    layerlevels_touching_port = (
+                        derived_layerlevels_touching_port
+                        + logical_layerlevels_touching_port
+                    )
                 except KeyError as e:
                     raise KeyError(
                         "Make sure your `layer_stack` contains all layers with ports"
                     ) from e
-                for j, old_layername in enumerate(port_layernames):
+
+                for j, old_layerlevel in enumerate(layerlevels_touching_port):
                     new_layer_number = (
                         new_layers_init[0] + i,
                         new_layers_init[1] + j,
                     )
                     if add_to_layerstack:
-                        new_layer = copy.deepcopy(layer_stack.layers[old_layername])
-                        new_layer.layer = LogicalLayer(
+                        # new_layer = copy.deepcopy(layer_stack.layers[old_layerlevel])
+                        new_layerlevel = copy.deepcopy(old_layerlevel)
+                        new_layerlevel.layer = LogicalLayer(
                             layer=(
                                 new_layers_init[0] + i,
                                 new_layers_init[1] + j,
                             )
                         )
-                        new_layer.name = f"{old_layername}{delimiter}{portname}"
-                        layer_stack.layers[f"{old_layername}{delimiter}{portname}"] = (
-                            new_layer
+                        new_layerlevel.name = (
+                            f"{old_layerlevel.name}{delimiter}{port_name}"
                         )
+                        # Increase mesh order to ensure new layer is on top old
+                        new_layerlevel.mesh_order = old_layerlevel.mesh_order - 1
+                        layer_stack.layers[
+                            f"{old_layerlevel.name}{delimiter}{port_name}"
+                        ] = new_layerlevel
+                        new_layerlevels.append(new_layerlevel)
                     net_component.add_polygon(polygon, layer=new_layer_number)
             # Otherwise put the polygon back on the same layer
             else:

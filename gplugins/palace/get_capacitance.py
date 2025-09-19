@@ -10,6 +10,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
 
+from kfactory import kdb
 import gdsfactory as gf
 import gmsh
 from gdsfactory.generic_tech import LAYER_STACK
@@ -23,8 +24,14 @@ from gplugins.common.utils.async_helpers import (
     execute_and_stream_output,
     run_async_with_event_loop,
 )
-from gplugins.gmsh import get_mesh
+from gplugins.common.utils.get_component_with_net_layers import (
+    get_component_with_net_layers,
+)
 from gdsfactory.config import home
+from gplugins.meshwell.get_meshwell_3D import get_meshwell_prisms
+from meshwell.cad import cad
+from meshwell.mesh import mesh
+from gdsfactory import logger
 
 ELECTROSTATIC_JSON = "electrostatic.json"
 ELECTROSTATIC_TEMPLATE = Path(__file__).parent / ELECTROSTATIC_JSON
@@ -77,24 +84,6 @@ def _generate_json(
         if k in physical_name_to_dimtag_map
     }
 
-    # Debug: Show the physical name to dimtag mapping
-    print(f"🔍 DEBUG: Physical surface mapping...")
-    print(f"   Available physical surfaces and their IDs:")
-    for _name, (dim, tag) in physical_name_to_dimtag_map.items():
-        if dim == 2:  # Surface entities
-            print(f"     {_name}: ID = {tag}")
-
-    # Show what we're assigning to boundaries
-    print(f"   Ground layers: {ground_layers}")
-    print(
-        f"   Ground surface IDs: {[physical_name_to_dimtag_map.get(layer, 'NOT_FOUND') for layer in ground_layers]}"
-    )
-    print(f"   Terminal surface assignments:")
-    for i, signal_group in enumerate(signals):
-        print(
-            f"     Terminal {i + 1}: {signal_group} -> IDs: {[physical_name_to_dimtag_map.get(signal, 'NOT_FOUND') for signal in signal_group]}"
-        )
-
     palace_json_data["Model"]["Mesh"] = f"{name}.msh"
     palace_json_data["Domains"]["Materials"] = [
         {
@@ -112,20 +101,10 @@ def _generate_json(
     #          set(ground_layers))  # TODO same in Elmer??
     #     ]
     # }
-    # Debug ground layer assignment
-    ground_attributes = []
-    print(f"   Processing ground layers for JSON:")
-    for layer in ground_layers:
-        if layer in physical_name_to_dimtag_map:
-            attr_id = physical_name_to_dimtag_map[layer][1]
-            ground_attributes.append(attr_id)
-            print(f"     {layer} -> ID {attr_id}")
-        else:
-            print(f"     ❌ {layer} not found in physical_name_to_dimtag_map")
+    palace_json_data["Boundaries"]["Ground"] = {
+        "Attributes": [physical_name_to_dimtag_map[layer][1] for layer in ground_layers]
+    }
 
-    print(f"   Final ground attributes: {ground_attributes}")
-
-    palace_json_data["Boundaries"]["Ground"] = {"Attributes": ground_attributes}
     palace_json_data["Boundaries"]["Terminal"] = [
         {
             "Index": i,
@@ -135,13 +114,12 @@ def _generate_json(
         }
         for i, signal_group in enumerate(signals, 1)
     ]
-    # TODO try do we get energy method without this??
-    surf_flux = []
-    for attr in palace_json_data["Boundaries"]["Terminal"]:
-        attr_new = attr.copy()
-        attr_new["Type"] = "Electric"
-        surf_flux.append(attr_new)
-    palace_json_data["Boundaries"]["Postprocessing"]["SurfaceFlux"] = surf_flux
+
+    # palace_json_data["Boundaries"]["Postprocessing"]["SurfaceFlux"] = [
+    #     d | {"Type": "Electric"} for d in palace_json_data["Boundaries"]["Terminal"]
+    # ]
+
+    # palace_json_data["Solver"]["Device"] = "CPU"
     palace_json_data["Solver"]["Order"] = element_order
     palace_json_data["Solver"]["Electrostatic"]["Save"] = len(signals)
     if simulator_params is not None:
@@ -158,56 +136,18 @@ def _palace(simulation_folder: Path, name: str, n_processes: int = 1) -> None:
 
     # If not found, try to load it via Spack
     if palace is None:
-        print("   Palace not found in PATH, attempting to load via Spack...")
-        # Create a command that sources Spack and then runs palace
-        json_file = simulation_folder / f"{Path(name).stem}.json"
-        spack_cmd = f"source {home}/install_new_computer/bash/spack/share/spack/setup-env.fish && spack load palace && palace {json_file.absolute()}"
-
-        print(f"🔍 DEBUG: Running Palace simulation via Spack...")
-        print(f"   Command: {spack_cmd}")
-        print(f"   JSON config file: {json_file}")
-        print(f"   Simulation folder: {simulation_folder}")
-        print(f"   Working directory contents before Palace:")
-        for item in simulation_folder.iterdir():
-            print(f"     - {item.name}")
-
-        try:
-            import subprocess
-
-            result = subprocess.run(
-                spack_cmd,
-                shell=True,
-                cwd=simulation_folder,
-                capture_output=True,
-                text=True,
-                executable="/opt/homebrew/bin/fish",  # Use fish shell explicitly
-            )
-
-            if result.returncode != 0:
-                print(f"   ❌ Palace execution failed!")
-                print(f"   STDOUT: {result.stdout}")
-                print(f"   STDERR: {result.stderr}")
-                raise RuntimeError(
-                    f"Palace execution failed with return code {result.returncode}"
-                )
-            else:
-                print(f"   ✅ Palace executed successfully!")
-                print(f"   STDOUT: {result.stdout}")
-
-        except Exception as e:
-            print(f"   ❌ Failed to run Palace via Spack: {e}")
-            raise RuntimeError(
-                "palace not found. Make sure it is available in your PATH or via Spack."
-            )
+        raise RuntimeError(
+            "palace not found. Make sure it is available in your PATH or via Spack."
+        )
     else:
         # Palace found in PATH, use the original method
         json_file = simulation_folder / f"{Path(name).stem}.json"
 
-        print(f"🔍 DEBUG: Running Palace simulation...")
-        print(f"   Palace executable: {palace}")
-        print(f"   JSON config file: {json_file}")
-        print(f"   Simulation folder: {simulation_folder}")
-        print(f"   Working directory contents before Palace:")
+        logger.info(f"   Running Palace simulation...")
+        logger.info(f"   Palace executable: {palace}")
+        logger.info(f"   JSON config file: {json_file}")
+        logger.info(f"   Simulation folder: {simulation_folder}")
+        logger.info(f"   Working directory contents before Palace:")
         for item in simulation_folder.iterdir():
             print(f"     - {item.name}")
 
@@ -226,23 +166,14 @@ def _palace(simulation_folder: Path, name: str, n_processes: int = 1) -> None:
                 )
             )
         except Exception as e:
-            print(f"   ❌ Palace execution failed: {e}")
+            logger.info(f"   ❌ Palace execution failed: {e}")
             raise
 
     # Check results after Palace execution (regardless of method used)
-    print(f"   Palace execution completed!")
-    print(f"   Working directory contents after Palace:")
+    logger.info(f"   Palace execution completed!")
+    logger.debug(f"   Working directory contents after Palace:")
     for item in simulation_folder.iterdir():
-        print(f"     - {item.name}")
-
-    # Check if postpro directory exists
-    postpro_dir = simulation_folder / "postpro"
-    if postpro_dir.exists():
-        print(f"   Postpro directory contents:")
-        for item in postpro_dir.iterdir():
-            print(f"     - {item.name}")
-    else:
-        print(f"   ⚠️  Postpro directory not found!")
+        logger.debug(f"     - {item.name}")
 
 
 def _read_palace_results(
@@ -252,42 +183,15 @@ def _read_palace_results(
     is_temporary: bool,
 ) -> ElectrostaticResults:
     """Fetch results from successful Palace simulations."""
-
-    print(f"🔍 DEBUG: Reading Palace results...")
-    print(f"   Simulation folder: {simulation_folder}")
-    print(f"   Looking for: {simulation_folder / 'postpro' / 'terminal-Cm.csv'}")
-
-    # Check what files actually exist
-    postpro_dir = simulation_folder / "postpro"
-    if postpro_dir.exists():
-        print(f"   Postpro directory contents:")
-        for item in postpro_dir.iterdir():
-            print(f"     - {item.name}")
-    else:
-        print(f"   ❌ Postpro directory does not exist!")
-        print(f"   Available directories in {simulation_folder}:")
-        for item in simulation_folder.iterdir():
-            if item.is_dir():
-                print(f"     - {item.name}/")
-        raise FileNotFoundError(f"Postpro directory not found in {simulation_folder}")
-
     csv_file = simulation_folder / "postpro" / "terminal-Cm.csv"
-    if not csv_file.exists():
-        print(f"   ❌ Expected CSV file not found: {csv_file}")
-        print(f"   Available files in postpro:")
-        for item in postpro_dir.iterdir():
-            print(f"     - {item.name}")
-        raise FileNotFoundError(f"Palace output file not found: {csv_file}")
-
-    print(f"   ✅ Found CSV file: {csv_file}")
     raw_capacitance_matrix = read_csv(csv_file, dtype=float).values[
         :, 1:
     ]  # remove index
 
     return ElectrostaticResults(
         capacitance_matrix={
-            (iname, jname): raw_capacitance_matrix[i][j]
-            for (i, iname), (j, jname) in itertools.product(
+            (port_i.name, port_j.name): raw_capacitance_matrix[i][j]
+            for (i, port_i), (j, port_j) in itertools.product(
                 enumerate(ports), enumerate(ports)
             )
         },
@@ -340,7 +244,7 @@ def run_capacitive_simulation_palace(
         simulator_params: Palace-specific parameters. This will be expanded to ``solver["Linear"]`` in
             the Palace config, see `Palace documentation <https://awslabs.github.io/palace/stable/config/solver/#solver[%22Linear%22]>`_
         mesh_parameters:
-            Keyword arguments to provide to :func:`get_mesh`.
+            Keyword arguments to provide to :func:`~meshwell.mesh.mesh`.
         mesh_file: Path to a ready mesh to use. Useful for reusing one mesh file.
             By default a mesh is generated according to ``mesh_parameters``.
 
@@ -368,22 +272,44 @@ def run_capacitive_simulation_palace(
     simulation_folder = Path(simulation_folder or temp_dir.name)
     simulation_folder.mkdir(exist_ok=True, parents=True)
 
-    port_delimiter = "__"  # won't cause trouble unlike #
-    filename = component.name + ".msh"
+    port_delimiter = "@"  # won't cause trouble unlike #
     if mesh_file:
         shutil.copyfile(str(mesh_file), str(simulation_folder / filename))
+        filename = component.name + ".msh"
     else:
-        get_mesh(
+        # Generate a version of the component where layers are split according to ports they touch
+        if component.ports:
+            mesh_component = component.dup()
+            mesh_component.flatten()
+            component = get_component_with_net_layers(
+                component=mesh_component,
+                layer_stack=layer_stack,
+                port_names=[p.name for p in component.ports],
+                delimiter="@",
+            )
+        filename = component.name + ".msh"
+
+        prisms = get_meshwell_prisms(
             component=component,
-            type="3D",
-            filename=simulation_folder / filename,
             layer_stack=layer_stack,
-            n_threads=n_processes,
-            gmsh_version=2.2,  # see https://mfem.org/mesh-formats/#gmsh-mesh-formats
-            **((mesh_parameters or {}) | {"layer_port_delimiter": port_delimiter}),
+        )
+        cad(
+            entities_list=prisms,
+            output_file=(
+                cad_output := (simulation_folder / filename).with_suffix(".xao")
+            ),
+            boundary_delimiter=(boundary_delimiter:="boundary"),
+            progress_bars=True,
+        )
+        mesh(
+            input_file=cad_output,
+            output_file=(simulation_folder / filename).with_suffix(".msh"),
+            boundary_delimiter=boundary_delimiter,
+            dim=3,
+            **(mesh_parameters or {}),
         )
 
-    # re-read the mesh
+    # Re-read the mesh
     # `interruptible` works on gmsh versions >= 4.11.2
     gmsh.initialize(
         **(
@@ -397,112 +323,37 @@ def run_capacitive_simulation_palace(
         gmsh.model.getPhysicalName(*dimtag) for dimtag in gmsh.model.getPhysicalGroups(dim=2)
     ]
 
+    def _derived_layer_equivalent_to_port_layer(
+        derived_layer: kdb.DerivedLayer, port: gf.Port
+    ) -> bool:
+        """Check if a derived layer corresponds to a port layer."""
+        return (derived_layer.layer.layer, derived_layer.layer.datatype) == (
+            port.layer_info.layer,
+            port.layer_info.datatype,
+        )
+
     # Signals are converted to Boundaries
-    ground_layers = set()
-    for port in component.ports:
-        # Find layer stack layer that corresponds to this port layer
-        for layer_name, layer_info in layer_stack.layers.items():
-            # Check if the layer definition contains or matches the port layer
-            if (
-                hasattr(layer_info.layer, "value")
-                and layer_info.layer.value == port.layer
-            ):
-                ground_layers.add(layer_name)
-                break
-            elif str(layer_info.layer) == str(port.layer):
-                ground_layers.add(layer_name)
-                break
-            elif (
-                "WG" in str(layer_info.layer) and port.layer == 1
-            ):  # WG layer typically has value 1
-                ground_layers.add(layer_name)
-                break
+    ground_layers = {
+        k
+        for port in component.ports
+        for k, v in layer_stack.layers.items()
+        if v.derived_layer is not None
+        and _derived_layer_equivalent_to_port_layer(v.derived_layer, port)
+    }
+    # ports allowed only on metal
+
     metal_surfaces = [
         e for e in mesh_surface_entities if any(ground in e for ground in ground_layers)
     ]
-    print(f"🔍 DEBUG: Surface processing...")
-    print(f"   Metal surfaces: {metal_surfaces}")
-    print(f"   Component ports: {[port.name for port in component.ports]}")
-    print(f"   All mesh surface entities: {mesh_surface_entities}")
-
-    # Look for port-specific surfaces using the port delimiter
-    port_surfaces = [
-        [e for e in mesh_surface_entities if port_delimiter in e and port.name in e]
-        for port in component.ports
+    # Group signal BCs by ports
+    # TODO we need to remove the port-boundary surfaces for palace to work, why?
+    # TODO might as well remove the vacuum boundary and have just 2D sheets
+    metal_signal_surfaces_grouped = [
+        [e for e in metal_surfaces if port.name in e and boundary_delimiter not in e] for port in component.ports
     ]
-
-    print(f"   Port surfaces found: {port_surfaces}")
-
-    # If no port-specific surfaces found, assign metal surfaces to ports
-    # This is a fallback for simple geometries like interdigital capacitors
-    if not any(port_surfaces):
-        print(f"   ⚠️  No port-specific surfaces found, using fallback assignment")
-        # For interdigital capacitor, both ports use the same metal layer
-        # but we need to create distinct boundaries for Palace
-        metal_signal_surfaces_grouped = [
-            (
-                [metal_surfaces[0]]
-                if i == 0 and metal_surfaces
-                else (
-                    [metal_surfaces[1]]
-                    if i == 1 and len(metal_surfaces) > 1
-                    else []
-                )
-            )
-            for i, port in enumerate(component.ports)
-        ]
-        for i, port in enumerate(component.ports):
-            print(i, port)
-        # If we only have one type of metal surface, assign it to the first port
-        if len(metal_surfaces) == 1:
-            metal_signal_surfaces_grouped = [[metal_surfaces[0]], []]
-        elif len(metal_surfaces) >= 2:
-            metal_signal_surfaces_grouped = [[metal_surfaces[0]], [metal_surfaces[1]]]
-    else:
-        # Use the port-specific surfaces
-        metal_signal_surfaces_grouped = [
-            [s for s in surfaces if s in metal_surfaces] for surfaces in port_surfaces
-        ]
-
-    print(f"   Final grouped surfaces: {metal_signal_surfaces_grouped}")
-
-    # Check if we have valid surface assignments
-    for i, group in enumerate(metal_signal_surfaces_grouped):
-        port_name = list(component.ports)[i].name
-        print(f"   Port {port_name}: surfaces = {group}")
-        if not group:
-            print(f"   ⚠️  WARNING: No surfaces assigned to port {port_name}")
-
     metal_ground_surfaces = set(metal_surfaces) - set(
         itertools.chain.from_iterable(metal_signal_surfaces_grouped)
     )
-
-    # For electrostatic simulations, we need a proper ground reference
-    # Use substrate surfaces as ground instead of metal surfaces
-    substrate_surfaces = [
-        e
-        for e in mesh_surface_entities
-        if any(substrate in e for substrate in ["substrate", "box"])
-    ]
-
-    print(f"   Available substrate surfaces for ground: {substrate_surfaces}")
-
-    # Use substrate surfaces as ground, but exclude surfaces used by terminals
-    terminal_surfaces = set(
-        itertools.chain.from_iterable(metal_signal_surfaces_grouped)
-    )
-
-    if substrate_surfaces:
-        # Remove any substrate surfaces that are being used as terminals
-        actual_ground_surfaces = [
-            s for s in substrate_surfaces if s not in terminal_surfaces
-        ]
-    else:
-        actual_ground_surfaces = list(metal_ground_surfaces)
-
-    print(f"   Terminal surfaces: {terminal_surfaces}")
-    print(f"   Using as ground: {actual_ground_surfaces}")
-
     ground_layers |= metal_ground_surfaces
 
     # dielectrics
@@ -521,7 +372,9 @@ def run_capacitive_simulation_palace(
         gmsh.model.getPhysicalName(*dimtag): dimtag
         for dimtag in gmsh.model.getPhysicalGroups()
     }
-    # gmsh.fltk.run()
+    # Use msh version 2.2 for MFEM / Palace compatibility, see https://mfem.org/mesh-formats/#gmsh-mesh-formats
+    gmsh.option.setNumber("Mesh.MshFileVersion", 2.2)
+    gmsh.write(str(simulation_folder / filename))
     gmsh.finalize()
 
     _generate_json(
@@ -529,7 +382,7 @@ def run_capacitive_simulation_palace(
         component.name,
         metal_signal_surfaces_grouped,
         bodies,
-        actual_ground_surfaces,
+        ground_layers,
         layer_stack,
         material_spec,
         element_order,
@@ -549,58 +402,6 @@ def run_capacitive_simulation_palace(
     return results
 
 
-def test_components():
-    """Test individual components of the capacitance simulation."""
-    import tempfile
-
-    print("🧪 TESTING INDIVIDUAL COMPONENTS")
-    print("=" * 40)
-
-    # Test component creation
-    print("1. Creating component...")
-    c = gf.components.interdigital_capacitor()
-    print(f"   ✅ Component: {c.name}")
-    print(f"   ✅ Ports: {[p.name for p in c.ports]}")
-
-    # Test layer stack processing
-    print("\n2. Testing layer stack...")
-    from gdsfactory.generic_tech import LAYER_STACK
-
-    ground_layers = set()
-    for port in c.ports:
-        for layer_name, layer_info in LAYER_STACK.layers.items():
-            if (
-                hasattr(layer_info.layer, "value")
-                and layer_info.layer.value == port.layer
-            ):
-                ground_layers.add(layer_name)
-                break
-            elif "WG" in str(layer_info.layer) and port.layer == 1:
-                ground_layers.add(layer_name)
-                break
-    print(f"   ✅ Ground layers found: {ground_layers}")
-
-    # Test mesh creation (without Palace)
-    print("\n3. Testing mesh creation...")
-    try:
-        with tempfile.TemporaryDirectory() as temp_dir:
-            # This will test everything up to Palace execution
-            from gplugins.gmsh.get_mesh import get_mesh
-
-            mesh_info = get_mesh(
-                component=c,
-                type="3D",
-                layer_stack=LAYER_STACK,
-                resolutions={},
-                filename=f"{temp_dir}/test_mesh.msh",
-            )
-            print(f"   ✅ Mesh created successfully")
-
-    except Exception as e:
-        print(f"   ❌ Mesh creation failed: {e}")
-
-    return c
-
 
 if __name__ == "__main__":
     import json
@@ -608,43 +409,10 @@ if __name__ == "__main__":
     import tempfile
     from pathlib import Path
 
-    print("🧪 TESTING GET_CAPACITANCE.PY WITH PALACE")
-    print("=" * 50)
-
     c = gf.components.interdigital_capacitor()
-    print(f"✅ Component created: {c.name}")
-    print(f"✅ Component ports: {[p.name for p in c.ports]}")
-    print(f"✅ Component layers: {set(port.layer for port in c.ports)}")
-
-    # Use a persistent directory for debugging
-    debug_dir = Path("./palace_debug_output")
-    debug_dir.mkdir(exist_ok=True)
-
-    print(f"\n📊 RUNNING PALACE SIMULATION:")
-    print(f"   Debug output folder: {debug_dir.absolute()}")
-
-    try:
-        # Load Spack environment in the subprocess by modifying PATH
-        print("   Loading Palace via Spack...")
-
-        # Run the simulation with persistent folder for debugging
-        r = run_capacitive_simulation_palace(c, simulation_folder=debug_dir)
-        print(f"✅ Simulation completed successfully!")
-        print(f"✅ Results: {r}")
-
+    with TemporaryDirectory() as tmp_dir:
+        r = run_capacitive_simulation_palace(c, simulation_folder=tmp_dir)
         # Print capacitance matrix
         print(f"\n📈 CAPACITANCE MATRIX:")
         for key, value in r.capacitance_matrix.items():
             print(f"   C[{key[0]},{key[1]}] = {value:.2e} F")
-
-    except Exception as e:
-        print(f"❌ Error during simulation: {e}")
-        print(f"\n🔍 DEBUG INFORMATION:")
-        print(f"   Check debug folder: {debug_dir.absolute()}")
-        if debug_dir.exists():
-            print(f"   Contents of debug folder:")
-            for item in debug_dir.iterdir():
-                print(f"     - {item.name}")
-        import traceback
-
-        traceback.print_exc()

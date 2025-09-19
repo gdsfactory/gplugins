@@ -32,7 +32,7 @@ uv-test:
 	done
 
 cov:
-	uv run pytest gplugins/femwell gplugins/gmsh gplugins/meow gplugins/sax gplugins/tidy3d gplugins/klayout gplugins/vlsir gplugins/path_length_analysis --cov=gplugins/femwell --cov=gplugins/gmsh --cov=gplugins/meow --cov=gplugins/sax --cov=gplugins/tidy3d --cov=gplugins/klayout --cov=gplugins/vlsir --cov=gplugins/path_length_analysis
+	uv run pytest gplugins/femwell gplugins/meshwell gplugins/meow gplugins/sax gplugins/tidy3d gplugins/klayout gplugins/vlsir gplugins/path_length_analysis --cov=gplugins/femwell --cov=gplugins/meshwell --cov=gplugins/meow --cov=gplugins/sax --cov=gplugins/tidy3d --cov=gplugins/klayout --cov=gplugins/vlsir --cov=gplugins/path_length_analysis
 
 test-data:
 	git clone https://github.com/gdsfactory/gdsfactory-test-data.git -b test-data test-data
