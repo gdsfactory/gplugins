@@ -102,214 +102,460 @@ class Geometry(LayeredComponentBase):
         return slabs
 
     @cached_property
-    def structures(self) -> list[td.Structure]:
-        """Returns a list of Structure instances for each PolySlab in the component.
+    def meep_prisms(self) -> dict[str, list]:
+        """Returns MEEP Prism instances for each layer, alternative to Tidy3D PolySlabs.
+
+        Key differences from Tidy3D implementation:
+        - Tidy3D uses Shapely for polygon operations (buffering, boolean ops) before conversion
+        - MEEP directly accepts polygon vertices, no Shapely preprocessing needed
+        - Tidy3D returns one PolySlab per layer (handles multiple polygons internally)
+        - MEEP returns list of Prisms per layer (one Prism per polygon)
+
+        Similarities:
+        - Both support 3D extrusion with sidewall angles
+        - Both use layer thickness for vertical dimensions (zmin, zmax)
+        - Both maintain layer ordering via mesh_order
+
+        MEEP implementation details:
+        - Uses mp.Vector3 for 3D vertex coordinates
+        - Requires explicit height parameter (thickness)
+        - Sidewall angle in radians (converted from degrees)
+        - Materials NOT assigned here - can be added later via prism.material = mp.Medium(...)
 
         Returns:
-            list[td.Structure]: A list of Structure instances.
+            dict[str, list[mp.Prism]]: Layer names mapped to lists of MEEP Prism objects.
+                Each polygon in a layer becomes a separate Prism.
         """
-        # TODO: material_mapping removed from Geometry - need to get materials from Material class
-        structures = []
-        for name, poly in self.polyslabs.items():
-            structure = td.Structure(
-                geometry=poly,
-                medium=self.material_mapping[self.geometry_layers[name].material],  # TODO: Fix this
-                name=name,
-            )
-            structures.append(structure)
+        import meep as mp
 
-        return structures
+        prisms = {}
+        layers = sort_layers(self.geometry_layers, sort_by="mesh_order", reverse=True)
 
-    def get_ports(
-        self,
-        mode_spec: td.ModeSpec,
-        size_mult: float | tuple[float, float] = (4.0, 2.0),
-        cz: float | None = None,
-        grid_eps: float | None = None,
-    ) -> list[Port]:
-        """Returns a list of Port instances for each optical port in the component.
+        for name, layer in layers.items():
+            bbox = self.get_layer_bbox(name)
+            zmin = bbox[0][2]
+            height = bbox[1][2] - bbox[0][2]
 
-        Args:
-            mode_spec (td.ModeSpec): The mode specification for the ports.
-            size_mult (float | tuple[float, float], optional): The size multiplier for the ports. Defaults to (4.0, 2.0).
-            cz (float | None, optional): The z-coordinate for the ports. If None, the z-coordinate of the component is used. Defaults to None.
-            grid_eps (float | None, optional): Rounding tolerance for port coordinates. If None, the coordinates are not rounded. Defaults to None.
+            # Get polygons for this layer
+            shape = self.polygons[name]
 
-        Returns:
-            list[Port]: A list of Port instances.
-        """
-        ports = []
-        for port in self.ports:
-            if port.port_type != "optical":
-                continue
-            center = self.get_port_center(port)
-            center = center if cz is None else (*center[:2], cz)
-            axis, direction = get_port_normal(port)
+            # Convert each polygon to MEEP Prism
+            layer_prisms = []
 
-            match size_mult:
-                case float():
-                    size = np.full(3, size_mult * port.dwidth)
-                case tuple():
-                    size = np.full(3, size_mult[0] * port.dwidth)
-                    size[2] = size_mult[1] * port.dwidth
-            size[axis] = 0
+            # Handle both single polygon and MultiPolygon
+            if hasattr(shape, 'geoms'):  # MultiPolygon
+                polygons = shape.geoms
+            else:  # Single Polygon
+                polygons = [shape]
 
-            if grid_eps is not None:
-                center = np.round(center, abs(int(np.log10(grid_eps))))
+            for polygon in polygons:
+                # Skip if not a valid polygon
+                if polygon.is_empty or not polygon.is_valid:
+                    continue
 
-            ports.append(
-                Port(
-                    center=tuple(center),
-                    size=tuple(size),
-                    direction=direction,
-                    mode_spec=mode_spec,
-                    name=port.name,
+                # Get exterior vertices (exclude last duplicate point)
+                vertices = [mp.Vector3(p[0], p[1], zmin) for p in polygon.exterior.coords[:-1]]
+
+                # Create MEEP Prism without material
+                # TODO: Materials can be assigned later using prism.material = mp.Medium(...)
+                # This separates geometry from material properties, similar to the modular architecture
+                prism = mp.Prism(
+                    vertices=vertices,
+                    height=height,
+                    sidewall_angle=np.deg2rad(layer.sidewall_angle) if layer.sidewall_angle else 0,
+                    # material argument omitted - will use default background material
                 )
+                layer_prisms.append(prism)
+
+            prisms[name] = layer_prisms
+
+        return prisms
+
+    # @cached_property
+    # def structures(self) -> list[td.Structure]:
+    #     """Returns a list of Structure instances for each PolySlab in the component.
+
+    #     Returns:
+    #         list[td.Structure]: A list of Structure instances.
+    #     """
+    #     # TODO: material_mapping removed from Geometry - need to get materials from Material class
+    #     structures = []
+    #     for name, poly in self.polyslabs.items():
+    #         structure = td.Structure(
+    #             geometry=poly,
+    #             medium=self.material_mapping[self.geometry_layers[name].material],  # TODO: Fix this
+    #             name=name,
+    #         )
+    #         structures.append(structure)
+
+    #     return structures
+
+    # # def get_ports(
+    # #     self,
+    # #     mode_spec: td.ModeSpec,
+    # #     size_mult: float | tuple[float, float] = (4.0, 2.0),
+    # #     cz: float | None = None,
+    # #     grid_eps: float | None = None,
+    # # ) -> list[Port]:
+    # #     """Returns a list of Port instances for each optical port in the component.
+
+    # #     Args:
+    # #         mode_spec (td.ModeSpec): The mode specification for the ports.
+    # #         size_mult (float | tuple[float, float], optional): The size multiplier for the ports. Defaults to (4.0, 2.0).
+    # #         cz (float | None, optional): The z-coordinate for the ports. If None, the z-coordinate of the component is used. Defaults to None.
+    # #         grid_eps (float | None, optional): Rounding tolerance for port coordinates. If None, the coordinates are not rounded. Defaults to None.
+
+    # #     Returns:
+    # #         list[Port]: A list of Port instances.
+    # #     """
+    # #     ports = []
+    # #     for port in self.ports:
+    # #         if port.port_type != "optical":
+    # #             continue
+    # #         center = self.get_port_center(port)
+    # #         center = center if cz is None else (*center[:2], cz)
+    # #         axis, direction = get_port_normal(port)
+
+    # #         match size_mult:
+    # #             case float():
+    # #                 size = np.full(3, size_mult * port.dwidth)
+    # #             case tuple():
+    # #                 size = np.full(3, size_mult[0] * port.dwidth)
+    # #                 size[2] = size_mult[1] * port.dwidth
+    # #         size[axis] = 0
+
+    # #         if grid_eps is not None:
+    # #             center = np.round(center, abs(int(np.log10(grid_eps))))
+
+    # #         ports.append(
+    # #             Port(
+    # #                 center=tuple(center),
+    # #                 size=tuple(size),
+    # #                 direction=direction,
+    # #                 mode_spec=mode_spec,
+    # #                 name=port.name,
+    # #             )
+    # #         )
+    # #     return ports
+
+    # def get_simulation(
+    #     self,
+    #     grid_spec: td.GridSpec,
+    #     center_z: float,
+    #     sim_size_z: int,
+    #     boundary_spec: td.BoundarySpec,
+    #     monitors: tuple[Any, ...] | None = None,
+    #     run_time: float = 10e-12,
+    #     shutoff: float = 1e-5,
+    #     symmetry: tuple[Symmetry, Symmetry, Symmetry] = (0, 0, 0),
+    #     **kwargs,
+    # ) -> td.Simulation:
+    #     """Returns a Simulation instance for the component.
+
+    #     Args:
+    #         grid_spec (td.GridSpec): The grid specification for the simulation.
+    #         center_z (float): The z-coordinate for the center of the simulation.
+    #         sim_size_z (int): The size of the simulation in the z-direction.
+    #         boundary_spec (td.BoundarySpec): The boundary specification for the simulation.
+    #         monitors (tuple[Any, ...] | None, optional): The monitors for the simulation. If None, no monitors are used. Defaults to None.
+    #         run_time (float, optional): The run time for the simulation. Defaults to 1e-12.
+    #         shutoff (float, optional): The shutoff value for the simulation. Defaults to 1e-5.
+    #         symmetry (tuple[Symmetry, Symmetry, Symmetry], optional): The symmetry for the simulation. Defaults to (0,0,0).
+
+    #     Keyword Args:
+    #         **kwargs: Additional keyword arguments for the Simulation constructor.
+
+    #     Returns:
+    #         td.Simulation: A Simulation instance.
+    #     """
+    #     sim_center = (*self.center[:2], center_z)
+    #     sim_size = (*self.size[:2], sim_size_z)
+    #     return td.Simulation(
+    #         size=sim_size,
+    #         center=sim_center,
+    #         structures=self.structures,
+    #         grid_spec=grid_spec,
+    #         monitors=[] if monitors is None else monitors,
+    #         boundary_spec=boundary_spec,
+    #         run_time=run_time,
+    #         shutoff=shutoff,
+    #         symmetry=symmetry,
+    #         **kwargs,
+    #     )
+
+    # def get_component_modeler(
+    #     self,
+    #     wavelength: float = 1.55,
+    #     bandwidth: float = 0.2,
+    #     num_freqs: int = 6,
+    #     min_steps_per_wvl: int = 30,
+    #     center_z: float | str | None = None,
+    #     sim_size_z: float = 4.0,
+    #     port_size_mult: float | tuple[float, float] = (4.0, 3.0),
+    #     run_only: tuple[tuple[str, int], ...] | None = None,
+    #     element_mappings: Tidy3DElementMapping = (),
+    #     extra_monitors: tuple[Any, ...] | None = None,
+    #     mode_spec: td.ModeSpec = td.ModeSpec(num_modes=1, filter_pol="te"),
+    #     boundary_spec: td.BoundarySpec = td.BoundarySpec.all_sides(boundary=td.PML()),
+    #     run_time: float = 10e-12,
+    #     shutoff: float = 1e-5,
+    #     grid_eps: float = 1e-6,
+    #     folder_name: str = "default",
+    #     path_dir: str = ".",
+    #     verbose: bool = True,
+    #     symmetry: tuple[Symmetry, Symmetry, Symmetry] = (0, 0, 0),
+    #     **kwargs,
+    # ) -> ComponentModeler:
+    #     """Returns a ComponentModeler instance for the component.
+
+    #     Args:
+    #         wavelength: The wavelength for the ComponentModeler. Defaults to 1.55.
+    #         bandwidth: The bandwidth for the ComponentModeler. Defaults to 0.2.
+    #         num_freqs: The number of frequencies for the ComponentModeler. Defaults to 21.
+    #         min_steps_per_wvl: The minimum number of steps per wavelength for the ComponentModeler. Defaults to 30.
+    #         center_z: The z-coordinate for the center of the ComponentModeler. If None, the z-coordinate of the component is used. Defaults to None.
+    #         sim_size_z: simulation size um in the z-direction for the ComponentModeler. Defaults to 4.
+    #         port_size_mult: The size multiplier for the ports in the ComponentModeler. Defaults to (4.0, 3.0).
+    #         run_only: The run only specification for the ComponentModeler. Defaults to None.
+    #         element_mappings: The element mappings for the ComponentModeler. Defaults to ().
+    #         extra_monitors: The extra monitors for the ComponentModeler. Defaults to None.
+    #         mode_spec: The mode specification for the ComponentModeler. Defaults to td.ModeSpec(num_modes=1, filter_pol="te").
+    #         boundary_spec: The boundary specification for the ComponentModeler. Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
+    #         run_time: The run time for the ComponentModeler.
+    #         shutoff: The shutoff value for the ComponentModeler. Defaults to 1e-5.
+    #         grid_eps: Rounding tolerance for coordinates, e.g. port locations and layer centers (μm).
+    #         folder_name: The folder name for the ComponentModeler. Defaults to "default".
+    #         path_dir: The directory path for the ComponentModeler. Defaults to ".".
+    #         verbose: Whether to print verbose output for the ComponentModeler. Defaults to True.
+    #         symmetry (tuple[Symmetry, Symmetry, Symmetry], optional): The symmetry for the simulation. Defaults to (0,0,0).
+    #         kwargs: Additional keyword arguments for the Simulation constructor.
+
+    #     Returns:
+    #         ComponentModeler: A ComponentModeler instance.
+    #     """
+    #     match center_z:
+    #         case float():
+    #             cz = center_z
+    #         case str():
+    #             cz = self.get_layer_center(center_z)[2]
+    #         case None:
+    #             cz = np.mean(list({c[2] for c in self.port_centers}))
+    #         case _:
+    #             raise ValueError(f"Invalid center_z: {center_z}")
+
+    #     cz = np.round(cz, abs(int(np.log10(grid_eps)))).item()
+
+    #     freqs = td.C_0 / np.linspace(
+    #         wavelength - bandwidth / 2, wavelength + bandwidth / 2, num_freqs
+    #     )
+
+    #     grid_spec = td.GridSpec.auto(
+    #         wavelength=wavelength, min_steps_per_wvl=min_steps_per_wvl
+    #     )
+
+    #     if sim_size_z == 0:
+    #         boundary_spec = boundary_spec.updated_copy(z=td.Boundary.periodic())
+
+    #     sim = self.get_simulation(
+    #         grid_spec=grid_spec,
+    #         center_z=cz,
+    #         sim_size_z=sim_size_z,
+    #         boundary_spec=boundary_spec,
+    #         monitors=extra_monitors,
+    #         run_time=run_time,
+    #         shutoff=shutoff,
+    #         symmetry=symmetry,
+    #         **kwargs,
+    #     )
+
+    #     ports = self.get_ports(mode_spec, port_size_mult, grid_eps=grid_eps)
+
+    #     return ComponentModeler(
+    #         simulation=sim,
+    #         ports=ports,
+    #         freqs=tuple(freqs),
+    #         element_mappings=element_mappings,
+    #         run_only=run_only,
+    #         folder_name=folder_name,
+    #         path_dir=path_dir,
+    #         verbose=verbose,
+    #     )
+
+    def plot_prism(
+        self,
+        x: float | str | None = None,
+        y: float | str | None = None,
+        z: float | str | None = None,
+        offset: float = 0.0,
+        ax: plt.Axes | None = None,
+        legend: bool = False,
+    ) -> plt.Axes:
+        """Plots a cross section of the component using MEEP prisms instead of Tidy3D polyslabs.
+
+        Args:
+            x: The x-coordinate for the cross section. If str, uses layer name.
+            y: The y-coordinate for the cross section. If str, uses layer name.
+            z: The z-coordinate for the cross section. If str, uses layer name.
+            offset: The offset for the cross section. Defaults to 0.0.
+            ax: The Axes instance to plot on. If None, creates new figure.
+            legend: Whether to include a legend in the plot. Defaults to False.
+
+        Returns:
+            plt.Axes: The Axes instance with the plot.
+        """
+        if ax is None:
+            _, ax = plt.subplots()
+
+        # Convert string layer names to coordinates
+        x, y, z = (
+            self.get_layer_center(c)[i] if isinstance(c, str) else c
+            for i, c in enumerate((x, y, z))
+        )
+        x, y, z = (c if c is None else c + offset for c in (x, y, z))
+
+        # Determine which axis to slice along (only one should be specified)
+        slice_axis = sum([x is not None, y is not None, z is not None])
+        if slice_axis != 1:
+            raise ValueError("Specify exactly one of x, y, or z for the slice plane")
+
+        # Create colors for each layer
+        colors = dict(
+            zip(
+                self.meep_prisms.keys(),
+                plt.colormaps.get_cmap("Spectral")(
+                    np.linspace(0, 1, len(self.meep_prisms))
+                ),
             )
-        return ports
-
-    def get_simulation(
-        self,
-        grid_spec: td.GridSpec,
-        center_z: float,
-        sim_size_z: int,
-        boundary_spec: td.BoundarySpec,
-        monitors: tuple[Any, ...] | None = None,
-        run_time: float = 10e-12,
-        shutoff: float = 1e-5,
-        symmetry: tuple[Symmetry, Symmetry, Symmetry] = (0, 0, 0),
-        **kwargs,
-    ) -> td.Simulation:
-        """Returns a Simulation instance for the component.
-
-        Args:
-            grid_spec (td.GridSpec): The grid specification for the simulation.
-            center_z (float): The z-coordinate for the center of the simulation.
-            sim_size_z (int): The size of the simulation in the z-direction.
-            boundary_spec (td.BoundarySpec): The boundary specification for the simulation.
-            monitors (tuple[Any, ...] | None, optional): The monitors for the simulation. If None, no monitors are used. Defaults to None.
-            run_time (float, optional): The run time for the simulation. Defaults to 1e-12.
-            shutoff (float, optional): The shutoff value for the simulation. Defaults to 1e-5.
-            symmetry (tuple[Symmetry, Symmetry, Symmetry], optional): The symmetry for the simulation. Defaults to (0,0,0).
-
-        Keyword Args:
-            **kwargs: Additional keyword arguments for the Simulation constructor.
-
-        Returns:
-            td.Simulation: A Simulation instance.
-        """
-        sim_center = (*self.center[:2], center_z)
-        sim_size = (*self.size[:2], sim_size_z)
-        return td.Simulation(
-            size=sim_size,
-            center=sim_center,
-            structures=self.structures,
-            grid_spec=grid_spec,
-            monitors=[] if monitors is None else monitors,
-            boundary_spec=boundary_spec,
-            run_time=run_time,
-            shutoff=shutoff,
-            symmetry=symmetry,
-            **kwargs,
         )
 
-    def get_component_modeler(
-        self,
-        wavelength: float = 1.55,
-        bandwidth: float = 0.2,
-        num_freqs: int = 6,
-        min_steps_per_wvl: int = 30,
-        center_z: float | str | None = None,
-        sim_size_z: float = 4.0,
-        port_size_mult: float | tuple[float, float] = (4.0, 3.0),
-        run_only: tuple[tuple[str, int], ...] | None = None,
-        element_mappings: Tidy3DElementMapping = (),
-        extra_monitors: tuple[Any, ...] | None = None,
-        mode_spec: td.ModeSpec = td.ModeSpec(num_modes=1, filter_pol="te"),
-        boundary_spec: td.BoundarySpec = td.BoundarySpec.all_sides(boundary=td.PML()),
-        run_time: float = 10e-12,
-        shutoff: float = 1e-5,
-        grid_eps: float = 1e-6,
-        folder_name: str = "default",
-        path_dir: str = ".",
-        verbose: bool = True,
-        symmetry: tuple[Symmetry, Symmetry, Symmetry] = (0, 0, 0),
-        **kwargs,
-    ) -> ComponentModeler:
-        """Returns a ComponentModeler instance for the component.
+        layers = sort_layers(self.geometry_layers, sort_by="zmin", reverse=True)
+        meshorders = np.unique([v.mesh_order for v in layers.values()])
+        order_map = dict(zip(meshorders, range(0, -len(meshorders), -1)))
 
-        Args:
-            wavelength: The wavelength for the ComponentModeler. Defaults to 1.55.
-            bandwidth: The bandwidth for the ComponentModeler. Defaults to 0.2.
-            num_freqs: The number of frequencies for the ComponentModeler. Defaults to 21.
-            min_steps_per_wvl: The minimum number of steps per wavelength for the ComponentModeler. Defaults to 30.
-            center_z: The z-coordinate for the center of the ComponentModeler. If None, the z-coordinate of the component is used. Defaults to None.
-            sim_size_z: simulation size um in the z-direction for the ComponentModeler. Defaults to 4.
-            port_size_mult: The size multiplier for the ports in the ComponentModeler. Defaults to (4.0, 3.0).
-            run_only: The run only specification for the ComponentModeler. Defaults to None.
-            element_mappings: The element mappings for the ComponentModeler. Defaults to ().
-            extra_monitors: The extra monitors for the ComponentModeler. Defaults to None.
-            mode_spec: The mode specification for the ComponentModeler. Defaults to td.ModeSpec(num_modes=1, filter_pol="te").
-            boundary_spec: The boundary specification for the ComponentModeler. Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
-            run_time: The run time for the ComponentModeler.
-            shutoff: The shutoff value for the ComponentModeler. Defaults to 1e-5.
-            grid_eps: Rounding tolerance for coordinates, e.g. port locations and layer centers (μm).
-            folder_name: The folder name for the ComponentModeler. Defaults to "default".
-            path_dir: The directory path for the ComponentModeler. Defaults to ".".
-            verbose: Whether to print verbose output for the ComponentModeler. Defaults to True.
-            symmetry (tuple[Symmetry, Symmetry, Symmetry], optional): The symmetry for the simulation. Defaults to (0,0,0).
-            kwargs: Additional keyword arguments for the Simulation constructor.
+        xmin, xmax = np.inf, -np.inf
+        ymin, ymax = np.inf, -np.inf
 
-        Returns:
-            ComponentModeler: A ComponentModeler instance.
-        """
-        match center_z:
-            case float():
-                cz = center_z
-            case str():
-                cz = self.get_layer_center(center_z)[2]
-            case None:
-                cz = np.mean(list({c[2] for c in self.port_centers}))
-            case _:
-                raise ValueError(f"Invalid center_z: {center_z}")
+        # Plot each layer's prisms
+        for name, layer in layers.items():
+            if name not in self.meep_prisms:
+                continue
 
-        cz = np.round(cz, abs(int(np.log10(grid_eps)))).item()
+            prisms = self.meep_prisms[name]
+            color = colors[name]
 
-        freqs = td.C_0 / np.linspace(
-            wavelength - bandwidth / 2, wavelength + bandwidth / 2, num_freqs
+            for idx, prism in enumerate(prisms):
+                # Get prism vertices and height info
+                vertices_3d = prism.vertices
+                height = prism.height
+
+                # Extract 2D coordinates based on slice plane
+                if z is not None:  # XY slice at z
+                    # Check if z intersects with prism's z-range
+                    z_base = vertices_3d[0].z
+                    if not (z_base <= z <= z_base + height):
+                        continue
+
+                    # Project vertices to XY plane
+                    xy_points = [(v.x, v.y) for v in vertices_3d]
+
+                    # Create polygon patch
+                    from matplotlib.patches import Polygon
+                    patch = Polygon(
+                        xy_points,
+                        facecolor=color,
+                        edgecolor='k',
+                        linewidth=0.5,
+                        label=name if idx == 0 else None,
+                        zorder=order_map[layer.mesh_order],
+                    )
+                    ax.add_patch(patch)
+
+                    # Update plot limits
+                    xs, ys = zip(*xy_points)
+                    xmin, xmax = min(xmin, min(xs)), max(xmax, max(xs))
+                    ymin, ymax = min(ymin, min(ys)), max(ymax, max(ys))
+
+                elif x is not None:  # YZ slice at x
+                    # For YZ slice, create a rectangle if prism intersects x
+                    bbox = self.get_layer_bbox(name)
+                    # Simplified: just draw layer bounds as rectangle
+                    from matplotlib.patches import Rectangle
+                    rect = Rectangle(
+                        (bbox[0][1], bbox[0][2]),  # (y_min, z_min)
+                        bbox[1][1] - bbox[0][1],   # width (y)
+                        bbox[1][2] - bbox[0][2],   # height (z)
+                        facecolor=color,
+                        edgecolor='k',
+                        linewidth=0.5,
+                        label=name if idx == 0 else None,
+                        zorder=order_map[layer.mesh_order],
+                    )
+                    ax.add_patch(rect)
+                    ymin, ymax = min(ymin, bbox[0][1]), max(ymax, bbox[1][1])
+
+                elif y is not None:  # XZ slice at y
+                    # For XZ slice, create a rectangle if prism intersects y
+                    bbox = self.get_layer_bbox(name)
+                    from matplotlib.patches import Rectangle
+                    rect = Rectangle(
+                        (bbox[0][0], bbox[0][2]),  # (x_min, z_min)
+                        bbox[1][0] - bbox[0][0],   # width (x)
+                        bbox[1][2] - bbox[0][2],   # height (z)
+                        facecolor=color,
+                        edgecolor='k',
+                        linewidth=0.5,
+                        label=name if idx == 0 else None,
+                        zorder=order_map[layer.mesh_order],
+                    )
+                    ax.add_patch(rect)
+                    xmin, xmax = min(xmin, bbox[0][0]), max(xmax, bbox[1][0])
+
+        # Add simulation boundary box
+        size = list(self.size)
+        cmin = list(self.bbox[0])
+
+        if z is not None:
+            size = size[:2]
+            cmin = cmin[:2]
+            xlabel, ylabel = 'x (μm)', 'y (μm)'
+            ax.set_title(f"XY cross section at z={z:.2f}")
+        elif x is not None:
+            size = [size[1], size[2]]
+            cmin = [cmin[1], cmin[2]]
+            xlabel, ylabel = 'y (μm)', 'z (μm)'
+            ax.set_title(f"YZ cross section at x={x:.2f}")
+            xmin, xmax = cmin[0], cmin[0] + size[0]
+            ymin, ymax = cmin[1], cmin[1] + size[1]
+        elif y is not None:
+            size = [size[0], size[2]]
+            cmin = [cmin[0], cmin[2]]
+            xlabel, ylabel = 'x (μm)', 'z (μm)'
+            ax.set_title(f"XZ cross section at y={y:.2f}")
+            ymin, ymax = cmin[1], cmin[1] + size[1]
+
+        # Draw simulation boundary
+        from matplotlib.patches import Rectangle
+        sim_roi = Rectangle(
+            cmin,
+            *size,
+            facecolor='none',
+            edgecolor='k',
+            linestyle='--',
+            linewidth=1,
+            label='Simulation',
         )
+        ax.add_patch(sim_roi)
 
-        grid_spec = td.GridSpec.auto(
-            wavelength=wavelength, min_steps_per_wvl=min_steps_per_wvl
-        )
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        ax.set_xlim(xmin, xmax)
+        ax.set_ylim(ymin, ymax)
+        ax.set_aspect('equal')
 
-        if sim_size_z == 0:
-            boundary_spec = boundary_spec.updated_copy(z=td.Boundary.periodic())
+        if legend:
+            ax.legend(fancybox=True, framealpha=1.0)
 
-        sim = self.get_simulation(
-            grid_spec=grid_spec,
-            center_z=cz,
-            sim_size_z=sim_size_z,
-            boundary_spec=boundary_spec,
-            monitors=extra_monitors,
-            run_time=run_time,
-            shutoff=shutoff,
-            symmetry=symmetry,
-            **kwargs,
-        )
-
-        ports = self.get_ports(mode_spec, port_size_mult, grid_eps=grid_eps)
-
-        return ComponentModeler(
-            simulation=sim,
-            ports=ports,
-            freqs=tuple(freqs),
-            element_mappings=element_mappings,
-            run_only=run_only,
-            folder_name=folder_name,
-            path_dir=path_dir,
-            verbose=verbose,
-        )
+        return ax
 
     @td.components.viz.add_ax_if_none
     def plot_slice(
