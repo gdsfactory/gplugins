@@ -152,83 +152,108 @@ def _plot_single_prism_slice(
     )
 
     layers = sort_layers(geometry_obj.geometry_layers, sort_by="zmin", reverse=True)
+
     meshorders = np.unique([v.mesh_order for v in layers.values()])
     order_map = dict(zip(meshorders, range(0, -len(meshorders), -1)))
 
     xmin, xmax = np.inf, -np.inf
     ymin, ymax = np.inf, -np.inf
 
-    # Plot each layer's prisms
+    # First pass: calculate plot limits from all layers
     for name, layer in layers.items():
-        if name not in geometry_obj.meep_prisms:
+        try:
+            bbox = geometry_obj.get_layer_bbox(name)
+            if z is not None:  # XY slice
+                xmin, xmax = min(xmin, bbox[0][0]), max(xmax, bbox[1][0])
+                ymin, ymax = min(ymin, bbox[0][1]), max(ymax, bbox[1][1])
+            elif x is not None:  # YZ slice
+                ymin, ymax = min(ymin, bbox[0][1]), max(ymax, bbox[1][1])
+            elif y is not None:  # XZ slice
+                xmin, xmax = min(xmin, bbox[0][0]), max(xmax, bbox[1][0])
+        except:
             continue
 
-        prisms = geometry_obj.meep_prisms[name]
-        color = colors[name]
+    # Second pass: plot each layer
+    for name, layer in layers.items():
+        # Use assigned color if available, otherwise use gray for layers without prisms
+        color = colors.get(name, 'lightgray')
 
-        for idx, prism in enumerate(prisms):
-            # Get prism vertices and height info
-            vertices_3d = prism.vertices
-            height = prism.height
+        bbox = geometry_obj.get_layer_bbox(name)
 
-            # Extract 2D coordinates based on slice plane
-            if z is not None:  # XY slice at z
-                # Check if z intersects with prism's z-range
-                z_base = vertices_3d[0].z
-                if not (z_base <= z <= z_base + height):
-                    continue
+        if z is not None:  # XY slice at z
+            # Check if z intersects with layer's z-range
+            z_min, z_max = bbox[0][2], bbox[1][2]
+            if not (z_min <= z <= z_max):
+                continue
 
-                # Project vertices to XY plane
-                xy_points = [(v.x, v.y) for v in vertices_3d]
+            # If layer has prisms, use them for detailed geometry
+            if name in geometry_obj.meep_prisms:
+                prisms = geometry_obj.meep_prisms[name]
+                for idx, prism in enumerate(prisms):
+                    # Get prism vertices and height info
+                    vertices_3d = prism.vertices
+                    height = prism.height
 
-                # Create polygon patch
-                patch = Polygon(
-                    xy_points,
-                    facecolor=color,
-                    edgecolor='k',
-                    linewidth=0.5,
-                    label=name if idx == 0 else None,
-                    zorder=order_map[layer.mesh_order],
-                )
-                ax.add_patch(patch)
+                    # Check if z intersects with prism's z-range
+                    z_base = vertices_3d[0].z
+                    if not (z_base <= z <= z_base + height):
+                        continue
 
-                # Update plot limits
-                xs, ys = zip(*xy_points)
-                xmin, xmax = min(xmin, min(xs)), max(xmax, max(xs))
-                ymin, ymax = min(ymin, min(ys)), max(ymax, max(ys))
+                    # Project vertices to XY plane
+                    xy_points = [(v.x, v.y) for v in vertices_3d]
 
-            elif x is not None:  # YZ slice at x
-                # For YZ slice, create a rectangle if prism intersects x
-                bbox = geometry_obj.get_layer_bbox(name)
-                # Simplified: just draw layer bounds as rectangle
+                    # Create polygon patch
+                    patch = Polygon(
+                        xy_points,
+                        facecolor=color,
+                        edgecolor='k',
+                        linewidth=0.5,
+                        label=name if idx == 0 else None,
+                        zorder=order_map[layer.mesh_order],
+                    )
+                    ax.add_patch(patch)
+
+            else:
+                # For layers without prisms, draw simplified rectangle
                 rect = Rectangle(
-                    (bbox[0][1], bbox[0][2]),  # (y_min, z_min)
-                    bbox[1][1] - bbox[0][1],   # width (y)
-                    bbox[1][2] - bbox[0][2],   # height (z)
-                    facecolor=color,
-                    edgecolor='k',
-                    linewidth=0.5,
-                    label=name if idx == 0 else None,
-                    zorder=order_map[layer.mesh_order],
-                )
-                ax.add_patch(rect)
-                ymin, ymax = min(ymin, bbox[0][1]), max(ymax, bbox[1][1])
-
-            elif y is not None:  # XZ slice at y
-                # For XZ slice, create a rectangle if prism intersects y
-                bbox = geometry_obj.get_layer_bbox(name)
-                rect = Rectangle(
-                    (bbox[0][0], bbox[0][2]),  # (x_min, z_min)
+                    (bbox[0][0], bbox[0][1]),  # (x_min, y_min)
                     bbox[1][0] - bbox[0][0],   # width (x)
-                    bbox[1][2] - bbox[0][2],   # height (z)
+                    bbox[1][1] - bbox[0][1],   # height (y)
                     facecolor=color,
                     edgecolor='k',
                     linewidth=0.5,
-                    label=name if idx == 0 else None,
+                    label=name,
                     zorder=order_map[layer.mesh_order],
                 )
                 ax.add_patch(rect)
-                xmin, xmax = min(xmin, bbox[0][0]), max(xmax, bbox[1][0])
+
+        elif x is not None:  # YZ slice at x
+            # For YZ slice, create a rectangle for all layers
+            rect = Rectangle(
+                (bbox[0][1], bbox[0][2]),  # (y_min, z_min)
+                bbox[1][1] - bbox[0][1],   # width (y)
+                bbox[1][2] - bbox[0][2],   # height (z)
+                facecolor=color,
+                edgecolor='k',
+                linewidth=0.5,
+                label=name,
+                zorder=order_map[layer.mesh_order],
+            )
+            ax.add_patch(rect)
+
+        elif y is not None:  # XZ slice at y
+            # For XZ slice, create a rectangle for all layers
+            rect = Rectangle(
+                (bbox[0][0], bbox[0][2]),  # (x_min, z_min)
+                bbox[1][0] - bbox[0][0],   # width (x)
+                bbox[1][2] - bbox[0][2],   # height (z)
+                facecolor=color,
+                edgecolor='k',
+                linewidth=0.5,
+                label=name,
+                zorder=order_map[layer.mesh_order],
+            )
+            ax.add_patch(rect)
 
     # Add simulation boundary box
     size = list(geometry_obj.size)

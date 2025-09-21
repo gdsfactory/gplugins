@@ -73,12 +73,33 @@ class Geometry(LayeredComponentBase):
     """
     extend_ports: NonNegativeFloat = 0.5  # TODO: Move to Physics or Solver class
     port_offset: float = 0.2  # TODO: Move to Physics or Solver class
-    pad_xy_inner: NonNegativeFloat = 2.0
-    pad_xy_outer: NonNegativeFloat = 2.0
-    pad_z_inner: float = 0.0
-    pad_z_outer: NonNegativeFloat = 0.0
+    pad_xy_inner: NonNegativeFloat = 3.0
+    pad_xy_outer: NonNegativeFloat = 3.0
+    pad_z_inner: float = 3.0
+    pad_z_outer: NonNegativeFloat = 3.0
     dilation: float = 0.0
     reference_plane: Literal["bottom", "middle", "top"] = "middle"
+
+    @cached_property
+    def bbox(self) -> tuple[tuple[float, float, float], tuple[float, float, float]]:
+        """Override bbox to use core layer bounds plus padding."""
+        try:
+            core_bbox = self.get_layer_bbox("core")
+            # core_bbox = ((xmin, ymin, zmin), (xmax, ymax, zmax))
+
+            # Apply padding to core layer bbox
+            xmin = core_bbox[0][0] - self.pad_xy_outer
+            ymin = core_bbox[0][1] - self.pad_xy_outer
+            zmin = core_bbox[0][2] - self.pad_z_outer
+
+            xmax = core_bbox[1][0] + self.pad_xy_outer
+            ymax = core_bbox[1][1] + self.pad_xy_outer
+            zmax = core_bbox[1][2] + self.pad_z_outer
+
+            return ((xmin, ymin, zmin), (xmax, ymax, zmax))
+        except KeyError:
+            # Fallback to parent implementation if no "core" layer
+            return super().bbox
 
     @cached_property
     def polyslabs(self) -> dict[str, tuple[td.Geometry, ...]]:
