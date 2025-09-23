@@ -1,4 +1,6 @@
+import tempfile
 import time
+from pathlib import Path
 from typing import Any
 
 import gdsfactory as gf
@@ -7,6 +9,8 @@ from femwell.maxwell.waveguide import Modes, compute_modes
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 from gdsfactory.typings import ComponentSpec, CrossSectionSpec, PathType
+from meshwell.cad import cad
+from meshwell.mesh import mesh as mesh_func
 from skfem import (
     Basis,
     ElementTriN2,
@@ -15,9 +19,9 @@ from skfem import (
     Mesh,
 )
 
-from gplugins.gmsh.get_mesh import get_mesh
+from gplugins.meshwell.get_meshwell_3D import get_meshwell_prisms
 
-mesh_filename = "mesh.msh"
+MESH_FILENAME = "mesh.msh"
 
 
 def load_mesh_basis(mesh_filename: PathType):
@@ -127,7 +131,7 @@ def compute_component_slice_modes(
         n_guess: initial guess for the effective index.
         solver: can be slepc or scipy.
         material_name_to_index: dictionary mapping material names to refractive indices.
-        kwargs: kwargs for get_mesh
+        kwargs: kwargs for meshwell.mesh.mesh
 
     Keyword Args:
         resolutions (Dict): Pairs {"layername": {"resolution": float, "distance": "float}}
@@ -146,18 +150,23 @@ def compute_component_slice_modes(
 
     # Mesh
 
-    mesh = get_mesh(
-        component=component,
-        type="uz",
-        xsection_bounds=xsection_bounds,
-        layer_stack=layer_stack,
-        filename=mesh_filename,
-        wafer_padding=wafer_padding,
-        **kwargs,
+    prisms = get_meshwell_prisms(
+        component=component, layer_stack=layer_stack, wafer_padding=wafer_padding
     )
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        tmpdirname = Path(tmpdirname)
+        cad(entities_list=prisms, output_file=tmpdirname / "temp.xao")
+        mesh_func(
+            input_file=tmpdirname / "temp.xao",
+            output_file=MESH_FILENAME,
+            default_characteristic_length=1000,
+            dim=2,
+            verbosity=10,
+            **kwargs,
+        )
 
     # Assign materials to mesh elements
-    mesh, basis0 = load_mesh_basis(mesh_filename)
+    mesh, basis0 = load_mesh_basis(MESH_FILENAME)
     epsilon = basis0.zeros(dtype=complex)
     for layername, layer in layer_stack.layers.items():
         if layername in mesh.subdomains.keys():

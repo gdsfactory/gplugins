@@ -1,15 +1,14 @@
 import numpy as np
 from gdsfactory.generic_tech import LAYER_STACK
 from gdsfactory.technology import LayerStack
+from meshwell.resolution import ConstantInField
 
 from gplugins.femwell.mode_solver import Modes, compute_cross_section_modes
 
 NUM_MODES = 1
 
 
-def compute_modes(
-    overwrite: bool = True, with_cache: bool = False, num_modes: int = NUM_MODES
-) -> Modes:
+def compute_modes(num_modes: int = NUM_MODES) -> Modes:
     filtered_layer_stack = LayerStack(
         layers={
             k: LAYER_STACK.layers[k]
@@ -24,11 +23,11 @@ def compute_modes(
 
     filtered_layer_stack.layers["core"].thickness = 0.2
 
-    resolutions = {
-        "core": {"resolution": 0.02, "distance": 2},
-        "clad": {"resolution": 0.2, "distance": 1},
-        "box": {"resolution": 0.2, "distance": 1},
-        "slab90": {"resolution": 0.05, "distance": 1},
+    resolution_specs = {
+        "core": [ConstantInField(resolution=0.2, apply_to="surfaces")],
+        "clad": [ConstantInField(resolution=0.2, apply_to="surfaces")],
+        "box": [ConstantInField(resolution=0.2, apply_to="surfaces")],
+        "slab90": [ConstantInField(resolution=0.5, apply_to="surfaces")],
     }
     return compute_cross_section_modes(
         cross_section="rib",
@@ -37,9 +36,7 @@ def compute_modes(
         num_modes=num_modes,
         order=1,
         radius=np.inf,
-        resolutions=resolutions,
-        overwrite=overwrite,
-        with_cache=with_cache,
+        resolution_specs=resolution_specs,
     )
 
 
