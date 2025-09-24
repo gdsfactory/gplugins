@@ -150,6 +150,7 @@ def compute_component_slice_modes(
 
     # Mesh
 
+    # TODO implement 2D cross-section meshing instead of 3D
     prisms = get_meshwell_prisms(
         component=component, layer_stack=layer_stack, wafer_padding=wafer_padding
     )
