@@ -10,6 +10,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
 
+from gdsfactory.typings import Ports
 from kfactory import kdb
 import gdsfactory as gf
 import gmsh
@@ -25,6 +26,7 @@ from gplugins.common.utils.async_helpers import (
     run_async_with_event_loop,
 )
 from gplugins.common.utils.get_component_with_net_layers import (
+    compare_layerlevel_and_port_layers,
     get_component_with_net_layers,
 )
 from gdsfactory.config import home
@@ -102,7 +104,11 @@ def _generate_json(
     #     ]
     # }
     palace_json_data["Boundaries"]["Ground"] = {
-        "Attributes": [physical_name_to_dimtag_map[layer][1] for layer in ground_layers]
+        "Attributes": [
+            physical_name_to_dimtag_map[layer][1]
+            for layer in ground_layers
+            if layer in physical_name_to_dimtag_map
+        ]
     }
 
     palace_json_data["Boundaries"]["Terminal"] = [
@@ -134,11 +140,8 @@ def _palace(simulation_folder: Path, name: str, n_processes: int = 1) -> None:
     # Try to find palace in PATH first
     palace = shutil.which("palace")
 
-    # If not found, try to load it via Spack
     if palace is None:
-        raise RuntimeError(
-            "palace not found. Make sure it is available in your PATH or via Spack."
-        )
+        raise RuntimeError("palace not found. Make sure it is available in your PATH.")
     else:
         # Palace found in PATH, use the original method
         json_file = simulation_folder / f"{Path(name).stem}.json"
@@ -179,7 +182,7 @@ def _palace(simulation_folder: Path, name: str, n_processes: int = 1) -> None:
 def _read_palace_results(
     simulation_folder: Path,
     mesh_filename: str,
-    ports: Iterable[str],
+    ports: Ports,
     is_temporary: bool,
 ) -> ElectrostaticResults:
     """Fetch results from successful Palace simulations."""
@@ -273,6 +276,7 @@ def run_capacitive_simulation_palace(
     simulation_folder.mkdir(exist_ok=True, parents=True)
 
     port_delimiter = "@"  # won't cause trouble unlike #
+    boundary_delimiter = "boundary"
     if mesh_file:
         shutil.copyfile(str(mesh_file), str(simulation_folder / filename))
         filename = component.name + ".msh"
@@ -298,7 +302,7 @@ def run_capacitive_simulation_palace(
             output_file=(
                 cad_output := (simulation_folder / filename).with_suffix(".xao")
             ),
-            boundary_delimiter=(boundary_delimiter:="boundary"),
+            boundary_delimiter=boundary_delimiter,
             progress_bars=True,
         )
         mesh(
@@ -320,25 +324,17 @@ def run_capacitive_simulation_palace(
     )
     gmsh.merge(str(simulation_folder / filename))
     mesh_surface_entities = [
-        gmsh.model.getPhysicalName(*dimtag) for dimtag in gmsh.model.getPhysicalGroups(dim=2)
+        gmsh.model.getPhysicalName(*dimtag)
+        for dimtag in gmsh.model.getPhysicalGroups(dim=2)
     ]
-
-    def _derived_layer_equivalent_to_port_layer(
-        derived_layer: kdb.DerivedLayer, port: gf.Port
-    ) -> bool:
-        """Check if a derived layer corresponds to a port layer."""
-        return (derived_layer.layer.layer, derived_layer.layer.datatype) == (
-            port.layer_info.layer,
-            port.layer_info.datatype,
-        )
 
     # Signals are converted to Boundaries
     ground_layers = {
         k
         for port in component.ports
         for k, v in layer_stack.layers.items()
-        if v.derived_layer is not None
-        and _derived_layer_equivalent_to_port_layer(v.derived_layer, port)
+        if compare_layerlevel_and_port_layers(v, port)
+        # and v.derived_layer is not None
     }
     # ports allowed only on metal
 
@@ -349,12 +345,15 @@ def run_capacitive_simulation_palace(
     # TODO we need to remove the port-boundary surfaces for palace to work, why?
     # TODO might as well remove the vacuum boundary and have just 2D sheets
     metal_signal_surfaces_grouped = [
-        [e for e in metal_surfaces if port.name in e and boundary_delimiter not in e] for port in component.ports
+        [e for e in metal_surfaces if port.name in e and boundary_delimiter not in e]
+        for port in component.ports
     ]
     metal_ground_surfaces = set(metal_surfaces) - set(
         itertools.chain.from_iterable(metal_signal_surfaces_grouped)
     )
     ground_layers |= metal_ground_surfaces
+
+    # breakpoint()
 
     # dielectrics
     bodies = {
@@ -395,12 +394,11 @@ def run_capacitive_simulation_palace(
     results = _read_palace_results(
         simulation_folder,
         filename,
-        [port.name for port in component.ports],
+        component.ports,
         is_temporary=str(simulation_folder) == temp_dir.name,
     )
     temp_dir.cleanup()
     return results
-
 
 
 if __name__ == "__main__":
