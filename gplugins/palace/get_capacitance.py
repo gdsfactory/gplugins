@@ -10,6 +10,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
 
+from pydantic.utils import deep_update
 from gdsfactory.typings import Ports
 from kfactory import kdb
 import gdsfactory as gf
@@ -47,10 +48,9 @@ def _generate_json(
     ground_layers: Iterable[str],
     layer_stack: LayerStack,
     material_spec: RFMaterialSpec,
-    element_order: int,
     physical_name_to_dimtag_map: dict[str, tuple[int, int]],
     background_tag: str | None = None,
-    simulator_params: Mapping[str, Any] | None = None,
+    solver_config: Mapping[str, Any] | None = None,
 ) -> None:
     """Generates a json file for capacitive Palace simulations.
 
@@ -62,10 +62,9 @@ def _generate_json(
         ground_layers: List of ground layer names.
         layer_stack: Layer stack of the circuit.
         material_spec: Dictionary of material specifications.
-        element_order: Order of the elements.
         physical_name_to_dimtag_map: Dictionary mapping physical names to dimension tags.
         background_tag: Physical name of the background.
-        simulator_params: Dictionary of simulator parameters.
+        solver_config: Dictionary of solver parameters given to https://awslabs.github.io/palace/stable/config/solver/.
     """
     # TODO: Generalise to merger with the Elmer implementations"""
     used_materials = {v.material for v in layer_stack.layers.values()} | (
@@ -125,11 +124,9 @@ def _generate_json(
     #     d | {"Type": "Electric"} for d in palace_json_data["Boundaries"]["Terminal"]
     # ]
 
-    # palace_json_data["Solver"]["Device"] = "CPU"
-    palace_json_data["Solver"]["Order"] = element_order
+    if solver_config is not None:
+        palace_json_data["Solver"] = deep_update(palace_json_data["Solver"], solver_config)
     palace_json_data["Solver"]["Electrostatic"]["Save"] = len(signals)
-    if simulator_params is not None:
-        palace_json_data["Solver"]["Linear"] |= simulator_params
 
     with open(simulation_folder / f"{name}.json", "w", encoding="utf-8") as fp:
         json.dump(palace_json_data, fp, indent=4)
@@ -215,12 +212,11 @@ def _read_palace_results(
 
 def run_capacitive_simulation_palace(
     component: gf.Component,
-    element_order: int = 1,
     n_processes: int = 1,
     layer_stack: LayerStack | None = None,
     material_spec: RFMaterialSpec | None = None,
     simulation_folder: Path | str | None = None,
-    simulator_params: Mapping[str, Any] | None = None,
+    solver_config: Mapping[str, Any] | None = None,
     mesh_parameters: dict[str, Any] | None = None,
     mesh_file: Path | str | None = None,
 ) -> ElectrostaticResults:
@@ -232,9 +228,6 @@ def run_capacitive_simulation_palace(
 
     Args:
         component: Simulation environment as a gdsfactory component.
-        element_order:
-            Order of polynomial basis functions.
-            Higher is more accurate but takes more memory and time to run.
         n_processes: Number of processes to use for parallelization
         layer_stack:
             :class:`~LayerStack` defining defining what layers to include in the simulation
@@ -244,8 +237,8 @@ def run_capacitive_simulation_palace(
         simulation_folder:
             Directory for storing the simulation results.
             Default is a temporary directory.
-        simulator_params: Palace-specific parameters. This will be expanded to ``solver["Linear"]`` in
-            the Palace config, see `Palace documentation <https://awslabs.github.io/palace/stable/config/solver/#solver[%22Linear%22]>`_
+        solver_config: Palace-specific parameters. This will be expanded to ``config["Solver"]`` in
+            the Palace config, see `Palace documentation <https://awslabs.github.io/palace/stable/config/solver/#config[%22Solver%22]>`_
         mesh_parameters:
             Keyword arguments to provide to :func:`~meshwell.mesh.mesh`.
         mesh_file: Path to a ready mesh to use. Useful for reusing one mesh file.
@@ -384,10 +377,9 @@ def run_capacitive_simulation_palace(
         ground_layers,
         layer_stack,
         material_spec,
-        element_order,
         physical_name_to_dimtag_map,
         background_tag,
-        simulator_params,
+        solver_config,
     )
     _palace(simulation_folder, filename, n_processes)
 

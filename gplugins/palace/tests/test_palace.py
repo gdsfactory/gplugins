@@ -119,7 +119,7 @@ def test_palace_capacitance_simulation_element_order(geometry, element_order) ->
         c,
         layer_stack=layer_stack,
         material_spec=material_spec,
-        element_order=element_order,
+        solver_config={"Order": element_order},
         mesh_parameters=get_reasonable_mesh_parameters_capacitance(c),
     )
 
@@ -211,7 +211,7 @@ def test_palace_scattering_simulation_element_order(geometry, element_order) -> 
         c,
         layer_stack=layer_stack,
         material_spec=material_spec,
-        element_order=element_order,
+        solver_config={"Order": element_order},
         mesh_parameters=get_reasonable_mesh_parameters_scattering(c),
     )
 
