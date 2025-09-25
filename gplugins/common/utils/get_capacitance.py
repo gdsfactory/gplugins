@@ -60,7 +60,7 @@ def get_capacitance(
             return run_capacitive_simulation_palace(
                 component,
                 simulation_folder=simulation_folder,
-                simulator_params=simulator_params,
+                solver_config=simulator_params,
                 **kwargs,
             )
         case _:
