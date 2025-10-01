@@ -79,7 +79,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Test palace ubuntu-latest 3.11
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: astral-sh/setup-uv@v6
       - name: Setup Apptainer
         uses: eWaterCycle/setup-apptainer@3f706d898c9db585b1d741b4692e66755f3a1b40
