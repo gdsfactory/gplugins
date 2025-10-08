@@ -13,7 +13,7 @@ classifiers = [
   "Operating System :: OS Independent"
 ]
 dependencies = [
-  "gdsfactory>=9.3.5",
+  "gdsfactory>=9.15.1",
   "pint",
   "tqdm",
   "numpy==2.2",  # numpy 2.2 is required for numba
@@ -37,12 +37,12 @@ dev = [
   "pytest-cov",
   "pytest_regressions"
 ]
-devsim = ["devsim", "pyvista<=0.43.8", "tidy3d>=2.8.2,<2.9"]
+devsim = ["devsim", "pyvista<=0.46.0", "tidy3d>=2.8.2,<2.9"]
 docs = [
   "jupytext",
   "matplotlib",
   "jupyter-book~=1.0",
-  "pyvista[all]<=0.43.8",
+  "pyvista[all]<=0.46.0",
   "bokeh",
   "scikit-learn"
 ]
@@ -54,7 +54,7 @@ gmsh = [
   "mapbox_earcut",
   "meshio",
   "pygmsh",
-  "pyvista<=0.43.8",
+  "pyvista<=0.46.0",
   "trimesh",
   "shapely",
   "meshwell~=1.0.7"

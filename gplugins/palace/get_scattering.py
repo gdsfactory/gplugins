@@ -26,6 +26,7 @@ from gplugins.common.utils.async_helpers import (
     run_async_with_event_loop,
 )
 from gplugins.gmsh import get_mesh
+from gdsfactory.technology.layer_stack import LogicalLayer
 
 DRIVE_JSON = "driven.json"
 DRIVEN_TEMPLATE = Path(__file__).parent / DRIVE_JSON
@@ -355,6 +356,7 @@ def run_scattering_simulation_palace(
     simulation_folder.mkdir(exist_ok=True, parents=True)
 
     filename = component.name + ".msh"
+    port_delimiter = "__"
     if mesh_file:
         shutil.copyfile(str(mesh_file), str(simulation_folder / filename))
     else:
@@ -364,7 +366,7 @@ def run_scattering_simulation_palace(
             filename=simulation_folder / filename,
             layer_stack=layer_stack,
             gmsh_version=2.2,  # see https://mfem.org/mesh-formats/#gmsh-mesh-formats
-            **(mesh_parameters or {}),
+            **((mesh_parameters or {}) | {"layer_port_delimiter": port_delimiter}),
         )
 
     # re-read the mesh
@@ -387,10 +389,12 @@ def run_scattering_simulation_palace(
     # Signals are converted to Boundaries
     # TODO currently assumes signal layers have `bw`
 
+    comp_layers_names = [gf.get_layer_name(layer) for layer in component.layers]
+
     ground_layers = {
-        next(k for k, v in layer_stack.layers.items() if v.layer == port.layer)
-        for port in component.get_ports()
-    } | {layer for layer in component.get_layer_names() if "_bw" in layer}
+        next(k for k, v in layer_stack.layers.items() if v.layer == LogicalLayer(layer=port.layer))
+        for port in component.ports
+    } | {layer for layer in comp_layers_names if "_bw" in layer}
     # TODO infer port delimiter from somewhere
     port_delimiter = "__"
     metal_surfaces = [
@@ -400,7 +404,7 @@ def run_scattering_simulation_palace(
     # TODO tuple pairs by o1_1 o1_2
 
     lumped_two_ports = [
-        e for e in [port.split("_") for port in component.ports] if len(e) > 1
+        e for e in [port.name.split("_") for port in component.ports] if len(e) > 1
     ]
     lumped_two_port_pairs = [
         ("_".join(p1), "_".join(p2))
@@ -408,7 +412,7 @@ def run_scattering_simulation_palace(
         if p1[0] == p2[0]
     ]
     metal_signal_surfaces_grouped = [
-        [e for e in metal_surfaces if port in e and background_tag in e]
+        [e for e in metal_surfaces if port.name in e and background_tag in e]
         for port in component.ports
     ]
     metal_signal_surfaces_paired = [
@@ -440,7 +444,8 @@ def run_scattering_simulation_palace(
 
     lumped_two_port_directions = {
         ports[0]: _xy_plusminus_direction(
-            *[component.get_ports_dict()[port].center for port in ports]
+            *[port.center for port in component.get_ports_list()]
+            # *[component.get_ports_dict()[port].center for port in ports]
         )
         for ports in itertools.chain(
             lumped_two_port_pairs, [tuple(reversed(e)) for e in lumped_two_port_pairs]
@@ -468,7 +473,7 @@ def run_scattering_simulation_palace(
         for k in physical_name_to_dimtag_map
         if "___None" in k
         and background_tag in k
-        and all(p not in k for p in component.ports)
+        and all(p not in k for p in [port.name for port in component.ports])
     } - set(ground_layers)
 
     gmsh.finalize()
