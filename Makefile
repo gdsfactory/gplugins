@@ -6,7 +6,7 @@ venv:
 
 install:
 	uv venv --python 3.11
-	uv pip install -e .[dev,docs,femwell,gmsh,meow,sax,tidy3d,klayout,vlsir]
+	uv pip install -e .[dev,docs,femwell,gmsh,meow,sax,tidy3d,klayout,vlsir,emode]
 	uv run pre-commit install
 
 dev: test-data gmsh elmer install
