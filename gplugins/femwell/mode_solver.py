@@ -11,6 +11,7 @@ from gdsfactory.technology import LayerStack
 from gdsfactory.typings import ComponentSpec, CrossSectionSpec, PathType
 from meshwell.cad import cad
 from meshwell.mesh import mesh as mesh_func
+from shapely.geometry import LineString
 from skfem import (
     Basis,
     ElementTriN2,
@@ -19,7 +20,7 @@ from skfem import (
     Mesh,
 )
 
-from gplugins.meshwell.get_meshwell_3D import get_meshwell_prisms
+from gplugins.meshwell.get_meshwell_cross_section import get_meshwell_cross_section
 
 MESH_FILENAME = "mesh.msh"
 
@@ -150,13 +151,19 @@ def compute_component_slice_modes(
 
     # Mesh
 
-    # TODO implement 2D cross-section meshing instead of 3D
-    prisms = get_meshwell_prisms(
-        component=component, layer_stack=layer_stack, wafer_padding=wafer_padding
+    # Create cross-section line from xsection_bounds
+    cross_section_line = LineString(xsection_bounds)
+
+    # Generate 2D cross-section surfaces instead of 3D prisms
+    surfaces = get_meshwell_cross_section(
+        component=component,
+        line=cross_section_line,
+        layer_stack=layer_stack,
+        wafer_padding=wafer_padding,
     )
     with tempfile.TemporaryDirectory() as tmpdirname:
         tmpdirname = Path(tmpdirname)
-        cad(entities_list=prisms, output_file=tmpdirname / "temp.xao")
+        cad(entities_list=surfaces, output_file=tmpdirname / "temp.xao")
         mesh_func(
             input_file=tmpdirname / "temp.xao",
             output_file=MESH_FILENAME,
