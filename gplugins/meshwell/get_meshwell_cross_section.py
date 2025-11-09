@@ -3,13 +3,14 @@ import gdsfactory as gf
 from meshwell.polyprism import PolyPrism
 from meshwell.polysurface import PolySurface
 from typing import List, Dict
-from shapely.geometry import Polygon, MultiPolygon, LineString
+from shapely.geometry import Polygon, MultiPolygon, LineString, Point
 import math
 import kfactory as kf
 from gdsfactory.add_padding import add_padding_container, add_padding
 from functools import partial
 from gdsfactory.generic_tech.layer_map import LAYER
 from typing import Literal
+import numpy as np
 
 
 def region_to_shapely_polygons(region: kf.kdb.Region) -> List[Polygon]:
@@ -129,6 +130,45 @@ def get_meshwell_prisms(
         prisms.append(prism)
 
     return prisms
+
+
+def get_u_bounds_polygons(
+    polygons: MultiPolygon | list[Polygon],
+    xsection_bounds: tuple[tuple[float, float], tuple[float, float]],
+    u_offset: float = 0.0,
+):
+    """Performs the bound extraction given a (Multi)Polygon or [Polygon] and cross-sectional line coordinates.
+
+    Args:
+        polygons: shapely MultiPolygon or list of Polygons.
+        xsection_bounds: ( (x1,y1), (x2,y2) ), with x1,y1 beginning point of cross-sectional line and x2,y2 the end.
+        u_offset: amount to offset the returned polygons in the lateral dimension.
+
+    Returns: list of bounding box coordinates (u1,u2)) in xsection line coordinates (distance from xsection_bounds[0]).
+    """
+    line = LineString(xsection_bounds)
+    linestart = Point(xsection_bounds[0])
+
+    return_list = []
+    for polygon in polygons.geoms if hasattr(polygons, "geoms") else [polygons]:
+        initial_settings = np.seterr()
+        np.seterr(invalid="ignore")
+        intersection = polygon.intersection(line)
+        np.seterr(**initial_settings)
+        if intersection:
+            for entry in (
+                intersection.geoms if hasattr(intersection, "geoms") else [intersection]
+            ):
+                bounds = entry.bounds
+                p1 = Point([bounds[0], bounds[1]])
+                p2 = Point([bounds[2], bounds[3]])
+                return_list.append(
+                    [
+                        linestart.distance(p1) + u_offset,
+                        linestart.distance(p2) + u_offset,
+                    ]
+                )
+    return return_list
 
 
 def get_meshwell_cross_section(

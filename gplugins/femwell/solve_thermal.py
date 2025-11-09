@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import matplotlib.pyplot as plt
-
 thermal_conductivities = {
     "*Al": 28.0,
     "*Ni": 90.9,  # unchecked
@@ -63,48 +61,10 @@ def get_thermal_conductivities(basis):
 
 
 if __name__ == "__main__":
-    import gdsfactory as gf
-    from femwell.visualization import plot_domains
-    from gdsfactory.generic_tech import LAYER_STACK
-    from skfem import Mesh
-
-    from gplugins.gmsh.get_mesh import get_mesh
-
-    LAYER_STACK.layers["heater"].thickness = 0.13
-    LAYER_STACK.layers["heater"].zmin = 2.2
-    heater_len = 1  # 1 um, so normalized
-
-    sheet_resistance_TiN = 10
-    heater_width = 2
-    heater_res = heater_len * sheet_resistance_TiN / heater_width
-
-    c = heater = gf.components.straight_heater_metal(
-        length=50, heater_width=heater_width
-    )
-    heater.show()
-
-    # ====== MESH =====
-    filtered_layer_stack = LAYER_STACK
-    heater_derived = filtered_layer_stack.get_component_with_derived_layers(heater)
-    get_mesh(
-        component=heater_derived,
-        type="uz",
-        xsection_bounds=[(3, c.bbox[0, 1]), (3, c.bbox[1, 1])],
-        # xsection_bounds=[(3, -4), (3, 4)],
-        layer_stack=filtered_layer_stack,
-        filename="mesh.msh",
-        resolutions={
-            "WG": {"resolution": 0.02, "distance": 1.0},
-            "SLAB150": {"resolution": 0.02, "distance": 1.0},
-            "SLAB90": {"resolution": 0.02, "distance": 1.0},
-            "WGN": {"resolution": 0.04, "distance": 1.0},
-            "HEATER": {"resolution": 0.1, "distance": 1.0},
-        },
-        default_resolution_max=0.3,
-        z_bounds=(1.0, 8.0),
-    )
-    mesh = Mesh.load("mesh.msh")
-
-    plot_domains(mesh)
-    plt.show()
-    mesh.draw().show()
+    # TODO: Update this example to use the new meshwell API
+    # The old gplugins.gmsh.get_mesh has been replaced with:
+    # 1. get_meshwell_cross_section() to generate cross-section surfaces
+    # 2. meshwell.cad.cad() to create CAD file
+    # 3. meshwell.mesh.mesh() to create mesh file
+    # See gplugins/femwell/mode_solver.py for an example of the new API
+    pass

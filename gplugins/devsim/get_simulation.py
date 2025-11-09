@@ -20,11 +20,8 @@ from gdsfactory.technology import LayerLevel, LayerStack
 from scipy.interpolate import NearestNDInterpolator
 
 from gplugins.devsim.doping import get_doping_info_generic
-from gplugins.gmsh import (
-    fuse_polygons,
-    get_u_bounds_polygons,
-    uz_xsection_mesh,
-)
+from gplugins.common.base_models.component import fuse_polygons
+from gplugins.meshwell import get_u_bounds_polygons
 
 um_to_cm = 1e-4
 
@@ -65,18 +62,16 @@ def create_2Duz_simulation(
         simulation_layertack.layers[contact_name] = layerlevel
 
     # Get structural mesh
-    mesh = uz_xsection_mesh(
-        component,
-        xsection_bounds,
-        simulation_layertack,
-        resolutions=resolutions,
-        mesh_scaling_factor=mesh_scaling_factor,
-        default_resolution_min=default_resolution_min,
-        default_resolution_max=default_resolution_max,
-        background_tag=background_tag,
-        filename=temp_file_name,
-        global_meshsize_array=global_meshsize_array,
-        global_meshsize_interpolant_func=global_meshsize_interpolant_func,
+    # TODO: Update to use meshwell API
+    # The old uz_xsection_mesh has been removed. Replace with:
+    # 1. Convert xsection_bounds to LineString
+    # 2. Call get_meshwell_cross_section() to get surfaces
+    # 3. Use meshwell.cad.cad() to create CAD file
+    # 4. Use meshwell.mesh.mesh() to create mesh file with resolutions
+    raise NotImplementedError(
+        "uz_xsection_mesh has been removed. "
+        "This function needs to be updated to use the new meshwell API. "
+        "See gplugins/femwell/mode_solver.py:compute_component_slice_modes for an example."
     )
 
     # Get doping layer bounds

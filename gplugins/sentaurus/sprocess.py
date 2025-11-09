@@ -15,7 +15,7 @@ from gdsfactory.technology.processes import (
 )
 from gdsfactory.typings import Dict, Tuple
 
-from gplugins.gmsh.parse_gds import cleanup_component_layermap
+from gplugins.common.base_models.component import cleanup_component_layermap
 from gplugins.sentaurus.mask_sprocess import (
     get_sentaurus_mask_2D,
     get_sentaurus_mask_3D,

@@ -4,7 +4,7 @@ from functools import reduce
 import shapely
 from gdsfactory.typings import Layer, LayerSpecs
 
-from gplugins.gmsh.uz_xsection_mesh import get_u_bounds_polygons
+from gplugins.meshwell import get_u_bounds_polygons
 
 
 def get_mask_polygons(
