@@ -58,17 +58,13 @@ def compute_cross_section_modes(
 
     Keyword Args:
         solver: can be slepc or scipy.
-        resolutions (Dict): Pairs {"layername": {"resolution": float, "distance": "float}}
-            to roughly control mesh refinement within and away from entity, respectively.
-        mesh_scaling_factor (float): factor multiply mesh geometry by.
-        default_resolution_min (float): gmsh minimal edge length.
-        default_resolution_max (float): gmsh maximal edge length.
+        resolution_specs (Dict): meshwell resolution specifications.
+            Format: {"layername": [ConstantInField(resolution=float, apply_to="surfaces")]}
+        default_characteristic_length (float): default gmsh characteristic length.
         background_tag (str): name of the background layer to add (default: no background added).
-        background_padding (Tuple): [xleft, ydown, xright, yup] distances to add to the components and to fill with background_tag.
-        global_meshsize_array: np array [x,y,z,lc] to parametrize the mesh.
-        global_meshsize_interpolant_func: interpolating function for global_meshsize_array.
-        extra_shapes_dict: Optional[OrderedDict] of {key: geo} with key a label and geo a shapely (Multi)Polygon or (Multi)LineString of extra shapes to override component.
-        merge_by_material: boolean, if True will merge polygons from layers with the same layer.material. Physical keys will be material in this case.
+        background_remeshing_file (Path): optional background mesh file for refinement.
+        global_scaling (float): global scaling factor.
+        verbosity (int): GMSH verbosity level.
 
     """
     # Get meshable component from cross-section
@@ -135,16 +131,13 @@ def compute_component_slice_modes(
         kwargs: kwargs for meshwell.mesh.mesh
 
     Keyword Args:
-        resolutions (Dict): Pairs {"layername": {"resolution": float, "distance": "float}}
-            to roughly control mesh refinement within and away from entity, respectively.
-        default_characteristic_length (float): gmsh characteristic length.
+        resolution_specs (Dict): meshwell resolution specifications.
+            Format: {"layername": [ConstantInField(resolution=float, apply_to="surfaces")]}
+        default_characteristic_length (float): default gmsh characteristic length.
         background_tag (str): name of the background layer to add (default: no background added).
-        background_padding (Tuple): [xleft, ydown, xright, yup] distances to add to the components and to fill with background_tag.
-        background_remeshing_file (str): filename to load background remeshing from.
-        global_meshsize_array: np array [x,y,z,lc] to parametrize the mesh.
-        global_meshsize_interpolant_func: interpolating function for global_meshsize_array.
-        extra_shapes_dict: Optional[OrderedDict] of {key: geo} with key a label and geo a shapely (Multi)Polygon or (Multi)LineString of extra shapes to override component.
-        merge_by_material: boolean, if True will merge polygons from layers with the same layer.material. Physical keys will be material in this case.
+        background_remeshing_file (Path): optional background mesh file for refinement.
+        global_scaling (float): global scaling factor.
+        verbosity (int): GMSH verbosity level.
         wafer_layer: layer to use for WAFER padding.
     """
     material_name_to_index = material_name_to_index or _material_name_to_index
@@ -202,6 +195,7 @@ def compute_component_slice_modes(
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
+    from meshwell.resolution import ConstantInField
 
     start = time.time()
     filtered_layer_stack = LayerStack(
@@ -218,11 +212,12 @@ if __name__ == "__main__":
 
     filtered_layer_stack.layers["core"].thickness = 0.2
 
-    resolutions = {
-        "core": {"resolution": 0.02, "distance": 2},
-        "clad": {"resolution": 0.2, "distance": 1},
-        "box": {"resolution": 0.2, "distance": 1},
-        "slab90": {"resolution": 0.05, "distance": 1},
+    # New meshwell resolution format
+    resolution_specs = {
+        "core": [ConstantInField(resolution=0.04, apply_to="surfaces")],
+        "clad": [ConstantInField(resolution=0.4, apply_to="surfaces")],
+        "box": [ConstantInField(resolution=0.4, apply_to="surfaces")],
+        "slab90": [ConstantInField(resolution=0.1, apply_to="surfaces")],
     }
 
     cross_section = False
@@ -236,7 +231,7 @@ if __name__ == "__main__":
             num_modes=4,
             order=1,
             radius=np.inf,
-            resolutions=resolutions,
+            resolution_specs=resolution_specs,
         )
         mode = modes[0]
         mode.show(mode.E.real, colorbar=True, direction="x")
@@ -252,8 +247,7 @@ if __name__ == "__main__":
             num_modes=4,
             order=1,
             radius=np.inf,
-            mesh_filename="./mesh.msh",
-            resolutions=resolutions,
+            resolution_specs=resolution_specs,
         )
 
         print(modes)
