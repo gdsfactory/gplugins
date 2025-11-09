@@ -2,6 +2,7 @@ import importlib
 import math
 import pathlib
 from pathlib import Path
+from typing import Dict, Tuple
 
 import gdsfactory as gf
 from gdsfactory.technology.processes import (
@@ -13,7 +14,6 @@ from gdsfactory.technology.processes import (
     Lithography,
     Planarize,
 )
-from gdsfactory.typings import Dict, Tuple
 
 from gplugins.common.base_models.component import cleanup_component_layermap
 from gplugins.sentaurus.mask_sprocess import (

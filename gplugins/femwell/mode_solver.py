@@ -20,7 +20,7 @@ from skfem import (
     Mesh,
 )
 
-from gplugins.meshwell.get_meshwell_cross_section import get_meshwell_cross_section
+from gplugins.meshwell import get_meshwell_cross_section
 
 MESH_FILENAME = "mesh.msh"
 
