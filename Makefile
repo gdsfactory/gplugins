@@ -6,7 +6,7 @@ venv:
 
 install:
 	uv venv --python 3.11
-	uv pip install -e .[dev,docs,femwell,gmsh,meow,sax,tidy3d,klayout,vlsir]
+	uv pip install -e .[dev,docs,femwell,meow,sax,tidy3d,klayout,vlsir]
 	uv run pre-commit install
 
 dev: test-data gmsh elmer install
@@ -27,7 +27,7 @@ test:
 	pytest
 
 uv-test:
-	@for plugin in femwell gmsh meow sax tidy3d klayout vlsir path_length_analysis; do \
+	@for plugin in femwell meow sax tidy3d klayout vlsir path_length_analysis; do \
 		uv run pytest gplugins/$$plugin; \
 	done
 
