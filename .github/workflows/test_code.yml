@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
       - uses: pre-commit/action@v3.0.1
 
   test_code:
@@ -20,7 +20,7 @@ jobs:
       fail-fast: false
       max-parallel: 12
       matrix:
-        plugin: [femwell, gmsh, meow, sax, tidy3d, klayout, vlsir, path_length_analysis]
+        plugin: [femwell, meow, sax, tidy3d, klayout, vlsir, path_length_analysis]
         os: [ubuntu-latest]
         python-version: [3.12]
         exclude:
@@ -34,7 +34,7 @@ jobs:
     name: Test ${{ matrix.plugin }} ${{ matrix.os }} ${{ matrix.python-version }}
     steps:
       - uses: actions/checkout@v5
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v7
       - if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           sudo apt-get install -y libglu1-mesa
@@ -80,7 +80,7 @@ jobs:
     name: Test palace ubuntu-latest 3.11
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v7
       - name: Setup Apptainer
         uses: eWaterCycle/setup-apptainer@3f706d898c9db585b1d741b4692e66755f3a1b40
         with:
@@ -123,13 +123,13 @@ jobs:
         run: |
           palace --help || echo "Palace help failed but container exists"
       - name: Test with pytest
-        run: sudo env "PATH=$PATH" "$(which uv)" run --extra dev --extra gmsh pytest gplugins/palace -v
+        run: sudo env "PATH=$PATH" "$(which uv)" run --extra dev --extra meshwell pytest gplugins/palace -v
 
   test_code_coverage:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v7
       - name: Install libglu1-mesa
         run: |
           sudo apt-get install -y libglu1-mesa

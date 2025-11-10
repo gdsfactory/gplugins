@@ -1,6 +1,7 @@
 from math import inf
 
 import gdsfactory as gf
+from meshwell.resolution import ConstantInField, ThresholdField
 import pytest
 from gdsfactory.component import Component
 from gdsfactory.components.analog.interdigital_capacitor import (
@@ -18,6 +19,7 @@ from gplugins.palace import (
 layer_stack = LayerStack(
     layers=dict(
         substrate=LayerLevel(
+            name="substrate",
             layer=LAYER.WAFER,
             thickness=500,
             zmin=0,
@@ -25,6 +27,7 @@ layer_stack = LayerStack(
             mesh_order=99,
         ),
         bw=LayerLevel(
+            name="bw",
             layer=LAYER.WG,
             thickness=200e-3,
             zmin=500,
@@ -45,36 +48,42 @@ material_spec = {
 def geometry() -> Component:
     c = gf.Component()
     cap = c << interdigital_capacitor()
-    c.add_ports(cap.ports)
-    substrate = gf.components.bbox(c, layer=LAYER.WAFER)
-    c << substrate
+    # Add ports for marking capacitor terminals
+    for port in cap.ports:
+        c.add_port(name=f"bw_{port.name}", port=port)
+    # Add simulation area layer around the layout
+    c.kdb_cell.shapes(LAYER.WAFER).insert(c.bbox().enlarged(50, 50))
     return c
 
 
 def get_reasonable_mesh_parameters_capacitance(c: Component):
     return dict(
-        background_tag="vacuum",
-        background_padding=(0,) * 5 + (700,),
-        port_names=[port.name for port in c.ports],
-        default_characteristic_length=10,
-        resolutions={
-            "bw": {
-                "resolution": 10,
-            },
-            "substrate": {
-                "resolution": 10,
-            },
-            "vacuum": {
-                "resolution": 10,
-            },
+        # background_tag="vacuum",
+        # background_padding=(0,) * 5 + (700,),
+        # port_names=[port.name for port in c.ports],
+        default_characteristic_length=50,
+        resolution_specs={
+            "bw": [ConstantInField(resolution=10, apply_to="surfaces")],
+            "substrate": [
+                ConstantInField(resolution=20, apply_to="curves"),
+                ConstantInField(resolution=15, apply_to="surfaces"),
+                ConstantInField(resolution=30, apply_to="volumes"),
+            ],
+            "vacuum": [ConstantInField(resolution=20, apply_to="surfaces")],
             **{
-                f"bw__{port.name}": {  # `__` is used as the layer to port delimiter for Palace
-                    "resolution": 10,
-                    "DistMax": 30,
-                    "DistMin": 10,
-                    "SizeMax": 10,
-                    "SizeMin": 1,
-                }
+                f"bw@{port.name}___substrate": [
+                    ThresholdField(
+                        sizemin=2, distmin=4, distmax=30, sizemax=10, apply_to="curves"
+                    )
+                ]
+                # Older style:
+                # {  # `__` is used as the layer to port delimiter for Palace
+                #     "resolution": 10,
+                #     "DistMax": 30,
+                #     "DistMin": 10,
+                #     "SizeMax": 10,
+                #     "SizeMin": 1,
+                # }
                 for port in c.ports
             },
         },
@@ -110,7 +119,7 @@ def test_palace_capacitance_simulation_element_order(geometry, element_order) ->
         c,
         layer_stack=layer_stack,
         material_spec=material_spec,
-        element_order=element_order,
+        solver_config={"Order": element_order},
         mesh_parameters=get_reasonable_mesh_parameters_capacitance(c),
     )
 
@@ -137,8 +146,8 @@ def test_palace_capacitance_simulation_cdict_form(geometry) -> None:
 
 def get_reasonable_mesh_parameters_scattering(c: Component):
     return dict(
-        background_tag="vacuum",
-        background_padding=(0,) * 5 + (700,),
+        # background_tag="vacuum",
+        # background_padding=(0,) * 5 + (700,),
         port_names=c.ports,
         default_characteristic_length=200,
         resolutions={
@@ -202,7 +211,7 @@ def test_palace_scattering_simulation_element_order(geometry, element_order) -> 
         c,
         layer_stack=layer_stack,
         material_spec=material_spec,
-        element_order=element_order,
+        solver_config={"Order": element_order},
         mesh_parameters=get_reasonable_mesh_parameters_scattering(c),
     )
 

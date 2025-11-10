@@ -13,7 +13,7 @@ from gdsfactory.technology.processes import (
     Planarize,
 )
 
-from gplugins.gmsh.parse_gds import cleanup_component_layermap
+from gplugins.common.base_models.component import cleanup_component_layermap
 from gplugins.sentaurus.mask_sde import get_sentaurus_mask_3D
 
 DEFAULT_HEADER = """(sde:clear)

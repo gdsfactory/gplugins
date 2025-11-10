@@ -29,6 +29,8 @@ execute:
     - "*luminescent*"
     - "*pso*"
     - "*mpb*"
+    - "*palace_01_electrostatic*"
+    - "*palace_02_fullwave*"
     # - "*20_schematic_driven_layout*"
     # - "*001_meep_sparameters*"
     # - "*00_tidy3d.ipynb"

@@ -87,6 +87,31 @@ def cleanup_component(component, layer_stack, round_tol=2, simplify_tol=1e-2):
     }
 
 
+def cleanup_component_layermap(component, layermap, round_tol=2, simplify_tol=1e-2):
+    """Process component polygons before processing.
+
+    Uses layermap (design layers) names.
+
+    Args:
+        component: gdsfactory component
+        layermap: LayerMap object or dict with layer names as keys
+        round_tol: tolerance for rounding coordinates
+        simplify_tol: tolerance for polygon simplification
+    """
+    layer_dict = vars(layermap) if not isinstance(layermap, dict) else layermap
+
+    return {
+        layer: fuse_polygons(
+            component,
+            layer,
+            round_tol=round_tol,
+            simplify_tol=simplify_tol,
+        )
+        for layername, layer in layer_dict.items()
+        if not layername.startswith("_")  # Skip private attributes
+    }
+
+
 def move_polar_rad_copy(
     pos: Coordinate, angle: float, length: float
 ) -> NDArray[np.float64]:
