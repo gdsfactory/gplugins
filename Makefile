@@ -73,4 +73,9 @@ clean:
 	rm -rf .ruff_cache
 	rm -rf .venv
 
+
+luminescent:
+	bash install_luminescent.sh
+
+
 .PHONY: drc doc docs dev
