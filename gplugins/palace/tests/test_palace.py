@@ -91,36 +91,33 @@ def get_reasonable_mesh_parameters_capacitance(c: Component):
 
 
 def test_palace_capacitance_simulation_runs(geometry) -> None:
-    c = geometry
     run_capacitive_simulation_palace(
-        c,
+        geometry,
         layer_stack=layer_stack,
         material_spec=material_spec,
-        mesh_parameters=get_reasonable_mesh_parameters_capacitance(c),
+        mesh_parameters=get_reasonable_mesh_parameters_capacitance(geometry),
     )
 
 
 @pytest.mark.parametrize("n_processes", [(1), (2), (4)])
 def test_palace_capacitance_simulation_n_processes(geometry, n_processes) -> None:
-    c = geometry
     run_capacitive_simulation_palace(
-        c,
+        geometry,
         layer_stack=layer_stack,
         material_spec=material_spec,
         n_processes=n_processes,
-        mesh_parameters=get_reasonable_mesh_parameters_capacitance(c),
+        mesh_parameters=get_reasonable_mesh_parameters_capacitance(geometry),
     )
 
 
 @pytest.mark.parametrize("element_order", [(1), (2), (3)])
 def test_palace_capacitance_simulation_element_order(geometry, element_order) -> None:
-    c = geometry
     run_capacitive_simulation_palace(
-        c,
+        geometry,
         layer_stack=layer_stack,
         material_spec=material_spec,
         solver_config={"Order": element_order},
-        mesh_parameters=get_reasonable_mesh_parameters_capacitance(c),
+        mesh_parameters=get_reasonable_mesh_parameters_capacitance(geometry),
     )
 
 
