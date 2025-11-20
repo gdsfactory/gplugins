@@ -7,35 +7,7 @@ import kfactory as kf
 from gdsfactory.add_padding import add_padding_container, add_padding
 from functools import partial
 from gdsfactory.generic_tech.layer_map import LAYER
-
-
-def region_to_shapely_polygons(region: kf.kdb.Region) -> List[Polygon]:
-    """Convert a kfactory Region to a list of Shapely polygons."""
-    polygons = []
-    for polygon_kdb in region.each():
-        # Extract exterior coordinates
-        exterior_coords = []
-        for point in polygon_kdb.each_point_hull():
-            exterior_coords.append((gf.kcl.to_um(point.x), gf.kcl.to_um(point.y)))
-
-        # Extract hole coordinates
-        holes = []
-        num_holes = polygon_kdb.holes()
-        for hole_idx in range(num_holes):
-            hole_coords = []
-            for point in polygon_kdb.each_point_hole(hole_idx):
-                hole_coords.append((gf.kcl.to_um(point.x), gf.kcl.to_um(point.y)))
-            holes.append(hole_coords)
-
-
-        # Create Shapely polygon
-        if holes:
-            polygon = Polygon(exterior_coords, holes)
-        else:
-            polygon = Polygon(exterior_coords)
-        polygons.append(polygon)
-
-    return MultiPolygon(polygons)
+from gplugins.common.utils.geometry import region_to_shapely_polygons
 
 
 def build_buffer_dict_from_layer_level(
@@ -141,16 +113,17 @@ if __name__ == "__main__":
 
 
     for component in [ge_detector_straight_si_contacts, add_frame]:
+        c = component()
         prisms = get_meshwell_prisms(
-            component=component(),
+            component=c,
             layer_stack=get_layer_stack(sidewall_angle_wg=0),
             name_by="layer",
         )
 
-        cad(entities_list=prisms, output_file="meshwell_prisms_3D.xao")
+        cad(entities_list=prisms, output_file=f"meshwell_prisms_3D_{c.name}.xao")
         mesh(
-            input_file="meshwell_prisms_3D.xao",
-            output_file="meshwell_prisms_3D.msh",
+            input_file=f"meshwell_prisms_3D_{c.name}.xao",
+            output_file=f"meshwell_prisms_3D_{c.name}.msh",
             default_characteristic_length=1000,
             dim=3,
             verbosity=10,

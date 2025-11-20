@@ -90,13 +90,17 @@ def get_reasonable_mesh_parameters_capacitance(c: Component):
     )
 
 
-def test_palace_capacitance_simulation_runs(geometry) -> None:
-    run_capacitive_simulation_palace(
+def test_palace_capacitance_simulation_runs(geometry, tmp_path) -> None:
+    results = run_capacitive_simulation_palace(
         geometry,
         layer_stack=layer_stack,
         material_spec=material_spec,
         mesh_parameters=get_reasonable_mesh_parameters_capacitance(geometry),
+        simulation_folder=tmp_path,
     )
+    assert results.capacitance_matrix
+    assert results.mesh_location
+    assert results.field_file_location
 
 
 @pytest.mark.parametrize("n_processes", [(1), (2), (4)])
@@ -110,6 +114,20 @@ def test_palace_capacitance_simulation_n_processes(geometry, n_processes) -> Non
     )
 
 
+@pytest.mark.parametrize("invalid_n_processes", [0, -1, -5, 1.5, "two", None])
+def test_palace_capacitance_simulation_invalid_n_processes(
+    geometry, invalid_n_processes
+) -> None:
+    with pytest.raises((ValueError, TypeError)):
+        run_capacitive_simulation_palace(
+            geometry,
+            layer_stack=layer_stack,
+            material_spec=material_spec,
+            mesh_parameters=get_reasonable_mesh_parameters_capacitance(geometry),
+            n_processes=invalid_n_processes,
+        )
+
+
 @pytest.mark.parametrize("element_order", [(1), (2), (3)])
 def test_palace_capacitance_simulation_element_order(geometry, element_order) -> None:
     run_capacitive_simulation_palace(
@@ -119,6 +137,20 @@ def test_palace_capacitance_simulation_element_order(geometry, element_order) ->
         solver_config={"Order": element_order},
         mesh_parameters=get_reasonable_mesh_parameters_capacitance(geometry),
     )
+
+
+@pytest.mark.parametrize("invalid_element_order", [0, -1, 1.5, "two"])
+def test_palace_capacitance_simulation_invalid_element_order(
+    geometry, invalid_element_order
+) -> None:
+    with pytest.raises((ValueError, TypeError)):
+        run_capacitive_simulation_palace(
+            geometry,
+            layer_stack=layer_stack,
+            material_spec=material_spec,
+            solver_config={"Order": invalid_element_order},
+            mesh_parameters=get_reasonable_mesh_parameters_capacitance(geometry),
+        )
 
 
 @pytest.mark.skip(reason="TODO")

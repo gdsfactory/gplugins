@@ -1,4 +1,5 @@
 import pytest
+import gdsfactory as gf
 
 
 from gdsfactory.components import bend_circular, add_frame
@@ -31,6 +32,19 @@ def test_prisms(component) -> None:
             dim=3,
             verbosity=10,
         )
+
+
+def test_prisms_empty_component() -> None:
+    """Test that get_meshwell_prisms handles empty components gracefully."""
+    c = gf.Component()
+    prisms = get_meshwell_prisms(
+        component=c,
+        layer_stack=get_layer_stack(sidewall_angle_wg=0),
+        name_by="layer",
+        wafer_padding=None,
+    )
+    assert len(prisms) == 0
+
 
 @pytest.mark.parametrize("component", [(bend_circular), (add_frame)])
 def test_cross_section(component) -> None:

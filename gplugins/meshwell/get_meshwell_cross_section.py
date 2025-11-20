@@ -11,7 +11,7 @@ from functools import partial
 from gdsfactory.generic_tech.layer_map import LAYER
 from typing import Literal
 import numpy as np
-from .get_meshwell_3D import region_to_shapely_polygons
+from gplugins.common.utils.geometry import region_to_shapely_polygons
 
 
 def get_u_bounds_polygons(
