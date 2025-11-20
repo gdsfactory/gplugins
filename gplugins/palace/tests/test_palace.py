@@ -63,17 +63,17 @@ def get_reasonable_mesh_parameters_capacitance(c: Component):
         # port_names=[port.name for port in c.ports],
         default_characteristic_length=50,
         resolution_specs={
-            "bw": [ConstantInField(resolution=10, apply_to="surfaces")],
+            "bw": [ConstantInField(resolution=100, apply_to="surfaces")],
             "substrate": [
-                ConstantInField(resolution=20, apply_to="curves"),
-                ConstantInField(resolution=15, apply_to="surfaces"),
-                ConstantInField(resolution=30, apply_to="volumes"),
+                ConstantInField(resolution=200, apply_to="curves"),
+                ConstantInField(resolution=150, apply_to="surfaces"),
+                ConstantInField(resolution=300, apply_to="volumes"),
             ],
-            "vacuum": [ConstantInField(resolution=20, apply_to="surfaces")],
+            "vacuum": [ConstantInField(resolution=200, apply_to="surfaces")],
             **{
                 f"bw@{port.name}___substrate": [
                     ThresholdField(
-                        sizemin=2, distmin=4, distmax=30, sizemax=10, apply_to="curves"
+                        sizemin=20, distmin=4, distmax=30, sizemax=100, apply_to="curves"
                     )
                 ]
                 # Older style:
