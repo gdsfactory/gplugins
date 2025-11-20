@@ -62,6 +62,7 @@ notebooks:
 	jupytext docs/**/*.py --to ipynb
 
 docs:
+	bash install_luminescent.sh
 	PYVISTA_OFF_SCREEN=0 PYVISTA_JUPYTER_BACKEND=html uv run jb build docs
 
 clean:
@@ -72,5 +73,10 @@ clean:
 	rm -rf .mypy_cache
 	rm -rf .ruff_cache
 	rm -rf .venv
+
+
+luminescent:
+	bash install_luminescent.sh
+
 
 .PHONY: drc doc docs dev
