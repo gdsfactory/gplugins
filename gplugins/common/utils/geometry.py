@@ -7,11 +7,10 @@ def region_to_shapely_polygons(region: kf.kdb.Region) -> MultiPolygon:
     """Convert a kfactory Region to a list of Shapely polygons."""
     polygons = []
     for polygon_kdb in region.each():
-        # Extract exterior coordinates
-        exterior_coords = []
-        for point in polygon_kdb.each_point_hull():
-            exterior_coords.append((gf.kcl.to_um(point.x), gf.kcl.to_um(point.y)))
-
+        exterior_coords = [
+            (gf.kcl.to_um(point.x), gf.kcl.to_um(point.y))
+            for point in polygon_kdb.each_point_hull()
+        ]
         # Extract hole coordinates
         holes = []
         num_holes = polygon_kdb.holes()
