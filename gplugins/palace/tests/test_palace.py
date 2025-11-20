@@ -63,17 +63,17 @@ def get_reasonable_mesh_parameters_capacitance(c: Component):
         # port_names=[port.name for port in c.ports],
         default_characteristic_length=50,
         resolution_specs={
-            "bw": [ConstantInField(resolution=10, apply_to="surfaces")],
+            "bw": [ConstantInField(resolution=100, apply_to="surfaces")],
             "substrate": [
-                ConstantInField(resolution=20, apply_to="curves"),
-                ConstantInField(resolution=15, apply_to="surfaces"),
-                ConstantInField(resolution=30, apply_to="volumes"),
+                ConstantInField(resolution=200, apply_to="curves"),
+                ConstantInField(resolution=150, apply_to="surfaces"),
+                ConstantInField(resolution=300, apply_to="volumes"),
             ],
-            "vacuum": [ConstantInField(resolution=20, apply_to="surfaces")],
+            "vacuum": [ConstantInField(resolution=200, apply_to="surfaces")],
             **{
                 f"bw@{port.name}___substrate": [
                     ThresholdField(
-                        sizemin=2, distmin=4, distmax=30, sizemax=10, apply_to="curves"
+                        sizemin=20, distmin=4, distmax=30, sizemax=100, apply_to="curves"
                     )
                 ]
                 # Older style:
@@ -90,38 +90,67 @@ def get_reasonable_mesh_parameters_capacitance(c: Component):
     )
 
 
-def test_palace_capacitance_simulation_runs(geometry) -> None:
-    c = geometry
-    run_capacitive_simulation_palace(
-        c,
+def test_palace_capacitance_simulation_runs(geometry, tmp_path) -> None:
+    results = run_capacitive_simulation_palace(
+        geometry,
         layer_stack=layer_stack,
         material_spec=material_spec,
-        mesh_parameters=get_reasonable_mesh_parameters_capacitance(c),
+        mesh_parameters=get_reasonable_mesh_parameters_capacitance(geometry),
+        simulation_folder=tmp_path,
     )
+    assert results.capacitance_matrix
+    assert results.mesh_location
+    assert results.field_file_location
 
 
 @pytest.mark.parametrize("n_processes", [(1), (2), (4)])
 def test_palace_capacitance_simulation_n_processes(geometry, n_processes) -> None:
-    c = geometry
     run_capacitive_simulation_palace(
-        c,
+        geometry,
         layer_stack=layer_stack,
         material_spec=material_spec,
         n_processes=n_processes,
-        mesh_parameters=get_reasonable_mesh_parameters_capacitance(c),
+        mesh_parameters=get_reasonable_mesh_parameters_capacitance(geometry),
     )
+
+
+@pytest.mark.parametrize("invalid_n_processes", [0, -1, -5, 1.5, "two", None])
+def test_palace_capacitance_simulation_invalid_n_processes(
+    geometry, invalid_n_processes
+) -> None:
+    with pytest.raises((ValueError, TypeError)):
+        run_capacitive_simulation_palace(
+            geometry,
+            layer_stack=layer_stack,
+            material_spec=material_spec,
+            mesh_parameters=get_reasonable_mesh_parameters_capacitance(geometry),
+            n_processes=invalid_n_processes,
+        )
 
 
 @pytest.mark.parametrize("element_order", [(1), (2), (3)])
 def test_palace_capacitance_simulation_element_order(geometry, element_order) -> None:
-    c = geometry
     run_capacitive_simulation_palace(
-        c,
+        geometry,
         layer_stack=layer_stack,
         material_spec=material_spec,
         solver_config={"Order": element_order},
-        mesh_parameters=get_reasonable_mesh_parameters_capacitance(c),
+        mesh_parameters=get_reasonable_mesh_parameters_capacitance(geometry),
     )
+
+
+@pytest.mark.parametrize("invalid_element_order", [0, -1, 1.5, "two"])
+def test_palace_capacitance_simulation_invalid_element_order(
+    geometry, invalid_element_order
+) -> None:
+    with pytest.raises((ValueError, TypeError)):
+        run_capacitive_simulation_palace(
+            geometry,
+            layer_stack=layer_stack,
+            material_spec=material_spec,
+            solver_config={"Order": invalid_element_order},
+            mesh_parameters=get_reasonable_mesh_parameters_capacitance(geometry),
+        )
 
 
 @pytest.mark.skip(reason="TODO")

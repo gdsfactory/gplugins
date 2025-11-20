@@ -246,6 +246,19 @@ def run_capacitive_simulation_palace(
 
     .. _Palace: https://github.com/awslabs/palace
     """
+    if not isinstance(n_processes, int):
+        raise TypeError(f"n_processes must be an integer, got {type(n_processes)}")
+    if n_processes < 1:
+        raise ValueError(f"n_processes must be >= 1, got {n_processes}")
+
+    if solver_config:
+        order = solver_config.get("Order")
+        if order is not None:
+            if not isinstance(order, int):
+                raise TypeError(f"Solver Order must be an integer, got {type(order)}")
+            if order < 1:
+                raise ValueError(f"Solver Order must be >= 1, got {order}")
+
     if layer_stack is None:
         layer_stack = LayerStack(
             layers={
