@@ -448,6 +448,7 @@ def write_sparameters(
     plot_epsilon: bool = False,
     filepath: PathType | None = None,
     overwrite: bool = False,
+    upload_only: bool = False,
     **kwargs: Any,
 ) -> Sparameters:
     """Writes the S-parameters for a component.
@@ -594,39 +595,40 @@ def write_sparameters(
         return dict(np.load(filepath))
     else:
         time.sleep(0.2)
-        # s = modeler.run()
-        plot_sources = [modeler.to_source(port=p, mode_index=0) for p in modeler.ports]
-        plot_monitors = [modeler.to_monitor(port=p) for p in modeler.ports]
-        
-        cz = c.get_layer_center("core")[2]
-        birdseye = FieldMonitor(name="birdseye", interval_space=(4, 4, 1),freqs=td.C_0 / wavelength, center=(c.center[0], c.center[1], cz), size=(c.size[0], c.size[1], 0))
+        if upload_only:
+            plot_sources = [modeler.to_source(port=p, mode_index=0) for p in modeler.ports]
+            plot_monitors = [modeler.to_monitor(port=p) for p in modeler.ports]
+            
+            cz = c.get_layer_center("core")[2]
+            birdseye = FieldMonitor(name="birdseye", interval_space=(4, 4, 1),freqs=td.constants.C_0 / wavelength, center=(c.center[0], c.center[1], cz), size=(c.size[0], c.size[1], 0))
 
-        sim_with_sources = modeler.simulation.copy(
-            update={"sources": plot_sources, "monitors": list(modeler.simulation.monitors) + plot_monitors + [birdseye]}
-        )
+            sim_with_sources = modeler.simulation.copy(
+                update={"sources": plot_sources, "monitors": list(modeler.simulation.monitors) + plot_monitors + [birdseye]}
+            )
 
-        s = web.upload(sim_with_sources, task_name=folder_name)
-        return s
+            s = web.upload(sim_with_sources, task_name=folder_name)
+            return s
+        if not upload_only:
+            s = modeler.run()
+            if s.status != "completed":
+                for port_in in s.port_in.values:
+                    for port_out in s.port_out.values:
+                        for mode_index_in in s.mode_index_in.values:
+                            for mode_index_out in s.mode_index_out.values:
+                                sp[f"{port_in}@{mode_index_in},{port_out}@{mode_index_out}"] = (
+                                    s.sel(
+                                        port_in=port_in,
+                                        port_out=port_out,
+                                        mode_index_in=mode_index_in,
+                                        mode_index_out=mode_index_out,
+                                    ).values
+                                )
 
-        # if s.status != "completed":
-        #     for port_in in s.port_in.values:
-        #         for port_out in s.port_out.values:
-        #             for mode_index_in in s.mode_index_in.values:
-        #                 for mode_index_out in s.mode_index_out.values:
-        #                     sp[f"{port_in}@{mode_index_in},{port_out}@{mode_index_out}"] = (
-        #                         s.sel(
-        #                             port_in=port_in,
-        #                             port_out=port_out,
-        #                             mode_index_in=mode_index_in,
-        #                             mode_index_out=mode_index_out,
-        #                         ).values
-        #                     )
-
-        #     frequency = s.f.values
-        #     sp["wavelengths"] = td.constants.C_0 / frequency
-        #     np.savez_compressed(filepath, **sp)
-        #     print(f"Simulation saved to {filepath!r}")
-        #     return sp
+                frequency = s.f.values
+                sp["wavelengths"] = td.constants.C_0 / frequency
+                np.savez_compressed(filepath, **sp)
+                print(f"Simulation saved to {filepath!r}")
+                return sp
 
 
 def write_sparameters_batch(
