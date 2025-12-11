@@ -280,7 +280,7 @@ class Tidy3DComponent(LayeredComponentBase):
 
         cz = np.round(cz, abs(int(np.log10(grid_eps)))).item()
 
-        freqs = td.C_0 / np.linspace(
+        freqs = td.constants.C_0 / np.linspace(
             wavelength - bandwidth / 2, wavelength + bandwidth / 2, num_freqs
         )
 
