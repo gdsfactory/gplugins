@@ -20,17 +20,16 @@ from collections.abc import Awaitable
 from functools import cached_property
 from typing import Any, Literal
 
-import tidy3d.web.api.webapi as web
-from tidy3d.components.monitor import FieldMonitor
-
 import matplotlib.pyplot as plt
 import numpy as np
 import tidy3d as td
+import tidy3d.web.api.webapi as web
 from gdsfactory.component import Component
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 from pydantic import NonNegativeFloat
 from tidy3d.components.geometry.base import from_shapely
+from tidy3d.components.monitor import FieldMonitor
 from tidy3d.components.types import Symmetry
 from tidy3d.plugins.smatrix import ComponentModeler, Port
 
@@ -494,7 +493,7 @@ def write_sparameters(
         filepath: Optional file path for the S-parameters. If None, uses hash of simulation.
         overwrite: Whether to overwrite existing S-parameters. Defaults to False.
         kwargs: Additional keyword arguments for the tidy3d Simulation constructor.
-
+        upload_only: Whether to upload the simulation to the cloud only. Defaults to False.
     """
     layer_stack = layer_stack or get_layer_stack()
 
@@ -596,14 +595,27 @@ def write_sparameters(
     else:
         time.sleep(0.2)
         if upload_only:
-            plot_sources = [modeler.to_source(port=p, mode_index=0) for p in modeler.ports]
+            plot_sources = [
+                modeler.to_source(port=p, mode_index=0) for p in modeler.ports
+            ]
             plot_monitors = [modeler.to_monitor(port=p) for p in modeler.ports]
-            
+
             cz = c.get_layer_center("core")[2]
-            birdseye = FieldMonitor(name="birdseye", interval_space=(4, 4, 1),freqs=td.constants.C_0 / wavelength, center=(c.center[0], c.center[1], cz), size=(c.size[0], c.size[1], 0))
+            birdseye = FieldMonitor(
+                name="birdseye",
+                interval_space=(4, 4, 1),
+                freqs=td.constants.C_0 / wavelength,
+                center=(c.center[0], c.center[1], cz),
+                size=(c.size[0], c.size[1], 0),
+            )
 
             sim_with_sources = modeler.simulation.copy(
-                update={"sources": plot_sources, "monitors": list(modeler.simulation.monitors) + plot_monitors + [birdseye]}
+                update={
+                    "sources": plot_sources,
+                    "monitors": list(modeler.simulation.monitors)
+                    + plot_monitors
+                    + [birdseye],
+                }
             )
 
             s = web.upload(sim_with_sources, task_name=folder_name)
@@ -615,14 +627,14 @@ def write_sparameters(
                     for port_out in s.port_out.values:
                         for mode_index_in in s.mode_index_in.values:
                             for mode_index_out in s.mode_index_out.values:
-                                sp[f"{port_in}@{mode_index_in},{port_out}@{mode_index_out}"] = (
-                                    s.sel(
-                                        port_in=port_in,
-                                        port_out=port_out,
-                                        mode_index_in=mode_index_in,
-                                        mode_index_out=mode_index_out,
-                                    ).values
-                                )
+                                sp[
+                                    f"{port_in}@{mode_index_in},{port_out}@{mode_index_out}"
+                                ] = s.sel(
+                                    port_in=port_in,
+                                    port_out=port_out,
+                                    mode_index_in=mode_index_in,
+                                    mode_index_out=mode_index_out,
+                                ).values
 
                 frequency = s.f.values
                 sp["wavelengths"] = td.constants.C_0 / frequency
