@@ -286,9 +286,10 @@ class MEOW:
         """Convert LayerStack to meow extrusions."""
         extrusions = {}
         for layer in self.layer_stack.layers.values():
-            if layer.layer not in extrusions.keys():
-                extrusions[layer.layer] = []
-            extrusions[layer.layer].append(
+            layer_tuple = gf.get_layer_tuple((layer.derived_layer or layer.layer).layer)
+            if layer_tuple not in extrusions.keys():
+                extrusions[layer_tuple] = []
+            extrusions[layer_tuple].append(
                 mw.GdsExtrusionRule(
                     material=self.gf_material_to_meow_material(
                         layer.material,
