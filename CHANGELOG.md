@@ -1,17 +1,41 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.4.2...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v2.0.1...main)
 
 <!-- towncrier release notes start -->
 
 ## [2.0.1](https://github.com/gdsfactory/gplugins/releases/tag/v2.0.1) - 2026-01-30
 
-No significant changes.
-
+- fix elmer [#665](https://github.com/gdsfactory/gplugins/pull/665)
+- Remove matthew from codeowners [#666](https://github.com/gdsfactory/gplugins/pull/666)
+- Fix region_to_shapely_polygons [#662](https://github.com/gdsfactory/gplugins/pull/662)
+- update luminescent [#661](https://github.com/gdsfactory/gplugins/pull/661)
+- Fix extrusion layer handling in MEOW class by using layer tuples [#668](https://github.com/gdsfactory/gplugins/pull/668)
+- update sax [#669](https://github.com/gdsfactory/gplugins/pull/669)
 
 ## [2.0.0](https://github.com/gdsfactory/gplugins/releases/tag/v2.0.0) - 2025-11-13
 
-No significant changes.
+- refactor meshwell plugin [#633](https://github.com/gdsfactory/gplugins/pull/633)
+- Add minimal Copilot Setup Steps [#654](https://github.com/gdsfactory/gplugins/pull/654)
+- Fix Palace availability in CI documentation builds using Apptainer containers [#652](https://github.com/gdsfactory/gplugins/pull/652)
+- Fix Palace capacitance computation for new meshwell [#641](https://github.com/gdsfactory/gplugins/pull/641)
+- Fix Jupyter Book logo paths in documentation configuration [#650](https://github.com/gdsfactory/gplugins/pull/650)
+- Run pre-commit hooks [#648](https://github.com/gdsfactory/gplugins/pull/648)
+- Fix vlsir tests for newer gdsfactory [#646](https://github.com/gdsfactory/gplugins/pull/646)
+- Replace non-existent Palace Docker image with Apptainer-based CI setup [#643](https://github.com/gdsfactory/gplugins/pull/643)
+- Add palace in github actions, fix palace electrostatics simulation. [#631](https://github.com/gdsfactory/gplugins/pull/631)
+- better error message for gc sim [#638](https://github.com/gdsfactory/gplugins/pull/638)
+- Fix region_to_shapely_polygons [#662](https://github.com/gdsfactory/gplugins/pull/662)
+- Bump actions/setup-python from 5 to 6 [#655](https://github.com/gdsfactory/gplugins/pull/655)
+- Bump astral-sh/setup-uv from 6 to 7 [#659](https://github.com/gdsfactory/gplugins/pull/659)
+- Fix Jupyter Book logo paths in documentation configuration [#650](https://github.com/gdsfactory/gplugins/pull/650)
+- Bump actions/upload-pages-artifact from 3 to 4 [#636](https://github.com/gdsfactory/gplugins/pull/636)
+- Bump actions/checkout from 4 to 5 [#637](https://github.com/gdsfactory/gplugins/pull/637)
+- update luminescent [#661](https://github.com/gdsfactory/gplugins/pull/661)
+- refactor meshwell plugin [#633](https://github.com/gdsfactory/gplugins/pull/633)
+- Fix Jupyter Book logo paths in documentation configuration [#650](https://github.com/gdsfactory/gplugins/pull/650)
+- Run pre-commit hooks [#648](https://github.com/gdsfactory/gplugins/pull/648)
+- Update logos [#628](https://github.com/gdsfactory/gplugins/pull/628)
 
 
 ## [1.4.2](https://github.com/gdsfactory/gplugins/releases/tag/v1.4.2) - 2025-08-13
