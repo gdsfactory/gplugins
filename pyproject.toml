@@ -25,7 +25,7 @@ license = {file = "LICENSE"}
 name = "gplugins"
 readme = "README.md"
 requires-python = ">=3.11"
-version = "2.0.0"
+version = "2.0.1"
 
 [project.optional-dependencies]
 dev = [
@@ -178,7 +178,7 @@ message_template = "Bump to {new_version}"
 tag_template = "v{new_version}"
 
 [tool.tbump.version]
-current = "2.0.0"
+current = "2.0.1"
 regex = '''
   (?P<major>\d+)
   \.
