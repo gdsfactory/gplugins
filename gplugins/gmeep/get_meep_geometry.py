@@ -3,15 +3,11 @@ from __future__ import annotations
 import gdsfactory as gf
 import meep as mp
 import numpy as np
-from kfactory import LayerEnum
-from typing import cast
-import shapely
-from gdsfactory.pdk import get_layer_stack, get_layer, get_layer_name
-from gdsfactory.technology import LayerStack
-from gdsfactory.technology import DerivedLayer, LayerStack, LayerViews, LogicalLayer
+
+from gdsfactory.pdk import get_layer_stack, get_layer
+from gdsfactory.technology import DerivedLayer, LayerStack, LogicalLayer
 from gdsfactory.typings import ComponentSpec, CrossSectionSpec, LayerSpecs
 
-from gplugins.common.utils.parse_layer_stack import order_layer_stack
 from gplugins.gmeep.get_material import get_material
 
 
@@ -34,26 +30,21 @@ def get_meep_geometry_from_component(
         wavelength: in um.
         is_3d: renders in 3D.
         dispersive: add dispersion.
+        exclude_layers: these layers are ignored during geometry creation.
         kwargs: settings.
     """
     component = gf.get_component(component=component, **kwargs)
-    polygons_per_layer = component.get_polygons_points(merge=True)
-
-
     layer_stack = layer_stack or get_layer_stack()
-
-    layer_to_thickness = layer_stack.get_layer_to_thickness()
-    layer_to_material = layer_stack.get_layer_to_material()
-    layer_to_zmin = layer_stack.get_layer_to_zmin()
-    layer_to_sidewall_angle = layer_stack.get_layer_to_sidewall_angle()
     component_with_booleans = layer_stack.get_component_with_derived_layers(component)
+    polygons_per_layer = component_with_booleans.get_polygons_points(merge=True)
 
     geometry = []
-    exclude_layers = exclude_layers or []
-    layer_to_polygons = component_with_booleans.get_polygons_points()
+    if exclude_layers is None:
+        exclude_layers = []
+    else:
+        exclude_layers = [get_layer(l) for l in exclude_layers]
 
-    # ordered_layer_stack_keys = order_layer_stack(layer_stack)[::-1]
-
+    # TODO: currently ignores width_to_z, z_to_bias, bias, mesh_order of level
     for level in layer_stack.layers.values():
         layer = level.layer
 
@@ -66,45 +57,32 @@ def get_meep_geometry_from_component(
             layer_tuple = layer
         else:
             raise ValueError(f"Layer {layer!r} is not a DerivedLayer, LogicalLayer, or tuple")
-
         layer_index = int(get_layer(layer_tuple))
 
-        if layer_index in exclude_layers:
+        if layer_index in exclude_layers or layer_index not in polygons_per_layer:
             continue
 
-        if layer_index not in polygons_per_layer:
-            continue
+        zmin_um = level.zmin if is_3d else 0
+        sw_angle = np.pi * level.sidewall_angle / 180 if is_3d else 0
+        for polygon in polygons_per_layer[layer_index]:
+            vertices = [mp.Vector3(p[0], p[1], zmin_um) for p in polygon]
+            material_name = level.material
 
-        zmin = level.zmin
-        zmin_um = layer_to_zmin[layer] if is_3d else 0
-        if zmin is not None:
-            has_polygons = True
-            polygons = polygons_per_layer[layer_index]
-            height = level.thickness
-            for polygon in polygons:
-                p = shapely.geometry.Polygon(polygon)
-                vertices = [mp.Vector3(p[0], p[1], zmin_um) for p in polygon]
-                material_name = layer_to_material[layer]
-
-                if material_name:
-                    material = get_material(
-                        name=material_name,
-                        dispersive=dispersive,
-                        material_name_to_meep=material_name_to_meep,
-                        wavelength=wavelength,
+            if material_name:
+                material = get_material(
+                    name=material_name,
+                    dispersive=dispersive,
+                    material_name_to_meep=material_name_to_meep,
+                    wavelength=wavelength,
+                )
+                geometry.append(
+                    mp.Prism(
+                        vertices=vertices,
+                        height=level.thickness,
+                        sidewall_angle=sw_angle,
+                        material=material,
                     )
-                    geometry.append(
-                        mp.Prism(
-                            vertices=vertices,
-                            height=height,
-                            sidewall_angle=np.pi * layer_to_sidewall_angle[layer] / 180
-                            if is_3d
-                            else 0,
-                            material=material,
-                            # center=center
-                        )
-                    )
-
+                )
     return geometry
 
 

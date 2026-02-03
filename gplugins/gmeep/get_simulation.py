@@ -12,6 +12,7 @@ import numpy as np
 from gdsfactory.component import Component
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
+from gdsfactory.typings import LayerSpecs
 
 from gplugins.common.base_models.component import move_polar_rad_copy
 from gplugins.gmeep.get_material import get_material
@@ -48,6 +49,7 @@ def get_simulation(
     dispersive: bool = False,
     material_name_to_meep: dict[str, str | float] | None = None,
     continuous_source: bool = False,
+    exclude_layers: LayerSpecs | None = None,
     **settings,
 ) -> dict[str, Any]:
     r"""Returns Simulation dict from gdsfactory Component.
@@ -117,6 +119,7 @@ def get_simulation(
         material_name_to_meep: map layer_stack names with meep material database name
             or refractive index. dispersive materials have a wavelength dependent index.
         continuous_source: if True, defines a continuous source at (wavelength_start + wavelength_stop)/2 instead of the ramped source
+        exclude_layers: these layers will be ignored in geometry generation.
 
     Keyword Args:
         settings: extra simulation settings (resolution, symmetries, etc.)
@@ -203,6 +206,7 @@ def get_simulation(
         wavelength=wavelength,
         is_3d=is_3d,
         dispersive=dispersive,
+        exclude_layers=exclude_layers,
     )
 
     freqs = 1 / wavelengths
