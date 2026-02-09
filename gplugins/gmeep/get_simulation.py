@@ -145,19 +145,13 @@ def get_simulation(
     layer_stack = layer_stack or get_layer_stack()
     layer_to_thickness = layer_stack.get_layer_to_thickness()
 
-    dummy_component = gf.Component()
-    component_ref = dummy_component << component
-    component_ref.x = 0
-    component_ref.y = 0
-
     wavelength = (wavelength_start + wavelength_stop) / 2
-
     wavelengths = np.linspace(wavelength_start, wavelength_stop, wavelength_points)
-    port_names = [port.name for port in component_ref.ports]
 
+    port_names = [port.name for port in component.ports]
     if port_source_name not in port_names:
         warnings.warn(f"port_source_name={port_source_name!r} not in {port_names}")
-        port_source = component_ref.ports[0]
+        port_source = component.ports[0]
         port_source_name = port_source.name
         warnings.warn(f"Selecting port_source_name={port_source_name!r} instead.")
 
@@ -165,14 +159,7 @@ def get_simulation(
         f"component needs to be a gf.Component, got Type {type(component)}"
     )
 
-    component_extended = (
-        gf.c.extend_ports(
-            component=component, length=extend_ports_length, centered=True
-        )
-        if extend_ports_length
-        else component
-    )
-
+    component_extended = gf.c.extend_ports(component=component, length=extend_ports_length)
     component_extended = component_extended.copy()
     component_extended.flatten()
 
@@ -214,7 +201,7 @@ def get_simulation(
     frequency_width = dfcen * fcen
 
     # Add source
-    port = component_ref.ports[port_source_name]
+    port = component.ports[port_source_name]
     angle_rad = np.radians(port.orientation)
     width = port.width + 2 * port_margin
     size_x = width * abs(np.sin(angle_rad))
@@ -257,8 +244,10 @@ def get_simulation(
         )
     ]
 
+    sim_center = mp.Vector3(component.x, component.y, 0)
     sim = mp.Simulation(
         cell_size=cell_size,
+        geometry_center=sim_center,
         boundary_layers=[mp.PML(tpml)],
         sources=sources,
         geometry=geometry,
@@ -273,7 +262,7 @@ def get_simulation(
 
     # Add port monitors dict
     monitors = {}
-    for port in component_ref.ports:
+    for port in component.ports:
         port_name = port.name
         angle_rad = np.radians(port.orientation)
         width = port.width + 2 * port_margin

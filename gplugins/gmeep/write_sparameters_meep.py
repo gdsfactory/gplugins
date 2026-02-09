@@ -384,7 +384,7 @@ def write_sparameters_meep(
             sim.plot2D(
                 output_plane=mp.Volume(
                     size=mp.Vector3(sim.cell_size.x, sim.cell_size.y, 0),
-                    center=mp.Vector3(0, 0, z),
+                    center=mp.Vector3(component.x, component.y, z),
                 ),
                 **plot_args,
             )
@@ -442,7 +442,7 @@ def write_sparameters_meep(
         # wavelengths = 1 / freqs
         # print(sim.resolution)
 
-        # Terminate when the area in the whole area decayed
+        # Terminate when the energy in the whole area decayed
         termination = [mp.stop_when_energy_decayed(dt=50, decay_by=decay_by)]
 
         if animate:
