@@ -12,7 +12,6 @@ from gdsfactory.pdk import get_layer, get_layer_stack
 from gdsfactory.technology import DerivedLayer, LayerStack, LogicalLayer
 from gdsfactory.typings import CrossSectionSpec, LayerSpecs
 
-from gplugins.common.base_models.component import move_polar_rad_copy
 from gplugins.tidy3d.materials import get_medium
 
 
@@ -427,11 +426,7 @@ def get_simulation_grating_coupler(
         + box_thickness
     )
     waveguide_port_size = [size_x, size_y, size_z]
-
-    xy_shifted = move_polar_rad_copy(
-        np.array(port.dcenter), angle=np.deg2rad(angle), length=port_waveguide_offset
-    )
-    waveguide_port_center = [xy_shifted[0], xy_shifted[1], (size_z) / 2]
+    waveguide_port_center = [-sim_size[0] / 2 + port_waveguide_offset, 0, 0]
 
     waveguide_monitor = td.ModeMonitor(
         center=waveguide_port_center,
@@ -467,7 +462,7 @@ def get_simulation_grating_coupler(
 
     # Define Gaussian beam source
     gaussian_beam = td.GaussianBeam(
-        size=(td.inf, td.inf, 0),
+        size=(fiber_mfd, td.inf, 0),
         center=[fiber_port_x, 0, fiber_z],
         source_time=td.GaussianPulse(freq0=freq0, fwidth=fwidth),
         angle_theta=np.deg2rad(-fiber_angle_deg),
