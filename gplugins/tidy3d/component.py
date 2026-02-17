@@ -523,8 +523,8 @@ def write_sparameters(
         boundary_spec=boundary_spec,
         run_time=run_time,
         shutoff=shutoff,
-        folder_name=folder_name,
-        verbose=verbose,
+        # folder_name=folder_name,
+        # verbose=verbose,
         symmetry=symmetry,
         **kwargs,
     )
