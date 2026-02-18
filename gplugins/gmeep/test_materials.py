@@ -3,6 +3,8 @@ import gdsfactory as gf
 from gplugins.common.utils import optical_constants
 from gplugins.gmeep.write_sparameters_meep import write_sparameters_meep
 
+gf.gpdk.PDK.activate()
+
 
 def test_materials_override() -> None:
     """Checks that materials are properly overridden if index is provided."""

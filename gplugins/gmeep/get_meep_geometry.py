@@ -16,7 +16,6 @@ def get_meep_geometry_from_component(
     layer_stack: LayerStack | None = None,
     material_name_to_meep: dict[str, str | float] | None = None,
     wavelength: float = 1.55,
-    is_3d: bool = False,
     dispersive: bool = False,
     exclude_layers: LayerSpecs | None = None,
     **kwargs,
@@ -28,7 +27,6 @@ def get_meep_geometry_from_component(
         layer_stack: for material layers.
         material_name_to_meep: maps layer_stack name to meep material name.
         wavelength: in um.
-        is_3d: renders in 3D.
         dispersive: add dispersion.
         exclude_layers: these layers are ignored during geometry creation.
         kwargs: settings.
@@ -62,10 +60,9 @@ def get_meep_geometry_from_component(
         if layer_index in exclude_layers or layer_index not in polygons_per_layer:
             continue
 
-        zmin_um = level.zmin if is_3d else 0
-        sw_angle = np.pi * level.sidewall_angle / 180 if is_3d else 0
+        sw_angle = np.pi * level.sidewall_angle / 180
         for polygon in polygons_per_layer[layer_index]:
-            vertices = [mp.Vector3(p[0], p[1], zmin_um) for p in polygon]
+            vertices = [mp.Vector3(p[0], p[1], level.zmin) for p in polygon]
             material_name = level.material
 
             if material_name:
@@ -79,7 +76,7 @@ def get_meep_geometry_from_component(
                     mp.Prism(
                         vertices=vertices,
                         height=level.thickness,
-                        sidewall_angle=sw_angle,
+                        sidewall_angle=sw_angle,    # TODO: libctl has issues with slanted prisms -> incorrect geometry
                         material=material,
                     )
                 )

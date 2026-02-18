@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import inspect
 import warnings
-from typing import Any
+from typing import Any, Literal
 
 import gdsfactory as gf
 import meep as mp
@@ -12,7 +12,7 @@ import numpy as np
 from gdsfactory.component import Component
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
-from gdsfactory.typings import LayerSpecs
+from gdsfactory.typings import LayerSpecs, Float3
 
 from gplugins.common.base_models.component import move_polar_rad_copy
 from gplugins.gmeep.get_material import get_material
@@ -26,6 +26,19 @@ sig = inspect.signature(mp.Simulation)
 settings_meep = set(sig.parameters.keys())
 
 
+def is_point_in_plane(
+        test_point: Float3,
+        plane_support: Float3,
+        plane_normal: Float3,
+        tolerance: float = 1e-6,        # 1 pm for coordinates in µm
+):
+    a, b, c = plane_normal
+    xt, yt, zt = test_point
+    x0, y0, z0 = plane_support
+    distance = (a*(xt-x0) + b*(yt-y0) + c*(zt-z0)) / np.linalg.norm(plane_normal)
+    return bool(abs(distance) <= tolerance)
+
+
 def get_simulation(
     component: Component,
     resolution: int = 30,
@@ -36,6 +49,8 @@ def get_simulation(
     tpml: float = 1.5,
     clad_material: str = "SiO2",
     is_3d: bool = False,
+    normal_2d: Literal['X', 'Y', 'Z'] = 'Z',
+    point_2d: tuple[float, float, float] = (0, 0, 0),
     wavelength_start: float = 1.5,
     wavelength_stop: float = 1.6,
     wavelength_points: int = 50,
@@ -105,6 +120,8 @@ def get_simulation(
         tpml: PML thickness (um).
         clad_material: material for cladding.
         is_3d: if True runs in 3D.
+        normal_2d: specified normal of 2D simulation plane
+        point_2d: specifies support point for 2D simulation plane
         wavelength_start: wavelength min (um).
         wavelength_stop: wavelength max (um).
         wavelength_points: wavelength steps.
@@ -141,23 +158,19 @@ def get_simulation(
     for setting in settings:
         if setting not in settings_meep:
             raise ValueError(f"{setting!r} not in {sorted(settings_meep)}")
+    normal_2d = normal_2d.upper()
+    normal_vec = {'X': (1, 0, 0), 'Y': (0, 1, 0), 'Z': (0, 0, 1)}[normal_2d]
 
     layer_stack = layer_stack or get_layer_stack()
     layer_to_thickness = layer_stack.get_layer_to_thickness()
 
-    dummy_component = gf.Component()
-    component_ref = dummy_component << component
-    component_ref.x = 0
-    component_ref.y = 0
-
     wavelength = (wavelength_start + wavelength_stop) / 2
-
     wavelengths = np.linspace(wavelength_start, wavelength_stop, wavelength_points)
-    port_names = [port.name for port in component_ref.ports]
 
+    port_names = [port.name for port in component.ports]
     if port_source_name not in port_names:
         warnings.warn(f"port_source_name={port_source_name!r} not in {port_names}")
-        port_source = component_ref.ports[0]
+        port_source = component.ports[0]
         port_source_name = port_source.name
         warnings.warn(f"Selecting port_source_name={port_source_name!r} instead.")
 
@@ -165,14 +178,7 @@ def get_simulation(
         f"component needs to be a gf.Component, got Type {type(component)}"
     )
 
-    component_extended = (
-        gf.c.extend_ports(
-            component=component, length=extend_ports_length, centered=True
-        )
-        if extend_ports_length
-        else component
-    )
-
+    component_extended = gf.c.extend_ports(component=component, length=extend_ports_length)
     component_extended = component_extended.copy()
     component_extended.flatten()
 
@@ -191,12 +197,12 @@ def get_simulation(
     t_core = sum(
         layers_thickness
     )  # This isn't exactly what we want but I think it's better than max
-    cell_thickness = tpml + zmargin_bot + t_core + zmargin_top + tpml if is_3d else 0
+    cell_thickness = tpml + zmargin_bot + t_core + zmargin_top + tpml
 
     cell_size = mp.Vector3(
-        component.xsize + 2 * tpml,
-        component.ysize + 2 * tpml,
-        cell_thickness,
+        0 if normal_2d == 'X' and not is_3d else component.xsize + 2 * tpml,
+        0 if normal_2d == 'Y' and not is_3d else component.ysize + 2 * tpml,
+        0 if normal_2d == 'Z' and not is_3d else cell_thickness,
     )
 
     geometry = get_meep_geometry_from_component(
@@ -204,7 +210,6 @@ def get_simulation(
         layer_stack=layer_stack,
         material_name_to_meep=material_name_to_meep,
         wavelength=wavelength,
-        is_3d=is_3d,
         dispersive=dispersive,
         exclude_layers=exclude_layers,
     )
@@ -214,19 +219,23 @@ def get_simulation(
     frequency_width = dfcen * fcen
 
     # Add source
-    port = component_ref.ports[port_source_name]
+    port = component.ports[port_source_name]
     angle_rad = np.radians(port.orientation)
     width = port.width + 2 * port_margin
     size_x = width * abs(np.sin(angle_rad))
     size_y = width * abs(np.cos(angle_rad))
     size_x = 0 if size_x < 0.001 else size_x
     size_y = 0 if size_y < 0.001 else size_y
-    size_z = cell_thickness - 2 * tpml if is_3d else 20
-    size = [size_x, size_y, size_z]
+    size_z = cell_thickness - 2 * tpml
+    size = [
+        0 if normal_2d == 'X' and not is_3d else size_x,
+        0 if normal_2d == 'Y' and not is_3d else size_y,
+        0 if normal_2d == 'Z' and not is_3d else size_z,
+    ]
     xy_shifted = move_polar_rad_copy(
         np.array(port.center), angle=angle_rad, length=port_source_offset
     )
-    center = xy_shifted.tolist() + [0]  # (x, y, z=0)
+    center = xy_shifted.round(6).tolist() + [0]  # (x, y, z=0)
 
     if np.isclose(port.orientation, 0):
         direction = mp.X
@@ -242,6 +251,11 @@ def get_simulation(
             "not 0, 90, 180, 270 degrees"
         )
 
+    if not (is_3d or is_point_in_plane(center, point_2d, normal_vec)):
+        raise ValueError(
+            f"Source '{port_source_name}' (center={center}) is not in {normal_2d}-normal 2D simulation domain around {point_2d}."
+        )
+
     sources = [
         mp.EigenModeSource(
             src=mp.ContinuousSource(fcen)
@@ -250,15 +264,21 @@ def get_simulation(
             size=size,
             center=center,
             eig_band=port_source_mode + 1,
-            eig_parity=mp.NO_PARITY if is_3d else mp.EVEN_Y + mp.ODD_Z,
+            eig_parity=mp.NO_PARITY,
             eig_match_freq=True,
             eig_kpoint=-1 * mp.Vector3(x=1).rotate(mp.Vector3(z=1), angle_rad),
             direction=direction,
         )
     ]
 
+    sim_center = mp.Vector3(
+        point_2d[0] if normal_2d == 'X' and not is_3d else component.x,
+        point_2d[1] if normal_2d == 'Y' and not is_3d else component.y,
+        point_2d[2] if normal_2d == 'Z' and not is_3d else 0,
+    )
     sim = mp.Simulation(
         cell_size=cell_size,
+        geometry_center=sim_center,
         boundary_layers=[mp.PML(tpml)],
         sources=sources,
         geometry=geometry,
@@ -273,7 +293,7 @@ def get_simulation(
 
     # Add port monitors dict
     monitors = {}
-    for port in component_ref.ports:
+    for port in component.ports:
         port_name = port.name
         angle_rad = np.radians(port.orientation)
         width = port.width + 2 * port_margin
@@ -281,8 +301,11 @@ def get_simulation(
         size_y = width * abs(np.cos(angle_rad))
         size_x = 0 if size_x < 0.001 else size_x
         size_y = 0 if size_y < 0.001 else size_y
-        size = mp.Vector3(size_x, size_y, size_z)
-        size = [size_x, size_y, size_z]
+        size = mp.Vector3(
+            0 if normal_2d == 'X' and not is_3d else size_x,
+            0 if normal_2d == 'Y' and not is_3d else size_y,
+            0 if normal_2d == 'Z' and not is_3d else size_z,
+        )
 
         # if monitor has a source move monitor inwards
         length = (
@@ -293,10 +316,14 @@ def get_simulation(
         xy_shifted = move_polar_rad_copy(
             np.array(port.center), angle=angle_rad, length=length
         )
-        center = xy_shifted.tolist() + [0]  # (x, y, z=0)
-        m = sim.add_mode_monitor(freqs, mp.ModeRegion(center=center, size=size))
-        m.z = 0
-        monitors[port_name] = m
+        center = xy_shifted.round(6).tolist() + [0]  # (x, y, z=0)
+        if is_3d or is_point_in_plane(center, point_2d, normal_vec):
+            m = sim.add_mode_monitor(freqs, mp.ModeRegion(center=center, size=size))
+            m.z = 0
+            monitors[port_name] = m
+        else:
+            warnings.warn(f"Monitor at port '{port_name}' ignored, "
+                          f"because it is not in the {normal_2d}-normal 2D simulation domain around {point_2d}.")
     return dict(
         sim=sim,
         cell_size=cell_size,
