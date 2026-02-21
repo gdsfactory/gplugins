@@ -309,9 +309,6 @@ class Tidy3DComponent(LayeredComponentBase):
             freqs=tuple(freqs),
             element_mappings=element_mappings,
             run_only=run_only,
-            # folder_name=folder_name,
-            # path_dir=path_dir,
-            # verbose=verbose,
         )
 
     @td.components.viz.add_ax_if_none
@@ -530,7 +527,7 @@ def write_sparameters(
     )
 
     path_dir = pathlib.Path(dirpath) / modeler._hash_self()
-    modeler = modeler.updated_copy()# path_dir=str(path_dir))
+    modeler = modeler.updated_copy()
 
     sp = {}
 
@@ -592,8 +589,7 @@ def write_sparameters(
         return dict(np.load(filepath))
     else:
         time.sleep(0.2)
-        # s = modeler.run()
-        modeler_data = web.run(modeler, verbose=verbose, path=dirpath / "modeler_data.hdf5")
+        modeler_data = web.run(modeler, verbose=verbose, path=dirpath / "simulation.hdf5")
         s = modeler_data.smatrix()
         for port_in in s.port_in.values:
             for port_out in s.port_out.values:
