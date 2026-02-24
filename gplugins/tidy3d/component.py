@@ -23,6 +23,7 @@ from typing import Any, Literal
 import matplotlib.pyplot as plt
 import numpy as np
 import tidy3d as td
+import tidy3d.web as web
 from gdsfactory.component import Component
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
@@ -227,7 +228,7 @@ class Tidy3DComponent(LayeredComponentBase):
         run_only: tuple[tuple[str, int], ...] | None = None,
         element_mappings: Tidy3DElementMapping = (),
         extra_monitors: tuple[Any, ...] | None = None,
-        mode_spec: td.ModeSpec = td.ModeSpec(num_modes=1, filter_pol="te"),
+        mode_spec: td.ModeSpec = td.ModeSpec(num_modes=1),
         boundary_spec: td.BoundarySpec = td.BoundarySpec.all_sides(boundary=td.PML()),
         run_time: float = 10e-12,
         shutoff: float = 1e-5,
@@ -251,7 +252,7 @@ class Tidy3DComponent(LayeredComponentBase):
             run_only: The run only specification for the ComponentModeler. Defaults to None.
             element_mappings: The element mappings for the ComponentModeler. Defaults to ().
             extra_monitors: The extra monitors for the ComponentModeler. Defaults to None.
-            mode_spec: The mode specification for the ComponentModeler. Defaults to td.ModeSpec(num_modes=1, filter_pol="te").
+            mode_spec: The mode specification for the ComponentModeler. Defaults to td.ModeSpec(num_modes=1).
             boundary_spec: The boundary specification for the ComponentModeler. Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
             run_time: The run time for the ComponentModeler.
             shutoff: The shutoff value for the ComponentModeler. Defaults to 1e-5.
@@ -308,9 +309,6 @@ class Tidy3DComponent(LayeredComponentBase):
             freqs=tuple(freqs),
             element_mappings=element_mappings,
             run_only=run_only,
-            folder_name=folder_name,
-            path_dir=path_dir,
-            verbose=verbose,
         )
 
     @td.components.viz.add_ax_if_none
@@ -428,7 +426,7 @@ def write_sparameters(
     run_only: tuple[tuple[str, int], ...] | None = None,
     element_mappings: Tidy3DElementMapping = (),
     extra_monitors: tuple[Any, ...] | None = None,
-    mode_spec: td.ModeSpec = td.ModeSpec(num_modes=1, filter_pol="te"),
+    mode_spec: td.ModeSpec = td.ModeSpec(num_modes=1),
     boundary_spec: td.BoundarySpec = td.BoundarySpec.all_sides(boundary=td.PML()),
     symmetry: tuple[Symmetry, Symmetry, Symmetry] = (0, 0, 0),
     run_time: float = 1e-12,
@@ -471,7 +469,7 @@ def write_sparameters(
         run_only: The run only specification for the ComponentModeler. Defaults to None.
         element_mappings: The element mappings for the ComponentModeler. Defaults to ().
         extra_monitors: The extra monitors for the ComponentModeler. Defaults to None.
-        mode_spec: The mode specification for the ComponentModeler. Defaults to td.ModeSpec(num_modes=1, filter_pol="te").
+        mode_spec: The mode specification for the ComponentModeler. Defaults to td.ModeSpec(num_modes=1).
         boundary_spec: The boundary specification for the ComponentModeler.
             Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
         symmetry (tuple[Symmetry, Symmetry, Symmetry], optional): The symmetry for the simulation. Defaults to (0,0,0).
@@ -522,14 +520,12 @@ def write_sparameters(
         boundary_spec=boundary_spec,
         run_time=run_time,
         shutoff=shutoff,
-        folder_name=folder_name,
-        verbose=verbose,
         symmetry=symmetry,
         **kwargs,
     )
 
     path_dir = pathlib.Path(dirpath) / modeler._hash_self()
-    modeler = modeler.updated_copy(path_dir=str(path_dir))
+    modeler = modeler.updated_copy()
 
     sp = {}
 
@@ -591,7 +587,8 @@ def write_sparameters(
         return dict(np.load(filepath))
     else:
         time.sleep(0.2)
-        s = modeler.run()
+        modeler_data = web.run(modeler, verbose=verbose, path=dirpath / "simulation.hdf5")
+        s = modeler_data.smatrix()
         for port_in in s.port_in.values:
             for port_out in s.port_out.values:
                 for mode_index_in in s.mode_index_in.values:
@@ -645,7 +642,7 @@ def write_sparameters_batch(
         run_only: The run only specification for the ComponentModeler. Defaults to None.
         element_mappings: The element mappings for the ComponentModeler. Defaults to ().
         extra_monitors: The extra monitors for the ComponentModeler. Defaults to None.
-        mode_spec: The mode specification for the ComponentModeler. Defaults to td.ModeSpec(num_modes=1, filter_pol="te").
+        mode_spec: The mode specification for the ComponentModeler. Defaults to td.ModeSpec(num_modes=1).
         boundary_spec: The boundary specification for the ComponentModeler.
             Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
         symmetry (tuple[Symmetry, Symmetry, Symmetry], optional): The symmetry for the simulation. Defaults to (0,0,0).
