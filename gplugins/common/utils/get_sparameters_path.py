@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import hashlib
-import pathlib
 from functools import partial
 from pathlib import Path
 from typing import Any
@@ -21,7 +20,7 @@ def get_kwargs_hash(**kwargs: Any) -> str:
 
 
 def get_component_hash(component: gf.Component) -> str:
-    gdspath = pathlib.Path(component.write_gds())
+    gdspath = Path(component.write_gds(no_empty_cells=True, with_metadata=False))
     h = hashlib.md5(gdspath.read_bytes()).hexdigest()
     gdspath.unlink()
     return h
@@ -42,10 +41,10 @@ def _get_sparameters_path(
 
     """
     dirpath = dirpath or GDSDIR_TEMP / "sparameters"
-    dirpath = pathlib.Path(dirpath)
+    dirpath = Path(dirpath)
     component = gf.get_component(component)
 
-    dirpath = pathlib.Path(dirpath)
+    dirpath = Path(dirpath)
     dirpath = (
         dirpath / component.name
         if hasattr(component, "function_name")
