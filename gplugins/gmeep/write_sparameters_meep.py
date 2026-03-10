@@ -286,6 +286,10 @@ def write_sparameters_meep(
         if setting not in settings_get_simulation:
             raise ValueError(f"{setting!r} not in {settings_get_simulation}")
 
+    port_names = [port.name for port in component.ports]
+    port_source_names = port_source_names or port_names
+    port_source_modes = port_source_modes or {key: [0] for key in port_source_names}
+    port_modes = port_modes or [0]
     port_symmetries = port_symmetries or {}
 
     xmargin_left = xmargin_left or xmargin
@@ -298,6 +302,9 @@ def write_sparameters_meep(
     zmargin_bot = zmargin_bot or zmargin
 
     sim_settings = dict(
+        port_source_names=port_source_names,
+        port_source_modes=port_source_modes,
+        port_modes=port_modes,
         resolution=resolution,
         port_symmetries=port_symmetries,
         wavelength_start=wavelength_start,
@@ -348,14 +355,6 @@ def write_sparameters_meep(
         left=xmargin_left,
         right=xmargin_right,
     )
-
-    dummy = Component()
-    component_ref = dummy << component
-    ports = component_ref.ports
-    port_names = [port.name for port in ports]
-    port_source_names = port_source_names or port_names
-    port_source_modes = port_source_modes or {key: [0] for key in port_source_names}
-    port_modes = port_modes or [0]
 
     num_sims = len(port_source_names) - len(port_symmetries)
 
