@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 from functools import partial
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Any
 
 import gdsfactory as gf
@@ -20,9 +21,9 @@ def get_kwargs_hash(**kwargs: Any) -> str:
 
 
 def get_component_hash(component: gf.Component) -> str:
-    gdspath = Path(component.write_gds(no_empty_cells=True, with_metadata=False))
-    h = hashlib.md5(gdspath.read_bytes()).hexdigest()
-    gdspath.unlink()
+    with TemporaryDirectory() as tmpdir:
+        gdspath = Path(component.write_gds(gdsdir=tmpdir, no_empty_cells=True, with_metadata=False))
+        h = hashlib.md5(gdspath.read_bytes()).hexdigest()
     return h
 
 
