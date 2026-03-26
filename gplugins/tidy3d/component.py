@@ -523,8 +523,8 @@ def write_sparameters(
         symmetry=symmetry,
         **kwargs,
     )
-
-    path_dir = pathlib.Path(dirpath) / modeler._hash_self()
+    task_name = modeler._hash_self()
+    path_dir = pathlib.Path(dirpath) / task_name
     modeler = modeler.updated_copy()
 
     sp = {}
@@ -587,7 +587,12 @@ def write_sparameters(
         return dict(np.load(filepath))
     else:
         time.sleep(0.2)
-        modeler_data = web.run(modeler, verbose=verbose, path=dirpath / "simulation.hdf5")
+        modeler_data = web.run(
+            modeler,
+            task_name=task_name,
+            verbose=verbose,
+            path=path_dir / "simulation.hdf5",
+        )
         s = modeler_data.smatrix()
         for port_in in s.port_in.values:
             for port_out in s.port_out.values:
