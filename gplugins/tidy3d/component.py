@@ -588,7 +588,7 @@ def write_sparameters(
     else:
         time.sleep(0.2)
         modeler_data = web.run(
-            modeler,
+            modeler,  # TODO: web.run does not currently support ComponentModeler, need to convert to tidy3d_stub.SimulationType
             task_name=task_name,
             verbose=verbose,
             path=path_dir / "simulation.hdf5",
