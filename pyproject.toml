@@ -56,7 +56,7 @@ meshwell = ["shapely", "meshwell~=2.1.1"]
 path_length_analysis = ["bokeh", "numba", "shapely"]
 sax = ["sax~=0.16.3"]
 schematic = ["bokeh", "ipywidgets", "natsort"]
-tidy3d = ["tidy3d>=2.8.2,<2.9", "gdstk"]
+tidy3d = ["tidy3d>=2.8.2,<2.9", "gdstk", "pytz"]
 vlsir = ["vlsir", "vlsirtools"]
 
 [tool.codespell]
