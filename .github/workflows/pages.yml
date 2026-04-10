@@ -77,6 +77,7 @@ jobs:
         run: |
           make test-data
           uv sync --extra dev --extra docs --extra femwell --extra meow --extra sax --extra tidy3d --extra klayout --extra vlsir
+          uv run python -c "import gplugins.tidy3d; print('gplugins.tidy3d imported OK')"
           uv run jb build docs
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
