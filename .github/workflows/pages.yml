@@ -75,7 +75,8 @@ jobs:
           PYVISTA_OFF_SCREEN: false
           PYVISTA_JUPYTER_BACKEND: "html"
         run: |
-          make install test-data
+          make test-data
+          uv sync --extra dev --extra docs --extra femwell --extra meow --extra sax --extra tidy3d --extra klayout --extra vlsir
           uv run jb build docs
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
