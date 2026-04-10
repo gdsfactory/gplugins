@@ -76,6 +76,7 @@ jobs:
           PYVISTA_JUPYTER_BACKEND: "html"
         run: |
           make test-data
+          printf 'pdk="gdsfactory.gpdk"\nignore_sliver_differences=True\n' > .env
           uv sync --extra dev --extra docs --extra femwell --extra meow --extra sax --extra tidy3d --extra klayout --extra vlsir
           uv run jb build docs
       - name: Upload artifact
