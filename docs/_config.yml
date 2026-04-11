@@ -31,11 +31,8 @@ execute:
     - "*mpb*"
     - "*palace_01_electrostatic*"
     - "*palace_02_fullwave*"
-    # - "*20_schematic_driven_layout*"
-    # - "*001_meep_sparameters*"
-    # - "*00_tidy3d.ipynb"
-    # - "*03_cascaded_mzi*"
-    # - "*jupyter_notebooks*"
+    - "*00_tidy3d*"
+    - "*workflow_3_cascaded_mzi*"
 
 latex:
   latex_engine: pdflatex # one of 'pdflatex', 'xelatex' (recommended for unicode), 'luatex', 'platex', 'uplatex'

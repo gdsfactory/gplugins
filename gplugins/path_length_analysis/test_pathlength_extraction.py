@@ -6,6 +6,8 @@ import pytest
 
 from gplugins.path_length_analysis.path_length_analysis import report_pathlengths
 
+gf.gpdk.get_generic_pdk().activate()
+
 primitive_components = ["straight", "bend_euler", "bend_circular"]
 supported_cross_sections = ["rib", "strip"]
 
