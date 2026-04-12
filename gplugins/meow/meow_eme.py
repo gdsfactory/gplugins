@@ -2,7 +2,7 @@ import itertools
 import pathlib
 import pprint
 import time
-from typing import Literal
+from typing import Literal, cast
 
 import gdsfactory as gf
 import meow as mw
@@ -46,6 +46,54 @@ material_to_color_default = {
     "sio2": (0.9, 0.9, 0.9, 0.9),
     "sin": (0.0, 0.9, 0.0, 0.9),
 }
+
+
+def _compute_s_matrix(modes_per_cell, cells):
+    """Compute S-matrix, compatible with sax >= 0.16 nets format.
+
+    meow's compute_s_matrix passes connections as a dict, but sax >= 0.16
+    expects a list of {"p1": ..., "p2": ...} dicts (Nets). This wrapper
+    converts the format.
+    """
+    from meow.eme.sax import (
+        _get_netlist,
+        compute_interface_s_matrices,
+        compute_propagation_s_matrices,
+    )
+
+    propagations = compute_propagation_s_matrices(modes_per_cell, cells)
+    interfaces = compute_interface_s_matrices(modes_per_cell)
+
+    net = _get_netlist(propagations, interfaces)
+    _, analyze_circuit, evaluate_circuit = sax.circuit_backends[
+        sax.into[sax.Backend]("default")
+    ]
+    net["instances"] = {k: sax.scoo(v) for k, v in net["instances"].items()}
+
+    # Convert old-style connections dict to new-style nets list
+    connections = net["connections"]
+    if isinstance(connections, dict):
+        nets = [{"p1": k, "p2": v} for k, v in connections.items()]
+    else:
+        nets = connections
+
+    analyzed = analyze_circuit(net["instances"], nets, net["ports"])
+    S, port_map = sax.sdense(evaluate_circuit(analyzed, instances=net["instances"]))
+    S = np.asarray(S)
+
+    # Sort ports consistently
+    current_port_map = {
+        (p, int(i)): j
+        for (p, i), j in {
+            tuple(pm.split("@")): idx for pm, idx in port_map.items()
+        }.items()
+    }
+    desired_port_map = {pm: i for i, pm in enumerate(sorted(current_port_map))}
+    idxs = [current_port_map[pm] for pm in desired_port_map]
+    S = S[idxs, :][:, idxs]
+    port_map = {f"{p}@{m}": v for (p, m), v in desired_port_map.items()}
+
+    return cast(sax.SDenseMM, (S, port_map))
 
 
 class MEOW:
@@ -430,7 +478,7 @@ class MEOW:
 
         self.compute_all_modes()
 
-        self.S, self.port_map = mw.compute_s_matrix(self.modes_per_cell, self.cells)
+        self.S, self.port_map = _compute_s_matrix(self.modes_per_cell, self.cells)
 
         sdict = sax.sdict((self.S, self.port_map))
 
