@@ -5,7 +5,7 @@ from gdsfactory.technology import LayerStack
 
 gf.gpdk.get_generic_pdk().activate()
 
-from gplugins.meow import MEOW
+from gplugins.meow import MEOW  # noqa: E402
 
 
 def test_meow_defaults() -> None:
