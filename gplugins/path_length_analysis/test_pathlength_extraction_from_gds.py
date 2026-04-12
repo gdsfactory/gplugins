@@ -11,6 +11,8 @@ from gplugins.path_length_analysis.utils import (
 )
 from gplugins.path_length_analysis.path_length_analysis_from_gds import extract_paths
 
+gf.gpdk.get_generic_pdk().activate()
+
 
 @pytest.fixture
 def simple_straight():

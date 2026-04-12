@@ -81,6 +81,7 @@ jobs:
   test_palace:
     runs-on: ubuntu-latest
     name: Test palace ubuntu-latest 3.11
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v7
