@@ -10,7 +10,7 @@ Functions:
     structures: Returns a list of Structure instances for each PolySlab in the component.
     get_ports: Returns a list of Port instances for each optical port in the component.
     get_simulation: Returns a Simulation instance for the component.
-    get_component_modeler: Returns a ComponentModeler instance for the component.
+    get_component_modeler: Returns a ModalComponentModeler instance for the component.
     plot_slice: Plots a cross section of the component at a specified position.
 """
 
@@ -30,7 +30,7 @@ from gdsfactory.technology import LayerStack
 from pydantic import NonNegativeFloat
 from tidy3d.components.geometry.base import from_shapely
 from tidy3d.components.types import Symmetry
-from tidy3d.plugins.smatrix import ComponentModeler, Port
+from tidy3d.plugins.smatrix import ModalComponentModeler, Port
 
 from gplugins.common.base_models.component import LayeredComponentBase
 from gplugins.tidy3d.get_results import _executor
@@ -233,38 +233,35 @@ class Tidy3DComponent(LayeredComponentBase):
         run_time: float = 10e-12,
         shutoff: float = 1e-5,
         grid_eps: float = 1e-6,
-        folder_name: str = "default",
-        path_dir: str = ".",
-        verbose: bool = True,
         symmetry: tuple[Symmetry, Symmetry, Symmetry] = (0, 0, 0),
         **kwargs,
-    ) -> ComponentModeler:
-        """Returns a ComponentModeler instance for the component.
+    ) -> ModalComponentModeler:
+        """Returns a ModalComponentModeler instance for the component.
 
         Args:
-            wavelength: The wavelength for the ComponentModeler. Defaults to 1.55.
-            bandwidth: The bandwidth for the ComponentModeler. Defaults to 0.2.
-            num_freqs: The number of frequencies for the ComponentModeler. Defaults to 21.
-            min_steps_per_wvl: The minimum number of steps per wavelength for the ComponentModeler. Defaults to 30.
-            center_z: The z-coordinate for the center of the ComponentModeler. If None, the z-coordinate of the component is used. Defaults to None.
-            sim_size_z: simulation size um in the z-direction for the ComponentModeler. Defaults to 4.
-            port_size_mult: The size multiplier for the ports in the ComponentModeler. Defaults to (4.0, 3.0).
-            run_only: The run only specification for the ComponentModeler. Defaults to None.
-            element_mappings: The element mappings for the ComponentModeler. Defaults to ().
-            extra_monitors: The extra monitors for the ComponentModeler. Defaults to None.
-            mode_spec: The mode specification for the ComponentModeler. Defaults to td.ModeSpec(num_modes=1).
-            boundary_spec: The boundary specification for the ComponentModeler. Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
-            run_time: The run time for the ComponentModeler.
-            shutoff: The shutoff value for the ComponentModeler. Defaults to 1e-5.
+            wavelength: The wavelength for the ModalComponentModeler. Defaults to 1.55.
+            bandwidth: The bandwidth for the ModalComponentModeler. Defaults to 0.2.
+            num_freqs: The number of frequencies for the ModalComponentModeler. Defaults to 21.
+            min_steps_per_wvl: The minimum number of steps per wavelength for the ModalComponentModeler. Defaults to 30.
+            center_z: The z-coordinate for the center of the ModalComponentModeler. If None, the z-coordinate of the component is used. Defaults to None.
+            sim_size_z: simulation size um in the z-direction for the ModalComponentModeler. Defaults to 4.
+            port_size_mult: The size multiplier for the ports in the ModalComponentModeler. Defaults to (4.0, 3.0).
+            run_only: The run only specification for the ModalComponentModeler. Defaults to None.
+            element_mappings: The element mappings for the ModalComponentModeler. Defaults to ().
+            extra_monitors: The extra monitors for the ModalComponentModeler. Defaults to None.
+            mode_spec: The mode specification for the ModalComponentModeler. Defaults to td.ModeSpec(num_modes=1).
+            boundary_spec: The boundary specification for the ModalComponentModeler. Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
+            run_time: The run time for the ModalComponentModeler.
+            shutoff: The shutoff value for the ModalComponentModeler. Defaults to 1e-5.
             grid_eps: Rounding tolerance for coordinates, e.g. port locations and layer centers (μm).
-            folder_name: The folder name for the ComponentModeler. Defaults to "default".
-            path_dir: The directory path for the ComponentModeler. Defaults to ".".
-            verbose: Whether to print verbose output for the ComponentModeler. Defaults to True.
+            folder_name: The folder name for the ModalComponentModeler. Defaults to "default".
+            path_dir: The directory path for the ModalComponentModeler. Defaults to ".".
+            verbose: Whether to print verbose output for the ModalComponentModeler. Defaults to True.
             symmetry (tuple[Symmetry, Symmetry, Symmetry], optional): The symmetry for the simulation. Defaults to (0,0,0).
             kwargs: Additional keyword arguments for the Simulation constructor.
 
         Returns:
-            ComponentModeler: A ComponentModeler instance.
+            ModalComponentModeler: A ModalComponentModeler instance.
         """
         match center_z:
             case float():
@@ -303,7 +300,7 @@ class Tidy3DComponent(LayeredComponentBase):
 
         ports = self.get_ports(mode_spec, port_size_mult, grid_eps=grid_eps)
 
-        return ComponentModeler(
+        return ModalComponentModeler(
             simulation=sim,
             ports=ports,
             freqs=tuple(freqs),
@@ -458,26 +455,26 @@ def write_sparameters(
         pad_z_inner: The inner padding in the z-direction. Defaults to 0.0.
         pad_z_outer: The outer padding in the z-direction. Defaults to 0.0.
         dilation: Dilation of the polygon in the base by shifting each edge along its normal outwards direction by a distance;
-        wavelength: The wavelength for the ComponentModeler. Defaults to 1.55.
-        bandwidth: The bandwidth for the ComponentModeler. Defaults to 0.2.
-        num_freqs: The number of frequencies for the ComponentModeler. Defaults to 21.
-        min_steps_per_wvl: The minimum number of steps per wavelength for the ComponentModeler. Defaults to 30.
-        center_z: The z-coordinate for the center of the ComponentModeler.
+        wavelength: The wavelength for the ModalComponentModeler. Defaults to 1.55.
+        bandwidth: The bandwidth for the ModalComponentModeler. Defaults to 0.2.
+        num_freqs: The number of frequencies for the ModalComponentModeler. Defaults to 21.
+        min_steps_per_wvl: The minimum number of steps per wavelength for the ModalComponentModeler. Defaults to 30.
+        center_z: The z-coordinate for the center of the ModalComponentModeler.
             If None, the z-coordinate of the component is used. Defaults to None.
-        sim_size_z: simulation size um in the z-direction for the ComponentModeler. Defaults to 4.
-        port_size_mult: The size multiplier for the ports in the ComponentModeler. Defaults to (4.0, 3.0).
-        run_only: The run only specification for the ComponentModeler. Defaults to None.
-        element_mappings: The element mappings for the ComponentModeler. Defaults to ().
-        extra_monitors: The extra monitors for the ComponentModeler. Defaults to None.
-        mode_spec: The mode specification for the ComponentModeler. Defaults to td.ModeSpec(num_modes=1).
-        boundary_spec: The boundary specification for the ComponentModeler.
+        sim_size_z: simulation size um in the z-direction for the ModalComponentModeler. Defaults to 4.
+        port_size_mult: The size multiplier for the ports in the ModalComponentModeler. Defaults to (4.0, 3.0).
+        run_only: The run only specification for the ModalComponentModeler. Defaults to None.
+        element_mappings: The element mappings for the ModalComponentModeler. Defaults to ().
+        extra_monitors: The extra monitors for the ModalComponentModeler. Defaults to None.
+        mode_spec: The mode specification for the ModalComponentModeler. Defaults to td.ModeSpec(num_modes=1).
+        boundary_spec: The boundary specification for the ModalComponentModeler.
             Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
         symmetry (tuple[Symmetry, Symmetry, Symmetry], optional): The symmetry for the simulation. Defaults to (0,0,0).
-        run_time: The run time for the ComponentModeler.
-        shutoff: The shutoff value for the ComponentModeler. Defaults to 1e-5.
-        folder_name: The folder name for the ComponentModeler in flexcompute website. Defaults to "default".
+        run_time: The run time for the ModalComponentModeler.
+        shutoff: The shutoff value for the ModalComponentModeler. Defaults to 1e-5.
+        folder_name: The folder name for the ModalComponentModeler in flexcompute website. Defaults to "default".
         dirpath: Optional directory path for writing the Sparameters. Defaults to "~/.gdsfactory/sparameters".
-        verbose: Whether to print verbose output for the ComponentModeler. Defaults to True.
+        verbose: Whether to print verbose output for the ModalComponentModeler. Defaults to True.
         plot_simulation_layer_name: Optional layer name to plot. Defaults to None.
         plot_simulation_port_index: which port index to plot. Defaults to 0.
         plot_simulation_z: which z coordinate to plot. Defaults to None.
@@ -588,7 +585,7 @@ def write_sparameters(
     else:
         time.sleep(0.2)
         modeler_data = web.run(
-            modeler,  # TODO: web.run does not currently support ComponentModeler, need to convert to tidy3d_stub.SimulationType
+            modeler,  # TODO: web.run does not currently support ModalComponentModeler, need to convert to tidy3d_stub.SimulationType
             task_name=task_name,
             verbose=verbose,
             path=path_dir / "simulation.hdf5",
@@ -636,26 +633,26 @@ def write_sparameters_batch(
         pad_z_inner: The inner padding in the z-direction. Defaults to 0.0.
         pad_z_outer: The outer padding in the z-direction. Defaults to 0.0.
         dilation: Dilation of the polygon in the base by shifting each edge along its normal outwards direction by a distance;
-        wavelength: The wavelength for the ComponentModeler. Defaults to 1.55.
-        bandwidth: The bandwidth for the ComponentModeler. Defaults to 0.2.
-        num_freqs: The number of frequencies for the ComponentModeler. Defaults to 21.
-        min_steps_per_wvl: The minimum number of steps per wavelength for the ComponentModeler. Defaults to 30.
-        center_z: The z-coordinate for the center of the ComponentModeler.
+        wavelength: The wavelength for the ModalComponentModeler. Defaults to 1.55.
+        bandwidth: The bandwidth for the ModalComponentModeler. Defaults to 0.2.
+        num_freqs: The number of frequencies for the ModalComponentModeler. Defaults to 21.
+        min_steps_per_wvl: The minimum number of steps per wavelength for the ModalComponentModeler. Defaults to 30.
+        center_z: The z-coordinate for the center of the ModalComponentModeler.
             If None, the z-coordinate of the component is used. Defaults to None.
-        sim_size_z: simulation size um in the z-direction for the ComponentModeler. Defaults to 4.
-        port_size_mult: The size multiplier for the ports in the ComponentModeler. Defaults to (4.0, 3.0).
-        run_only: The run only specification for the ComponentModeler. Defaults to None.
-        element_mappings: The element mappings for the ComponentModeler. Defaults to ().
-        extra_monitors: The extra monitors for the ComponentModeler. Defaults to None.
-        mode_spec: The mode specification for the ComponentModeler. Defaults to td.ModeSpec(num_modes=1).
-        boundary_spec: The boundary specification for the ComponentModeler.
+        sim_size_z: simulation size um in the z-direction for the ModalComponentModeler. Defaults to 4.
+        port_size_mult: The size multiplier for the ports in the ModalComponentModeler. Defaults to (4.0, 3.0).
+        run_only: The run only specification for the ModalComponentModeler. Defaults to None.
+        element_mappings: The element mappings for the ModalComponentModeler. Defaults to ().
+        extra_monitors: The extra monitors for the ModalComponentModeler. Defaults to None.
+        mode_spec: The mode specification for the ModalComponentModeler. Defaults to td.ModeSpec(num_modes=1).
+        boundary_spec: The boundary specification for the ModalComponentModeler.
             Defaults to td.BoundarySpec.all_sides(boundary=td.PML()).
         symmetry (tuple[Symmetry, Symmetry, Symmetry], optional): The symmetry for the simulation. Defaults to (0,0,0).
-        run_time: The run time for the ComponentModeler. Defaults to 1e-12.
-        shutoff: The shutoff value for the ComponentModeler. Defaults to 1e-5.
-        folder_name: The folder name for the ComponentModeler in flexcompute website. Defaults to "default".
+        run_time: The run time for the ModalComponentModeler. Defaults to 1e-12.
+        shutoff: The shutoff value for the ModalComponentModeler. Defaults to 1e-5.
+        folder_name: The folder name for the ModalComponentModeler in flexcompute website. Defaults to "default".
         dirpath: Optional directory path for writing the Sparameters. Defaults to "~/.gdsfactory/sparameters".
-        verbose: Whether to print verbose output for the ComponentModeler. Defaults to True.
+        verbose: Whether to print verbose output for the ModalComponentModeler. Defaults to True.
         plot_simulation_layer_name: Optional layer name to plot. Defaults to None.
         plot_simulation_port_index: which port index to plot. Defaults to 0.
         plot_simulation_z: which z coordinate to plot. Defaults to None.
