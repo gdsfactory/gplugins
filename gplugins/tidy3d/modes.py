@@ -60,7 +60,7 @@ def custom_serializer(data: str | float | BaseModel) -> str:
     raise ValueError(f"Unsupported data type: {type(data)}")
 
 
-class Waveguide(BaseModel, extra="forbid"):
+class Waveguide(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     """Waveguide Model.
 
     All dimensions must be specified in μm (1e-6 m).
