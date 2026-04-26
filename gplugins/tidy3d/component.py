@@ -254,9 +254,6 @@ class Tidy3DComponent(LayeredComponentBase):
             run_time: The run time for the ModalComponentModeler.
             shutoff: The shutoff value for the ModalComponentModeler. Defaults to 1e-5.
             grid_eps: Rounding tolerance for coordinates, e.g. port locations and layer centers (μm).
-            folder_name: The folder name for the ModalComponentModeler. Defaults to "default".
-            path_dir: The directory path for the ModalComponentModeler. Defaults to ".".
-            verbose: Whether to print verbose output for the ModalComponentModeler. Defaults to True.
             symmetry (tuple[Symmetry, Symmetry, Symmetry], optional): The symmetry for the simulation. Defaults to (0,0,0).
             kwargs: Additional keyword arguments for the Simulation constructor.
 
