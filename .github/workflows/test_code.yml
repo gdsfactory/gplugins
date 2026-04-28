@@ -93,7 +93,7 @@ jobs:
         run: |
           sudo apt-get install -y libglu1-mesa
       - name: Download Palace singularity definition
-        run: wget https://raw.githubusercontent.com/awslabs/palace/main/singularity/singularity.def
+        run: wget https://raw.githubusercontent.com/awslabs/palace/refs/tags/v0.16.0/singularity/singularity.def # Newer versions of palace have deprecated singularity definitions, so we pin to a specific version. TODO: Update this
       - name: Cache Palace container restore
         id: cache-palace-restore
         uses: actions/cache/restore@v4
