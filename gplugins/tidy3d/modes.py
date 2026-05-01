@@ -35,7 +35,7 @@ Precision = Literal["single", "double"]
 nm = 1e-3
 
 
-def custom_serializer(data: str | float | BaseModel) -> str:
+def custom_serializer(data: str | float | BaseModel | td.Medium) -> str:
     # If data is a string, just return it.
     if isinstance(data, str | None | np.ndarray):
         return data
@@ -45,7 +45,7 @@ def custom_serializer(data: str | float | BaseModel) -> str:
         return str(data)
 
     # If data is an instance of Pydantic's BaseModel, serialize it to JSON.
-    if isinstance(data, BaseModel):
+    if isinstance(data, BaseModel | td.CustomMedium | td.Medium | td.PoleResidue):
         return data.json()
 
     # If data is a list or tuple, recursively serialize each element.
@@ -60,7 +60,7 @@ def custom_serializer(data: str | float | BaseModel) -> str:
     raise ValueError(f"Unsupported data type: {type(data)}")
 
 
-class Waveguide(BaseModel, extra="forbid"):
+class Waveguide(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     """Waveguide Model.
 
     All dimensions must be specified in μm (1e-6 m).
