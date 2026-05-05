@@ -1,44 +1,43 @@
 # Configuration for lychee link checker
-# https://lychee.cli.rs/configuration/
-
-# Exclude paths that contain template variables or are known false positives
-exclude_path = [
-    ".github/release-drafter.yml",
-    "CHANGELOG.md",
-]
+# https://lychee.cli.rs/usage/config/
 
 # Exclude URLs that are known false positives
 exclude = [
-    ".*\\$OWNER.*",
-    ".*\\$REPOSITORY.*",
-    ".*\\$NUMBER.*",
-    ".*\\$PREVIOUS_TAG.*",
-    ".*\\$RESOLVED_VERSION.*",
-    ".*\\{issue\\}.*",
-    ".*\\{version\\}.*",
-    ".*%7Bissue%7D.*",
-    ".*%7Bversion%7D.*",
-    "https://join.slack.com/.*",
-    "https://link.aps.org/.*",
-    "https://www.elmerfem.org/.*",
-    "https://www.lumerical.com/.*",
-    "https://nbviewer.org/.*",
-    "http://urn.fi/.*",
-    "https://drive.google.com/.*",
-    "https://mathworld.wolfram.com/.*",
-    "https://raw.githubusercontent.com/awslabs/palace/.*",
-    "https://raw.githubusercontent.com/polyanskiy/.*",
-    "https://github.com/simbilod/.*",
-    "https://jupyterbook.org/.*",
-    "https://pyswarms.readthedocs.io/.*",
-    "https://docs.ray.io/.*",
-    "https://awslabs.github.io/palace/.*",
-    "https://www.ioffe.ru/.*",
-    "http://www.ioffe.ru/.*",
+  ".*\\$OWNER.*",
+  ".*\\$REPOSITORY.*",
+  ".*\\$NUMBER.*",
+  ".*\\$PREVIOUS_TAG.*",
+  ".*\\$RESOLVED_VERSION.*",
+  ".*\\{issue\\}.*",
+  ".*\\{version\\}.*",
+  ".*%7Bissue%7D.*",
+  ".*%7Bversion%7D.*",
+  "https://join.slack.com/.*",
+  "https://link.aps.org/.*",
+  "https://www.elmerfem.org/.*",
+  "https://www.lumerical.com/.*",
+  "https://nbviewer.org/.*",
+  "http://urn.fi/.*",
+  "https://drive.google.com/.*",
+  "https://mathworld.wolfram.com/.*",
+  "https://raw.githubusercontent.com/awslabs/palace/.*",
+  "https://raw.githubusercontent.com/polyanskiy/.*",
+  "https://github.com/simbilod/.*",
+  "https://jupyterbook.org/.*",
+  "https://pyswarms.readthedocs.io/.*",
+  "https://docs.ray.io/.*",
+  "https://awslabs.github.io/palace/.*",
+  "https://www.ioffe.ru/.*",
+  "http://www.ioffe.ru/.*",
+  "https://lychee.cli.rs/.*",
+  "https?://.*klayout\\.de/.*"
 ]
-
-# Timeout per request in seconds
-timeout = 30
-
+# Exclude paths that contain template variables or are known false positives
+exclude_path = [
+  ".github/release-drafter.yml",
+  "CHANGELOG.md"
+]
 # Maximum number of concurrent requests
 max_concurrency = 16
+# Timeout per request in seconds
+timeout = 30
