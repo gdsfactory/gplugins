@@ -5,7 +5,7 @@ from typing import TypeAlias
 
 import tidy3d as td
 from tidy3d.components.medium import PoleResidue
-from tidy3d.components.types import ComplexNumber
+from tidy3d.components.types import Complex
 
 material_name_to_tidy3d = {
     "si": td.material_library["cSi"]["Li1993_293K"],
@@ -28,7 +28,7 @@ MaterialSpecTidy3d: TypeAlias = (
 def get_epsilon(
     spec: MaterialSpecTidy3d,
     wavelength: float = 1.55,
-) -> ComplexNumber:
+) -> Complex:
     """Return permittivity from material database.
 
     Args:
