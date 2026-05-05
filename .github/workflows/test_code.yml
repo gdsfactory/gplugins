@@ -96,7 +96,7 @@ jobs:
         run: wget https://raw.githubusercontent.com/awslabs/palace/refs/tags/v0.16.0/singularity/singularity.def # Newer versions of palace have deprecated singularity definitions, so we pin to a specific version. TODO: Update this
       - name: Cache Palace container restore
         id: cache-palace-restore
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: palace.sif
           key: palace-container-${{ runner.os }}-${{ hashFiles('singularity.def') }}
@@ -110,7 +110,7 @@ jobs:
             exit 1
           }
       - name: Cache Palace container save
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         if: steps.cache-palace-restore.outputs.cache-hit != 'true'
         with:
           path: palace.sif
