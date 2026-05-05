@@ -80,7 +80,7 @@ jobs:
           uv sync --extra dev --extra docs --extra femwell --extra meow --extra sax --extra tidy3d --extra klayout --extra vlsir
           uv run jb build docs
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: "./docs/_build/html/"
 
