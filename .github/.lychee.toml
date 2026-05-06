@@ -1,0 +1,24 @@
+# Configuration for lychee link checker
+# https://lychee.cli.rs/usage/config/
+
+# Exclude URLs that are known false positives
+exclude = [
+  ".*\\$OWNER.*",
+  ".*\\$REPOSITORY.*",
+  ".*\\$NUMBER.*",
+  ".*\\$PREVIOUS_TAG.*",
+  ".*\\$RESOLVED_VERSION.*",
+  ".*\\{issue\\}.*",
+  ".*\\{version\\}.*",
+  ".*%7Bissue%7D.*",
+  ".*%7Bversion%7D.*",
+  "https://join.slack.com/.*",
+  "https://drive.google.com/.*",
+  "https://www.ioffe.ru/.*",
+  "http://www.ioffe.ru/.*"
+]
+# Exclude paths that contain template variables or are known false positives
+exclude_path = [
+  ".github/release-drafter.yml",
+  "CHANGELOG.md"
+]
