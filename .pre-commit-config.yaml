@@ -66,6 +66,12 @@ repos:
     hooks:
       - id: nbstripout
         files: ".ipynb"
+  - repo: https://github.com/lycheeverse/lychee
+    rev: lychee-v0.24.1
+    hooks:
+      - id: lychee
+        args: ["--config=.github/.lychee.toml"]
+
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.1
     hooks:
