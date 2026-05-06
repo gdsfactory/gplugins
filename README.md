@@ -78,12 +78,13 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
--Then you can install GDSFactory with:
+-Then you can install gplugins and its dependency groups with:
 
 ```bash
 uv venv --python 3.12
-uv sync --extra docs --extra dev
+uv sync --extra docs --extra dev # --extra tidy3d --extra femwell ...
 ```
+
 
 ## Getting started
 

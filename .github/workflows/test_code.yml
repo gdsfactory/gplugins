@@ -13,7 +13,7 @@ jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
       - uses: pre-commit/action@v3.0.1
 
@@ -36,7 +36,7 @@ jobs:
 
     name: Test ${{ matrix.plugin }} ${{ matrix.os }} ${{ matrix.python-version }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: astral-sh/setup-uv@v7
       - if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Test meep ubuntu-latest 3.11
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Setup Miniconda
         uses: conda-incubator/setup-miniconda@v3
         with:
@@ -83,7 +83,7 @@ jobs:
     name: Test palace ubuntu-latest 3.11
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: astral-sh/setup-uv@v7
       - name: Setup Apptainer
         uses: eWaterCycle/setup-apptainer@3f706d898c9db585b1d741b4692e66755f3a1b40
@@ -96,7 +96,7 @@ jobs:
         run: wget https://raw.githubusercontent.com/awslabs/palace/refs/tags/v0.16.0/singularity/singularity.def # Newer versions of palace have deprecated singularity definitions, so we pin to a specific version. TODO: Update this
       - name: Cache Palace container restore
         id: cache-palace-restore
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: palace.sif
           key: palace-container-${{ runner.os }}-${{ hashFiles('singularity.def') }}
@@ -110,7 +110,7 @@ jobs:
             exit 1
           }
       - name: Cache Palace container save
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         if: steps.cache-palace-restore.outputs.cache-hit != 'true'
         with:
           path: palace.sif
@@ -132,7 +132,7 @@ jobs:
   test_code_coverage:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: astral-sh/setup-uv@v7
       - name: Install libglu1-mesa
         run: |
@@ -144,7 +144,7 @@ jobs:
         run: |
           make cov
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false

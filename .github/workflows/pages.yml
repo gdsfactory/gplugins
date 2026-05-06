@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Sphinx docs to gh-pages
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: astral-sh/setup-uv@v7
       - name: Setup Apptainer
         uses: eWaterCycle/setup-apptainer@3f706d898c9db585b1d741b4692e66755f3a1b40
@@ -31,7 +31,7 @@ jobs:
         run: wget https://raw.githubusercontent.com/awslabs/palace/refs/tags/v0.16.0/singularity/singularity.def # Newer versions of palace have deprecated singularity definitions, so we pin to a specific version. TODO: Update this
       - name: Cache Palace container restore
         id: cache-palace-restore
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: palace.sif
           key: palace-container-${{ runner.os }}-${{ hashFiles('singularity.def') }}
@@ -45,7 +45,7 @@ jobs:
             exit 0
           }
       - name: Cache Palace container save
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         if: steps.cache-palace-restore.outputs.cache-hit != 'true' && hashFiles('palace.sif') != ''
         with:
           path: palace.sif
@@ -80,7 +80,7 @@ jobs:
           uv sync --extra dev --extra docs --extra femwell --extra meow --extra sax --extra tidy3d --extra klayout --extra vlsir
           uv run jb build docs
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: "./docs/_build/html/"
 
@@ -97,4 +97,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

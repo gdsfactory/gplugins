@@ -55,11 +55,11 @@ def _compute_s_matrix(modes_per_cell, cells):
     expects a list of {"p1": ..., "p2": ...} dicts (Nets). This wrapper
     converts the format.
     """
-    from meow.eme.sax import (
-        _get_netlist,
+    from meow.eme import (
         compute_interface_s_matrices,
         compute_propagation_s_matrices,
     )
+    from meow.eme.cascade import _get_netlist
 
     propagations = compute_propagation_s_matrices(modes_per_cell, cells)
     interfaces = compute_interface_s_matrices(modes_per_cell)
@@ -71,7 +71,7 @@ def _compute_s_matrix(modes_per_cell, cells):
     net["instances"] = {k: sax.scoo(v) for k, v in net["instances"].items()}
 
     # Convert old-style connections dict to new-style nets list
-    connections = net["connections"]
+    connections = net["nets"]
     if isinstance(connections, dict):
         nets = [{"p1": k, "p2": v} for k, v in connections.items()]
     else:
