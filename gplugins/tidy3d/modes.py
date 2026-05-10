@@ -181,6 +181,10 @@ class Waveguide(BaseModel, extra="forbid", arbitrary_types_allowed=True):
         h = hashlib.md5(named_args_string.encode()).hexdigest()[:16]
         return cache_path / f"{self.__class__.__name__}_{h}.npz"
 
+    def _resolve_target_neff(self, n_core: complex) -> float:
+        """Return target_neff if set, otherwise fall back to n_core.real."""
+        return self.target_neff if self.target_neff is not None else n_core.real
+
     @property
     def waveguide(self):
         """Tidy3D waveguide used by this instance."""
@@ -225,7 +229,7 @@ class Waveguide(BaseModel, extra="forbid", arbitrary_types_allowed=True):
                 else None
             )
 
-            target_neff = self.target_neff if self.target_neff is not None else n_core.real
+            target_neff = self._resolve_target_neff(n_core)
 
             mode_spec = td.ModeSpec(
                 num_modes=self.num_modes,
@@ -559,7 +563,7 @@ class WaveguideCoupler(Waveguide):
                 else None
             )
 
-            target_neff = self.target_neff if self.target_neff is not None else n_core.real
+            target_neff = self._resolve_target_neff(n_core)
 
             mode_spec = td.ModeSpec(
                 num_modes=self.num_modes,
