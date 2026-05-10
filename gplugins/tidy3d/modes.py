@@ -92,6 +92,8 @@ class Waveguide(BaseModel, extra="forbid", arbitrary_types_allowed=True):
         surface_k: absorption coefficient added to the core material
             index on the top-surface layer.
         bend_radius: radius to simulate circular bend.
+        target_neff: target effective index for the mode solver. Defaults
+            to the real part of the core refractive index if not specified.
         num_modes: number of modes to compute.
         group_index_step: if set to `True`, indicates that the group
             index must also be calculated. If set to a positive float
@@ -147,6 +149,7 @@ class Waveguide(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     surface_thickness: float = 0.0
     surface_k: float = 0.0
     bend_radius: float | None = None
+    target_neff: float | None = None
     num_modes: int = 2
     group_index_step: bool | float = False
     precision: Precision = "double"
@@ -222,9 +225,11 @@ class Waveguide(BaseModel, extra="forbid", arbitrary_types_allowed=True):
                 else None
             )
 
+            target_neff = self.target_neff if self.target_neff is not None else n_core.real
+
             mode_spec = td.ModeSpec(
                 num_modes=self.num_modes,
-                target_neff=n_core.real,
+                target_neff=target_neff,
                 bend_radius=self.bend_radius,
                 bend_axis=1,
                 num_pml=(12, 12) if self.bend_radius else (0, 0),
@@ -554,9 +559,11 @@ class WaveguideCoupler(Waveguide):
                 else None
             )
 
+            target_neff = self.target_neff if self.target_neff is not None else n_core.real
+
             mode_spec = td.ModeSpec(
                 num_modes=self.num_modes,
-                target_neff=n_core.real,
+                target_neff=target_neff,
                 bend_radius=self.bend_radius,
                 bend_axis=1,
                 num_pml=(12, 12) if self.bend_radius else (0, 0),
