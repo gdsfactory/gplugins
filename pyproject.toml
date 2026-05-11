@@ -17,7 +17,7 @@ dependencies = [
   "pint",
   "tqdm",
   "numpy>=2.0,<3",
-  "xarray==2025.7.1"
+  "xarray==2026.4.0"
 ]
 description = "gdsfactory plugins"
 keywords = ["python"]
