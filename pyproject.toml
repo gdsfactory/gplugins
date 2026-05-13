@@ -17,7 +17,7 @@ dependencies = [
   "pint",
   "tqdm",
   "numpy>=2.0,<3",
-  "xarray==2025.7.1"
+  "xarray==2026.4.0"
 ]
 description = "gdsfactory plugins"
 keywords = ["python"]
@@ -41,7 +41,7 @@ devsim = ["devsim", "pyvista<=0.46.0", "tidy3d~=2.11.1"]
 docs = [
   "jupytext",
   "matplotlib",
-  "jupyter-book~=1.0",
+  "jupyter-book>=1,<3",
   "pyvista[all]<=0.46.0",
   "bokeh",
   "scikit-learn"
@@ -51,10 +51,10 @@ gfviz = ["jinja2", "fastapi", "shapely", "natsort"]
 klayout = ["klayout", "pyvis<=0.3.2", "vlsir", "vlsirtools", "gitpython"]
 luminescent = ["luminescent>=0.2.12,<4.1.0", "sortedcontainers"]
 maintainer = ["mypy", "tbump", "towncrier"]
-meow = ["meow-sim>=0.15", "sax~=0.16.3", "tidy3d~=2.11.1"]
+meow = ["meow-sim>=0.15", "sax>=0.16.3,<0.18.0", "tidy3d~=2.11.1"]
 meshwell = ["shapely", "meshwell~=2.1.1"]
 path_length_analysis = ["bokeh", "numba", "shapely"]
-sax = ["sax~=0.16.3"]
+sax = ["sax>=0.16.3,<0.18.0"]
 schematic = ["bokeh", "ipywidgets", "natsort"]
 tidy3d = ["tidy3d~=2.11.1", "gdstk", "pytz"]  # pin max version because tidy3d often introduces breaking API changes across minor releases
 vlsir = ["vlsir", "vlsirtools"]
