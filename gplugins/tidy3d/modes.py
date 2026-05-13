@@ -511,6 +511,8 @@ class WaveguideCoupler(Waveguide):
             index must also be calculated. If set to a positive float
             it defines the fractional frequency step used for the
             numerical differentiation of the effective index.
+        target_neff: target effective index for the mode solver. Defaults
+            to the real part of the core refractive index if not specified.
         precision: computation precision.
         grid_resolution: wavelength resolution of the computation grid.
         max_grid_scaling: grid scaling factor in cladding regions.
@@ -874,7 +876,10 @@ def sweep_mode_area(waveguide: Waveguide, **sweep_kwargs) -> np.ndarray:
 
 
 def sweep_bend_mismatch(
-    waveguide: Waveguide, bend_radii: tuple[float, ...]
+    waveguide: Waveguide,
+    bend_radii: tuple[float, ...],
+    track_modes: bool = False,
+    modes_to_track: Sequence[int] = (0, ),
 ) -> np.ndarray:
     """Overlap integral squared for the bend mode mismatch loss.
 
@@ -884,7 +889,24 @@ def sweep_bend_mismatch(
     Args:
         waveguide: base waveguide geometry.
         bend_radii: radii values to sweep.
+        track_modes: if True, for each radius select the bend mode with
+            the best overlap for each tracked straight mode.
+        modes_to_track: straight mode indices to track. Required when
+            track_modes is True.
     """
+    if track_modes:
+        if len(modes_to_track) == 0:
+            raise ValueError("modes_to_track must be provided when track_modes is True")
+        if waveguide.num_modes < max(modes_to_track) + 1:
+            raise ValueError(
+                f"num_modes ({waveguide.num_modes}) must be >= "
+                f"{max(modes_to_track) + 1} to track modes {modes_to_track}"
+            )
+        if waveguide.num_modes < 2:
+            raise ValueError(
+                "Track modes requires num_modes >= 2"
+            )
+
     kwargs = dict(waveguide)
     kwargs.pop("bend_radius")
     straight = Waveguide(**kwargs)
@@ -893,9 +915,16 @@ def sweep_bend_mismatch(
     for radius in tqdm(bend_radii):
         bend = Waveguide(bend_radius=radius, **kwargs)
         overlap = bend.overlap(straight)
-        results.append(
-            np.diagonal(overlap) ** 2 if straight.num_modes > 1 else overlap**2
-        )
+
+        if track_modes:
+            best = [
+                np.max(np.abs(overlap[:, m]) ** 2) for m in modes_to_track
+            ]
+            results.append(best)
+        else:
+            results.append(
+                np.diagonal(overlap) ** 2 if straight.num_modes > 1 else overlap**2
+            )
 
     return np.abs(results) ** 2
 
