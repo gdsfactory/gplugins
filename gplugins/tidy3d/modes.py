@@ -879,7 +879,7 @@ def sweep_bend_mismatch(
     waveguide: Waveguide,
     bend_radii: tuple[float, ...],
     track_modes: bool = False,
-    modes_to_track: Sequence[int] = (0, ),
+    modes_to_track: Sequence[int] = (0,),
 ) -> np.ndarray:
     """Overlap integral squared for the bend mode mismatch loss.
 
@@ -903,9 +903,7 @@ def sweep_bend_mismatch(
                 f"{max(modes_to_track) + 1} to track modes {modes_to_track}"
             )
         if waveguide.num_modes < 2:
-            raise ValueError(
-                "Track modes requires num_modes >= 2"
-            )
+            raise ValueError("Track modes requires num_modes >= 2")
 
     kwargs = dict(waveguide)
     kwargs.pop("bend_radius")
@@ -917,9 +915,7 @@ def sweep_bend_mismatch(
         overlap = bend.overlap(straight)
 
         if track_modes:
-            best = [
-                np.max(np.abs(overlap[:, m]) ** 2) for m in modes_to_track
-            ]
+            best = [np.max(np.abs(overlap[:, m]) ** 2) for m in modes_to_track]
             results.append(best)
         else:
             results.append(
