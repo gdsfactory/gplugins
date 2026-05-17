@@ -18,7 +18,7 @@ def test_neff() -> None:
         clad_material="sio2",
     )
     n_eff = wg.n_eff[0].real
-    n_eff_ref = 2.5743837634515767
+    n_eff_ref = 2.6076116125083564
     assert np.isclose(n_eff, n_eff_ref, rtol=0.01), n_eff
 
 

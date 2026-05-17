@@ -9,7 +9,7 @@ from tidy3d.components.types import Complex
 
 material_name_to_tidy3d = {
     "si": td.material_library["cSi"]["Li1993_293K"],
-    "sio2": td.material_library["SiO2"]["Horiba"],
+    "sio2": td.material_library["SiO2"]["Palik_Lossless"],
     "sin": td.material_library["Si3N4"]["Luke2015PMLStable"],
 }
 
