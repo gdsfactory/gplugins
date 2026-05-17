@@ -1,0 +1,44 @@
+# Configuration for lychee link checker
+# https://github.com/lycheeverse/lychee
+
+# Exclude URLs that are known false positives
+exclude = [
+  # Template variable placeholders used in release-drafter and changelogs
+  ".*\\$OWNER.*",
+  ".*\\$REPOSITORY.*",
+  ".*\\$NUMBER.*",
+  ".*\\$PREVIOUS_TAG.*",
+  ".*\\$RESOLVED_VERSION.*",
+  ".*\\{issue\\}.*",
+  ".*\\{version\\}.*",
+  ".*%7Bissue%7D.*",
+  ".*%7Bversion%7D.*",
+  # Login-walled or auth-required
+  "https://join.slack.com/.*",
+  "https://drive.google.com/.*",
+  # Rate-limited or returns 403/5xx transiently
+  "https://www.ioffe.ru/.*",
+  "http://www.ioffe.ru/.*",
+  "https://link.aps.org/.*",
+  "https://www.elmerfem.org/.*",
+  "https://www.lumerical.com/.*",
+  "https://support.lumerical.com/.*",
+  "https://optics.ansys.com/.*",
+  # Consistently returns non-200 despite valid content
+  "https://mathworld.wolfram.com/.*",
+  "https://nbviewer.org/.*",
+  "http://urn.fi/.*",
+  "https://raw.githubusercontent.com/polyanskiy/.*",
+  # Broken or renamed upstream links
+  "https://github.com/simbilod/.*",
+  # Notebook-embedded URLs that include trailing newlines or path issues
+  "https://jupyterbook.org/.*",
+  "https://pyswarms.readthedocs.io/.*",
+  "https://docs.ray.io/.*",
+  "https://awslabs.github.io/palace/.*"
+]
+# Exclude paths that contain template variables or are known false positives
+exclude_path = [
+  ".github/release-drafter.yml",
+  "CHANGELOG.md"
+]
