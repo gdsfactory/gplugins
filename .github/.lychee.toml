@@ -35,7 +35,9 @@ exclude = [
   "https://jupyterbook.org/.*",
   "https://pyswarms.readthedocs.io/.*",
   "https://docs.ray.io/.*",
-  "https://awslabs.github.io/palace/.*"
+  "https://awslabs.github.io/palace/.*",
+  # PyPI file downloads in uv.lock return transient 503s
+  "https://files.pythonhosted.org/.*"
 ]
 # Exclude paths that contain template variables or are known false positives
 exclude_path = [
