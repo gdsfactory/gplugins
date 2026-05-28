@@ -176,7 +176,7 @@ def write_sparameters_meep_mpi(
         "from gplugins.gmeep import write_sparameters_meep\n\n",
         "from gdsfactory.read import import_gds\n",
         "from gdsfactory.technology import LayerStack\n\n",
-        "from gdsfactory.config import CONF; CONF.pdk or 'generic'\n\n",
+        "from gdsfactory.config import CONF; CONF.pdk = CONF.pdk or 'generic'\n\n",
         "if __name__ == '__main__':\n",
         f"\twith open(\"{parameters_file}\", 'rb') as inp:\n",
         "\t\tparameters_dict = pickle.load(inp)\n\n",
