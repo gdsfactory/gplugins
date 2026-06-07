@@ -37,7 +37,9 @@ exclude = [
   "https://docs.ray.io/.*",
   "https://awslabs.github.io/palace/.*",
   # PyPI file downloads in uv.lock return transient 503s
-  "https://files.pythonhosted.org/.*"
+  "https://files.pythonhosted.org/.*",
+  # refractiveindex.info returns 404 transiently
+  "https://refractiveindex.info/.*"
 ]
 # Exclude paths that contain template variables or are known false positives
 exclude_path = [
