@@ -3,7 +3,9 @@ import numpy as np
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.technology import LayerStack
 
-from gplugins.meow import MEOW
+gf.gpdk.get_generic_pdk().activate()
+
+from gplugins.meow import MEOW  # noqa: E402
 
 
 def test_meow_defaults() -> None:

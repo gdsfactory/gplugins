@@ -1,12 +1,75 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v1.4.2...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v2.0.1...main)
 
 <!-- towncrier release notes start -->
 
+## [2.1.0](https://github.com/gdsfactory/gplugins/releases/tag/v2.1.0) - 2026-05-17
+
+
+### Removed
+
+- Remove meshing module [#670](https://github.com/gdsfactory/gplugins/pull/670) [#670](https://github.com/gdsfactory/gplugins/issues/670)
+
+
+### Added
+
+- Allow 2D meep simulations in X- or Y-normal direction [#672](https://github.com/gdsfactory/gplugins/pull/672) [#672](https://github.com/gdsfactory/gplugins/issues/672)
+- Check mesh order in LayerLevel.info instead of LayerLevel.mesh_order in meshwell [#681](https://github.com/gdsfactory/gplugins/pull/681) [#681](https://github.com/gdsfactory/gplugins/issues/681)
+- Add target_neff parameter to mode solver and track_modes to sweep_bend_mismatch [#716](https://github.com/gdsfactory/gplugins/pull/716) [#716](https://github.com/gdsfactory/gplugins/issues/716)
+
+
+### Changed
+
+- Clean up get_meep_geometry_from_component [#671](https://github.com/gdsfactory/gplugins/pull/671) [#671](https://github.com/gdsfactory/gplugins/issues/671)
+- Rewrite patch_netlist for flat or recursive cases [#675](https://github.com/gdsfactory/gplugins/pull/675) [#675](https://github.com/gdsfactory/gplugins/issues/675)
+- Bump tidy3d to version >= 2.10 and fix meow/sax incompatibility [#698](https://github.com/gdsfactory/gplugins/pull/698) [#698](https://github.com/gdsfactory/gplugins/issues/698)
+- Bump sax to ~=0.17.0 [#715](https://github.com/gdsfactory/gplugins/pull/715) [#715](https://github.com/gdsfactory/gplugins/issues/715)
+- Use lossless SiO2 by default [#716](https://github.com/gdsfactory/gplugins/pull/716) [#717](https://github.com/gdsfactory/gplugins/issues/717)
+
+
+### Fixed
+
+- Fix gmeep caching: remove kfactory metadata from hashing [#679](https://github.com/gdsfactory/gplugins/pull/679) [#679](https://github.com/gdsfactory/gplugins/issues/679)
+- Use TemporaryDirectory while hashing gds files to avoid multi-process race conditions [#682](https://github.com/gdsfactory/gplugins/pull/682) [#682](https://github.com/gdsfactory/gplugins/issues/682)
+- Add mode settings to hashed parameters [#683](https://github.com/gdsfactory/gplugins/pull/683) [#683](https://github.com/gdsfactory/gplugins/issues/683)
+- Fix cascaded MZI notebook [#685](https://github.com/gdsfactory/gplugins/pull/685) [#685](https://github.com/gdsfactory/gplugins/issues/685)
+- Relax constraint on numpy version [#686](https://github.com/gdsfactory/gplugins/pull/686) [#686](https://github.com/gdsfactory/gplugins/issues/686)
+- Fix docs build with uv sync [#694](https://github.com/gdsfactory/gplugins/pull/694) [#694](https://github.com/gdsfactory/gplugins/issues/694)
+- Fix Palace CI with pinned Apptainer tag [#700](https://github.com/gdsfactory/gplugins/pull/700) [#700](https://github.com/gdsfactory/gplugins/issues/700)
+
+## [2.0.1](https://github.com/gdsfactory/gplugins/releases/tag/v2.0.1) - 2026-01-30
+
+- fix elmer [#665](https://github.com/gdsfactory/gplugins/pull/665)
+- Remove matthew from codeowners [#666](https://github.com/gdsfactory/gplugins/pull/666)
+- Fix region_to_shapely_polygons [#662](https://github.com/gdsfactory/gplugins/pull/662)
+- update luminescent [#661](https://github.com/gdsfactory/gplugins/pull/661)
+- Fix extrusion layer handling in MEOW class by using layer tuples [#668](https://github.com/gdsfactory/gplugins/pull/668)
+- update sax [#669](https://github.com/gdsfactory/gplugins/pull/669)
+
 ## [2.0.0](https://github.com/gdsfactory/gplugins/releases/tag/v2.0.0) - 2025-11-13
 
-No significant changes.
+- refactor meshwell plugin [#633](https://github.com/gdsfactory/gplugins/pull/633)
+- Add minimal Copilot Setup Steps [#654](https://github.com/gdsfactory/gplugins/pull/654)
+- Fix Palace availability in CI documentation builds using Apptainer containers [#652](https://github.com/gdsfactory/gplugins/pull/652)
+- Fix Palace capacitance computation for new meshwell [#641](https://github.com/gdsfactory/gplugins/pull/641)
+- Fix Jupyter Book logo paths in documentation configuration [#650](https://github.com/gdsfactory/gplugins/pull/650)
+- Run pre-commit hooks [#648](https://github.com/gdsfactory/gplugins/pull/648)
+- Fix vlsir tests for newer gdsfactory [#646](https://github.com/gdsfactory/gplugins/pull/646)
+- Replace non-existent Palace Docker image with Apptainer-based CI setup [#643](https://github.com/gdsfactory/gplugins/pull/643)
+- Add palace in github actions, fix palace electrostatics simulation. [#631](https://github.com/gdsfactory/gplugins/pull/631)
+- better error message for gc sim [#638](https://github.com/gdsfactory/gplugins/pull/638)
+- Fix region_to_shapely_polygons [#662](https://github.com/gdsfactory/gplugins/pull/662)
+- Bump actions/setup-python from 5 to 6 [#655](https://github.com/gdsfactory/gplugins/pull/655)
+- Bump astral-sh/setup-uv from 6 to 7 [#659](https://github.com/gdsfactory/gplugins/pull/659)
+- Fix Jupyter Book logo paths in documentation configuration [#650](https://github.com/gdsfactory/gplugins/pull/650)
+- Bump actions/upload-pages-artifact from 3 to 4 [#636](https://github.com/gdsfactory/gplugins/pull/636)
+- Bump actions/checkout from 4 to 5 [#637](https://github.com/gdsfactory/gplugins/pull/637)
+- update luminescent [#661](https://github.com/gdsfactory/gplugins/pull/661)
+- refactor meshwell plugin [#633](https://github.com/gdsfactory/gplugins/pull/633)
+- Fix Jupyter Book logo paths in documentation configuration [#650](https://github.com/gdsfactory/gplugins/pull/650)
+- Run pre-commit hooks [#648](https://github.com/gdsfactory/gplugins/pull/648)
+- Update logos [#628](https://github.com/gdsfactory/gplugins/pull/628)
 
 
 ## [1.4.2](https://github.com/gdsfactory/gplugins/releases/tag/v1.4.2) - 2025-08-13

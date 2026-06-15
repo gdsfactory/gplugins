@@ -224,10 +224,7 @@ def run_capacitive_simulation_elmer(
     else:
         prisms = get_meshwell_prisms(
             component=component,
-            type="3D",
-            filename=simulation_folder / filename,
             layer_stack=layer_stack,
-            n_threads=n_processes,
         )
         cad(
             entities_list=prisms,
@@ -263,7 +260,7 @@ def run_capacitive_simulation_elmer(
     # Signals are converted to Elmer Boundary Conditions
     ground_layers = {
         next(k for k, v in layer_stack.layers.items() if v.layer == port.layer)
-        for port in component.get_ports()
+        for port in component.ports
     }  # ports allowed only on metal
     metal_surfaces = [
         e for e in mesh_surface_entities if any(ground in e for ground in ground_layers)

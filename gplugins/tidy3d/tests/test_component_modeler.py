@@ -1,5 +1,5 @@
 import gdsfactory as gf
-from gdsfactory.generic_tech import LAYER_STACK
+from gdsfactory.gpdk import LAYER_STACK
 
 import gplugins.tidy3d as gt
 

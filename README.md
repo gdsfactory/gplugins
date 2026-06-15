@@ -1,4 +1,4 @@
-# gplugins 2.0.0
+# gplugins 2.1.0
 
 [![docs](https://github.com/gdsfactory/gplugins/actions/workflows/pages.yml/badge.svg)](https://gdsfactory.github.io/gplugins/)
 [![PyPI](https://img.shields.io/pypi/v/gplugins)](https://pypi.org/project/gplugins/)
@@ -78,12 +78,13 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
--Then you can install GDSFactory with:
+-Then you can install gplugins and its dependency groups with:
 
 ```bash
 uv venv --python 3.12
-uv sync --extra docs --extra dev
+uv sync --extra docs --extra dev # --extra tidy3d --extra femwell ...
 ```
+
 
 ## Getting started
 

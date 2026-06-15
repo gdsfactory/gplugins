@@ -19,7 +19,7 @@ from gdsfactory.component import Component
 from gdsfactory.pdk import get_layer_stack
 from gdsfactory.serialization import clean_value_json
 from gdsfactory.technology import LayerStack
-from gdsfactory.typings import ComponentSpec, PathType, Port, PortSymmetries, LayerSpec
+from gdsfactory.typings import ComponentSpec, PathType, Ports, PortSymmetries, LayerSpec
 from tqdm.auto import tqdm
 
 from gplugins.common.utils import port_symmetries
@@ -52,14 +52,15 @@ def remove_simulation_kwargs(d: dict[str, Any]) -> dict[str, Any]:
 
 
 def parse_port_eigenmode_coeff(
-    port_name: str, ports: dict[str, Port], sim_dict: dict, port_mode: int = 0
+    port_name: str, ports: Ports, sim_dict: dict, port_mode: int = 0
 ):
     """Returns the coefficients relative to whether the wavevector is entering or exiting simulation.
 
     Args:
-        port_index: index of port.
+        port_name: name of port.
         ports: component_ref.ports.
         sim_dict: simulation dict.
+        port_mode: mode to get coefficient for
 
     """
     if port_name not in ports:
@@ -285,6 +286,10 @@ def write_sparameters_meep(
         if setting not in settings_get_simulation:
             raise ValueError(f"{setting!r} not in {settings_get_simulation}")
 
+    port_names = [port.name for port in component.ports]
+    port_source_names = port_source_names or port_names
+    port_source_modes = port_source_modes or {key: [0] for key in port_source_names}
+    port_modes = port_modes or [0]
     port_symmetries = port_symmetries or {}
 
     xmargin_left = xmargin_left or xmargin
@@ -297,6 +302,9 @@ def write_sparameters_meep(
     zmargin_bot = zmargin_bot or zmargin
 
     sim_settings = dict(
+        port_source_names=port_source_names,
+        port_source_modes=port_source_modes,
+        port_modes=port_modes,
         resolution=resolution,
         port_symmetries=port_symmetries,
         wavelength_start=wavelength_start,
@@ -348,14 +356,6 @@ def write_sparameters_meep(
         right=xmargin_right,
     )
 
-    dummy = Component()
-    component_ref = dummy << component
-    ports = component_ref.ports
-    port_names = [port.name for port in ports]
-    port_source_names = port_source_names or port_names
-    port_source_modes = port_source_modes or {key: [0] for key in port_source_names}
-    port_modes = port_modes or [0]
-
     num_sims = len(port_source_names) - len(port_symmetries)
 
     # set verbosity
@@ -384,7 +384,7 @@ def write_sparameters_meep(
             sim.plot2D(
                 output_plane=mp.Volume(
                     size=mp.Vector3(sim.cell_size.x, sim.cell_size.y, 0),
-                    center=mp.Vector3(0, 0, z),
+                    center=mp.Vector3(component.x, component.y, z),
                 ),
                 **plot_args,
             )
@@ -406,7 +406,6 @@ def write_sparameters_meep(
         port_source_name: str,
         component: Component,
         port_symmetries: PortSymmetries | None = port_symmetries,
-        port_names: list[str] = port_names,
         port_source_mode: int = 0,
         wavelength_start: float = wavelength_start,
         wavelength_stop: float = wavelength_stop,
@@ -438,11 +437,8 @@ def write_sparameters_meep(
         )
 
         sim = sim_dict["sim"]
-        # freqs = sim_dict["freqs"]
-        # wavelengths = 1 / freqs
-        # print(sim.resolution)
 
-        # Terminate when the area in the whole area decayed
+        # Terminate when the energy in the whole area decayed
         termination = [mp.stop_when_energy_decayed(dt=50, decay_by=decay_by)]
 
         if animate:
@@ -493,7 +489,7 @@ def write_sparameters_meep(
             port_source_name, component.ports, sim_dict, port_mode=port_source_mode
         )
         # Get coefficients
-        for port_name in port_names:
+        for port_name in sim_dict['monitors'].keys():
             for port_mode in port_modes:
                 _, monitor_exiting = parse_port_eigenmode_coeff(
                     port_name,
@@ -535,7 +531,6 @@ def write_sparameters_meep(
             wavelength_stop=wavelength_stop,
             wavelength_points=wavelength_points,
             animate=animate,
-            port_names=port_names,
             **settings,
         )
         # Synchronize dicts
@@ -568,7 +563,6 @@ def write_sparameters_meep(
                         wavelength_stop=wavelength_stop,
                         wavelength_points=wavelength_points,
                         animate=animate,
-                        port_names=port_names,
                         **settings,
                     )
                 )

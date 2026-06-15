@@ -131,10 +131,17 @@ def get_meshwell_cross_section(
         else:
             raise ValueError("name_by must be 'layer' or 'material'")
 
+        # Determine mesh order (use layer info if available, otherwise default to layer level mesh order)
+        if layer_level.info is not None and "mesh_order" in layer_level.info:
+            # cspdk LayerStack has the mesh_order in the info dict, override default mesh_order if specified there
+            mesh_order = layer_level.info["mesh_order"]
+        else:
+            mesh_order = layer_level.mesh_order
+
         surface = PolySurface(
             polygons=cross_section_polygons,
             physical_name=physical_name,
-            mesh_order=layer_level.mesh_order,
+            mesh_order=mesh_order,
             mesh_bool=True,
             additive=False
         )
