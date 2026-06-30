@@ -222,6 +222,7 @@ class Tidy3DComponent(LayeredComponentBase):
         bandwidth: float = 0.2,
         num_freqs: int = 6,
         min_steps_per_wvl: int = 30,
+        grid_spec: td.GridSpec | None = None,
         center_z: float | str | None = None,
         sim_size_z: float = 4.0,
         port_size_mult: float | tuple[float, float] = (4.0, 3.0),
@@ -242,7 +243,8 @@ class Tidy3DComponent(LayeredComponentBase):
             wavelength: The wavelength for the ModalComponentModeler. Defaults to 1.55.
             bandwidth: The bandwidth for the ModalComponentModeler. Defaults to 0.2.
             num_freqs: The number of frequencies for the ModalComponentModeler. Defaults to 21.
-            min_steps_per_wvl: The minimum number of steps per wavelength for the ModalComponentModeler. Defaults to 30.
+            min_steps_per_wvl: The minimum number of steps per wavelength for the ModalComponentModeler. Defaults to 30. Ignored when grid_spec is provided.
+            grid_spec: Optional tidy3d GridSpec for full control over the mesh (e.g. td.GridSpec.uniform(dl=20*nm) or per-axis AutoGrid). If None, defaults to td.GridSpec.auto(wavelength=wavelength, min_steps_per_wvl=min_steps_per_wvl).
             center_z: The z-coordinate for the center of the ModalComponentModeler. If None, the z-coordinate of the component is used. Defaults to None.
             sim_size_z: simulation size um in the z-direction for the ModalComponentModeler. Defaults to 4.
             port_size_mult: The size multiplier for the ports in the ModalComponentModeler. Defaults to (4.0, 3.0).
@@ -276,7 +278,7 @@ class Tidy3DComponent(LayeredComponentBase):
             wavelength - bandwidth / 2, wavelength + bandwidth / 2, num_freqs
         )
 
-        grid_spec = td.GridSpec.auto(
+        grid_spec = grid_spec or td.GridSpec.auto(
             wavelength=wavelength, min_steps_per_wvl=min_steps_per_wvl
         )
 
@@ -414,6 +416,7 @@ def write_sparameters(
     bandwidth: float = 0.2,
     num_freqs: int = 21,
     min_steps_per_wvl: int = 30,
+    grid_spec: td.GridSpec | None = None,
     center_z: float | str | None = None,
     sim_size_z: float = 4.0,
     port_size_mult: float | tuple[float, float] = (4.0, 3.0),
@@ -455,7 +458,10 @@ def write_sparameters(
         wavelength: The wavelength for the ModalComponentModeler. Defaults to 1.55.
         bandwidth: The bandwidth for the ModalComponentModeler. Defaults to 0.2.
         num_freqs: The number of frequencies for the ModalComponentModeler. Defaults to 21.
-        min_steps_per_wvl: The minimum number of steps per wavelength for the ModalComponentModeler. Defaults to 30.
+        min_steps_per_wvl: The minimum number of steps per wavelength for the ModalComponentModeler. Defaults to 30. Ignored when grid_spec is provided.
+        grid_spec: Optional tidy3d GridSpec for full control over the mesh
+            (e.g. td.GridSpec.uniform(dl=20*nm) or per-axis AutoGrid). If None,
+            defaults to td.GridSpec.auto(wavelength=wavelength, min_steps_per_wvl=min_steps_per_wvl).
         center_z: The z-coordinate for the center of the ModalComponentModeler.
             If None, the z-coordinate of the component is used. Defaults to None.
         sim_size_z: simulation size um in the z-direction for the ModalComponentModeler. Defaults to 4.
@@ -504,6 +510,7 @@ def write_sparameters(
         bandwidth=bandwidth,
         num_freqs=num_freqs,
         min_steps_per_wvl=min_steps_per_wvl,
+        grid_spec=grid_spec,
         center_z=center_z,
         sim_size_z=sim_size_z,
         port_size_mult=port_size_mult,
@@ -633,7 +640,10 @@ def write_sparameters_batch(
         wavelength: The wavelength for the ModalComponentModeler. Defaults to 1.55.
         bandwidth: The bandwidth for the ModalComponentModeler. Defaults to 0.2.
         num_freqs: The number of frequencies for the ModalComponentModeler. Defaults to 21.
-        min_steps_per_wvl: The minimum number of steps per wavelength for the ModalComponentModeler. Defaults to 30.
+        min_steps_per_wvl: The minimum number of steps per wavelength for the ModalComponentModeler. Defaults to 30. Ignored when grid_spec is provided.
+        grid_spec: Optional tidy3d GridSpec for full control over the mesh
+            (e.g. td.GridSpec.uniform(dl=20*nm) or per-axis AutoGrid). If None,
+            defaults to td.GridSpec.auto(wavelength=wavelength, min_steps_per_wvl=min_steps_per_wvl).
         center_z: The z-coordinate for the center of the ModalComponentModeler.
             If None, the z-coordinate of the component is used. Defaults to None.
         sim_size_z: simulation size um in the z-direction for the ModalComponentModeler. Defaults to 4.
