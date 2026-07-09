@@ -49,7 +49,7 @@ class FakeEMode(EMode):
     """EMode session that records calls instead of launching the application."""
 
     def __init__(self) -> None:
-        # Deliberately does not call super().__init__, which launches the app.
+        """Initialize without calling super().__init__, which launches the app."""
         self.recorded_settings: list[dict[str, Any]] = []
         self.recorded_shapes: list[dict[str, Any]] = []
 
