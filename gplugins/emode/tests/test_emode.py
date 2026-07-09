@@ -67,6 +67,12 @@ def test_get_emode_settings_converts_dimensional_values() -> None:
     assert settings["background_material"] == "Air"
 
 
+def test_get_emode_settings_passes_none_through() -> None:
+    settings = get_emode_settings(wavelength=1.55, bend_radius=None)
+    assert settings["wavelength"] == pytest.approx(1550.0)
+    assert settings["bend_radius"] is None
+
+
 def test_get_emode_material_matches_case_insensitively() -> None:
     assert get_emode_material("si", EMODE_MATERIALS) == "Si"
     assert get_emode_material("SIO2", EMODE_MATERIALS) == "SiO2"
@@ -86,11 +92,15 @@ def test_shapes_mask_from_cross_section(layer_stack: LayerStack) -> None:
             gf.cross_section.rib(width=0.6), layer_stack
         )
     }
-    # The core layer matches the WG section of the rib cross-section.
+    # The core layer matches the WG section of the rib cross-section, so it
+    # is patterned: masked and etched through its full thickness.
     assert shapes["core"]["mask"] == pytest.approx(600.0)
     assert shapes["core"]["mask_offset"] == pytest.approx(0.0)
-    # Layers without a matching section keep the width_to_z-based mask.
+    assert shapes["core"]["etch_depth"] == pytest.approx(220.0)
+    # Layers without a matching section are blanket layers with no mask/etch.
+    assert "mask" not in shapes["box"]
     assert "mask_offset" not in shapes["box"]
+    assert "etch_depth" not in shapes["box"]
 
 
 def test_shapes_mask_offset_from_cross_section(layer_stack: LayerStack) -> None:
@@ -147,6 +157,14 @@ def test_shapes_match_materials(layer_stack: LayerStack) -> None:
 def test_empty_layer_stack_raises() -> None:
     with pytest.raises(ValueError, match="at least one layer"):
         get_shapes_from_layer_stack("rib", LayerStack(layers={}))
+
+
+def test_layer_without_material_raises(layer_stack: LayerStack) -> None:
+    layer_stack.layers["core"] = layer_stack.layers["core"].model_copy(
+        update={"material": None}
+    )
+    with pytest.raises(ValueError, match="core"):
+        get_shapes_from_layer_stack("rib", layer_stack)
 
 
 def test_build_waveguide_forwards_to_session(layer_stack: LayerStack) -> None:

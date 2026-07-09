@@ -56,7 +56,9 @@ def get_emode_settings(**settings: Any) -> dict[str, Any]:
         The same settings with dimensional values converted to nm.
     """
     return {
-        key: value * UM_TO_NM if key in DIMENSIONAL_SETTINGS else value
+        key: value * UM_TO_NM
+        if key in DIMENSIONAL_SETTINGS and value is not None
+        else value
         for key, value in settings.items()
     }
 
@@ -83,11 +85,14 @@ def get_shapes_from_layer_stack(
     """Translate a gdsfactory layer stack and cross-section into EMode shapes.
 
     Each :class:`~gdsfactory.technology.LayerLevel` becomes one EMode shape.
-    Layers whose ``layer`` (or ``derived_layer``) appears as a section of the
-    cross-section take their mask width and offset from that section. Vertical
-    positions are referenced to the bottom of the layer stack, and gdsfactory
-    mesh order (lower = higher priority) is converted to EMode shape priority
-    (higher = higher priority).
+    A layer whose ``layer`` (or ``derived_layer``) matches a section of the
+    cross-section is patterned: it takes its mask width and offset from that
+    section and is etched through its full thickness. Layers without a
+    matching section become blanket layers (no mask or etch, following the
+    defaults of EMode's ``shape()`` function). Vertical positions are
+    referenced to the bottom of the layer stack, and gdsfactory mesh order
+    (lower = higher priority) is converted to EMode shape priority (higher =
+    higher priority).
 
     Args:
         cross_section: gdsfactory cross-section (or spec) defining mask
@@ -112,13 +117,16 @@ def get_shapes_from_layer_stack(
 
     shapes: list[dict[str, Any]] = []
     for name, level in layer_stack.layers.items():
+        if level.material is None:
+            raise ValueError(
+                f"Layer {name!r} has no material defined in the layer stack."
+            )
+
         shape: dict[str, Any] = {
             "name": name,
             "material": get_emode_material(level.material, materials),
             "height": level.thickness * UM_TO_NM,
-            "mask": level.width_to_z * UM_TO_NM,
             "sidewall_angle": level.sidewall_angle,
-            "etch_depth": level.thickness * UM_TO_NM if level.width_to_z > 0 else 0.0,
             "position": [0.0, (level.zmin - min_zmin + level.thickness / 2) * UM_TO_NM],
             "priority": max_order - level.mesh_order + 1,
         }
@@ -134,6 +142,7 @@ def get_shapes_from_layer_stack(
         if section is not None:
             shape["mask"] = section.width * UM_TO_NM
             shape["mask_offset"] = section.offset * UM_TO_NM
+            shape["etch_depth"] = level.thickness * UM_TO_NM
 
         shapes.append(shape)
 
