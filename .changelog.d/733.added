@@ -1,0 +1,1 @@
+Add `emode` plugin: translate gdsfactory cross-sections and layer stacks into [EMode](https://emodephotonix.com) simulations through the pip-installable `emodeconnection` client.
