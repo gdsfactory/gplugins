@@ -8,6 +8,8 @@ application (which requires a separate installation and license).
 
 from __future__ import annotations
 
+from typing import Any
+
 import pytest
 
 pytest.importorskip("emodeconnection")
@@ -21,7 +23,7 @@ from gplugins.emode import (
     get_emode_settings,
     get_shapes_from_layer_stack,
 )
-from gplugins.emode.emode import get_emode_material
+from gplugins.emode.emode import DIMENSIONAL_SETTINGS, get_emode_material
 
 EMODE_MATERIALS = ["Air", "Si", "SiO2", "Si3N4"]
 
@@ -43,15 +45,23 @@ def layer_stack() -> LayerStack:
     )
 
 
-def _fake_session() -> EMode:
-    """EMode instance that records calls instead of launching the application."""
-    em = object.__new__(EMode)
-    em.recorded_settings = []
-    em.recorded_shapes = []
-    em.settings = lambda **kwargs: em.recorded_settings.append(kwargs)
-    em.shape = lambda **kwargs: em.recorded_shapes.append(kwargs)
-    em.get = lambda key: list(EMODE_MATERIALS)
-    return em
+class FakeEMode(EMode):
+    """EMode session that records calls instead of launching the application."""
+
+    def __init__(self) -> None:
+        # Deliberately does not call super().__init__, which launches the app.
+        self.recorded_settings: list[dict[str, Any]] = []
+        self.recorded_shapes: list[dict[str, Any]] = []
+
+    def settings(self, **kwargs: Any) -> None:
+        self.recorded_settings.append(kwargs)
+
+    def shape(self, **kwargs: Any) -> None:
+        self.recorded_shapes.append(kwargs)
+
+    def get(self, key: str) -> list[str]:
+        assert key == "materials"
+        return list(EMODE_MATERIALS)
 
 
 def test_get_emode_settings_converts_dimensional_values() -> None:
@@ -71,6 +81,12 @@ def test_get_emode_settings_passes_none_through() -> None:
     settings = get_emode_settings(wavelength=1.55, bend_radius=None)
     assert settings["wavelength"] == pytest.approx(1550.0)
     assert settings["bend_radius"] is None
+
+
+@pytest.mark.parametrize("key", sorted(DIMENSIONAL_SETTINGS))
+def test_get_emode_settings_converts_every_dimensional_key(key: str) -> None:
+    settings = get_emode_settings(**{key: 1.0})
+    assert settings[key] == pytest.approx(1000.0)
 
 
 def test_get_emode_material_matches_case_insensitively() -> None:
@@ -168,7 +184,7 @@ def test_layer_without_material_raises(layer_stack: LayerStack) -> None:
 
 
 def test_build_waveguide_forwards_to_session(layer_stack: LayerStack) -> None:
-    em = _fake_session()
+    em = FakeEMode()
     em.build_waveguide(
         cross_section="rib",
         layer_stack=layer_stack,
