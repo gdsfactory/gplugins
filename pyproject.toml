@@ -46,6 +46,7 @@ docs = [
   "bokeh",
   "scikit-learn"
 ]
+emode = ["emodeconnection>=1.1.11"]
 femwell = ["femwell~=0.1.11", "meshwell~=2.1.1"]
 gfviz = ["jinja2", "fastapi", "shapely", "natsort"]
 klayout = ["klayout", "pyvis<=0.3.2", "vlsir", "vlsirtools", "gitpython"]

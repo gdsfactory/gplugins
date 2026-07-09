@@ -26,6 +26,7 @@ execute:
     - "*elmer_01_electrostatic*"
     - "*meep_*"
     - "*meow_01*"
+    - "*emode_01*"
     - "*luminescent*"
     - "*pso*"
     - "*mpb*"

@@ -42,6 +42,17 @@ Mode solvers
 
    compute_cross_section_modes
 
+.. currentmodule:: gplugins.emode
+
+.. rubric:: Mode solver EMode
+
+.. autosummary::
+   :toctree: _autosummary/
+
+   EMode
+   get_emode_settings
+   get_shapes_from_layer_stack
+
 .. currentmodule:: gplugins.meow
 
 .. rubric:: EME (Eigen Mode Expansion)
