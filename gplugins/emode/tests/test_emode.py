@@ -128,6 +128,18 @@ def test_shapes_mask_offset_from_cross_section(layer_stack: LayerStack) -> None:
     assert shapes["core"]["mask_offset"] == pytest.approx(100.0)
 
 
+def test_shapes_match_section_by_layer_tuple(layer_stack: LayerStack) -> None:
+    # Layer specs are normalized through the PDK, so a section defined with a
+    # (layer, datatype) tuple matches a layer stack that uses layer names.
+    wg_tuple = gf.get_layer_tuple("WG")
+    xs = gf.CrossSection(sections=(gf.Section(width=0.5, layer=wg_tuple),))
+    shapes = {
+        shape["name"]: shape for shape in get_shapes_from_layer_stack(xs, layer_stack)
+    }
+    assert shapes["core"]["mask"] == pytest.approx(500.0)
+    assert "mask" not in shapes["clad"]
+
+
 def test_shapes_positions_relative_to_stack_bottom(layer_stack: LayerStack) -> None:
     shapes = {
         shape["name"]: shape

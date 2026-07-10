@@ -21,8 +21,8 @@ from typing import Any
 
 import emodeconnection as emc
 import gdsfactory as gf
-from gdsfactory.technology import LayerStack
-from gdsfactory.typings import CrossSectionSpec
+from gdsfactory.technology import LayerLevel, LayerStack
+from gdsfactory.typings import CrossSectionSpec, LayerSpec
 
 UM_TO_NM = 1e3
 
@@ -75,6 +75,29 @@ def get_emode_material(material: str, materials: Sequence[str]) -> str:
         materials: available EMode material names, from ``EMode.get('materials')``.
     """
     return next((m for m in materials if m.lower() == material.lower()), material)
+
+
+def _layer_tuple(layer: LayerSpec) -> tuple[int, int] | None:
+    """Resolve a layer spec to a (layer, datatype) tuple via the active PDK.
+
+    Returns None for layers that cannot be resolved to a single GDS layer
+    (e.g. unresolved DerivedLayer expressions).
+    """
+    # LogicalLayer and DerivedLayer wrap the underlying spec in .layer.
+    layer = getattr(layer, "layer", layer)
+    try:
+        return gf.get_layer_tuple(layer)
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
+def _level_layer_tuple(level: LayerLevel) -> tuple[int, int] | None:
+    """Resolve a layer level to a (layer, datatype) tuple.
+
+    The derived layer takes precedence over the source layer, since it is the
+    physically meaningful output of a derived-layer boolean operation.
+    """
+    return _layer_tuple(level.derived_layer or level.layer)
 
 
 def get_shapes_from_layer_stack(
@@ -131,11 +154,12 @@ def get_shapes_from_layer_stack(
             "priority": max_order - level.mesh_order + 1,
         }
 
+        level_layer = _level_layer_tuple(level)
         section = next(
             (
                 s
                 for s in xs.sections
-                if str(s.layer) in (str(level.layer), str(level.derived_layer))
+                if level_layer is not None and _layer_tuple(s.layer) == level_layer
             ),
             None,
         )
