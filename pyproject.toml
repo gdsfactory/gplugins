@@ -30,7 +30,7 @@ version = "2.1.0"
 [project.optional-dependencies]
 dev = [
   "hypothesis",
-  "numba",
+  "numba>=0.60",
   "pre-commit",
   "pyswarms",
   "pytest",
@@ -54,7 +54,7 @@ luminescent = ["luminescent>=0.2.12,<4.1.0", "sortedcontainers"]
 maintainer = ["mypy", "tbump", "towncrier"]
 meow = ["meow-sim>=0.15", "sax>=0.17,<0.19", "tidy3d~=2.11.1"]
 meshwell = ["shapely", "meshwell~=2.1.1"]
-path_length_analysis = ["bokeh", "numba", "shapely"]
+path_length_analysis = ["bokeh", "numba>=0.60", "shapely"]
 sax = ["sax>=0.17,<0.19"]
 schematic = ["bokeh", "ipywidgets", "natsort"]
 tidy3d = ["tidy3d~=2.11.1", "gdstk", "pytz"]  # pin max version because tidy3d often introduces breaking API changes across minor releases
