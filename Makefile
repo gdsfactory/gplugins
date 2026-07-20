@@ -61,9 +61,29 @@ jupytext:
 notebooks:
 	jupytext docs/**/*.py --to ipynb
 
-docs:
-	bash install_luminescent.sh
-	PYVISTA_OFF_SCREEN=0 PYVISTA_JUPYTER_BACKEND=html uv run jb build docs
+NOEXEC_PATTERNS = 01_pin_waveguide|1_fdtd_sparameters|2_interconnect|ray_optimiser|03_numerical_implantation|02_fullwave|fdtdz|elmer_01_electrostatic|meep_|meow_01|luminescent|pso|mpb|palace_01_electrostatic|00_tidy3d|workflow_3_cascaded_mzi
+
+nbdocs:
+	@echo "Converting notebooks to markdown..."
+	@find docs -name "*.ipynb" | while read nb; do \
+		if echo "$$nb" | grep -qE '$(NOEXEC_PATTERNS)'; then \
+			echo "  [no-exec] $$nb"; \
+			jupyter nbconvert --to markdown --embed-images "$$nb" 2>/dev/null || true; \
+		else \
+			echo "  [exec] $$nb"; \
+			PYVISTA_OFF_SCREEN=0 PYVISTA_JUPYTER_BACKEND=html \
+			jupyter nbconvert --to markdown --execute --embed-images \
+				--ExecutePreprocessor.allow_errors=True \
+				--ExecutePreprocessor.timeout=600 "$$nb" 2>/dev/null || true; \
+		fi; \
+	done
+	python docs/hooks.py docs/notebooks/*.md
+
+docs: nbdocs
+	zensical build --strict -f docs/zensical.yml
+
+docs-serve:
+	zensical serve -f docs/zensical.yml
 
 clean:
 	rm -rf dist
@@ -79,4 +99,4 @@ luminescent:
 	bash install_luminescent.sh
 
 
-.PHONY: drc doc docs dev
+.PHONY: drc doc docs docs-serve nbdocs dev
