@@ -1,11 +1,11 @@
 # Book settings
-# Learn more at https://jupyterbook.org/customize/config.html
+# Learn more at https://jupyterbook.org/en/stable/customize/config.html
 
 title: GDSFactory Plugins
 author: GDSFactory
 
 # Force re-execution of notebooks on each build.
-# See https://jupyterbook.org/content/execute.html
+# See https://jupyterbook.org/en/stable/content/execute.html
 execute:
   execute_notebooks: cache
   timeout: 600

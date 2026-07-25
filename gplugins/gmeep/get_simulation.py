@@ -70,7 +70,7 @@ def get_simulation(
     r"""Returns Simulation dict from gdsfactory Component.
 
     based on meep directional coupler example
-    https://meep.readthedocs.io/en/latest/Python_Tutorials/GDSII_Import/
+    https://meep.readthedocs.io/en/latest/Python_Tutorials/GDS_Import/
 
     https://support.lumerical.com/hc/en-us/articles/360042095873-Metamaterial-S-parameter-extraction
 
