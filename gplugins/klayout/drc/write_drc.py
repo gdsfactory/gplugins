@@ -50,8 +50,8 @@ def get_drc_script_start(name, shortcut) -> str:
  <text># {name} DRC
 
 # Read about Klayout DRC scripts in the User Manual under "Design Rule Check (DRC)"
-# Based on https://gdsfactory.github.io/gdsfactory/notebooks/_2_klayout.html#Klayout-DRC
-# and https://gdsfactory.github.io/gdsfactory/api.html#klayout-drc
+# Based on https://gdsfactory.github.io/gdsfactory/notebooks/_2_klayout/
+# and https://gdsfactory.github.io/gdsfactory/api/
 
 report("{name} DRC")
 time_start = Time.now
