@@ -1554,8 +1554,8 @@ requires-dist = [
     { name = "pyvis", marker = "extra == 'klayout'", specifier = "<=0.3.2" },
     { name = "pyvista", marker = "extra == 'devsim'", specifier = "<=0.48.4" },
     { name = "pyvista", extras = ["all"], marker = "extra == 'docs'", specifier = "<=0.48.4" },
-    { name = "sax", marker = "extra == 'meow'", specifier = ">=0.17,<0.19" },
-    { name = "sax", marker = "extra == 'sax'", specifier = ">=0.17,<0.19" },
+    { name = "sax", marker = "extra == 'meow'", specifier = "~=0.18.2" },
+    { name = "sax", marker = "extra == 'sax'", specifier = "~=0.18.2" },
     { name = "scikit-learn", marker = "extra == 'docs'" },
     { name = "shapely", marker = "extra == 'gfviz'" },
     { name = "shapely", marker = "extra == 'meshwell'" },
@@ -1852,17 +1852,17 @@ resolution-markers = [
     "python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 dependencies = [
-    { name = "colorama", marker = "python_full_version < '3.12' and sys_platform == 'win32'" },
-    { name = "decorator", marker = "python_full_version < '3.12'" },
-    { name = "ipython-pygments-lexers", marker = "python_full_version < '3.12'" },
-    { name = "jedi", marker = "python_full_version < '3.12'" },
-    { name = "matplotlib-inline", marker = "python_full_version < '3.12'" },
-    { name = "pexpect", marker = "python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32'" },
-    { name = "prompt-toolkit", marker = "python_full_version < '3.12'" },
-    { name = "pygments", marker = "python_full_version < '3.12'" },
-    { name = "stack-data", marker = "python_full_version < '3.12'" },
-    { name = "traitlets", marker = "python_full_version < '3.12'" },
-    { name = "typing-extensions", marker = "python_full_version < '3.12'" },
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "decorator" },
+    { name = "ipython-pygments-lexers" },
+    { name = "jedi" },
+    { name = "matplotlib-inline" },
+    { name = "pexpect", marker = "sys_platform != 'emscripten' and sys_platform != 'win32'" },
+    { name = "prompt-toolkit" },
+    { name = "pygments" },
+    { name = "stack-data" },
+    { name = "traitlets" },
+    { name = "typing-extensions" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c5/25/daae0e764047b0a2480c7bbb25d48f4f509b5818636562eeac145d06dfee/ipython-9.10.1.tar.gz", hash = "sha256:e170e9b2a44312484415bdb750492699bf329233b03f2557a9692cce6466ada4", size = 4426663, upload-time = "2026-03-27T09:53:26.244Z" }
 wheels = [
@@ -1885,16 +1885,16 @@ resolution-markers = [
     "python_full_version == '3.12.*' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 dependencies = [
-    { name = "colorama", marker = "python_full_version >= '3.12' and sys_platform == 'win32'" },
-    { name = "decorator", marker = "python_full_version >= '3.12'" },
-    { name = "ipython-pygments-lexers", marker = "python_full_version >= '3.12'" },
-    { name = "jedi", marker = "python_full_version >= '3.12'" },
-    { name = "matplotlib-inline", marker = "python_full_version >= '3.12'" },
-    { name = "pexpect", marker = "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32'" },
-    { name = "prompt-toolkit", marker = "python_full_version >= '3.12'" },
-    { name = "pygments", marker = "python_full_version >= '3.12'" },
-    { name = "stack-data", marker = "python_full_version >= '3.12'" },
-    { name = "traitlets", marker = "python_full_version >= '3.12'" },
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "decorator" },
+    { name = "ipython-pygments-lexers" },
+    { name = "jedi" },
+    { name = "matplotlib-inline" },
+    { name = "pexpect", marker = "sys_platform != 'emscripten' and sys_platform != 'win32'" },
+    { name = "prompt-toolkit" },
+    { name = "pygments" },
+    { name = "stack-data" },
+    { name = "traitlets" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/3a/73/7114f80a8f9cabdb13c27732dce24af945b2923dcab80723602f7c8bc2d8/ipython-9.12.0.tar.gz", hash = "sha256:01daa83f504b693ba523b5a407246cabde4eb4513285a3c6acaff11a66735ee4", size = 4428879, upload-time = "2026-03-27T09:42:45.312Z" }
 wheels = [
@@ -2822,7 +2822,7 @@ name = "manifold3d"
 version = "3.4.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", marker = "python_full_version < '3.14'" },
+    { name = "numpy" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/b0/fd/4dfc246e076e3912c45a821764f4de8b6c8117fa36fc67f8e44bf9dfe59b/manifold3d-3.4.1.tar.gz", hash = "sha256:b517927e2c15dc52169fff0cd12e1949eceb4ca49f3a5b8c0568b1116a561ab1", size = 269275, upload-time = "2026-03-24T06:22:40.062Z" }
 wheels = [
@@ -3923,7 +3923,7 @@ name = "pexpect"
 version = "4.9.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "ptyprocess", marker = "sys_platform != 'emscripten' and sys_platform != 'win32'" },
+    { name = "ptyprocess" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/42/92/cc564bf6381ff43ce1f4d06852fc19a2f11d180f23dc32d9588bee2f149d/pexpect-4.9.0.tar.gz", hash = "sha256:ee7d41123f3c9911050ea2c2dac107568dc43b2d3b0c7557a33212c398ead30f", size = 166450, upload-time = "2023-11-25T09:07:26.339Z" }
 wheels = [
@@ -5294,7 +5294,7 @@ wheels = [
 
 [[package]]
 name = "sax"
-version = "0.17.0"
+version = "0.18.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jax" },
@@ -5317,9 +5317,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "xarray" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/db/16/8d163f5feb3c22535c784991d42f8febd931aead0beadfc76855ab144fdc/sax-0.17.0.tar.gz", hash = "sha256:5159e350a47e1b97597987060d97e21688052f0bd7ace5b8bdd105c079e3fe56", size = 105933, upload-time = "2026-04-16T19:39:36.876Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e5/e8/d5596c5f0e9a997135ed8fe602adb7061268a419ebc73f39c595b218f1b7/sax-0.18.2.tar.gz", hash = "sha256:39c0f8ca245d77616f722856f8f838d22703d6c8bef58da2969426de1217bcdb", size = 112480, upload-time = "2026-06-09T16:44:07.799Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/72/b3/4850ce15aa646440133db68df3f6a4396b82a03d86d216b60862c44e6430/sax-0.17.0-py3-none-any.whl", hash = "sha256:6cce0abd24f0dc3102b737c9390bf6322340d53f9e41cb32e0b4f4c09b58d420", size = 126380, upload-time = "2026-04-16T19:39:35.422Z" },
+    { url = "https://files.pythonhosted.org/packages/e6/0b/94e9a63022f9a9f347176f54c2fae034c49cfc5989bd4384c97c4b814001/sax-0.18.2-py3-none-any.whl", hash = "sha256:ccacc71c6c74a5b2aa9fd0b5436e4a64b92ee4169a0a36469ef55d68e6472f03", size = 134218, upload-time = "2026-06-09T16:44:06.567Z" },
 ]
 
 [[package]]
