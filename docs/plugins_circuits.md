@@ -8,6 +8,3 @@ You can use 3 circuit simulators:
 
 1. SAX (open source). Based on Google's Machine learning library JAX.
 2. Ansys Lumerical interconnect.
-
-```{tableofcontents}
-```

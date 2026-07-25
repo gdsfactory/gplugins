@@ -1,0 +1,114 @@
+site_name: GDSFactory Plugins
+site_url: https://gdsfactory.github.io/gplugins
+repo_url: https://github.com/gdsfactory/gplugins
+repo_name: gdsfactory/gplugins
+docs_dir: .
+site_dir: _build/html
+
+theme:
+  name: material
+  logo: _static/logo_white_lettering.png
+  favicon: _static/logo_black_lettering.png
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - content.code.copy
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+
+nav:
+  - index.md
+  - Design:
+      - Optimization:
+          - plugins_optimization.md
+          - notebooks/ray_optimiser.md
+          - notebooks/pso.md
+      - Device Simulators:
+          - plugins_process.md
+          - notebooks/femwell_02_heater.md
+          - notebooks/tcad_02_analytical_process.md
+          - notebooks/tcad_03_numerical_implantation.md
+          - notebooks/elmer_01_electrostatic.md
+          - notebooks/palace_01_electrostatic.md
+          - notebooks/palace_02_fullwave.md
+      - Mode Solvers:
+          - plugins_mode_solver.md
+          - notebooks/femwell_01_modes.md
+          - notebooks/mode_solver_fdfd.md
+          - notebooks/mpb_001_mpb_waveguide.md
+          - notebooks/meow_01.md
+      - FDTD:
+          - plugins_fdtd.md
+          - notebooks/tidy3d_00_tidy3d.md
+          - notebooks/lumerical_1_fdtd_sparameters.md
+          - notebooks/luminescent.md
+          - notebooks/fdtdz_01.md
+          - notebooks/meep_01_sparameters.md
+          - notebooks/meep_02_gratings.md
+      - Circuit Simulators:
+          - plugins_circuits.md
+          - notebooks/sax_01_sax.md
+          - notebooks/vlsir_netlist.md
+  - Verification:
+      - notebooks/klayout_dataprep.md
+      - notebooks/klayout_drc.md
+      - notebooks/11_get_netlist.md
+      - notebooks/11_get_netlist_spice.md
+      - notebooks/path_length_analysis.md
+  - Workflows:
+      - workflow.md
+      - notebooks/workflow_1_mzi.md
+      - notebooks/workflow_2_ring.md
+      - notebooks/workflow_3_cascaded_mzi.md
+  - Reference:
+      - api_design.md
+      - api_verification.md
+      - changelog.md
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_source: true
+            show_root_heading: true
+            members_order: source
+  - bibtex:
+      bib_file: bibliography.bib
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      base_path:
+        - ..
+        - .
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+
+extra_javascript:
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js

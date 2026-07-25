@@ -25,7 +25,7 @@ license = {file = "LICENSE"}
 name = "gplugins"
 readme = "README.md"
 requires-python = ">=3.11"
-version = "2.1.0"
+version = "2.1.1"
 
 [project.optional-dependencies]
 dev = [
@@ -39,12 +39,16 @@ dev = [
 ]
 devsim = ["devsim", "pyvista<=0.48.4", "tidy3d~=2.11.1"]
 docs = [
+  "jupyter",
   "jupytext",
   "matplotlib",
-  "jupyter-book>=1,<3",
+  "nbconvert",
+  "mkdocstrings[python]",
+  "mkdocs-bibtex",
   "pyvista[all]<=0.48.4",
   "bokeh",
-  "scikit-learn"
+  "scikit-learn",
+  "zensical>=0.0.46,<0.1.0"
 ]
 femwell = ["femwell~=0.1.11", "meshwell~=2.1.1"]
 gfviz = ["jinja2", "fastapi", "shapely", "natsort"]
@@ -178,7 +182,7 @@ message_template = "Bump to {new_version}"
 tag_template = "v{new_version}"
 
 [tool.tbump.version]
-current = "2.1.0"
+current = "2.1.1"
 regex = '''
   (?P<major>\d+)
   \.
