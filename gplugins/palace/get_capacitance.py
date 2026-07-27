@@ -64,7 +64,7 @@ def _generate_json(
         material_spec: Dictionary of material specifications.
         physical_name_to_dimtag_map: Dictionary mapping physical names to dimension tags.
         background_tag: Physical name of the background.
-        solver_config: Dictionary of solver parameters given to https://awslabs.github.io/palace/stable/config/solver/.
+        solver_config: Dictionary of solver parameters given to https://awslabs.github.io/palace/stable/config/reference/.
     """
     # TODO: Generalise to merger with the Elmer implementations"""
     used_materials = {v.material for v in layer_stack.layers.values()} | (
@@ -238,7 +238,7 @@ def run_capacitive_simulation_palace(
             Directory for storing the simulation results.
             Default is a temporary directory.
         solver_config: Palace-specific parameters. This will be expanded to ``config["Solver"]`` in
-            the Palace config, see `Palace documentation <https://awslabs.github.io/palace/stable/config/solver/#config[%22Solver%22]>`_
+            the Palace config, see `Palace documentation <https://awslabs.github.io/palace/stable/config/reference/>`_
         mesh_parameters:
             Keyword arguments to provide to :func:`~meshwell.mesh.mesh`.
         mesh_file: Path to a ready mesh to use. Useful for reusing one mesh file.

@@ -16,7 +16,7 @@ concurrency:
 jobs:
   build-docs:
     runs-on: ubuntu-latest
-    name: Sphinx docs to gh-pages
+    name: Build docs
     steps:
       - uses: actions/checkout@v6
       - uses: astral-sh/setup-uv@v7
@@ -78,7 +78,8 @@ jobs:
           make test-data
           printf 'pdk="gdsfactory.gpdk"\nignore_sliver_differences=True\n' > .env
           uv sync --extra dev --extra docs --extra emode --extra femwell --extra meow --extra sax --extra tidy3d --extra klayout --extra vlsir
-          uv run jb build docs
+          uv run make nbdocs
+          uv run zensical build --strict -f docs/zensical.yml
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:

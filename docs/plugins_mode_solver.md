@@ -14,6 +14,3 @@ Notice that the tidy3d FDTD solver is not open source as it runs on the cloud se
 You can also use [EMode](https://emodephotonix.com), a commercial photonic simulation package with a Finite Difference Method (FDM) waveguide mode solver, eigenmode expansion propagation (EME), nonlinear photonics, and thermal/electrical FEM solvers.
 The `emode` plugin translates gdsfactory cross-sections and layer stacks into EMode geometry through the pip-installable `emodeconnection` client; running simulations requires a local EMode installation and license (a [free trial](https://emodephotonix.com/free-trial/) is available).
 See the [EMode documentation](https://docs.emodephotonix.com) for the full API.
-
-```{tableofcontents}
-```

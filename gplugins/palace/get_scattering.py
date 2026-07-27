@@ -323,9 +323,9 @@ def run_scattering_simulation_palace(
             Directory for storing the simulation results.
             Default is a temporary directory.
         simulator_params: Palace-specific parameters. This will be expanded to ``solver["Linear"]`` in
-            the Palace config, see `Palace documentation <https://awslabs.github.io/palace/stable/config/solver/#solver[%22Linear%22]>`_
+            the Palace config, see `Palace documentation <https://awslabs.github.io/palace/stable/config/reference/>`_
         driven_settings: Driven full-wave parameters in Palace. This will be expanded to ``solver["Driven"]`` in
-            the Palace config, see `Palace documentation <https://awslabs.github.io/palace/stable/config/solver/#solver[%22Driven%22]>`_
+            the Palace config, see `Palace documentation <https://awslabs.github.io/palace/stable/config/reference/>`_
         mesh_refinement_levels: Refine mesh this many times, see Palace for details.
         only_one_port: Whether to solve only scattering from the first port to other ports, e.g., `S11, S12, S13, ...`
         mesh_parameters:
