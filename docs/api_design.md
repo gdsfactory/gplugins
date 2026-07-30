@@ -24,6 +24,14 @@
 
 ::: gplugins.femwell.mode_solver.compute_cross_section_modes
 
+### Mode solver EMode
+
+::: gplugins.emode.EMode
+
+::: gplugins.emode.get_emode_settings
+
+::: gplugins.emode.get_shapes_from_layer_stack
+
 ### EME (Eigen Mode Expansion)
 
 ::: gplugins.meow.MEOW

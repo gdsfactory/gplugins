@@ -28,6 +28,7 @@ Run simulations with GDSFactory by installing plugins.
         - Tidy3d
         - Femwell
         - MPB
+        - `EMode` Finite Difference Method (FDM) mode solver with EME propagation (commercial).
     - TCAD
         - `devsim` TCAD device simulator.
 - Circuit simulations

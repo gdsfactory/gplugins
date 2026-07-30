@@ -49,6 +49,7 @@ nav:
           - notebooks/mode_solver_fdfd.md
           - notebooks/mpb_001_mpb_waveguide.md
           - notebooks/meow_01.md
+          - notebooks/emode_01.md
       - FDTD:
           - plugins_fdtd.md
           - notebooks/tidy3d_00_tidy3d.md
