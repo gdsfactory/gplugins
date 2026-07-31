@@ -24,6 +24,8 @@ exclude = [
   "https://www.lumerical.com/.*",
   "https://support.lumerical.com/.*",
   "https://optics.ansys.com/.*",
+  # IEEE blocks automated crawlers with 418
+  "https://ieeexplore.ieee.org/.*",
   # Consistently returns non-200 despite valid content
   "https://mathworld.wolfram.com/.*",
   "https://nbviewer.org/.*",
