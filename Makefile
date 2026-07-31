@@ -65,7 +65,7 @@ NOEXEC_PATTERNS = 01_pin_waveguide|1_fdtd_sparameters|2_interconnect|ray_optimis
 
 nbdocs:
 	@echo "Converting notebooks to markdown..."
-	@find docs -name "*.ipynb" | while read nb; do \
+	@find -L docs -name "*.ipynb" | while read nb; do \
 		if echo "$$nb" | grep -qE '$(NOEXEC_PATTERNS)'; then \
 			echo "  [no-exec] $$nb"; \
 			jupyter nbconvert --to markdown --embed-images "$$nb" 2>/dev/null || true; \
