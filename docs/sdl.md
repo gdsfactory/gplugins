@@ -1,4 +1,0 @@
-# Schematic Driven Layout
-
-```{tableofcontents}
-```
