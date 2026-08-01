@@ -65,7 +65,13 @@ NOEXEC_PATTERNS = 01_pin_waveguide|1_fdtd_sparameters|2_interconnect|ray_optimis
 
 nbdocs:
 	@echo "Converting notebooks to markdown..."
-	@find -L docs -name "*.ipynb" | while read nb; do \
+	@# Resolve symlink so zensical can discover the generated .md files
+	@if [ -L docs/notebooks ]; then \
+		target=$$(readlink -f docs/notebooks) && \
+		rm docs/notebooks && \
+		cp -r "$$target" docs/notebooks; \
+	fi
+	@find docs -name "*.ipynb" | while read nb; do \
 		if echo "$$nb" | grep -qE '$(NOEXEC_PATTERNS)'; then \
 			echo "  [no-exec] $$nb"; \
 			jupyter nbconvert --to markdown --embed-images "$$nb" 2>/dev/null || true; \
