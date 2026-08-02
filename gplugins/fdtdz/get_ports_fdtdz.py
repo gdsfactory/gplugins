@@ -190,7 +190,7 @@ def plot_mode(
 
 if __name__ == "__main__":
     import gdsfactory as gf
-    from gdsfactory.generic_tech import LAYER, LAYER_STACK
+    from gdsfactory.gpdk import LAYER, LAYER_STACK
 
     from gplugins.fdtdz.get_epsilon_fdtdz import component_to_epsilon_pjz
 

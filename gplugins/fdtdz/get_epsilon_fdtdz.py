@@ -215,7 +215,7 @@ def add_plot_labels(arg0, arg1, arg2, arg3) -> None:
 
 if __name__ == "__main__":
     import gdsfactory as gf
-    from gdsfactory.generic_tech import LAYER, LAYER_STACK
+    from gdsfactory.gpdk import LAYER, LAYER_STACK
 
     length = 5
 

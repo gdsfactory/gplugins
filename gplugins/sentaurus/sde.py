@@ -258,8 +258,8 @@ def write_sde(
 
 if __name__ == "__main__":
     from gdsfactory.components import straight_pn
-    from gdsfactory.generic_tech import LAYER
-    from gdsfactory.generic_tech.layer_stack import WAFER_STACK
+    from gdsfactory.gpdk import LAYER
+    from gdsfactory.gpdk.layer_stack import WAFER_STACK
 
     # Create a component with the right contacts
     length = 3
@@ -298,7 +298,7 @@ if __name__ == "__main__":
     #                )
 
     # Tweak process
-    from gdsfactory.generic_tech.layer_stack import LayerStackParameters
+    from gdsfactory.gpdk.layer_stack import LayerStackParameters
     from gdsfactory.technology.processes import ProcessStep
 
     def get_process() -> tuple[ProcessStep]:

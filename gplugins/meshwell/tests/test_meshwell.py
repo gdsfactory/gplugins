@@ -3,7 +3,7 @@ import gdsfactory as gf
 
 
 from gdsfactory.components import bend_circular, add_frame
-from gdsfactory.generic_tech.layer_stack import get_layer_stack
+from gdsfactory.gpdk.layer_stack import get_layer_stack
 from meshwell.cad import cad
 from meshwell.mesh import mesh
 from pathlib import Path

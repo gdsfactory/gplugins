@@ -230,7 +230,7 @@ def create_2Duz_simulation(
 
 if __name__ == "__main__":
     import gdsfactory as gf
-    from gdsfactory.generic_tech import LAYER, LAYER_STACK
+    from gdsfactory.gpdk import LAYER, LAYER_STACK
 
     # We choose a representative subdomain of the component
     waveguide = gf.Component()

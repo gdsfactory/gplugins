@@ -1,7 +1,7 @@
 from collections.abc import Callable
 
 import numpy as np
-from gdsfactory.generic_tech import LAYER
+from gdsfactory.gpdk import LAYER
 from gdsfactory.typings import Layer
 from pydantic import BaseModel, ConfigDict
 

@@ -402,7 +402,7 @@ def write_drc_deck_macro(
             check_area,
             check_density,
         )
-        from gdsfactory.generic_tech import LAYER
+        from gdsfactory.gpdk import LAYER
         rules = [
             check_width(layer="WG", value=0.2),
             check_space(layer="WG", value=0.2),
@@ -445,7 +445,7 @@ def write_drc_deck_macro(
 
 
 if __name__ == "__main__":
-    from gdsfactory.generic_tech import LAYER
+    from gdsfactory.gpdk import LAYER
 
     rules = [
         derived_layer_boolean("TRENCH", "SLAB90", "-", "WG"),

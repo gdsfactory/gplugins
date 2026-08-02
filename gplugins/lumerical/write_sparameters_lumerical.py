@@ -11,7 +11,7 @@ import numpy as np
 import yaml
 from gdsfactory import logger
 from gdsfactory.config import __version__
-from gdsfactory.generic_tech.simulation_settings import (
+from gdsfactory.gpdk.simulation_settings import (
     SIMULATION_SETTINGS_LUMERICAL_FDTD,
     SimulationSettingsLumericalFdtd,
 )

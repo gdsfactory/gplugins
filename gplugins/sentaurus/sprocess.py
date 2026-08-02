@@ -569,8 +569,8 @@ struct tdr= pn_test_msh_zcut_remeshed
 
 if __name__ == "__main__":
     from gdsfactory.components import straight_pn
-    from gdsfactory.generic_tech import LAYER
-    from gdsfactory.generic_tech.layer_stack import WAFER_STACK, get_process
+    from gdsfactory.gpdk import LAYER
+    from gdsfactory.gpdk.layer_stack import WAFER_STACK, get_process
 
     # Create a component with the right contacts
     c = gf.Component(name="test_pn")

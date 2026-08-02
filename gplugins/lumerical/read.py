@@ -7,7 +7,7 @@ import gdsfactory as gf
 import numpy as np
 from gdsfactory import logger
 from gdsfactory.component import Component
-from gdsfactory.generic_tech import LAYER_STACK
+from gdsfactory.gpdk import LAYER_STACK
 from gdsfactory.technology import LayerStack
 
 from gplugins.common.utils.get_sparameters_path import (
