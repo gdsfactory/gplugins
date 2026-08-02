@@ -15,7 +15,7 @@ from gdsfactory.typings import Ports
 from kfactory import kdb
 import gdsfactory as gf
 import gmsh
-from gdsfactory.generic_tech import LAYER_STACK
+from gdsfactory.gpdk import LAYER_STACK
 from gdsfactory.technology import LayerStack
 from numpy import isfinite
 from pandas import read_csv

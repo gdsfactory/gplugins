@@ -147,7 +147,7 @@ def get_sparameters_fdtdz(
 
 
 if __name__ == "__main__":
-    from gdsfactory.generic_tech import LAYER, LAYER_STACK
+    from gdsfactory.gpdk import LAYER, LAYER_STACK
 
     length = 5
 

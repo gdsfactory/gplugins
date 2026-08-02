@@ -7,7 +7,7 @@ from gdsfactory.component import Component
 from gdsfactory.components.analog.interdigital_capacitor import (
     interdigital_capacitor,
 )
-from gdsfactory.generic_tech import LAYER
+from gdsfactory.gpdk import LAYER
 from gdsfactory.technology import LayerStack
 from gdsfactory.technology.layer_stack import LayerLevel
 

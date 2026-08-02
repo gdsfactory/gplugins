@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 import gdsfactory as gf
 import pytest
-from gdsfactory.generic_tech.layer_map import LAYER
+from gdsfactory.gpdk.layer_map import LAYER
 from kfactory import kdb
 
 import gplugins.klayout.dataprep.regions as dp

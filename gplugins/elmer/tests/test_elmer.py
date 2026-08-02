@@ -4,7 +4,7 @@ import gdsfactory as gf
 import pytest
 from gdsfactory.component import Component
 from gdsfactory.components import interdigital_capacitor_enclosed
-from gdsfactory.generic_tech import LAYER
+from gdsfactory.gpdk import LAYER
 from gdsfactory.technology import LayerStack
 from gdsfactory.technology.layer_stack import LayerLevel
 

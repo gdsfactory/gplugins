@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from gdsfactory.generic_tech import LAYER_STACK
+from gdsfactory.gpdk import LAYER_STACK
 from gdsfactory.technology import LayerStack
 from meshwell.resolution import ConstantInField
 

@@ -6,7 +6,7 @@ import math
 import kfactory as kf
 from gdsfactory.add_padding import add_padding_container, add_padding
 from functools import partial
-from gdsfactory.generic_tech.layer_map import LAYER
+from gdsfactory.gpdk.layer_map import LAYER
 from gplugins.common.utils.geometry import region_to_shapely_polygons
 
 
@@ -106,8 +106,8 @@ def get_meshwell_prisms(
 
 if __name__ == "__main__":
     from gdsfactory.components import ge_detector_straight_si_contacts, add_frame
-    from gdsfactory.generic_tech.layer_stack import get_layer_stack
-    from gdsfactory.generic_tech.layer_map import LAYER
+    from gdsfactory.gpdk.layer_stack import get_layer_stack
+    from gdsfactory.gpdk.layer_map import LAYER
     from meshwell.cad import cad
     from meshwell.mesh import mesh
 

@@ -200,7 +200,7 @@ class RegionCollection:
 
 if __name__ == "__main__":
     import kfactory as kf
-    from gdsfactory.generic_tech import LAYER
+    from gdsfactory.gpdk import LAYER
 
     c = gf.Component()
     ring = c << gf.components.coupler_ring()

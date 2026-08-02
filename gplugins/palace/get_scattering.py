@@ -15,7 +15,7 @@ from typing import Any
 import gdsfactory as gf
 import gmsh
 import pandas as pd
-from gdsfactory.generic_tech import LAYER_STACK
+from gdsfactory.gpdk import LAYER_STACK
 from gdsfactory.technology import LayerStack
 from numpy import isfinite
 

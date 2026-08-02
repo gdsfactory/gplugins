@@ -1,5 +1,5 @@
 from gdsfactory.components import straight_heater_metal
-from gdsfactory.generic_tech import LAYER_STACK
+from gdsfactory.gpdk import LAYER_STACK
 
 from gplugins.common.utils.get_component_with_net_layers import (
     get_component_layer_stack,
