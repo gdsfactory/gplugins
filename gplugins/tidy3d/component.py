@@ -43,10 +43,17 @@ from gplugins.tidy3d.util import get_mode_solvers, get_port_normal, sort_layers
 
 PathType = pathlib.Path | str
 
+_silicon_medium = td.Medium(name="Si", permittivity=3.47**2)
+_silicon_dioxide_medium = td.Medium(name="SiO2", permittivity=1.47**2)
+_silicon_nitride_medium = td.Medium(name="SiN", permittivity=2.0**2)
+
 material_name_to_medium = {
-    "si": td.Medium(name="Si", permittivity=3.47**2),
-    "sio2": td.Medium(name="SiO2", permittivity=1.47**2),
-    "sin": td.Medium(name="SiN", permittivity=2.0**2),
+    "Si": _silicon_medium,
+    "SiO2": _silicon_dioxide_medium,
+    "SiN": _silicon_nitride_medium,
+    "si": _silicon_medium,
+    "sio2": _silicon_dioxide_medium,
+    "sin": _silicon_nitride_medium,
 }
 
 home = pathlib.Path.home()

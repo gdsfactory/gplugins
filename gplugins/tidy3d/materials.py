@@ -7,10 +7,17 @@ import tidy3d as td
 from tidy3d.components.medium import PoleResidue
 from tidy3d.components.types import Complex
 
+_silicon_medium = td.material_library["cSi"]["Li1993_293K"]
+_silicon_dioxide_medium = td.material_library["SiO2"]["Palik_Lossless"]
+_silicon_nitride_medium = td.material_library["Si3N4"]["Luke2015PMLStable"]
+
 material_name_to_tidy3d = {
-    "si": td.material_library["cSi"]["Li1993_293K"],
-    "sio2": td.material_library["SiO2"]["Palik_Lossless"],
-    "sin": td.material_library["Si3N4"]["Luke2015PMLStable"],
+    "Si": _silicon_medium,
+    "SiO2": _silicon_dioxide_medium,
+    "SiN": _silicon_nitride_medium,
+    "si": _silicon_medium,
+    "sio2": _silicon_dioxide_medium,
+    "sin": _silicon_nitride_medium,
 }
 
 MaterialSpecTidy3d: TypeAlias = (
