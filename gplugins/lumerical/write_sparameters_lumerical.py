@@ -35,6 +35,23 @@ run=False returns the simulation session for you to debug and make sure it is co
 To compute the Sparameters you need to pass run=True
 """
 
+_MATERIAL_NAME_ALIASES = {
+    "Si": "si",
+    "SiO2": "sio2",
+    "SiN": "sin",
+}
+
+
+def _add_material_name_aliases(
+    material_mapping: dict[str, MaterialSpec],
+) -> None:
+    """Add missing canonical or legacy aliases without overriding mappings."""
+    for canonical_name, legacy_name in _MATERIAL_NAME_ALIASES.items():
+        if canonical_name in material_mapping:
+            material_mapping.setdefault(legacy_name, material_mapping[canonical_name])
+        elif legacy_name in material_mapping:
+            material_mapping[canonical_name] = material_mapping[legacy_name]
+
 
 def set_material(session, structure: str, material: MaterialSpec) -> None:
     """Sets the material of a structure.
@@ -379,6 +396,7 @@ def write_sparameters_lumerical(
     material_name_to_lumerical_new = material_name_to_lumerical or {}
     material_name_to_lumerical = ss.material_name_to_lumerical.copy()
     material_name_to_lumerical.update(**material_name_to_lumerical_new)
+    _add_material_name_aliases(material_name_to_lumerical)
 
     material = material_name_to_lumerical[ss.background_material]
     set_material(session=s, structure="clad", material=material)
