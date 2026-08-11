@@ -92,6 +92,9 @@ def compute_cross_section_modes(
 
 
 _material_name_to_index = {
+    "Si": 3.48,
+    "SiO2": 1.44,
+    "SiN": 2.0,
     "si": 3.48,
     "sio2": 1.44,
     "sin": 2.0,
