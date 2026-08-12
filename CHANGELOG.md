@@ -4,6 +4,13 @@
 
 <!-- towncrier release notes start -->
 
+## [2.1.2](https://github.com/gdsfactory/gplugins/releases/tag/v2.1.2) - 2026-08-12
+
+
+### Added
+
+- Add `emode` plugin: translate gdsfactory cross-sections and layer stacks into [EMode](https://emodephotonix.com) simulations through the pip-installable `emodeconnection` client. [#733](https://github.com/gdsfactory/gplugins/issues/733)
+
 ## [2.1.1](https://github.com/gdsfactory/gplugins/releases/tag/v2.1.1) - 2026-07-25
 
 - Migrate docs from Jupyter Book to zensical [#737](https://github.com/gdsfactory/gplugins/pull/737)
