@@ -4,6 +4,14 @@
 
 <!-- towncrier release notes start -->
 
+## [2.1.3](https://github.com/gdsfactory/gplugins/releases/tag/v2.1.3) - 2026-08-12
+
+
+### Fixed
+
+- Use the published meshwell 2.1.1 release for the Femwell and meshwell extras. [#760](https://github.com/gdsfactory/gplugins/issues/760)
+- Prevent tbump from modifying dependency constraints during package version bumps. [#761](https://github.com/gdsfactory/gplugins/issues/761)
+
 ## [2.1.2](https://github.com/gdsfactory/gplugins/releases/tag/v2.1.2) - 2026-08-12
 
 - fix: support canonical material aliases [#759](https://github.com/gdsfactory/gplugins/pull/759)
