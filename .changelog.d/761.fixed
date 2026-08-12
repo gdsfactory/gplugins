@@ -1,0 +1,1 @@
+Prevent tbump from modifying dependency constraints during package version bumps.

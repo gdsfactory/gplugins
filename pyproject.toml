@@ -170,12 +170,15 @@ cmd = "grep -q -F {new_version} CHANGELOG.md"
 name = "create & check changelog"
 
 [[tool.tbump.file]]
+search = '^# gplugins {current_version}$'
 src = "README.md"
 
 [[tool.tbump.file]]
+search = '^version = "{current_version}"$'
 src = "pyproject.toml"
 
 [[tool.tbump.file]]
+search = '^__version__ = "{current_version}"$'
 src = "gplugins/__init__.py"
 
 [tool.tbump.git]
