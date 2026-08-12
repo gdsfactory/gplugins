@@ -1,14 +1,10 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v2.1.2...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v2.1.3...main)
 
 <!-- towncrier release notes start -->
 
 ## [2.1.3](https://github.com/gdsfactory/gplugins/releases/tag/v2.1.3) - 2026-08-12
-
-
-### Fixed
-
 - Use the published meshwell 2.1.1 release for the Femwell and meshwell extras. [#760](https://github.com/gdsfactory/gplugins/issues/760)
 - Prevent tbump from modifying dependency constraints during package version bumps. [#761](https://github.com/gdsfactory/gplugins/issues/761)
 
