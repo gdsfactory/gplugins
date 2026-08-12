@@ -1,15 +1,20 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v2.1.1...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v2.1.2...main)
 
 <!-- towncrier release notes start -->
 
 ## [2.1.2](https://github.com/gdsfactory/gplugins/releases/tag/v2.1.2) - 2026-08-12
 
-
-### Added
-
-- Add `emode` plugin: translate gdsfactory cross-sections and layer stacks into [EMode](https://emodephotonix.com) simulations through the pip-installable `emodeconnection` client. [#733](https://github.com/gdsfactory/gplugins/issues/733)
+- fix: support canonical material aliases [#759](https://github.com/gdsfactory/gplugins/pull/759)
+- build(deps): bump actions/setup-python from 6 to 7 [#748](https://github.com/gdsfactory/gplugins/pull/748)
+- rename deprecated generic_tech to gpdk [#752](https://github.com/gdsfactory/gplugins/pull/752)
+- fix: follow symlinks in nbdocs so notebook pages render [#744](https://github.com/gdsfactory/gplugins/pull/744)
+- fix: use tqdm.auto for proper notebook progress bar rendering [#751](https://github.com/gdsfactory/gplugins/pull/751)
+- fix: remove duplicated summary pages from docs nav [#747](https://github.com/gdsfactory/gplugins/pull/747)
+- fix: resolve docs/notebooks symlink so notebook pages render [#745](https://github.com/gdsfactory/gplugins/pull/745)
+- Add EMode plugin [#733](https://github.com/gdsfactory/gplugins/pull/733)
+- Fix broken documentation URLs [#741](https://github.com/gdsfactory/gplugins/pull/741)
 
 ## [2.1.1](https://github.com/gdsfactory/gplugins/releases/tag/v2.1.1) - 2026-07-25
 
