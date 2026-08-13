@@ -381,29 +381,6 @@ def write_sparameters_lumerical(
     component_thickness = max(layers_thickness)
     component_zmin = min(layers_zmin)
 
-    ports_without_layer_stack = [
-        port
-        for port in ports
-        if gf.get_layer(port.layer) not in index_to_thickness
-        or gf.get_layer(port.layer) not in index_to_zmin
-    ]
-    if ports_without_layer_stack:
-        logger.warning(
-            "Skipping optical ports on layers not defined in the layer stack: %s",
-            ", ".join(port.name for port in ports_without_layer_stack),
-        )
-    ports = [
-        port
-        for port in ports
-        if gf.get_layer(port.layer) in index_to_thickness
-        and gf.get_layer(port.layer) in index_to_zmin
-    ]
-    if not ports:
-        raise ValueError(
-            f"{component.name!r} does not have any optical ports on layers "
-            "defined in the layer stack"
-        )
-
     z = (component_zmin + component_thickness) / 2 * 1e-6
     z_span = (2 * zmargin + component_thickness) * 1e-6
 
@@ -535,8 +512,14 @@ def write_sparameters_lumerical(
 
     for i, port in enumerate(ports):
         port_layer_index = gf.get_layer(port.layer)
-        zmin = index_to_zmin[port_layer_index]
-        thickness = index_to_thickness[port_layer_index]
+        zmin = index_to_zmin.get(port_layer_index, component_zmin)
+        thickness = index_to_thickness.get(port_layer_index, component_thickness)
+        if port_layer_index not in index_to_thickness:
+            logger.warning(
+                "Port %r is on a layer not defined in the layer stack; using the "
+                "component vertical extent for its mode port",
+                port.name,
+            )
         z = (zmin + thickness) / 2
         zspan = 2 * ss.port_margin + thickness
 
