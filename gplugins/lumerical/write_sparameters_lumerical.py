@@ -247,17 +247,8 @@ def write_sparameters_lumerical(
     ss = SimulationSettingsLumericalFdtd(**sim_settings)
 
     component_with_booleans = layer_stack.get_component_with_derived_layers(component)
-    component_with_padding = gf.add_padding_container(
-        component_with_booleans,
-        default=0,
-        top=ymargin_top,
-        bottom=ymargin_bot,
-        left=xmargin_left,
-        right=xmargin_right,
-    )
-
     component_extended = gf.components.extend_ports(
-        component_with_padding, length=ss.distance_monitors_to_pml
+        component_with_booleans, length=ss.distance_monitors_to_pml
     )
 
     ports = component.ports.filter(port_type="optical")
@@ -292,10 +283,10 @@ def write_sparameters_lumerical(
         print(run_false_warning)
 
     logger.info(f"Writing Sparameters to {filepath_npz.absolute()!r}")
-    x_min = (component_extended.xmin - xmargin) * 1e-6
-    x_max = (component_extended.xmax + xmargin) * 1e-6
-    y_min = (component_extended.ymin - ymargin) * 1e-6
-    y_max = (component_extended.ymax + ymargin) * 1e-6
+    x_min = (component_extended.xmin - xmargin_left) * 1e-6
+    x_max = (component_extended.xmax + xmargin_right) * 1e-6
+    y_min = (component_extended.ymin - ymargin_bot) * 1e-6
+    y_max = (component_extended.ymax + ymargin_top) * 1e-6
 
     index_to_thickness = {}
     index_to_zmin = {}
