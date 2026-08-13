@@ -41,11 +41,6 @@ _MATERIAL_NAME_ALIASES = {
     "SiN": "sin",
 }
 
-# Keep the padding geometry on an anonymous GDS layer so it does not require the
-# active PDK to define a layer named "PADDING". This layer is only used to set
-# the simulation bounds and is not part of the layer stack.
-_PADDING_LAYER = (999, 0)
-
 
 def _add_material_name_aliases(
     material_mapping: dict[str, MaterialSpec],
@@ -56,6 +51,56 @@ def _add_material_name_aliases(
             material_mapping.setdefault(legacy_name, material_mapping[canonical_name])
         elif legacy_name in material_mapping:
             material_mapping[canonical_name] = material_mapping[legacy_name]
+
+
+def _get_component_with_background_layers(
+    component: gf.Component, layer_stack: LayerStack
+) -> gf.Component:
+    """Materialize LayerStack background layers for simulation export.
+
+    Background layers occupy the component bounding box minus their declared
+    source-layer exclusions. ``get_component_with_derived_layers`` evaluates
+    derived layers but does not apply this background-layer semantics.
+    """
+    component_with_derived_layers = layer_stack.get_component_with_derived_layers(
+        component
+    )
+    if not any(
+        getattr(level, "background", False) for level in layer_stack.layers.values()
+    ):
+        return component_with_derived_layers
+
+    from kfactory import kdb
+
+    for level in layer_stack.layers.values():
+        if not getattr(level, "background", False):
+            continue
+
+        layer = level.layer
+        if isinstance(layer, LogicalLayer):
+            target_layer = gf.get_layer_tuple(layer.layer)
+        elif isinstance(layer, DerivedLayer):
+            assert level.derived_layer is not None
+            target_layer = gf.get_layer_tuple(level.derived_layer.layer)
+        elif isinstance(layer, tuple):
+            target_layer = layer
+        else:
+            raise ValueError(
+                f"Layer {layer!r} is not a DerivedLayer, LogicalLayer, or tuple"
+            )
+
+        background = kdb.Region(component.kdb_cell.bbox())
+        for excluded_layer in getattr(level, "background_exclude_layers", ()):
+            excluded_layer_tuple = gf.get_layer_tuple(excluded_layer)
+            excluded_layer_index = component.kcl.layer(*excluded_layer_tuple)
+            background -= kdb.Region(
+                component.kdb_cell.begin_shapes_rec(excluded_layer_index)
+            )
+
+        component_with_derived_layers.remove_layers([target_layer])
+        component_with_derived_layers.add_polygon(background, layer=target_layer)
+
+    return component_with_derived_layers
 
 
 def set_material(session, structure: str, material: MaterialSpec) -> None:
@@ -233,7 +278,6 @@ def write_sparameters_lumerical(
     ymargin_top = ymargin_top or ymargin
     ymargin_bot = ymargin_bot or ymargin
 
-    layer_to_thickness = layer_stack.get_layer_to_thickness()
     layer_to_zmin = layer_stack.get_layer_to_zmin()
     layer_to_material = layer_stack.get_layer_to_material()
 
@@ -251,18 +295,11 @@ def write_sparameters_lumerical(
     sim_settings.update(**settings)
     ss = SimulationSettingsLumericalFdtd(**sim_settings)
 
-    component_with_booleans = layer_stack.get_component_with_derived_layers(component)
-    component_with_padding = gf.add_padding_container(
-        component_with_booleans,
-        layers=(_PADDING_LAYER,),
-        default=0,
-        top=ymargin_top,
-        bottom=ymargin_bot,
-        left=xmargin_left,
-        right=xmargin_right,
+    component_with_booleans = _get_component_with_background_layers(
+        component, layer_stack
     )
     component_extended = gf.components.extend_ports(
-        component_with_padding, length=ss.distance_monitors_to_pml
+        component_with_booleans, length=ss.distance_monitors_to_pml
     )
 
     ports = component.ports.filter(port_type="optical")
@@ -297,10 +334,10 @@ def write_sparameters_lumerical(
         print(run_false_warning)
 
     logger.info(f"Writing Sparameters to {filepath_npz.absolute()!r}")
-    x_min = (component_extended.xmin - xmargin) * 1e-6
-    x_max = (component_extended.xmax + xmargin) * 1e-6
-    y_min = (component_extended.ymin - ymargin) * 1e-6
-    y_max = (component_extended.ymax + ymargin) * 1e-6
+    x_min = (component_extended.xmin - xmargin_left) * 1e-6
+    x_max = (component_extended.xmax + xmargin_right) * 1e-6
+    y_min = (component_extended.ymin - ymargin_bot) * 1e-6
+    y_max = (component_extended.ymax + ymargin_top) * 1e-6
 
     index_to_thickness = {}
     index_to_zmin = {}
