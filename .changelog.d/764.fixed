@@ -1,1 +1,1 @@
-Lumerical simulations now skip optical ports on layers absent from the simulation LayerStack.
+Lumerical simulations now keep optical ports on layers absent from the simulation LayerStack.

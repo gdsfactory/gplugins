@@ -39,7 +39,7 @@ class _Session:
         pass
 
 
-def test_skips_ports_on_layers_not_in_layer_stack(monkeypatch, tmp_path) -> None:
+def test_keeps_ports_on_layers_not_in_layer_stack(monkeypatch, tmp_path) -> None:
     monkeypatch.setitem(sys.modules, "lumapi", ModuleType("lumapi"))
     component = gf.Component()
     component.add_polygon([(0, 0), (10, 0), (10, 1), (0, 1)], layer=(1, 0))
@@ -75,4 +75,4 @@ def test_skips_ports_on_layers_not_in_layer_stack(monkeypatch, tmp_path) -> None
     )
 
     assert result is session
-    assert session.ports == 1
+    assert session.ports == 2
