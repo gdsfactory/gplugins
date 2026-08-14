@@ -4,6 +4,16 @@
 
 <!-- towncrier release notes start -->
 
+## [2.1.4](https://github.com/gdsfactory/gplugins/releases/tag/v2.1.4) - 2026-08-13
+
+
+### Fixed
+
+- Lumerical S-parameter simulations no longer require the active PDK to define a ``PADDING`` layer. [#762](https://github.com/gdsfactory/gplugins/issues/762)
+- Lumerical simulations now materialize LayerStack background layers without requiring a PDK ``PADDING`` layer. [#763](https://github.com/gdsfactory/gplugins/issues/763)
+- Lumerical simulations now keep optical ports on layers absent from the simulation LayerStack. [#764](https://github.com/gdsfactory/gplugins/issues/764)
+- Lumerical mode ports on layers absent from the simulation LayerStack now use the component vertical extent. [#765](https://github.com/gdsfactory/gplugins/issues/765)
+
 ## [2.1.3](https://github.com/gdsfactory/gplugins/releases/tag/v2.1.3) - 2026-08-12
 - Use the published meshwell 2.1.1 release for the Femwell and meshwell extras. [#760](https://github.com/gdsfactory/gplugins/issues/760)
 - Prevent tbump from modifying dependency constraints during package version bumps. [#761](https://github.com/gdsfactory/gplugins/issues/761)
