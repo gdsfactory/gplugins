@@ -1,14 +1,10 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v2.1.3...main)
+## [Unreleased](https://github.com/gdsfactory/gplugins/compare/v2.1.4...main)
 
 <!-- towncrier release notes start -->
 
 ## [2.1.4](https://github.com/gdsfactory/gplugins/releases/tag/v2.1.4) - 2026-08-13
-
-
-### Fixed
-
 - Lumerical S-parameter simulations no longer require the active PDK to define a ``PADDING`` layer. [#762](https://github.com/gdsfactory/gplugins/issues/762)
 - Lumerical simulations now materialize LayerStack background layers without requiring a PDK ``PADDING`` layer. [#763](https://github.com/gdsfactory/gplugins/issues/763)
 - Lumerical simulations now keep optical ports on layers absent from the simulation LayerStack. [#764](https://github.com/gdsfactory/gplugins/issues/764)
