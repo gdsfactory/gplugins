@@ -23,7 +23,6 @@ theme:
   features:
     - content.code.copy
     - navigation.sections
-    - navigation.expand
     - navigation.top
     - search.suggest
     - search.highlight
