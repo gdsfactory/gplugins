@@ -44,7 +44,9 @@ exclude = [
   "https://refractiveindex.info/.*",
   # Upstream docs that have moved or been restructured
   "https://meep.readthedocs.io/.*",
-  "https://gdsfactory.github.io/gdsfactory/.*"
+  "https://gdsfactory.github.io/gdsfactory/.*",
+  # PeerTube instance has an expired TLS certificate
+  "https://peertube.f-si.org/.*"
 ]
 # Exclude paths that contain template variables or are known false positives
 exclude_path = [
