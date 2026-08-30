@@ -1,5 +1,14 @@
 # Agents
 
+## Validation
+
+Before committing or opening a pull request, always run pre-commit against the
+files changed in the branch:
+
+```bash
+uv run pre-commit run --files <changed-files>
+```
+
 ## Releasing
 
 We use [tbump](https://github.com/your-tools/tbump) with [towncrier](https://towncrier.readthedocs.io/) to manage version bumps and releases.
