@@ -23,7 +23,6 @@ import tidy3d as td
 import xarray
 from gdsfactory import logger
 from gdsfactory.config import PATH
-from gdsfactory.typings import PathType
 from pydantic.v1 import BaseModel
 from tidy3d.plugins import waveguide
 from tqdm.auto import tqdm
@@ -155,7 +154,9 @@ class Waveguide(BaseModel, extra="forbid", arbitrary_types_allowed=True):
     precision: Precision = "double"
     grid_resolution: int = 20
     max_grid_scaling: float = 1.2
-    cache_path: PathType | None = PATH.modes
+    # PathType is a PEP 695 type alias, which pydantic v1 cannot introspect,
+    # so the union is spelled out here.
+    cache_path: str | pathlib.Path | None = PATH.modes
     overwrite: bool = False
 
     _cached_data = pydantic.PrivateAttr()

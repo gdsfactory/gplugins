@@ -46,7 +46,12 @@ exclude = [
   "https://meep.readthedocs.io/.*",
   "https://gdsfactory.github.io/gdsfactory/.*",
   # PeerTube instance has an expired TLS certificate
-  "https://peertube.f-si.org/.*"
+  "https://peertube.f-si.org/.*",
+  # Optica blocks automated crawlers; DOIs in the 10.1364 prefix redirect there
+  "https://opg.optica.org/.*",
+  "https://doi.org/10.1364/.*",
+  # srim.org is intermittently unreachable and times out
+  "http://www.srim.org/.*"
 ]
 # Exclude paths that contain template variables or are known false positives
 exclude_path = [
