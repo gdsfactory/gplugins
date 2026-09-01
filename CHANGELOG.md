@@ -4,6 +4,11 @@
 
 <!-- towncrier release notes start -->
 
+## [2.1.5](https://github.com/gdsfactory/gplugins/releases/tag/v2.1.5) - 2026-09-01
+
+No significant changes.
+
+
 ## [2.1.4](https://github.com/gdsfactory/gplugins/releases/tag/v2.1.4) - 2026-08-13
 - Lumerical S-parameter simulations no longer require the active PDK to define a ``PADDING`` layer. [#762](https://github.com/gdsfactory/gplugins/issues/762)
 - Lumerical simulations now materialize LayerStack background layers without requiring a PDK ``PADDING`` layer. [#763](https://github.com/gdsfactory/gplugins/issues/763)
