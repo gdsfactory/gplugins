@@ -1,5 +1,17 @@
 from __future__ import annotations
 
+# Every submodule under gplugins/gmeep/ (write_sparameters_meep.py,
+# write_sparameters_grating.py, ...) is re-exported here under the same
+# name as the one function it defines. That means
+# `import gplugins.gmeep.write_sparameters_meep as x` can bind `x` to the
+# FUNCTION below, not the module - the function is what this __init__
+# puts into gplugins.gmeep's own namespace, and a plain dotted import
+# resolves the already-imported name first. If you need the module object
+# itself (e.g. to monkeypatch or inspect it), index sys.modules directly:
+#
+#     import sys
+#     mod = sys.modules["gplugins.gmeep.write_sparameters_meep"]
+
 try:
     import meep as mp
 except ModuleNotFoundError as e:
