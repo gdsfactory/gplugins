@@ -182,25 +182,52 @@ def get_simulation(
     component_extended = component_extended.copy()
     component_extended.flatten()
 
-    def _layer_index(layer: LogicalLayer | DerivedLayer | tuple) -> int:
-        """Normalises a LayerStack key (LogicalLayer/DerivedLayer/tuple) or a
-        raw component-layer tuple to the same canonical PDK layer index, so
-        the two can be compared - matches get_meep_geometry_from_component's
-        own normalisation for the same LayerStack/component.layers mismatch.
+    # component.layers only ever contains raw, physical GDS design layers -
+    # never a derived (boolean-combination) layer's assigned output, since
+    # that combination has not been computed on the unprocessed component.
+    # Some LayerStack levels (e.g. a PDK's "core" being "waveguide minus
+    # grating") are themselves derived, so their thickness must be matched
+    # against a component that has actually had derived layers materialised
+    # - the same get_component_with_derived_layers() call
+    # get_meep_geometry_from_component (below) already makes for geometry,
+    # reused here for sizing. This is not a redundant second boolean
+    # computation avoidable without a larger refactor of both call sites to
+    # share one result - noted, not fixed, to keep this PR to one change.
+    component_with_derived_layers = layer_stack.get_component_with_derived_layers(
+        component
+    )
+
+    def _layer_index(level) -> int | None:
+        """Resolves a LayerStack LayerLevel to the canonical PDK layer index
+        its geometry actually appears under on a component processed by
+        get_component_with_derived_layers() - matches
+        get_meep_geometry_from_component's own resolution for the identical
+        LayerStack/component.layers mismatch. A LogicalLayer's own tuple
+        resolves directly; a DerivedLayer's boolean result only exists on
+        its assigned `level.derived_layer` output layer (None if the level
+        never declared one, in which case it cannot be matched and is
+        skipped, same as get_meep_geometry_from_component's own behaviour
+        for such a level).
         """
+        layer = level.layer
         if isinstance(layer, LogicalLayer):
             layer_tuple = gf.get_layer_tuple(layer.layer)
         elif isinstance(layer, DerivedLayer):
-            layer_tuple = gf.get_layer_tuple(layer.derived_layer.layer)
+            if level.derived_layer is None:
+                return None
+            layer_tuple = gf.get_layer_tuple(level.derived_layer.layer)
         else:
             layer_tuple = layer
         return int(gf.get_layer(layer_tuple))
 
     thickness_by_index = {
-        _layer_index(layer): thickness
-        for layer, thickness in layer_to_thickness.items()
+        index: level.thickness
+        for level in layer_stack.layers.values()
+        if (index := _layer_index(level)) is not None
     }
-    component_layer_indices = {gf.get_layer(layer) for layer in component.layers}
+    component_layer_indices = {
+        gf.get_layer(layer) for layer in component_with_derived_layers.layers
+    }
 
     layers_thickness = [
         thickness_by_index[index]
