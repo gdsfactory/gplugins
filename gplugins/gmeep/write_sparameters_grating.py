@@ -215,11 +215,11 @@ def write_sparameters_grating(
     idx = 1 - (kdom_fiber.y > 0) * 1
 
     a2 = fiber_mode.alpha[:, :, idx].flatten()  # forward wave
-    # b2 = fiber_mode.alpha[:, :, 1 - idx].flatten()  # backward wave
+    b2 = fiber_mode.alpha[:, :, 1 - idx].flatten()  # backward wave
 
     s11 = np.squeeze(b1 / a1)
     s12 = np.squeeze(a2 / a1)
-    s22 = s11.copy()
+    s22 = np.squeeze(b2 / a2)
     s21 = s12.copy()
 
     simulation = dict(
