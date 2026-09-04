@@ -11,7 +11,7 @@ import meep as mp
 import numpy as np
 from gdsfactory.component import Component
 from gdsfactory.pdk import get_layer_stack
-from gdsfactory.technology import LayerStack
+from gdsfactory.technology import DerivedLayer, LayerStack, LogicalLayer
 from gdsfactory.typings import LayerSpecs, Float3
 
 from gplugins.common.base_models.component import move_polar_rad_copy
@@ -182,13 +182,33 @@ def get_simulation(
     component_extended = component_extended.copy()
     component_extended.flatten()
 
+    def _layer_index(layer: LogicalLayer | DerivedLayer | tuple) -> int:
+        """Normalises a LayerStack key (LogicalLayer/DerivedLayer/tuple) or a
+        raw component-layer tuple to the same canonical PDK layer index, so
+        the two can be compared - matches get_meep_geometry_from_component's
+        own normalisation for the same LayerStack/component.layers mismatch.
+        """
+        if isinstance(layer, LogicalLayer):
+            layer_tuple = gf.get_layer_tuple(layer.layer)
+        elif isinstance(layer, DerivedLayer):
+            layer_tuple = gf.get_layer_tuple(layer.derived_layer.layer)
+        else:
+            layer_tuple = layer
+        return int(gf.get_layer(layer_tuple))
+
+    thickness_by_index = {
+        _layer_index(layer): thickness
+        for layer, thickness in layer_to_thickness.items()
+    }
+    component_layer_indices = {gf.get_layer(layer) for layer in component.layers}
+
     layers_thickness = [
-        layer_to_thickness[layer]
-        for layer in component.layers
-        if layer in layer_to_thickness
+        thickness_by_index[index]
+        for index in component_layer_indices
+        if index in thickness_by_index
     ]
 
-    if layers_thickness is None:
+    if not layers_thickness:
         raise ValueError(
             f"Component layers {component.layers} not in {layer_to_thickness.keys()}. "
             "Did you passed the correct layer_stack?"
