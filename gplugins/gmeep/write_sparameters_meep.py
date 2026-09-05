@@ -416,6 +416,8 @@ def write_sparameters_meep(
         plot_args: dict = plot_args,
         dispersive: bool = dispersive,
         decay_by: float = decay_by,
+        zmargin_top: float = zmargin_top,
+        zmargin_bot: float = zmargin_bot,
         **settings,
     ) -> dict:
         """Return Sparameter dict."""
@@ -433,6 +435,8 @@ def write_sparameters_meep(
             dispersive=dispersive,
             layer_stack=layer_stack,
             is_3d=is_3d,
+            zmargin_top=zmargin_top,
+            zmargin_bot=zmargin_bot,
             **settings,
         )
 
