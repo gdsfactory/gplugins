@@ -373,7 +373,7 @@ def get_simulation_grating_fiber(
         mp.Block(
             material=wg_material,
             center=mp.Vector3(
-                -sxy / 2,
+                (grating_start - sxy) / 2,
                 -sz / 2
                 + (
                     +pml_thickness
@@ -383,7 +383,7 @@ def get_simulation_grating_fiber(
                     - etch_depth / 2
                 ),
             ),
-            size=mp.Vector3(sxy, etch_depth),
+            size=mp.Vector3(grating_start + sxy, etch_depth),
         )
     )
 
