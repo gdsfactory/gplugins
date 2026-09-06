@@ -189,8 +189,14 @@ def get_simulation_grating_fiber(
     )
     # XY (X)-domain
     # Assume fiber port dominates
-    fiber_port_y = (
-        -sz / 2
+    # The fibre axis passes through x=0 and is tilted by fiber_angle, so at
+    # height fiber_port_y it sits at x = fiber_port_y * tan(fiber_angle).
+    # fiber_port_y must therefore be measured from the bottom of the cell
+    # through every layer below the port, exactly as fiber_port_center does.
+    fiber_port_y = -sz / 2 + (
+        +pml_thickness
+        + substrate_thickness
+        + box_thickness
         + core_thickness
         + top_clad_thickness
         + air_gap_thickness
@@ -223,15 +229,6 @@ def get_simulation_grating_fiber(
     cell_size = mp.Vector3(sxy, sz)
 
     # Ports (position, sizes, directions)
-    fiber_port_y = -sz / 2 + (
-        +pml_thickness
-        + substrate_thickness
-        + box_thickness
-        + core_thickness
-        + top_clad_thickness
-        + air_gap_thickness
-        + fiber_port_y_offset_from_air
-    )
     fiber_port_center = mp.Vector3(fiber_port_x_offset_from_angle, fiber_port_y)
     fiber_port_x_size = fiber_port_x_size or 3.5 * fiber_core_diameter
     fiber_port_size = mp.Vector3(fiber_port_x_size, 0, 0)
