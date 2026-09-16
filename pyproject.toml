@@ -37,7 +37,7 @@ dev = [
   "pytest-cov",
   "pytest_regressions"
 ]
-devsim = ["devsim", "pyvista<=0.48.4", "tidy3d>=2.11.1,<2.13.0"]
+devsim = ["devsim", "pyvista<=0.49.0", "tidy3d>=2.11.1,<2.13.0"]
 docs = [
   "jupyter",
   "jupytext",
@@ -45,7 +45,7 @@ docs = [
   "nbconvert",
   "mkdocstrings[python]",
   "mkdocs-bibtex",
-  "pyvista[all]<=0.48.4",
+  "pyvista[all]<=0.49.0",
   "bokeh",
   "scikit-learn",
   "zensical>=0.0.46,<0.1.0"
