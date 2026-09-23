@@ -3,6 +3,7 @@ from __future__ import annotations
 import shutil
 from math import inf
 from pathlib import Path
+from types import SimpleNamespace
 
 import gdsfactory as gf
 import gmsh
@@ -13,7 +14,6 @@ from gdsfactory.gpdk import LAYER
 from gdsfactory.technology import LayerStack
 from gdsfactory.technology.layer_stack import LayerLevel
 from meshwell.resolution import ConstantInField
-from pandas import DataFrame
 
 from gplugins.common.utils.get_component_with_net_layers import (
     get_component_with_net_layers,
@@ -161,22 +161,15 @@ def test_pair_capacitance_matrix_rejects_wrong_shape() -> None:
 
 
 def test_lumped_to_maxwell_capacitance_matrix() -> None:
-    lumped = np.array([[0.5, 2.0], [2.0, 1.0]])
-    np.testing.assert_allclose(_lumped_to_maxwell(lumped), [[2.5, -2.0], [-2.0, 3.0]])
+    lumped = np.array([[0.5, 2.0], [3.0, 1.0]])
+    np.testing.assert_allclose(_lumped_to_maxwell(lumped), [[2.5, -2.0], [-3.0, 4.0]])
 
 
-def test_read_results_uses_lowercase_capacitance_name(
-    tmp_path: Path, monkeypatch
-) -> None:
-    paths: list[Path] = []
-
-    def read_csv(path: Path, **kwargs):
-        paths.append(path)
-        return DataFrame([[1.0, 2.0], [2.0, 3.0]])
-
-    monkeypatch.setattr("gplugins.elmer.get_capacitance.read_csv", read_csv)
+def test_read_results_uses_lowercase_capacitance_name(tmp_path: Path) -> None:
+    (tmp_path / "study_capacitance.dat").write_text(
+        "   1.0E+00  2.0E+00\n   2.0E+00  3.0E+00\n", encoding="utf-8"
+    )
     results = _read_elmer_results(tmp_path, "Study.msh", 1, ["o1", "o2"], True)
-    assert paths == [tmp_path / "study_capacitance.dat"]
     assert results.capacitance_matrix["o1", "o2"] == -2.0
 
 
@@ -319,15 +312,45 @@ def test_case_only_physical_names_are_rejected(tmp_path: Path) -> None:
         _sanitize_mesh_physical_names(mesh_file)
 
 
+def test_overlong_physical_name_is_rejected(tmp_path: Path) -> None:
+    mesh_file = tmp_path / "overlong.msh"
+    overlong_name = "m" * 51
+    gmsh.initialize()
+    try:
+        gmsh.model.add("overlong")
+        box = gmsh.model.occ.addBox(0, 0, 0, 1, 1, 1)
+        gmsh.model.occ.synchronize()
+        gmsh.model.addPhysicalGroup(3, [box], name=overlong_name)
+        gmsh.model.mesh.generate(3)
+        gmsh.write(str(mesh_file))
+    finally:
+        gmsh.finalize()
+
+    with pytest.raises(ValueError, match="limit"):
+        _sanitize_mesh_physical_names(mesh_file)
+
+    # The name is rejected before the mesh is rewritten with the sanitized ones.
+    gmsh.initialize()
+    try:
+        gmsh.merge(str(mesh_file))
+        names = [
+            gmsh.model.getPhysicalName(dim, tag)
+            for dim, tag in gmsh.model.getPhysicalGroups()
+        ]
+    finally:
+        gmsh.finalize()
+    assert names == [overlong_name]
+
+
 @pytest.mark.parametrize("n_processes", [0, -1, 1.5, "two", None, True])
 def test_invalid_n_processes(geometry: Component, n_processes) -> None:
-    with pytest.raises((TypeError, ValueError)):
+    with pytest.raises((TypeError, ValueError), match="n_processes"):
         run_capacitive_simulation_elmer(geometry, n_processes=n_processes)
 
 
 @pytest.mark.parametrize("element_order", [0, -1, 1.5, "two", None, True])
 def test_invalid_element_order(geometry: Component, element_order) -> None:
-    with pytest.raises((TypeError, ValueError)):
+    with pytest.raises((TypeError, ValueError), match="element_order"):
         run_capacitive_simulation_elmer(geometry, element_order=element_order)
 
 
@@ -404,6 +427,36 @@ def test_invalid_background_tag_raises(
             simulation_folder=tmp_path,
             mesh_parameters={"background_tag": background_tag},
         )
+
+
+class _StubComponent:
+    """Minimal stand-in so duplicate and non-string port names can be exercised."""
+
+    def __init__(self, names: list[object]) -> None:
+        self.ports = [SimpleNamespace(name=name) for name in names]
+
+
+@pytest.mark.parametrize("bad_name", [None, 42, "", "   "])
+def test_invalid_port_names_are_rejected(bad_name: object, tmp_path: Path) -> None:
+    component = _StubComponent([bad_name])
+    with pytest.raises(ValueError, match="Port names"):
+        run_capacitive_simulation_elmer(
+            component,
+            simulation_folder=tmp_path,
+            mesh_parameters={"background_tag": "vacuum"},
+        )
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_duplicate_port_names_are_rejected(tmp_path: Path) -> None:
+    component = _StubComponent(["o1", "o1"])
+    with pytest.raises(ValueError, match="unique"):
+        run_capacitive_simulation_elmer(
+            component,
+            simulation_folder=tmp_path,
+            mesh_parameters={"background_tag": "vacuum"},
+        )
+    assert list(tmp_path.iterdir()) == []
 
 
 @pytest.mark.skipif(elmer_installed, reason="Expects ElmerGrid to be missing")

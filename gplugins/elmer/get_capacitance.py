@@ -41,6 +41,9 @@ BOUNDARY_DELIMITER = "boundary"
 # Layer-to-port delimiter used when splitting conductors per terminal.
 PORT_DELIMITER = "@"
 
+# ElmerGrid's Gmsh parser has a fixed buffer for physical names.
+MAX_NAMESIZE = 50
+
 _INVALID_IDENTIFIER_CHARACTER = re.compile(r"[^0-9A-Za-z_]")
 
 
@@ -104,6 +107,11 @@ def _sanitize_mesh_physical_names(mesh_path: Path) -> list[_PhysicalGroup]:
         for dim, tag in sorted(gmsh.model.getPhysicalGroups()):
             original_name = gmsh.model.getPhysicalName(dim, tag)
             name = _sanitize_identifier(original_name)
+            if len(name) > MAX_NAMESIZE:
+                raise ValueError(
+                    f"Physical group {original_name!r} sanitized to {name!r}, longer "
+                    f"than ElmerGrid's {MAX_NAMESIZE}-character name limit."
+                )
             if name.lower() in used_names:
                 raise ValueError(
                     f"Physical group {original_name!r} has a case-insensitive "
@@ -568,6 +576,13 @@ def run_capacitive_simulation_elmer(
     port_names = [port.name for port in component.ports]
     if not port_names:
         raise ValueError("The component has no ports to use as capacitor terminals.")
+    for port_name in port_names:
+        if not isinstance(port_name, str) or not port_name.strip():
+            raise ValueError(
+                f"Port names have to be non-blank strings, got {port_name!r}."
+            )
+    if len(set(port_names)) != len(port_names):
+        raise ValueError(f"Port names have to be unique, got {port_names}.")
 
     background_tag = (mesh_parameters or {}).get("background_tag", "vacuum")
     # None bypasses the background volume check and permits a truncated mesh.
