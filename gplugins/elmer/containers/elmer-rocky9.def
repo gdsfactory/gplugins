@@ -39,9 +39,14 @@ From: rockylinux/rockylinux:9.6
 %test
     set -eu
     test -x /opt/elmer/bin/ElmerSolver
+    test -x /opt/elmer/bin/ElmerSolver_mpi
     test -x /opt/elmer/bin/ElmerGrid
+    test -x /usr/lib64/openmpi/bin/mpiexec
     test -f /opt/elmer/share/elmersolver/lib/StatElecSolveVec.so
     ! ldd /opt/elmer/bin/ElmerSolver | grep -q 'not found'
+    ! ldd /opt/elmer/bin/ElmerSolver_mpi | grep -q 'not found'
+    OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
+        /usr/lib64/openmpi/bin/mpiexec --oversubscribe -n 2 /bin/true
 
 %help
     Elmer FEM 26.2.1 built for x86-64-v3 on Rocky Linux 9.6.
