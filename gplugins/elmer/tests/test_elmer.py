@@ -109,6 +109,7 @@ def test_generate_sif_uses_resolved_indices(tmp_path: Path) -> None:
     text = sif_path.read_text()
     assert 'INCLUDE "Study/mesh.names"' in text
     assert "Element = p:2" in text
+    assert "Coordinate Scaling = 1e-06" in text
     assert "Target Bodies(1) = 1" in text
     assert "Material = 1" in text
     assert "Relative Permittivity = 11.45" in text
@@ -233,6 +234,21 @@ def test_port_on_dielectric_is_rejected() -> None:
         _split_mesh_terminals(groups, ["o1"], layer_stack, spec, "vacuum")
 
 
+def test_unsplit_conductor_surfaces_are_grounded() -> None:
+    groups = [
+        _PhysicalGroup(3, 1, "vacuum", "vacuum"),
+        _PhysicalGroup(3, 2, "metal_o1", "metal_o1"),
+        _PhysicalGroup(3, 3, "metal", "metal"),
+        _PhysicalGroup(2, 4, "metal_o1___vacuum", "metal_o1___vacuum"),
+        _PhysicalGroup(2, 5, "metal___vacuum", "metal___vacuum"),
+    ]
+    terminals = _split_mesh_terminals(
+        groups, ["o1"], layer_stack, material_spec, "vacuum"
+    )
+    assert terminals.signal_surfaces == {"o1": ["metal_o1___vacuum"]}
+    assert terminals.ground_surfaces == ["metal___vacuum"]
+
+
 def test_missing_background_volume_is_rejected() -> None:
     groups = [_PhysicalGroup(3, 1, "substrate", "substrate")]
     with pytest.raises(ValueError, match="No background volume"):
@@ -340,6 +356,23 @@ def test_overlong_physical_name_is_rejected(tmp_path: Path) -> None:
     finally:
         gmsh.finalize()
     assert names == [overlong_name]
+
+
+def test_sanitized_mesh_uses_gmsh_2_format(tmp_path: Path) -> None:
+    mesh_file = tmp_path / "format.msh"
+    gmsh.initialize()
+    try:
+        gmsh.model.add("format")
+        box = gmsh.model.occ.addBox(0, 0, 0, 1, 1, 1)
+        gmsh.model.occ.synchronize()
+        gmsh.model.addPhysicalGroup(3, [box], name="vacuum")
+        gmsh.model.mesh.generate(3)
+        gmsh.write(str(mesh_file))
+    finally:
+        gmsh.finalize()
+
+    _sanitize_mesh_physical_names(mesh_file)
+    assert "$MeshFormat\n2.2 0" in mesh_file.read_text(encoding="utf-8")
 
 
 @pytest.mark.parametrize("n_processes", [0, -1, 1.5, "two", None, True])
