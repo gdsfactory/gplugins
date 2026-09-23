@@ -12,7 +12,6 @@ from typing import Any
 
 import gdsfactory as gf
 import gmsh
-from gdsfactory.gpdk import LAYER_STACK
 from gdsfactory.technology import LayerStack
 from jinja2 import Environment, FileSystemLoader
 from meshwell.cad import cad
@@ -134,9 +133,10 @@ def _read_mesh_names(names_file: Path) -> tuple[dict[str, int], dict[str, int]]:
     for line in names_file.read_text(encoding="utf-8").splitlines():
         stripped = line.strip()
         if stripped.startswith("!"):
-            if "names for boundaries" in stripped:
+            header = stripped.lower()
+            if "names for boundaries" in header:
                 target = boundaries
-            elif "names for bodies" in stripped:
+            elif "names for bodies" in header:
                 target = bodies
             continue
         if not stripped.startswith("$"):
@@ -188,7 +188,12 @@ def _relative_permittivity(material_spec: RFMaterialSpec, material: str) -> floa
         raise ValueError(
             f"Material {material!r} needs relative_permittivity in material_spec."
         )
-    return float(material_spec[material]["relative_permittivity"])
+    permittivity = float(material_spec[material]["relative_permittivity"])
+    if permittivity <= 0 or (not isfinite(permittivity) and permittivity != float("inf")):
+        raise ValueError(
+            f"Material {material!r} needs positive relative_permittivity or +inf for a conductor."
+        )
+    return permittivity
 
 
 def _split_mesh_terminals(
@@ -273,7 +278,7 @@ def _split_mesh_terminals(
             raise ValueError(
                 f"No layer or background material maps mesh body {group.original_name!r}."
             )
-        if not isfinite(_relative_permittivity(material_spec, material)):
+        if _relative_permittivity(material_spec, material) == float("inf"):
             conductor_volumes.add(group.original_name)
             material = free_space_material
         bodies.append((group, material))
@@ -282,6 +287,12 @@ def _split_mesh_terminals(
         port_name: volume_names & port_volume_names[port_name]
         for port_name in port_names
     }
+    for port_name, volumes in signal_volumes.items():
+        if non_conductors := volumes - conductor_volumes:
+            raise ValueError(
+                f"Terminal {port_name!r} belongs to non-conductor volume(s) "
+                f"{sorted(non_conductors)}."
+            )
 
     signal_surfaces: dict[str, list[str]] = {port_name: [] for port_name in port_names}
     ground_surfaces: list[str] = []
@@ -524,8 +535,8 @@ def run_capacitive_simulation_elmer(
             Higher is more accurate but takes more memory and time to run.
         n_processes: Number of processes to use for parallelization
         layer_stack: :class:`~LayerStack` defining the simulation layers,
-            materials, and thicknesses. Include an explicit background volume
-            named by ``background_tag`` (``vacuum`` by default).
+            materials, and thicknesses. A stack with conducting terminals and
+            an explicit background volume named by ``background_tag`` is required.
         material_spec:
             :class:`~RFMaterialSpec` defining material parameters for the ones used in ``layer_stack``.
         simulation_folder: Directory for storing the simulation results.
@@ -542,17 +553,6 @@ def run_capacitive_simulation_elmer(
     """
     _validate_solver_inputs(element_order, n_processes)
 
-    if layer_stack is None:
-        layer_stack = LayerStack(
-            layers={
-                k: LAYER_STACK.layers[k]
-                for k in (
-                    "core",
-                    "substrate",
-                    "box",
-                )
-            }
-        )
     if material_spec is None:
         material_spec: RFMaterialSpec = {
             "si": {"relative_permittivity": 11.45},
@@ -568,6 +568,10 @@ def run_capacitive_simulation_elmer(
     if mesh_parameters and "background_padding" in mesh_parameters:
         raise ValueError(
             "background_padding is unsupported by meshwell; add an explicit background layer."
+        )
+    if layer_stack is None:
+        raise ValueError(
+            "layer_stack is required with conducting terminal layers and an explicit background volume."
         )
 
     temp_dir = TemporaryDirectory()
@@ -657,9 +661,7 @@ def run_capacitive_simulation_elmer(
             materials.append(
                 {
                     "index": material_to_index[material],
-                    "relative_permittivity": (
-                        float(permittivity) if isfinite(permittivity) else 1.0
-                    ),
+                    "relative_permittivity": float(permittivity),
                 }
             )
         bodies = [

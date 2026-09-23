@@ -28,6 +28,7 @@ from gplugins.elmer.get_capacitance import (
     _MeshTerminals,
     _pair_capacitance_matrix,
     _PhysicalGroup,
+    _read_mesh_names,
     _read_elmer_results,
     _sanitize_mesh_physical_names,
     _split_mesh_terminals,
@@ -179,6 +180,14 @@ def test_read_results_uses_lowercase_capacitance_name(
     assert results.capacitance_matrix["o1", "o2"] == -2.0
 
 
+def test_read_mesh_names_accepts_title_case_headers(tmp_path: Path) -> None:
+    names_file = tmp_path / "mesh.names"
+    names_file.write_text(
+        "! Names for Bodies\n$ vacuum = 4\n! Names for Boundaries\n$ metal_o1 = 7\n"
+    )
+    assert _read_mesh_names(names_file) == ({"vacuum": 4}, {"metal_o1": 7})
+
+
 def test_split_mesh_terminals_maps_sanitized_base_layer() -> None:
     stack = layer_stack.model_copy(deep=True)
     stack.layers["substrate-Si"] = stack.layers.pop("substrate")
@@ -210,6 +219,25 @@ def test_missing_material_is_rejected() -> None:
         _split_mesh_terminals(
             groups, [], layer_stack, {"vacuum": material_spec["vacuum"]}, "vacuum"
         )
+
+
+@pytest.mark.parametrize("permittivity", [float("nan"), -float("inf"), 0.0, -1.0])
+def test_invalid_permittivity_is_rejected(permittivity: float) -> None:
+    groups = [_PhysicalGroup(3, 1, "vacuum", "vacuum")]
+    spec = {**material_spec, "vacuum": {"relative_permittivity": permittivity}}
+    with pytest.raises(ValueError, match="relative_permittivity"):
+        _split_mesh_terminals(groups, [], layer_stack, spec, "vacuum")
+
+
+def test_port_on_dielectric_is_rejected() -> None:
+    groups = [
+        _PhysicalGroup(3, 1, "vacuum", "vacuum"),
+        _PhysicalGroup(3, 2, "metal_o1", "metal_o1"),
+        _PhysicalGroup(2, 3, "metal_o1___vacuum", "metal_o1___vacuum"),
+    ]
+    spec = {**material_spec, "Nb": {"relative_permittivity": 4.0}}
+    with pytest.raises(ValueError, match="non-conductor"):
+        _split_mesh_terminals(groups, ["o1"], layer_stack, spec, "vacuum")
 
 
 def test_missing_background_volume_is_rejected() -> None:
@@ -248,6 +276,11 @@ def test_unsupported_background_padding_is_rejected(geometry: Component) -> None
         run_capacitive_simulation_elmer(
             geometry, mesh_parameters={"background_padding": 2.0}
         )
+
+
+def test_layer_stack_is_required(geometry: Component) -> None:
+    with pytest.raises(ValueError, match="layer_stack is required"):
+        run_capacitive_simulation_elmer(geometry)
 
 
 def test_connected_metal_polygons_form_one_terminal() -> None:
