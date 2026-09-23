@@ -570,6 +570,12 @@ def run_capacitive_simulation_elmer(
         raise ValueError("The component has no ports to use as capacitor terminals.")
 
     background_tag = (mesh_parameters or {}).get("background_tag", "vacuum")
+    # None bypasses the background volume check and permits a truncated mesh.
+    if not isinstance(background_tag, str) or not background_tag.strip():
+        raise ValueError(
+            "mesh_parameters['background_tag'] must be a non-empty string naming "
+            f"the explicit background volume, got {background_tag!r}."
+        )
     if mesh_parameters and "background_padding" in mesh_parameters:
         raise ValueError(
             "background_padding is unsupported by meshwell; add an explicit background layer."

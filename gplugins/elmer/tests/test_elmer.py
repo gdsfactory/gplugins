@@ -376,7 +376,7 @@ def test_mesh_file_without_terminal_surfaces_raises(
     gmsh.model.add("no_terminals")
     box = gmsh.model.occ.addBox(0, 0, 0, 1, 1, 1)
     gmsh.model.occ.synchronize()
-    gmsh.model.addPhysicalGroup(3, [box], name="substrate")
+    gmsh.model.addPhysicalGroup(3, [box], name="vacuum")
     gmsh.option.setNumber("Mesh.MshFileVersion", 2.2)
     gmsh.model.mesh.generate(3)
     gmsh.write(str(mesh_file))
@@ -389,7 +389,20 @@ def test_mesh_file_without_terminal_surfaces_raises(
             material_spec=material_spec,
             mesh_file=mesh_file,
             simulation_folder=tmp_path,
-            mesh_parameters={"background_tag": None},
+        )
+
+
+@pytest.mark.parametrize("background_tag", [None, "", "   ", 42])
+def test_invalid_background_tag_raises(
+    geometry: Component, tmp_path: Path, background_tag
+) -> None:
+    with pytest.raises(ValueError, match="background_tag"):
+        run_capacitive_simulation_elmer(
+            geometry,
+            layer_stack=layer_stack,
+            material_spec=material_spec,
+            simulation_folder=tmp_path,
+            mesh_parameters={"background_tag": background_tag},
         )
 
 
