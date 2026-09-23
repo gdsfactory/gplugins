@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   build-docs:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Build docs
     steps:
       - uses: actions/checkout@v7
@@ -24,9 +24,15 @@ jobs:
         uses: eWaterCycle/setup-apptainer@3f706d898c9db585b1d741b4692e66755f3a1b40
         with:
           apptainer-version: 1.4.2
-      - name: Install libglu1-mesa
+      - name: Install Elmer and libglu1-mesa
         run: |
-          sudo apt-get install -y libglu1-mesa
+          sudo apt-get update
+          sudo apt-get install --yes software-properties-common
+          sudo add-apt-repository --yes ppa:elmer-csc-ubuntu/elmer-csc-ppa
+          sudo apt-get update
+          sudo apt-get install --yes elmerfem-csc libglu1-mesa
+          command -v ElmerGrid
+          command -v ElmerSolver
       - name: Download Palace singularity definition
         run: wget https://raw.githubusercontent.com/awslabs/palace/refs/tags/v0.16.0/singularity/singularity.def # Newer versions of palace have deprecated singularity definitions, so we pin to a specific version. TODO: Update this
       - name: Cache Palace container restore
@@ -77,7 +83,7 @@ jobs:
         run: |
           make test-data
           printf 'pdk="gdsfactory.gpdk"\nignore_sliver_differences=True\n' > .env
-          uv sync --extra dev --extra docs --extra emode --extra femwell --extra meow --extra sax --extra tidy3d --extra klayout --extra vlsir
+          uv sync --extra dev --extra docs --extra elmer --extra emode --extra femwell --extra meow --extra sax --extra tidy3d --extra klayout --extra vlsir
           uv run make nbdocs
           uv run zensical build --strict -f docs/zensical.yml
       - name: Upload artifact
