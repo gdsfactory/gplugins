@@ -441,10 +441,15 @@ def _elmersolver(simulation_folder: Path, name: str, n_processes: int = 1) -> No
             f"`{elmersolver_name}` not found. Make sure it is available in your PATH."
         )
     sif_file = str(simulation_folder / f"{Path(name).stem}.sif")
+    if no_mpi:
+        command = [elmersolver, sif_file]
+    else:
+        mpiexec = shutil.which("mpiexec")
+        if mpiexec is None:
+            raise RuntimeError("`mpiexec` not found. Make sure it is available in your PATH.")
+        command = [mpiexec, "-np", str(n_processes), elmersolver, sif_file]
     _run_checked(
-        [elmersolver, sif_file]
-        if no_mpi
-        else ["mpiexec", "-np", str(n_processes), elmersolver, sif_file],
+        command,
         simulation_folder,
         f"{Path(name).stem}_ElmerSolver",
     )

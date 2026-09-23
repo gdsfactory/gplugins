@@ -339,6 +339,16 @@ def test_missing_executable_raises(monkeypatch, tmp_path: Path) -> None:
         _elmersolver(tmp_path, "study.msh")
 
 
+def test_missing_mpi_launcher_raises(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(
+        shutil,
+        "which",
+        lambda name: None if name == "mpiexec" else f"/usr/bin/{name}",
+    )
+    with pytest.raises(RuntimeError, match="mpiexec"):
+        _elmersolver(tmp_path, "study.msh", n_processes=2)
+
+
 @pytest.mark.parametrize("binary", ["ElmerGrid", "ElmerSolver"])
 def test_nonzero_exit_propagates(monkeypatch, tmp_path: Path, binary) -> None:
     class _ProcessStub:
