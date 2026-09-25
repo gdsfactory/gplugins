@@ -6,13 +6,13 @@ resolution-markers = [
     "python_full_version >= '3.14' and sys_platform == 'emscripten'",
     "python_full_version >= '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version == '3.13.*' and sys_platform == 'win32'",
-    "python_full_version == '3.12.*' and sys_platform == 'win32'",
-    "python_full_version < '3.12' and sys_platform == 'win32'",
     "python_full_version == '3.13.*' and sys_platform == 'emscripten'",
-    "python_full_version == '3.12.*' and sys_platform == 'emscripten'",
-    "python_full_version < '3.12' and sys_platform == 'emscripten'",
     "python_full_version == '3.13.*' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version == '3.12.*' and sys_platform == 'win32'",
+    "python_full_version == '3.12.*' and sys_platform == 'emscripten'",
     "python_full_version == '3.12.*' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version < '3.12' and sys_platform == 'win32'",
+    "python_full_version < '3.12' and sys_platform == 'emscripten'",
     "python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 
@@ -1450,7 +1450,7 @@ wheels = [
 
 [[package]]
 name = "gplugins"
-version = "2.1.3"
+version = "2.1.5"
 source = { editable = "." }
 dependencies = [
     { name = "gdsfactory" },
@@ -1486,6 +1486,12 @@ docs = [
     { name = "pyvista", extra = ["all"] },
     { name = "scikit-learn" },
     { name = "zensical" },
+]
+elmer = [
+    { name = "jinja2" },
+    { name = "meshwell" },
+    { name = "nest-asyncio" },
+    { name = "pandas" },
 ]
 emode = [
     { name = "emodeconnection" },
@@ -1562,13 +1568,15 @@ requires-dist = [
     { name = "gitpython", marker = "extra == 'klayout'" },
     { name = "hypothesis", marker = "extra == 'dev'" },
     { name = "ipywidgets", marker = "extra == 'schematic'" },
+    { name = "jinja2", marker = "extra == 'elmer'" },
     { name = "jinja2", marker = "extra == 'gfviz'" },
     { name = "jupyter", marker = "extra == 'docs'" },
     { name = "jupytext", marker = "extra == 'docs'" },
     { name = "klayout", marker = "extra == 'klayout'" },
-    { name = "luminescent", marker = "extra == 'luminescent'", specifier = ">=0.2.12,<4.1.0" },
+    { name = "luminescent", marker = "extra == 'luminescent'", specifier = ">=0.2.12,<4.3.0" },
     { name = "matplotlib", marker = "extra == 'docs'" },
     { name = "meow-sim", marker = "extra == 'meow'", specifier = ">=0.15" },
+    { name = "meshwell", marker = "extra == 'elmer'", specifier = "~=2.1.1" },
     { name = "meshwell", marker = "extra == 'femwell'", specifier = "~=2.1.1" },
     { name = "meshwell", marker = "extra == 'meshwell'", specifier = "~=2.1.1" },
     { name = "mkdocs-bibtex", marker = "extra == 'docs'" },
@@ -1577,9 +1585,11 @@ requires-dist = [
     { name = "natsort", marker = "extra == 'gfviz'" },
     { name = "natsort", marker = "extra == 'schematic'" },
     { name = "nbconvert", marker = "extra == 'docs'" },
+    { name = "nest-asyncio", marker = "extra == 'elmer'" },
     { name = "numba", marker = "extra == 'dev'", specifier = ">=0.60" },
     { name = "numba", marker = "extra == 'path-length-analysis'", specifier = ">=0.60" },
     { name = "numpy", specifier = ">=2.0,<3" },
+    { name = "pandas", marker = "extra == 'elmer'" },
     { name = "pint" },
     { name = "pre-commit", marker = "extra == 'dev'" },
     { name = "pyswarms", marker = "extra == 'dev'" },
@@ -1588,8 +1598,8 @@ requires-dist = [
     { name = "pytest-regressions", marker = "extra == 'dev'" },
     { name = "pytz", marker = "extra == 'tidy3d'" },
     { name = "pyvis", marker = "extra == 'klayout'", specifier = "<=0.3.2" },
-    { name = "pyvista", marker = "extra == 'devsim'", specifier = "<=0.48.4" },
-    { name = "pyvista", extras = ["all"], marker = "extra == 'docs'", specifier = "<=0.48.4" },
+    { name = "pyvista", marker = "extra == 'devsim'", specifier = "<=0.49.0" },
+    { name = "pyvista", extras = ["all"], marker = "extra == 'docs'", specifier = "<=0.49.0" },
     { name = "sax", marker = "extra == 'meow'", specifier = ">=0.17,<0.19" },
     { name = "sax", marker = "extra == 'sax'", specifier = ">=0.17,<0.19" },
     { name = "scikit-learn", marker = "extra == 'docs'" },
@@ -1598,19 +1608,19 @@ requires-dist = [
     { name = "shapely", marker = "extra == 'path-length-analysis'" },
     { name = "sortedcontainers", marker = "extra == 'luminescent'" },
     { name = "tbump", marker = "extra == 'maintainer'" },
-    { name = "tidy3d", marker = "extra == 'devsim'", specifier = "~=2.11.1" },
-    { name = "tidy3d", marker = "extra == 'meow'", specifier = "~=2.11.1" },
-    { name = "tidy3d", marker = "extra == 'tidy3d'", specifier = "~=2.11.1" },
+    { name = "tidy3d", marker = "extra == 'devsim'", specifier = ">=2.11.1,<2.13.0" },
+    { name = "tidy3d", marker = "extra == 'meow'", specifier = ">=2.11.1,<2.13.0" },
+    { name = "tidy3d", marker = "extra == 'tidy3d'", specifier = ">=2.11.1,<2.13.0" },
     { name = "towncrier", marker = "extra == 'maintainer'" },
     { name = "tqdm" },
     { name = "vlsir", marker = "extra == 'klayout'" },
     { name = "vlsir", marker = "extra == 'vlsir'" },
     { name = "vlsirtools", marker = "extra == 'klayout'" },
     { name = "vlsirtools", marker = "extra == 'vlsir'" },
-    { name = "xarray", specifier = "==2026.4.0" },
+    { name = "xarray", specifier = ">=2023.8,<2026.5" },
     { name = "zensical", marker = "extra == 'docs'", specifier = ">=0.0.46,<0.1.0" },
 ]
-provides-extras = ["dev", "devsim", "docs", "emode", "femwell", "gfviz", "klayout", "luminescent", "maintainer", "meow", "meshwell", "path-length-analysis", "sax", "schematic", "tidy3d", "vlsir"]
+provides-extras = ["dev", "devsim", "docs", "elmer", "emode", "femwell", "gfviz", "klayout", "luminescent", "maintainer", "meow", "meshwell", "path-length-analysis", "sax", "schematic", "tidy3d", "vlsir"]
 
 [[package]]
 name = "graphviz"
@@ -1842,17 +1852,17 @@ resolution-markers = [
     "python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 dependencies = [
-    { name = "colorama", marker = "python_full_version < '3.12' and sys_platform == 'win32'" },
-    { name = "decorator", marker = "python_full_version < '3.12'" },
-    { name = "ipython-pygments-lexers", marker = "python_full_version < '3.12'" },
-    { name = "jedi", marker = "python_full_version < '3.12'" },
-    { name = "matplotlib-inline", marker = "python_full_version < '3.12'" },
-    { name = "pexpect", marker = "python_full_version < '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32'" },
-    { name = "prompt-toolkit", marker = "python_full_version < '3.12'" },
-    { name = "pygments", marker = "python_full_version < '3.12'" },
-    { name = "stack-data", marker = "python_full_version < '3.12'" },
-    { name = "traitlets", marker = "python_full_version < '3.12'" },
-    { name = "typing-extensions", marker = "python_full_version < '3.12'" },
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "decorator" },
+    { name = "ipython-pygments-lexers" },
+    { name = "jedi" },
+    { name = "matplotlib-inline" },
+    { name = "pexpect", marker = "sys_platform != 'emscripten' and sys_platform != 'win32'" },
+    { name = "prompt-toolkit" },
+    { name = "pygments" },
+    { name = "stack-data" },
+    { name = "traitlets" },
+    { name = "typing-extensions" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c5/25/daae0e764047b0a2480c7bbb25d48f4f509b5818636562eeac145d06dfee/ipython-9.10.1.tar.gz", hash = "sha256:e170e9b2a44312484415bdb750492699bf329233b03f2557a9692cce6466ada4", size = 4426663, upload-time = "2026-03-27T09:53:26.244Z" }
 wheels = [
@@ -1868,23 +1878,23 @@ resolution-markers = [
     "python_full_version >= '3.14' and sys_platform == 'emscripten'",
     "python_full_version >= '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version == '3.13.*' and sys_platform == 'win32'",
-    "python_full_version == '3.12.*' and sys_platform == 'win32'",
     "python_full_version == '3.13.*' and sys_platform == 'emscripten'",
-    "python_full_version == '3.12.*' and sys_platform == 'emscripten'",
     "python_full_version == '3.13.*' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version == '3.12.*' and sys_platform == 'win32'",
+    "python_full_version == '3.12.*' and sys_platform == 'emscripten'",
     "python_full_version == '3.12.*' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 dependencies = [
-    { name = "colorama", marker = "python_full_version >= '3.12' and sys_platform == 'win32'" },
-    { name = "decorator", marker = "python_full_version >= '3.12'" },
-    { name = "ipython-pygments-lexers", marker = "python_full_version >= '3.12'" },
-    { name = "jedi", marker = "python_full_version >= '3.12'" },
-    { name = "matplotlib-inline", marker = "python_full_version >= '3.12'" },
-    { name = "pexpect", marker = "python_full_version >= '3.12' and sys_platform != 'emscripten' and sys_platform != 'win32'" },
-    { name = "prompt-toolkit", marker = "python_full_version >= '3.12'" },
-    { name = "pygments", marker = "python_full_version >= '3.12'" },
-    { name = "stack-data", marker = "python_full_version >= '3.12'" },
-    { name = "traitlets", marker = "python_full_version >= '3.12'" },
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "decorator" },
+    { name = "ipython-pygments-lexers" },
+    { name = "jedi" },
+    { name = "matplotlib-inline" },
+    { name = "pexpect", marker = "sys_platform != 'emscripten' and sys_platform != 'win32'" },
+    { name = "prompt-toolkit" },
+    { name = "pygments" },
+    { name = "stack-data" },
+    { name = "traitlets" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/3a/73/7114f80a8f9cabdb13c27732dce24af945b2923dcab80723602f7c8bc2d8/ipython-9.12.0.tar.gz", hash = "sha256:01daa83f504b693ba523b5a407246cabde4eb4513285a3c6acaff11a66735ee4", size = 4428879, upload-time = "2026-03-27T09:42:45.312Z" }
 wheels = [
@@ -2866,7 +2876,7 @@ name = "manifold3d"
 version = "3.4.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "numpy", marker = "python_full_version < '3.14'" },
+    { name = "numpy" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/b0/fd/4dfc246e076e3912c45a821764f4de8b6c8117fa36fc67f8e44bf9dfe59b/manifold3d-3.4.1.tar.gz", hash = "sha256:b517927e2c15dc52169fff0cd12e1949eceb4ca49f3a5b8c0568b1116a561ab1", size = 269275, upload-time = "2026-03-24T06:22:40.062Z" }
 wheels = [
@@ -4091,7 +4101,7 @@ name = "pexpect"
 version = "4.9.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "ptyprocess", marker = "sys_platform != 'emscripten' and sys_platform != 'win32'" },
+    { name = "ptyprocess" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/42/92/cc564bf6381ff43ce1f4d06852fc19a2f11d180f23dc32d9588bee2f149d/pexpect-4.9.0.tar.gz", hash = "sha256:ee7d41123f3c9911050ea2c2dac107568dc43b2d3b0c7557a33212c398ead30f", size = 166450, upload-time = "2023-11-25T09:07:26.339Z" }
 wheels = [

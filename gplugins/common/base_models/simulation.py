@@ -38,7 +38,12 @@ def _raw_matrix_from_dict(dict_matrix: CapacitanceDict | ScatteringDict) -> NDAr
 
 
 class ElectrostaticResults(BaseModel):
-    """Results class for electrostatic simulations."""
+    """Results class for electrostatic simulations.
+
+    ``capacitance_matrix`` is the Maxwell capacitance matrix keyed by port name
+    pairs: diagonal entries are self-capacitances and off-diagonal entries are
+    negative mutual capacitances. Palace and Elmer both return this convention.
+    """
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
