@@ -249,6 +249,19 @@ def test_unsplit_conductor_surfaces_are_grounded() -> None:
     assert terminals.ground_surfaces == ["metal___vacuum"]
 
 
+def test_terminal_contact_with_grounded_conductor_is_rejected() -> None:
+    groups = [
+        _PhysicalGroup(3, 1, "vacuum", "vacuum"),
+        _PhysicalGroup(3, 2, "metal_o1", "metal_o1"),
+        _PhysicalGroup(3, 3, "metal", "metal"),
+        _PhysicalGroup(2, 4, "metal_o1___vacuum", "metal_o1___vacuum"),
+        _PhysicalGroup(2, 5, "metal___vacuum", "metal___vacuum"),
+        _PhysicalGroup(2, 6, "metal_o1___metal", "metal_o1___metal"),
+    ]
+    with pytest.raises(ValueError, match="connects terminal 'o1' to grounded"):
+        _split_mesh_terminals(groups, ["o1"], layer_stack, material_spec, "vacuum")
+
+
 def test_missing_background_volume_is_rejected() -> None:
     groups = [_PhysicalGroup(3, 1, "substrate", "substrate")]
     with pytest.raises(ValueError, match="No background volume"):

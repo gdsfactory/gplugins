@@ -319,6 +319,15 @@ def _split_mesh_terminals(
                 f"{terminals}. Terminals have to be disjoint."
             )
         if terminals:
+            touching_ground = (tokens & conductor_volumes) - signal_volumes[
+                terminals[0]
+            ]
+            if touching_ground:
+                raise ValueError(
+                    f"Surface {group.original_name!r} connects terminal "
+                    f"{terminals[0]!r} to grounded conductor(s) "
+                    f"{sorted(touching_ground)}."
+                )
             signal_surfaces[terminals[0]].append(group.name)
         elif tokens & conductor_volumes:
             ground_surfaces.append(group.name)
