@@ -61,7 +61,9 @@ jupytext:
 notebooks:
 	jupytext docs/**/*.py --to ipynb
 
-NOEXEC_PATTERNS = 01_pin_waveguide|1_fdtd_sparameters|2_interconnect|ray_optimiser|03_numerical_implantation|02_fullwave|fdtdz|elmer_01_electrostatic|meep_|meow_01|emode_01|luminescent|pso|mpb|palace_01_electrostatic|00_tidy3d|workflow_3_cascaded_mzi
+NOEXEC_PATTERNS = 01_pin_waveguide|1_fdtd_sparameters|2_interconnect|ray_optimiser|03_numerical_implantation|02_fullwave|fdtdz|meep_|meow_01|emode_01|luminescent|pso|mpb|palace_01_electrostatic|00_tidy3d|workflow_3_cascaded_mzi
+
+REQUIRED_PATTERNS = elmer_01_electrostatic
 
 nbdocs:
 	@echo "Converting notebooks to markdown..."
@@ -72,7 +74,13 @@ nbdocs:
 		cp -r "$$target" docs/notebooks; \
 	fi
 	@find docs -name "*.ipynb" | while read nb; do \
-		if echo "$$nb" | grep -qE '$(NOEXEC_PATTERNS)'; then \
+		if echo "$$nb" | grep -qE '$(REQUIRED_PATTERNS)'; then \
+			echo "  [exec-required] $$nb"; \
+			PYVISTA_OFF_SCREEN=0 PYVISTA_JUPYTER_BACKEND=html \
+			jupyter nbconvert --to markdown --execute --embed-images \
+				--ExecutePreprocessor.allow_errors=False \
+				--ExecutePreprocessor.timeout=600 "$$nb" || exit 1; \
+		elif echo "$$nb" | grep -qE '$(NOEXEC_PATTERNS)'; then \
 			echo "  [no-exec] $$nb"; \
 			jupyter nbconvert --to markdown --embed-images "$$nb" 2>/dev/null || true; \
 		else \

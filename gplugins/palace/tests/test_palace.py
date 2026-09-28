@@ -1,4 +1,5 @@
 from math import inf
+from pathlib import Path
 
 import gdsfactory as gf
 from meshwell.resolution import ConstantInField, ThresholdField
@@ -15,6 +16,7 @@ from gplugins.palace import (
     run_capacitive_simulation_palace,
     run_scattering_simulation_palace,
 )
+from gplugins.palace.get_capacitance import _read_palace_results
 
 layer_stack = LayerStack(
     layers=dict(
@@ -88,6 +90,33 @@ def get_reasonable_mesh_parameters_capacitance(c: Component):
             },
         },
     )
+
+
+def test_read_palace_results_reads_maxwell_capacitance_matrix(tmp_path: Path) -> None:
+    postpro = tmp_path / "postpro"
+    postpro.mkdir()
+    # The two files disagree so reading the lumped one instead of the Maxwell one fails.
+    (postpro / "terminal-Cm.csv").write_text(
+        ",0,1\n0,90.0,-80.0\n1,-70.0,60.0\n", encoding="utf-8"
+    )
+    (postpro / "terminal-C.csv").write_text(
+        ",0,1\n0,5.0,-2.0\n1,-3.0,4.0\n", encoding="utf-8"
+    )
+    ports = [
+        gf.Port(name=name, orientation=0, center=(0, 0), width=1, layer=LAYER.WG)
+        for name in ("o1", "o2")
+    ]
+
+    results = _read_palace_results(tmp_path, "geometry.msh", ports, is_temporary=True)
+
+    assert results.capacitance_matrix == {
+        ("o1", "o1"): 5.0,
+        ("o1", "o2"): -2.0,
+        ("o2", "o1"): -3.0,
+        ("o2", "o2"): 4.0,
+    }
+    assert results.mesh_location is None
+    assert results.field_file_location is None
 
 
 def test_palace_capacitance_simulation_runs(geometry, tmp_path) -> None:

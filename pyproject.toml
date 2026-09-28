@@ -5,7 +5,6 @@ build-backend = "flit_core.buildapi"
 requires = ["flit_core >=3.2,<5"]
 
 [project]
-authors = [{name = "gdsfactory", email = "contact@gdsfactory.com"}]
 classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
@@ -17,15 +16,21 @@ dependencies = [
   "pint",
   "tqdm",
   "numpy>=2.0,<3",
-  "xarray==2026.7.0"
+  "xarray>=2023.8,<2026.5"
 ]
 description = "gdsfactory plugins"
 keywords = ["python"]
-license = {file = "LICENSE"}
 name = "gplugins"
 readme = "README.md"
 requires-python = ">=3.11"
 version = "2.1.5"
+
+[[project.authors]]
+email = "contact@gdsfactory.com"
+name = "gdsfactory"
+
+[project.license]
+file = "LICENSE"
 
 [project.optional-dependencies]
 dev = [
@@ -50,6 +55,7 @@ docs = [
   "scikit-learn",
   "zensical>=0.0.46,<0.1.0"
 ]
+elmer = ["jinja2", "meshwell~=2.1.1", "nest-asyncio", "pandas"]
 emode = ["emodeconnection>=1.1.11"]
 femwell = ["femwell~=0.1.11", "meshwell~=2.1.1"]
 gfviz = ["jinja2", "fastapi", "shapely", "natsort"]

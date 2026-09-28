@@ -183,7 +183,8 @@ def _read_palace_results(
     is_temporary: bool,
 ) -> ElectrostaticResults:
     """Fetch results from successful Palace simulations."""
-    csv_file = simulation_folder / "postpro" / "terminal-Cm.csv"
+    # terminal-C.csv holds the Maxwell coefficients; terminal-Cm.csv is the lumped matrix.
+    csv_file = simulation_folder / "postpro" / "terminal-C.csv"
     raw_capacitance_matrix = read_csv(csv_file, dtype=float).values[
         :, 1:
     ]  # remove index

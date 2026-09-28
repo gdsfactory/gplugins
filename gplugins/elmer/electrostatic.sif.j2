@@ -1,6 +1,6 @@
 {# This is a Jinja2 template for generating Electrostatic simulation settings for Elmer FEM #}
 Check Keywords Warn
-INCLUDE {{ name }}/mesh.names
+INCLUDE "{{ name }}/mesh.names"
 
 Header
   Mesh DB "." "{{ name }}"
@@ -17,7 +17,6 @@ Simulation
 ! TODO use {{ simulator_params['adaptive_meshing_iterations'] }}
   Steady State Min Iterations = 3
   Steady State Max Iterations = 20
-  ! TODO Capacitance body n to Constraint Mode Potential?
 {% else %}
   Steady State Max Iterations = 1
 {% endif %}
@@ -35,12 +34,12 @@ Solver 1
   Calculate Electric Energy = True
   Calculate Electric Field = True
   Calculate Capacitance Matrix = True
-  Capacitance Matrix Filename = {{ name }}_capacitance.dat
+  Capacitance Matrix Filename = "{{ name | lower }}_capacitance.dat"
   Vector Assembly = True
   Element = p:{{ element_order }}
 
   Steady State Convergence Tolerance = {{ simulator_params["steady_state_convergence_tolerance"] | default("1e-5", true) }}
-  Nonlinear System Max Iterations = {{ simulator_params["nonlinear_system_max_iterations"] | default(20, true) }}
+  Nonlinear System Max Iterations = {{ simulator_params["nonlinear_system_max_iterations"] | default(1, true) }}
   Nonlinear System Consistent Norm = True
   Nonlinear System Convergence Tolerance = {{ simulator_params["nonlinear_system_convergence_tolerance"] | default("1e-7", true) }}
   Nonlinear System Newton After Iterations = {{ simulator_params["nonlinear_system_newton_after_iterations"] | default(4, true) }}
@@ -49,12 +48,13 @@ Solver 1
 
   Linear System Solver = Iterative
   Linear System Iterative Method = GCR
-  Linear System Max Iterations = {{ simulator_params["linear_system_max_iterations"] | default(30, true) }}
+  Linear System Max Iterations = {{ simulator_params["linear_system_max_iterations"] | default(500, true) }}
   Linear System Convergence Tolerance = {{ simulator_params["linear_system_convergence_tolerance"] | default("1e-13", true) }}
-  Linear System Abort Not Converged = False
+  Linear System Abort Not Converged = True
   Linear System Residual Output = 10
-  Linear System Preconditioning = multigrid
+  Linear System Preconditioning = ILU0
   Linear System Refactorize = False
+! MG parameters only take effect for p > 2 with multigrid preconditioning
   MG Method = p
   MG Levels = {{ element_order }}
   MG Smoother = SGS
@@ -96,32 +96,33 @@ Equation 1
   Active Solvers(2) = 1 2
 End
 
-{%- for material, properties in used_materials.items() %}
-Material {{ loop.index }}
-  $ {{ material }}_material = {{ loop.index }}
-  Relative Permittivity = {{ properties.relative_permittivity }}
+{% for material in materials %}
+Material {{ material.index }}
+  Relative Permittivity = {{ material.relative_permittivity }}
 End
-{%- endfor %}
+{% endfor %}
 
-! Define dielectrics
-{%- for body, properties in bodies.items() %}
-Body {{ loop.index }}
-  Target Bodies(1) = $ {{ body }}
+! Define dielectrics. Targets are body indices from mesh.names.
+{% for body in bodies %}
+Body {{ body.index }}
+  Target Bodies({{ body.targets | length }}) = {{ body.targets | join(' ') }}
   Equation = 1
-  Material = $ {{ properties.material }}_material
-  {{ body }} = Logical True
+  Material = {{ body.material_index }}
 End
-{%- endfor %}
+{% endfor %}
 
 ! BCs have to be on 2D surfaces. Consequently, we
 ! apply them to all physical sides of the bodies
+{% if ground_boundaries -%}
+! Ground potential on the remaining conductor surfaces
 Boundary Condition 1
-  Target Boundaries({{ ground_layers | length }}) = $ {{ ground_layers | join(' ') }}
-  Potential = 0.0  ! Always ground
+  Target Boundaries({{ ground_boundaries | length }}) = {{ ground_boundaries | join(' ') }}
+  Potential = 0.0
 End
+{% endif -%}
 {%- for signal_group in signals %}
-Boundary Condition {{ loop.index + 1 }}
-  Target Boundaries({{ signal_group | length }}) = $ {{ signal_group | join(' ') }}
+Boundary Condition {{ loop.index + (1 if ground_boundaries else 0) }}
+  Target Boundaries({{ signal_group | length }}) = {{ signal_group | join(' ') }}
   Capacitance Body = {{ loop.index }}
 End
 {%- endfor %}
