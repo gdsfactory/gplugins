@@ -28,7 +28,7 @@ def test_module_imports_without_mph():
         "assert COMSOL.__base__ is object; "
         "COMSOL(None, None)"
     )
-    result = subprocess.run(  # ruff: ignore[subprocess-without-shell-equals-true]
+    result = subprocess.run(
         [sys.executable, "-c", code],
         capture_output=True,
         text=True,
@@ -51,7 +51,7 @@ def broken(name, package=None):
 importlib.import_module = broken
 import gplugins.comsol.model
 """
-    result = subprocess.run(  # ruff: ignore[subprocess-without-shell-equals-true]
+    result = subprocess.run(
         [sys.executable, "-c", code],
         capture_output=True,
         text=True,

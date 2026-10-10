@@ -172,13 +172,17 @@ class _Node:
         """Record an assignment to a named selection."""
         self.named_tags.append(tag)
 
-    def autoMeshSize(self, size: int) -> None:  # ruff: ignore[invalid-function-name]
+    def autoMeshSize(self, size: int) -> None:
         """Record the automatic mesh size."""
         self.auto_mesh_size = size
 
     def run(self) -> None:
         """Record that the node was run."""
         self.runs += 1
+
+    def tags(self) -> list[str]:
+        """Return the tags of the children created so far."""
+        return [entry[0] for entry in self.created]
 
 
 class _Component:
@@ -201,6 +205,10 @@ class _Component:
         """Record a selection creation and return the new selection."""
         self.created.append((tag, selection_type))
         return self.selection(tag)
+
+    def tags(self) -> list[str]:
+        """Return the tags of the selections created so far."""
+        return [tag for tag, _ in self.created]
 
 
 class _FakeJava:
@@ -355,16 +363,16 @@ def test_each_polygon_probe_selects_its_own_metal_face():
     model = _study()
     component = model.java.component("comp1")
 
-    assert component.created[:4] == [
+    # The port planes are checked first, so a misplaced plane fails before
+    # anything else is added to the model.
+    assert component.created == [
+        (INPUT_FACES_SELECTION, "Box"),
+        (OUTPUT_FACES_SELECTION, "Box"),
         ("metal0", "Box"),
         ("metal1", "Box"),
         ("metal2", "Box"),
         (METAL_FACES_SELECTION, "Union"),
-    ]
-    assert component.created[4:] == [
-        (INPUT_FACES_SELECTION, "Box"),
         (INPUT_GAP_SELECTION, "Box"),
-        (OUTPUT_FACES_SELECTION, "Box"),
         (OUTPUT_GAP_SELECTION, "Box"),
     ]
     assert [component.selection(f"metal{index}").entities() for index in range(3)] == [
@@ -429,7 +437,8 @@ def test_port_faces_and_gap_edges_sit_on_the_bounding_planes():
                 plane + 0.001,
             )
         )
-        assert (float(box["ymin"]), float(box["ymax"])) == (-51.0, 51.0)
+        # Transverse and z stay unbounded: the plane alone picks the faces.
+        assert not {"ymin", "ymax", "zmin", "zmax"} & box.keys()
         assert component.selection(tag).entities() == (
             [1, 2] if plane < 0.0 else [3, 4]
         )
@@ -489,7 +498,7 @@ def test_vertical_feeds_swap_the_axes():
     assert component.selection(INPUT_FACES_SELECTION).entities() == [1, 2]
     faces = component.selection(INPUT_FACES_SELECTION).properties
     assert (float(faces["ymin"]), float(faces["ymax"])) == (-300.001, -299.999)
-    assert (float(faces["xmin"]), float(faces["xmax"])) == (-51.0, 51.0)
+    assert not {"xmin", "xmax"} & faces.keys()
     gap = component.selection(INPUT_GAP_SELECTION).properties
     assert (float(gap["ymin"]), float(gap["ymax"])) == (-300.001, -299.999)
     assert (float(gap["xmin"]), float(gap["xmax"])) == pytest.approx((4.999, 11.001))
@@ -561,19 +570,23 @@ def test_polygons_that_merge_into_one_face_are_refused():
 
 def test_a_polygon_that_becomes_no_face_is_refused():
     """A degenerate sliver imprints nothing, so its probe finds no face."""
+    base = _horizontal_layout()
     layout = ComsolLayout(
-        polygons=(_rect(-10.0, -5.0, 10.0, 5.0), _rect(20.0, 0.0, 30.0, 0.0)),
-        feed_ports=_horizontal_layout().feed_ports,
-        bbox=ComsolBoundingBox(xmin=-300.0, ymin=-50.0, xmax=900.0, ymax=50.0),
+        polygons=(*base.polygons, _rect(20.0, 8.0, 30.0, 8.0)),
+        feed_ports=base.feed_ports,
+        bbox=base.bbox,
     )
-    with pytest.raises(ValueError, match="metal polygon 1 selects 0 faces"):
-        _study(layout)
+    with pytest.raises(ValueError, match="metal polygon 3 selects 0 faces"):
+        _study(layout, sheet=_sheet(layout, metal_faces=[6, 9, 11, 12]))
 
 
 def test_a_gap_that_is_not_a_single_edge_is_refused():
     """A gap wider than the ground strip would span more than one edge."""
+    layout = _horizontal_layout()
+    sheet = _sheet(layout)
+    sheet.gap_edges.append((0, -300.0, 6.0, 8.0, 14))
     with pytest.raises(ValueError, match="input port gap selects 2 edges"):
-        _study(cpw_gap_um=45.0)
+        _study(layout, sheet=sheet)
 
 
 def test_a_feed_with_one_short_circuited_gap_is_refused():
@@ -586,8 +599,12 @@ def test_a_feed_with_one_short_circuited_gap_is_refused():
         feed_ports=layout.feed_ports,
         bbox=layout.bbox,
     )
+    sheet = _sheet(shorted, metal_faces=[6, 9])
+    model = _model(sheet)
     with pytest.raises(ValueError, match="CPW gap is shorted"):
-        _study(shorted, sheet=_sheet(shorted, metal_faces=[6, 9]))
+        add_cpw_rf_study(model, shorted, cpw_gap_um=6.0)
+    # The cross sections are checked before anything is added to the model.
+    assert model.java.component("comp1").created == []
 
 
 @pytest.mark.parametrize(
@@ -696,8 +713,31 @@ def test_a_port_plane_with_no_face_is_refused():
     layout = _horizontal_layout()
     sheet = _sheet(layout)
     sheet.port_faces = {(0, 900.0): [3, 4]}
-    with pytest.raises(ValueError, match="selects 0 faces on the port plane"):
+    with pytest.raises(ValueError, match="selects no face on the port plane"):
         _study(layout, sheet=sheet)
+
+
+def test_a_sheet_built_with_a_lateral_margin_is_refused():
+    """With a margin the outer faces sit past the feed metal, not on its end."""
+    layout = _horizontal_layout()
+    sheet = _sheet(layout)
+    # The geometry's outer faces moved out by a 50 µm margin.
+    sheet.port_faces = {(0, -350.0): [1, 2], (0, 950.0): [3, 4]}
+    with pytest.raises(ValueError, match="lateral_margin_um=0"):
+        _study(layout, sheet=sheet)
+
+
+@pytest.mark.parametrize("existing", ["mesh", "study"])
+def test_a_model_that_already_holds_a_study_is_refused(existing: str):
+    """A second study would collide with the fixed mesh1 and std1 tags."""
+    model = _model(_sheet(_horizontal_layout()))
+    if existing == "mesh":
+        model.java.component("comp1").mesh.create("mesh1", "geom1")
+    else:
+        model.java.study.create("std1")
+    with pytest.raises(ValueError, match="already holds"):
+        add_cpw_rf_study(model, _horizontal_layout(), cpw_gap_um=6.0)
+    assert model.java.component("comp1").created == []
 
 
 def test_a_port_plane_holding_one_face_is_refused():

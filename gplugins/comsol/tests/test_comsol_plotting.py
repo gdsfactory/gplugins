@@ -71,3 +71,30 @@ def test_field_plot_rejects_a_crop_without_nodes(tmp_path: Path) -> None:
     np.savetxt(export, [[0, 0, 0, 1], [1, 0, 0, 2]])
     with pytest.raises(ValueError, match="No exported field nodes"):
         draw_cut_plane_field(export, "Outside", view_um=(10, 20, 10, 20))
+
+
+def test_field_plot_survives_mostly_zero_field(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """More than 1% zero nodes put the 1st percentile at 0, which LogNorm refuses."""
+    x, y = np.meshgrid(np.linspace(-2, 2, 9), np.linspace(-2, 2, 9))
+    e = np.exp(x.ravel() + y.ravel())
+    e[: e.size // 2] = 0.0
+    field = np.column_stack((x.ravel(), y.ravel(), np.zeros(x.size), e))
+    export = tmp_path / "field.txt"
+    np.savetxt(export, field)
+    monkeypatch.setattr(plt, "show", lambda: None)
+    before = set(plt.get_fignums())
+    try:
+        draw_cut_plane_field(export, "Sparse", view_um=(-2, 2, -2, 2), stride=1)
+        assert set(plt.get_fignums()) - before
+    finally:
+        for number in set(plt.get_fignums()) - before:
+            plt.close(number)
+
+
+def test_field_plot_rejects_an_all_zero_window(tmp_path: Path) -> None:
+    export = tmp_path / "field.txt"
+    np.savetxt(export, [[0, 0, 0, 0], [1, 0, 0, 0]])
+    with pytest.raises(ValueError, match="No positive field values"):
+        draw_cut_plane_field(export, "Zero", view_um=(-1, 2, -1, 1))

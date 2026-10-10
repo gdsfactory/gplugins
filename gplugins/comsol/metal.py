@@ -58,7 +58,7 @@ def build_comsol_metal_model(
         raise ValueError("layout has no polygons to extrude")
 
     model = client.create(name)
-    try:  # ruff: ignore[too-many-statements-in-try-clause]
+    try:
         model.java.component().create("comp1")
         geometry = model.java.component("comp1").geom().create("geom1", 3)
         geometry.lengthUnit("um")

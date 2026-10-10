@@ -74,7 +74,7 @@ class _Mesh:
         """Record that the mesh was run."""
         self.runs.append(len(self.created))
 
-    def getNumElem(self) -> float:  # ruff: ignore[invalid-function-name]
+    def getNumElem(self) -> float:
         """Return the element count COMSOL would report."""
         return self.elements
 
@@ -329,11 +329,11 @@ class _SequenceMesh:
             return len(self.order)
         return self.order.index(self._cursor) + 1
 
-    def getNumElem(self) -> Any:  # ruff: ignore[invalid-function-name]
+    def getNumElem(self) -> Any:
         """Return the element count COMSOL would report."""
         return self.elements
 
-    def isAutomatic(self) -> bool:  # ruff: ignore[invalid-function-name]
+    def isAutomatic(self) -> bool:
         """Return whether the sequence is still physics-controlled."""
         return self.automatic
 
@@ -398,6 +398,21 @@ def test_the_generated_generator_is_swept_so_one_generator_is_left():
 
     assert GENERATED_FREE_TET_TAG not in mesh.features
     assert mesh.features[FREE_TET_TAG].feature_type == "FreeTet"
+
+
+def test_extra_generated_sizes_are_swept_for_the_face_sizes():
+    """A second generated size is dropped, as in the edge variant."""
+    mesh = _SequenceMesh(generated=(DEFAULT_SIZE_TAG, "size1", GENERATED_FREE_TET_TAG))
+    _pin(mesh)
+
+    assert "size1" not in mesh.features
+    assert mesh.order == [
+        DEFAULT_SIZE_TAG,
+        "size_pad_l",
+        "size_pad_r",
+        "size_gnd",
+        FREE_TET_TAG,
+    ]
 
 
 def test_the_default_size_is_pinned_and_made_custom_first():

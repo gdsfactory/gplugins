@@ -132,13 +132,17 @@ class _Node:
         """Record an assignment to a named selection."""
         self.named_tags.append(tag)
 
-    def autoMeshSize(self, size: int) -> None:  # ruff: ignore[invalid-function-name]
+    def autoMeshSize(self, size: int) -> None:
         """Record the automatic mesh size."""
         self.auto_mesh_size = size
 
     def run(self) -> None:
         """Record that the node was run."""
         self.runs += 1
+
+    def tags(self) -> list[str]:
+        """Return the tags of the children created so far."""
+        return [entry[0] for entry in self.created]
 
 
 class _Component:
@@ -161,6 +165,10 @@ class _Component:
         """Record a selection creation and return the new selection."""
         self.created.append((tag, selection_type))
         return self.selection(tag)
+
+    def tags(self) -> list[str]:
+        """Return the tags of the selections created so far."""
+        return [tag for tag, _ in self.created]
 
 
 class _FakeJava:
@@ -447,6 +455,41 @@ def test_rejects_tags_that_do_not_name_every_conductor(
         _study(model, **overrides)
 
     _assert_comsol_untouched(model)
+
+
+@pytest.mark.parametrize("bad", ["pad left", "1pad", "", "pad-left"])
+def test_a_conductor_tag_that_is_not_a_comsol_tag_is_refused(bad: str):
+    """A tag COMSOL would reject is refused before the model is touched."""
+    model = _model()
+    conductors = (("drive", _DRIVE), ("sense", _SENSE), (bad, _GROUND))
+    with pytest.raises(ValueError, match="are not COMSOL tags"):
+        _study(model, conductors=conductors, grounds=("sense", bad))
+
+    _assert_comsol_untouched(model)
+
+
+def test_a_conductor_tag_that_is_already_a_selection_is_refused():
+    """Reusing a sheet selection tag would overwrite it with a conductor box."""
+    model = _model()
+    component = model.java.component("comp1")
+    component.create("gnd", "Box")
+    with pytest.raises(ValueError, match=r"conductor tags \['gnd'\]"):
+        _study(model)
+    assert component.created == [("gnd", "Box")]
+
+
+@pytest.mark.parametrize("existing", ["mesh", "study"])
+def test_a_model_that_already_holds_a_study_is_refused(existing: str):
+    """A second study would collide with the fixed mesh1 and std1 tags."""
+    model = _model()
+    component = model.java.component("comp1")
+    if existing == "mesh":
+        component.mesh.create("mesh1", "geom1")
+    else:
+        model.java.study.create("std1")
+    with pytest.raises(ValueError, match="already holds"):
+        _study(model)
+    assert component.created == []
 
 
 def test_mph_is_not_imported_at_runtime():

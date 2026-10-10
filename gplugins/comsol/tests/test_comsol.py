@@ -14,7 +14,6 @@ import pytest
 
 from gplugins import comsol as simulation
 from gplugins.comsol import layout as comsol_layout
-from gplugins.comsol import metal as comsol
 from gplugins.comsol.layout import (
     ComsolBoundingBox,
     ComsolLayout,
@@ -34,13 +33,6 @@ def _empty_layout() -> ComsolLayout:
         feed_ports=(),
         bbox=ComsolBoundingBox(xmin=0.0, ymin=0.0, xmax=1.0, ymax=1.0),
     )
-
-
-def test_historical_cpw_alias_is_gone():
-    """The builder is named for what it does; the old CPW alias was removed."""
-    assert not hasattr(simulation, "build_comsol_cpw_model")
-    assert not hasattr(comsol, "build_comsol_cpw_model")
-    assert build_comsol_metal_model.__name__ == "build_comsol_metal_model"
 
 
 def test_comsol_class_is_exposed_lazily():

@@ -26,7 +26,12 @@ from typing import TYPE_CHECKING, Any
 from shapely.geometry import Point as ShapelyPoint
 from shapely.geometry import Polygon
 
-from gplugins.comsol._util import _format_number
+from gplugins.comsol._util import (
+    MESH_TAG,
+    STUDY_TAG,
+    _format_number,
+    _require_no_study,
+)
 
 if TYPE_CHECKING:
     import mph
@@ -53,9 +58,6 @@ _PLANE_HALF_THICKNESS_UM = 0.001
 
 #: Half-thickness in µm of the boxes that pick one gap edge out.
 _EDGE_HALF_THICKNESS_UM = 0.001
-
-#: Slack in µm around the layout bounding box when picking a whole port face.
-_PLANE_TRANSVERSE_MARGIN_UM = 1.0
 
 #: Tolerance in µm for a feed port sitting on a bounding-box face, and for two
 #: orientations pointing the same way. A cropped layout snaps its planes
@@ -219,47 +221,42 @@ def _add_metal_faces(component: Any, layout: ComsolLayout) -> None:
     union.set("input", tags)
 
 
-def _add_port_faces(
-    component: Any,
-    tag: str,
-    axis: int,
-    plane: float,
-    layout: ComsolLayout,
-) -> None:
+def _add_port_faces(component: Any, tag: str, axis: int, plane: float) -> None:
     """Select the air and silicon faces of one port cross section.
 
-    The box is a thin slab on the port plane that spans the layout sideways, so
-    it holds both dielectric halves of the cross section and nothing else. z is
-    left unbounded rather than given a finite span: the air block can be taller
-    than any fixed height, and a capped box would then report only the silicon
-    face, a half port.
+    The box is a thin slab on the port plane, unbounded in the other two axes, so
+    it holds both dielectric halves of the cross section and nothing else. The
+    transverse and z extents are left unbounded rather than given finite spans:
+    the blocks can reach any distance sideways and in height, and a capped box
+    would then report a partial face, a half port.
+
+    The port plane is where the feed metal ends, the layout's bounding-box face.
+    It is only an outer face of the model when the sheet model was built with no
+    lateral margin; with a margin the plane runs through the inside of each block
+    and carries no face at all.
 
     Raises:
         ValueError: If the plane does not carry exactly two faces, one air and
-            one silicon, which means the model's geometry does not reach the
-            layout's bounding box or its two dielectric blocks are not both cut
-            by the port plane.
+            one silicon, which means the model was built with a nonzero
+            ``lateral_margin_um``, was not built from this layout, or its two
+            dielectric blocks are not both cut by the port plane.
     """
-    axial, transverse = ("x", "y") if axis == 0 else ("y", "x")
-    low, high = (
-        (layout.bbox.ymin, layout.bbox.ymax)
-        if axis == 0
-        else (layout.bbox.xmin, layout.bbox.xmax)
-    )
+    axial = "x" if axis == 0 else "y"
     thickness = _PLANE_HALF_THICKNESS_UM
     entities = _box_selection(
         component,
         tag,
         entitydim=2,
         condition="inside",
-        spans={
-            axial: (plane - thickness, plane + thickness),
-            transverse: (
-                low - _PLANE_TRANSVERSE_MARGIN_UM,
-                high + _PLANE_TRANSVERSE_MARGIN_UM,
-            ),
-        },
+        spans={axial: (plane - thickness, plane + thickness)},
     )
+    if not entities:
+        raise ValueError(
+            f"the {tag} box selects no face on the port plane at {axial} = "
+            f"{plane} µm, so the model's outer face is not where the feed metal "
+            "ends: build the sheet model with lateral_margin_um=0 for an RF "
+            "study, or from the layout passed here"
+        )
     if len(entities) != 2:
         raise ValueError(
             f"the {tag} box selects {len(entities)} faces on the port plane at "
@@ -382,11 +379,11 @@ def _add_mesh_and_study(
     effective_index_shift: float,
 ) -> None:
     """Add an automatic mesh and a frequency study with one BMA step per port."""
-    mesh = component.mesh().create("mesh1", "geom1")
+    mesh = component.mesh().create(MESH_TAG, "geom1")
     mesh.autoMeshSize(mesh_size)
 
     frequency = f"{_format_number(frequency_ghz)}[GHz]"
-    study = model.java.study().create("std1")
+    study = model.java.study().create(STUDY_TAG)
     for index in (1, 2):
         tag = f"bma{index}"
         study.create(tag, "BoundaryModeAnalysis")
@@ -412,7 +409,9 @@ def add_cpw_rf_study(
 
     Args:
         model: The MPh model from
-            :func:`~gplugins.comsol.sheet.build_comsol_sheet_model`.
+            :func:`~gplugins.comsol.sheet.build_comsol_sheet_model`, built with
+            ``lateral_margin_um=0``: the ports sit on the model's outer faces,
+            and those have to be where the feed metal ends.
         layout: The same layout the model was built from, extracted with
             ``crop_to_feed_ports=True`` so both feed planes are open CPW cross
             sections on the bounding box.
@@ -436,8 +435,10 @@ def add_cpw_rf_study(
             not positive and finite, if the mesh size is not an integer in 1 to
             9, if the effective-index shift is not positive and finite, if the
             layout does not carry two opposite outward-facing feeds on the
-            bounding box, or if a selection does not resolve to the faces or
-            edges the layout implies.
+            bounding box, if the feed cross sections are not open CPW gaps, or
+            if a selection does not resolve to the faces or edges the layout
+            implies, which includes a model built with a nonzero
+            ``lateral_margin_um``, or if the model already holds a study.
     """
     if not math.isfinite(cpw_gap_um) or cpw_gap_um <= 0.0:
         raise ValueError(f"cpw_gap_um must be positive and finite, got {cpw_gap_um!r}")
@@ -462,6 +463,9 @@ def add_cpw_rf_study(
         )
 
     axis, low_feed, high_feed = _feed_pair(layout)
+    # Pure layout checks go before the first create, so a refused layout leaves
+    # the model untouched.
+    _check_cpw_cross_sections(layout, axis, (low_feed, high_feed), cpw_gap_um)
     planes = (
         (layout.bbox.xmin, layout.bbox.xmax)
         if axis == 0
@@ -469,14 +473,17 @@ def add_cpw_rf_study(
     )
 
     component = model.java.component("comp1")
+    _require_no_study(model, component)
+    # The port planes are probed first: they are what a model built with a
+    # lateral margin gets wrong, and they fail before any physics selection.
+    for name, plane in (("input", planes[0]), ("output", planes[1])):
+        _add_port_faces(component, f"{name}_faces", axis, plane)
     _add_metal_faces(component, layout)
     for name, plane, feed in (
         ("input", planes[0], low_feed),
         ("output", planes[1], high_feed),
     ):
-        _add_port_faces(component, f"{name}_faces", axis, plane, layout)
         _add_gap_edge(component, name, axis, plane, feed, cpw_gap_um)
-    _check_cpw_cross_sections(layout, axis, (low_feed, high_feed), cpw_gap_um)
     _add_electromagnetic_waves(component)
     _add_mesh_and_study(
         component, model, frequency_ghz, mesh_size, effective_index_shift

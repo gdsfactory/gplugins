@@ -247,7 +247,10 @@ def pin_absolute_mesh_sizes(
     any other way, rather than silently meshing something else. The generated
     FreeTet of the physics-controlled sequence does not survive an edit, and when
     it goes is undocumented, so it is swept before and after the explicit
-    generator is created, leaving exactly one generator. The ``Size`` feature
+    generator is created, leaving exactly one generator. Any ``size*`` feature the
+    build generated beyond the default one is swept too, as in
+    :func:`pin_absolute_edge_mesh_sizes`, since it still carries the predefined
+    sizing. The ``Size`` feature
     properties are in the COMSOL 6.3 API reference,
     https://doc.comsol.com/6.3/doc/com.comsol.help.comsol/comsol_api_mesh.49.099.html
 
@@ -330,8 +333,11 @@ def pin_absolute_mesh_sizes(
         _set_size(feature, hmax_um, hmin_um)
         last_size_tag = tag
 
-    # The generated generator is swept first, so the one created below lands after
-    # the last Size feature rather than after a feature about to disappear.
+    # Both sweeps go before the explicit generator is created, so that create lands
+    # after the last Size rather than after a feature about to disappear. Extra
+    # generated sizes still carry the predefined sizing, so they go as well.
+    face_size_tags = tuple(f"size_{selection}" for selection in face_sizes)
+    _drop_generated_sizes(sequence, (DEFAULT_SIZE_TAG, *face_size_tags))
     _drop_generated_free_tet(sequence)
     sequence.current(last_size_tag)
     sequence.create(FREE_TET_TAG, "FreeTet")
@@ -339,11 +345,7 @@ def pin_absolute_mesh_sizes(
     # would otherwise leave two of them, and the domains would be meshed twice.
     _drop_generated_free_tet(sequence)
 
-    desired = (
-        DEFAULT_SIZE_TAG,
-        *(f"size_{selection}" for selection in face_sizes),
-        FREE_TET_TAG,
-    )
+    desired = (DEFAULT_SIZE_TAG, *face_size_tags, FREE_TET_TAG)
     observed = tuple(sequence.feature().tags())
     if observed != desired:
         raise RuntimeError(

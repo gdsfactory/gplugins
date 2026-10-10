@@ -361,7 +361,9 @@ def build_comsol_sheet_model(
         substrate_thickness_um: Silicon thickness below the interface, in µm.
         air_height_um: Air height above the interface, in µm.
         lateral_margin_um: Margin around the layout bounding box for both
-            blocks, in µm.
+            blocks, in µm. Leave it at 0 for
+            :func:`~gplugins.comsol.rf.add_cpw_rf_study`, whose ports have to
+            sit on the outer faces where the feed metal ends.
         silicon_relative_permittivity: Relative permittivity of the silicon
             block, positive and finite. Defaults to
             :data:`SILICON_RELATIVE_PERMITTIVITY`.
@@ -401,7 +403,7 @@ def build_comsol_sheet_model(
         raise ValueError("layout has no metal polygons to imprint")
 
     model = client.create(name)
-    try:  # ruff: ignore[too-many-statements-in-try-clause]
+    try:
         model.java.component().create("comp1")
         component = model.java.component("comp1")
         geometry = component.geom().create("geom1", 3)
@@ -472,7 +474,7 @@ def build_comsol_sheet_model(
             or len(silicon_domains) != 1
             or air_domains == silicon_domains
         ):
-            raise ValueError(  # ruff: ignore[raise-within-try]
+            raise ValueError(
                 "air and silicon selections must resolve to one distinct domain "
                 f"each, got air={air_domains} and silicon={silicon_domains}"
             )

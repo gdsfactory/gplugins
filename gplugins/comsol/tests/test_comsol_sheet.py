@@ -258,7 +258,7 @@ class _Node:
             return self
         return self.child(f"selection:{tag}")
 
-    def propertyGroup(self, tag: str) -> _Node:  # ruff: ignore[invalid-function-name]
+    def propertyGroup(self, tag: str) -> _Node:
         """Return a material property group by tag."""
         return self.child(f"group:{tag}")
 
@@ -279,7 +279,7 @@ class _Node:
             name, value = args
             self.properties[name] = value
 
-    def setAttribute(self, name: str, value: str) -> None:  # ruff: ignore[invalid-function-name]
+    def setAttribute(self, name: str, value: str) -> None:
         """Record a geometry feature attribute."""
         self.attributes[name] = value
 
@@ -344,11 +344,11 @@ class _Geometry(_Group):
         self.geom_rep_feature_count = 0
         self.runs = 0
 
-    def lengthUnit(self, unit: str) -> None:  # ruff: ignore[invalid-function-name]
+    def lengthUnit(self, unit: str) -> None:
         """Record the length unit."""
         self.unit = unit
 
-    def geomRep(self, representation: str) -> None:  # ruff: ignore[invalid-function-name]
+    def geomRep(self, representation: str) -> None:
         """Record the geometry representation and the features already made."""
         self.geom_rep = representation
         self.geom_rep_feature_count = len(self.created)

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 import re
 from pathlib import Path
 from typing import Any
@@ -42,20 +43,24 @@ def explain_missing_results(results_dir: Path | None, name: str) -> str:
     """Explain how to supply a result file that is not on disk.
 
     Args:
-        results_dir: Directory the file was looked for in.
+        results_dir: Directory the file was looked for in, or ``None`` when no
+            results directory is configured.
         name: File name that was looked for inside ``results_dir``.
 
     Returns:
         A one-paragraph message naming the missing file and the two ways to
         supply it.
     """
+    where = (
+        "no results directory is configured"
+        if results_dir is None
+        else f"{results_dir} holds no such file"
+    )
     return (
-        f"No {name} in RESULTS_DIR ({results_dir}). The figures on the "
-        "documentation page are saved outputs of a licensed solve, and the cells "
-        "here replot only from files on disk. To supply them, run with "
-        "RUN_COMSOL = True on a licensed machine, which exports into MODEL_DIR, "
-        "or set RESULTS_DIR to a directory that already holds an exported "
-        f"{name}."
+        f"No exported {name}: {where}. Saved results come from a licensed solve, "
+        "so either solve on a machine with COMSOL and export the file into the "
+        "results directory, or point the results directory at one that already "
+        f"holds an exported {name}."
     )
 
 
@@ -75,24 +80,41 @@ def write_json_atomically(path: Path, payload: dict[str, Any]) -> None:
     temporary.replace(path)
 
 
-def exported_frequency_ghz(file: Path) -> float | None:
+def exported_frequency_ghz(file: Path, *, bare_unit: str | None = None) -> float | None:
     """Read the frequency annotation COMSOL writes into a data export header.
 
-    COMSOL writes either ``@ freq=<value>`` or a bare ``@ <value> <unit>`` line,
-    and the live field exports use the second form, so both are parsed and the
-    unit is applied explicitly rather than assumed to be GHz.
+    COMSOL writes either ``@ freq=<value>`` or a ``@ <value> <unit>`` line. The
+    second form carries its unit and is converted. The first carries none, and
+    which unit COMSOL writes it in is not established here, so it is only read
+    when the caller names that unit with ``bare_unit``.
 
     Args:
         file: Exported text file to scan.
+        bare_unit: Unit of a unit-less ``@ freq=`` value, one of
+            :data:`FREQUENCY_UNITS_GHZ`. ``None`` refuses such a value rather
+            than guessing.
 
     Returns:
         The annotated frequency in GHz, or ``None`` when the export carries no
         frequency.
+
+    Raises:
+        ValueError: If ``bare_unit`` is not a known unit, or if the export
+            carries a unit-less ``@ freq=`` value and ``bare_unit`` is ``None``.
     """
+    if bare_unit is not None and bare_unit not in FREQUENCY_UNITS_GHZ:
+        raise ValueError(
+            f"bare_unit must be one of {sorted(FREQUENCY_UNITS_GHZ)}, got {bare_unit!r}"
+        )
     with file.open(encoding="utf-8") as handle:
         for line in handle:
             if (match := _FREQUENCY_ANNOTATION.search(line)) is not None:
-                return float(match.group(1))
+                if bare_unit is None:
+                    raise ValueError(
+                        f"{file} annotates freq={match.group(1)} without a unit; "
+                        "pass bare_unit to say which unit it is in"
+                    )
+                return float(match.group(1)) * FREQUENCY_UNITS_GHZ[bare_unit]
             if (match := _FREQUENCY_HEADER.search(line)) is not None:
                 return float(match.group(1)) * FREQUENCY_UNITS_GHZ[match.group(2)]
     return None
@@ -119,7 +141,18 @@ def requested_frequency_grid(
 
     Returns:
         The ``range`` expression, and the ``points``-long grid it should return.
+
+    Raises:
+        ValueError: If ``points`` is not an integer of at least 2, or if the
+            window is not finite with ``high_ghz`` above ``low_ghz``.
     """
+    if isinstance(points, bool) or not isinstance(points, int) or points < 2:
+        raise ValueError(f"points must be an integer of at least 2, got {points!r}")
+    if not (math.isfinite(low_ghz) and math.isfinite(high_ghz)) or high_ghz <= low_ghz:
+        raise ValueError(
+            f"the window must be finite with high_ghz > low_ghz, got {low_ghz!r} "
+            f"to {high_ghz!r}"
+        )
     step_ghz = (high_ghz - low_ghz) / (points - 1)
     start_token = f"{low_ghz:.12g}"
     step_token = f"{step_ghz:.12g}"

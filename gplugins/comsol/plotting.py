@@ -82,7 +82,8 @@ def draw_cut_plane_field(
         contour_levels: Number of contour levels.
 
     Raises:
-        ValueError: If the crop window holds no exported node.
+        ValueError: If the crop window holds no exported node, or no node with
+            a positive field.
     """
     field = np.loadtxt(file, comments="%")
     field_x, field_y, field_e = field[:, 0], field[:, 1], field[:, 3]
@@ -98,13 +99,27 @@ def draw_cut_plane_field(
 
     # Colour limits from the data in the window rather than the full-domain
     # maximum, which sits far outside it and flattens everything on the scale.
-    color_min, color_max = (float(value) for value in np.percentile(view_e, [1, 99]))
+    # The scale is logarithmic, so the limits come from the positive nodes only:
+    # an export with more than 1% zero-field nodes would put the 1st percentile
+    # at 0, which a log scale cannot take.
+    positive_e = view_e[view_e > 0.0]
+    if positive_e.size == 0:
+        raise ValueError(f"No positive field values inside {view_um} to draw")
+    color_min, color_max = (
+        float(value) for value in np.percentile(positive_e, [1, 99])
+    )
+    if color_max <= color_min:
+        # A uniform window would give a single contour level; widen it so the
+        # levels still increase.
+        color_max = color_min * 10.0
     draw_x, draw_y, draw_e = view_x, view_y, view_e
     if stride > 1 and view_e.size // stride >= 10:
         draw_x = view_x[::stride]
         draw_y = view_y[::stride]
         draw_e = view_e[::stride]
-    print(  # ruff: ignore[print]
+    # Zero and below-range nodes are drawn in the lowest colour, not left blank.
+    draw_e = np.maximum(draw_e, color_min)
+    print(
         f"Field nodes: {view_e.size} of {field_e.size} inside the view; "
         f"{draw_e.size} drawn at stride {stride}; "
         f"range {view_e.min():.3g} to {view_e.max():.3g} V/m, "

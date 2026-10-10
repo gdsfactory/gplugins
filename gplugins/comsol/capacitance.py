@@ -18,12 +18,19 @@ outside COMSOL: that LC estimate is not an eigensolve.
 from __future__ import annotations
 
 import math
+import re
 from typing import TYPE_CHECKING, Any
 
 from shapely.geometry import Point as ShapelyPoint
 from shapely.geometry import Polygon
 
-from gplugins.comsol._util import _format_number
+from gplugins.comsol._util import (
+    MESH_TAG,
+    STUDY_TAG,
+    _existing_tags,
+    _format_number,
+    _require_no_study,
+)
 from gplugins.comsol.sheet import SILICON_SELECTION
 
 if TYPE_CHECKING:
@@ -34,6 +41,9 @@ if TYPE_CHECKING:
 #: Half-size in µm of the boxes that pick one metal face out of the plane. The
 #: metal lives on a single plane, so the box straddles ``z = 0``.
 _FACE_HALF_SIZE_UM = 0.01
+
+#: A COMSOL tag: a letter, then letters, digits, or underscores.
+_COMSOL_TAG = re.compile(r"[A-Za-z][A-Za-z0-9_]*")
 
 
 def _require_point(point: Point, name: str) -> None:
@@ -60,12 +70,23 @@ def _require_conductor_tags(
     capacitance would be for a geometry other than the one drawn.
 
     Raises:
-        ValueError: If a conductor tag repeats, if the terminal or a ground is
+        ValueError: If a conductor tag is not a valid COMSOL tag, if one
+            repeats, if the terminal or a ground is
             not one of the conductors, if the terminal is also grounded, if two
             grounds are the same tag, or if a conductor is neither driven nor
             grounded.
     """
     tags = [tag for tag, _ in conductors]
+    malformed = [
+        tag
+        for tag in tags
+        if not isinstance(tag, str) or _COMSOL_TAG.fullmatch(tag) is None
+    ]
+    if malformed:
+        raise ValueError(
+            f"the conductor tags {malformed} are not COMSOL tags: use a letter "
+            "followed by letters, digits, or underscores"
+        )
     if not grounds:
         raise ValueError("at least one grounded conductor is required")
     if len(set(tags)) != len(tags):
@@ -225,9 +246,10 @@ def add_capacitance_study(
             exactly one polygon per conductor; a metal polygon that no point
             names is refused rather than left as a dielectric interface.
         conductors: One ``(tag, point)`` pair per metal face. The tag names the
-            face selection created on ``comp1``, and the point in µm on the sheet
-            plane has to sit inside that face. It centres a small box, so it has
-            to sit clear of the face's edges.
+            face selection created on ``comp1``, so it must not be a selection
+            the model already holds, such as ``air`` or ``si``. The point in µm
+            on the sheet plane has to sit inside that face. It centres a small
+            box, so it has to sit clear of the face's edges.
         terminal: Tag of the conductor to drive with the voltage terminal.
         grounds: Tags of the conductors to ground, in the order their Ground
             features are tagged. Together with ``terminal`` they have to name
@@ -245,7 +267,8 @@ def add_capacitance_study(
             is not an integer in 1 to 9, if a point is not a finite (x, y) pair,
             if the conductor tags do not name a terminal and a ground each, or
             if the layout, the polygons, or the points do not assign exactly one
-            distinct metal face to each conductor.
+            distinct metal face to each conductor, if a conductor tag is already
+            a selection on ``comp1``, or if the model already holds a study.
     """
     if not math.isfinite(voltage_v) or voltage_v <= 0.0:
         raise ValueError(f"voltage_v must be positive and finite, got {voltage_v!r}")
@@ -263,14 +286,24 @@ def add_capacitance_study(
         _require_point(point, tag)
 
     component = model.java.component("comp1")
+    _require_no_study(model, component)
+    # The conductor tags become component selections, so one that is already
+    # taken, e.g. the sheet builder's air or si domain, would clash with it.
+    taken = _existing_tags(component.selection())
+    clashing = [tag for tag, _ in conductors if tag in taken]
+    if clashing:
+        raise ValueError(
+            f"the conductor tags {clashing} are already selections on comp1; "
+            f"pick names other than {sorted(taken)}"
+        )
     _select_metal_faces(component, layout, conductors)
     add_electrostatics(
         component, terminal=terminal, grounds=grounds, voltage_v=voltage_v
     )
 
-    mesh = component.mesh().create("mesh1", "geom1")
+    mesh = component.mesh().create(MESH_TAG, "geom1")
     mesh.autoMeshSize(mesh_size)
-    study = model.java.study().create("std1")
+    study = model.java.study().create(STUDY_TAG)
     study.create("stat", "Stationary")
 
     return model

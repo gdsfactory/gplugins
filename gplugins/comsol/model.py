@@ -80,7 +80,8 @@ class COMSOL(mph.Model):
             substrate_thickness_um: Silicon thickness below the interface, in µm.
             air_height_um: Air height above the interface, in µm.
             lateral_margin_um: Margin around the layout bounding box for both
-                blocks, in µm.
+                blocks, in µm. Leave it at 0 for :meth:`add_cpw_rf_study`, whose
+                ports have to sit on the outer faces where the feed metal ends.
             silicon_relative_permittivity: Relative permittivity of the silicon
                 block, positive and finite.
             air_relative_permittivity: Relative permittivity of the air block,
