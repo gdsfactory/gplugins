@@ -33,6 +33,7 @@ name = "gdsfactory"
 file = "LICENSE"
 
 [project.optional-dependencies]
+ansys = ["polars", "pyaedt>=0.15.0"]
 dev = [
   "hypothesis",
   "numba>=0.60",
