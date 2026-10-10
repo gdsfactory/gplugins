@@ -14,6 +14,7 @@ from gplugins.ansys.base import (
     _first_real_value,
     export_component_to_gds_temp,
     layer_stack_to_gds_mapping,
+    logger,
     object_names_to_materials,
     rename_imported_objects,
 )
@@ -27,6 +28,30 @@ if TYPE_CHECKING:
     from gdsfactory.typings import Ports
 
     from gplugins.ansys.base import MaterialProperties
+
+_LENGTH_TO_UM = {
+    "nm": 1e-3,
+    "um": 1.0,
+    "mm": 1e3,
+    "cm": 1e4,
+    "meter": 1e6,
+    "m": 1e6,
+    "mil": 25.4,
+    "in": 25400.0,
+}
+
+_CAPACITANCE_TO_F = {
+    "aF": 1e-18,
+    "fF": 1e-15,
+    "pF": 1e-12,
+    "nF": 1e-9,
+    "uF": 1e-6,
+    "mF": 1e-3,
+    "F": 1.0,
+}
+
+# Ports sit on conductor edges; this much slack (µm) absorbs rounding.
+_PORT_TOLERANCE_UM = 1.0
 
 
 class Q3D(AEDTBase):
@@ -74,15 +99,21 @@ class Q3D(AEDTBase):
             component: The gdsfactory component to import.
             layer_stack: LayerStack defining thickness and elevation for each layer.
                 If None, uses the wrapper's, else the active PDK's.
-            units: Length units for the geometry (default: "um" for micrometers).
+            units: Length units of the geometry. Only ``"um"`` is supported, as
+                the layer stack is in µm.
             gds_path: Optional path to write the GDS file. If None, uses a temporary file.
 
         Returns:
             List of newly created conductor object names in Q3D.
 
         Raises:
+            ValueError: If ``units`` is not ``"um"``.
             RuntimeError: If GDS import fails.
         """
+        if units != "um":
+            raise ValueError(
+                f"Q3D import expects units='um' (the layer stack is in µm), got {units!r}"
+            )
         stack = self.resolve_layer_stack(layer_stack)
         mapping_layers = layer_stack_to_gds_mapping(stack)
 
@@ -132,8 +163,14 @@ class Q3D(AEDTBase):
     ) -> list[str]:
         """Assign Q3D signal nets based on gdsfactory port locations.
 
-        For each gdsfactory port, finds the conductor object whose bounding-box
-        center is nearest to the port center and assigns it as a Q3D signal net.
+        Each port is matched to the conductor object nearest to it (distance to
+        the object's bounding box, ties broken by the smaller box). Bounding
+        boxes are converted from the modeler's units to µm, the unit of
+        gdsfactory ports.
+
+        A conductor carries one net. If a port's nearest conductor already
+        belongs to an earlier port (e.g. both ends of one line), the port is
+        skipped with a warning rather than attached to some other conductor.
 
         Args:
             ports: Collection of gdsfactory ports defining signal locations.
@@ -141,55 +178,72 @@ class Q3D(AEDTBase):
                 :meth:`import_component`.
 
         Returns:
-            List of assigned signal net names (one per port).
+            List of assigned signal net names, one per port that got a net.
+
+        Raises:
+            ValueError: If the modeler's length unit is unknown, or a port lies
+                outside the conductors' extent (wrong units or wrong component).
         """
         self.q3d.auto_identify_nets()
 
         assigned_nets: list[str] = []
-        used_objects: set[str] = set()
-
         if not ports or not conductor_objects:
             return assigned_nets
 
-        bboxes = {}
+        model_units = str(self.modeler.model_units).strip()
+        if model_units not in _LENGTH_TO_UM:
+            raise ValueError(
+                f"Unknown model length unit {model_units!r}; expected one of"
+                f" {sorted(_LENGTH_TO_UM)}"
+            )
+        scale = _LENGTH_TO_UM[model_units]
+
+        bboxes: dict[str, list[float]] = {}
         for obj_name in conductor_objects:
             obj = self.modeler.get_object_from_name(obj_name)
             if obj:
-                bboxes[obj_name] = obj.bounding_box
+                bboxes[obj_name] = [float(v) * scale for v in obj.bounding_box]
 
         if not bboxes:
             return assigned_nets
 
-        first_port = next(iter(ports))
-        px0, py0 = float(first_port.center[0]), float(first_port.center[1])
+        x_min = min(b[0] for b in bboxes.values())
+        y_min = min(b[1] for b in bboxes.values())
+        x_max = max(b[3] for b in bboxes.values())
+        y_max = max(b[4] for b in bboxes.values())
 
-        def dist_to_bbox(
-            px: float, py: float, bbox: list[float], s: float = 1.0
-        ) -> float:
-            dx = max(bbox[0] * s - px, 0, px - bbox[3] * s)
-            dy = max(bbox[1] * s - py, 0, py - bbox[4] * s)
+        def dist_to_bbox(px: float, py: float, bbox: list[float]) -> float:
+            dx = max(bbox[0] - px, 0, px - bbox[3])
+            dy = max(bbox[1] - py, 0, py - bbox[4])
             return math.hypot(dx, dy)
 
-        scale_factor = min(
-            (10**p for p in range(-3, 5)),
-            key=lambda s: min(dist_to_bbox(px0, py0, b, s) for b in bboxes.values()),
-        )
+        union = [x_min, y_min, 0.0, x_max, y_max, 0.0]
+        owner: dict[str, str] = {}
 
         for port in ports:
             px, py = float(port.center[0]), float(port.center[1])
-            available_objs = [obj for obj in bboxes if obj not in used_objects]
-            if not available_objs:
-                break
+            if dist_to_bbox(px, py, union) > _PORT_TOLERANCE_UM:
+                raise ValueError(
+                    f"Port {port.name!r} at ({px}, {py}) µm is outside the conductors'"
+                    f" extent x=[{x_min}, {x_max}], y=[{y_min}, {y_max}] µm"
+                )
 
             def port_metric(
                 obj_name: str, px: float = px, py: float = py
             ) -> tuple[float, float]:
                 b = bboxes[obj_name]
-                dist = dist_to_bbox(px, py, b, scale_factor)
-                area = (b[3] - b[0]) * (b[4] - b[1]) * scale_factor**2
-                return max(0.0, dist - 1.0), area
+                dist = dist_to_bbox(px, py, b)
+                area = (b[3] - b[0]) * (b[4] - b[1])
+                return max(0.0, dist - _PORT_TOLERANCE_UM), area
 
-            best_obj = min(available_objs, key=port_metric)
+            best_obj = min(bboxes, key=port_metric)
+            if best_obj in owner:
+                logger.warning(
+                    f"Port {port.name!r} is on conductor {best_obj!r}, which already"
+                    f" carries net {owner[best_obj]!r}; not assigning a net for it."
+                )
+                continue
+
             net_to_rename = next(
                 (
                     b
@@ -207,7 +261,7 @@ class Q3D(AEDTBase):
                 )
 
             assigned_nets.append(port.name)
-            used_objects.add(best_obj)
+            owner[best_obj] = port.name
 
         return assigned_nets
 
@@ -223,6 +277,9 @@ class Q3D(AEDTBase):
         Returns:
             DataFrame with one column per capacitance expression containing
             the extracted values in Farads.
+
+        Raises:
+            ValueError: If AEDT reports a missing or unknown capacitance unit.
         """
         nets = [b.name for b in self.q3d.boundaries if b.type == "SignalNet"]
         expressions = [f"C({n1},{n2})" for i, n1 in enumerate(nets) for n2 in nets[i:]]
@@ -234,16 +291,13 @@ class Q3D(AEDTBase):
                 setup_sweep_name=f"{setup_name} : LastAdaptive",
             )
             if solution and (val := _first_real_value(solution)) is not None:
-                unit = solution.units_data.get(expr, "pF")
-                multiplier = {
-                    "fF": 1e-15,
-                    "pF": 1e-12,
-                    "nF": 1e-9,
-                    "uF": 1e-6,
-                    "mF": 1e-3,
-                    "F": 1.0,
-                }.get(str(unit), 1e-12)
-                data[expr] = [val * multiplier]
+                unit = str(solution.units_data.get(expr) or "").strip()
+                if unit not in _CAPACITANCE_TO_F:
+                    raise ValueError(
+                        f"Unknown capacitance unit {unit!r} for {expr}; expected one"
+                        f" of {sorted(_CAPACITANCE_TO_F)}"
+                    )
+                data[expr] = [val * _CAPACITANCE_TO_F[unit]]
 
         return pl.DataFrame(data)
 
@@ -354,6 +408,8 @@ class Q2D(AEDTBase):
 
         if ground_width is None:
             ground_width = 10.0 * cpw_gap
+        if ground_width <= 0:
+            raise ValueError(f"ground_width must be positive, got {ground_width}")
 
         self.add_materials()
         self.modeler.model_units = units

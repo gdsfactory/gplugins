@@ -1,9 +1,10 @@
 """Tests for the Ansys AEDT wrappers, against PyAEDT stand-ins."""
 
-from collections.abc import Sequence
+from collections.abc import Generator, Sequence
 from pathlib import Path
 
 import gdsfactory as gf
+import polars as pl
 import pytest
 from gdsfactory.gpdk import PDK
 from gdsfactory.technology import LayerLevel, LayerStack
@@ -22,19 +23,30 @@ from gplugins.ansys import (
     lumped_port_rectangle_from_cpw,
     object_names_to_materials,
 )
-from gplugins.ansys._mocks import (
+from gplugins.ansys.base import (
+    _first_real_value,
+    _get_layer_number_from_level,
+    logger,
+    rename_imported_objects,
+)
+from gplugins.ansys.tests._mocks import (
     MockApp,
+    MockDrivenPost,
     MockExpressionData,
     MockHfssApp,
+    MockHfssDrivenApp,
     MockHfssImportApp,
     MockLogger,
     MockMaterials,
+    MockModeler,
     MockPost,
     MockQ2dApp,
     MockQ3dApp,
+    MockQ3dGeometryApp,
     MockQ3dNetsApp,
+    MockSParameterSolution,
+    MockStubbornObject,
 )
-from gplugins.ansys.base import _first_real_value, _get_layer_number_from_level, logger
 
 PDK.activate()
 
@@ -495,3 +507,313 @@ def test_q2d_create_2d_cpw_rejects_bad_input(stack: LayerStack, kwargs, match):
         Q2D(app, layer_stack=stack).create_2d_cpw(**arguments)
 
     assert app.modeler.rectangles == {}
+
+
+@pytest.fixture
+def warnings() -> Generator[list[str], None, None]:
+    """Collect the plugin's warning messages."""
+    messages: list[str] = []
+    handler_id = logger.add(messages.append, level="WARNING")
+    try:
+        yield messages
+    finally:
+        logger.remove(handler_id)
+
+
+def _ports(*specs: tuple[str, tuple[float, float], float]) -> list:
+    """Return gdsfactory ports with the given names, centers and orientations."""
+    c = gf.Component()
+    for name, center, orientation in specs:
+        c.add_port(name, center=center, width=1.0, orientation=orientation, layer=METAL)
+    return list(c.ports)
+
+
+def test_assign_nets_from_ports_with_a_port_at_the_origin():
+    """A port at (0, 0) must not skew which conductor the other ports land on."""
+    app = MockQ3dGeometryApp(
+        {
+            "near": [0.0, -5.0, 0.0, 10.0, 5.0, 0.2],
+            "mid": [310.0, -5.0, 0.0, 320.0, 5.0, 0.2],
+            "far": [1000.0, -5.0, 0.0, 1010.0, 5.0, 0.2],
+        }
+    )
+    ports = _ports(("o1", (0, 0), 180), ("o2", (300, 0), 0))
+
+    nets = Q3D(app).assign_nets_from_ports(ports, ["near", "mid", "far"])
+
+    assert nets == ["o1", "o2"]
+    owners = {b.name: b.props["Objects"] for b in app.boundaries}
+    assert owners["o1"] == ["near"]
+    assert owners["o2"] == ["mid"]
+
+
+def test_assign_nets_from_ports_converts_model_units():
+    """Bounding boxes in mm are compared with ports in µm after conversion."""
+    app = MockQ3dGeometryApp(
+        {
+            "a": [0.0, -0.005, 0.0, 0.01, 0.005, 0.0002],
+            "b": [0.31, -0.005, 0.0, 0.32, 0.005, 0.0002],
+        },
+        units="mm",
+    )
+    ports = _ports(("o1", (0, 0), 180), ("o2", (320, 0), 0))
+
+    Q3D(app).assign_nets_from_ports(ports, ["a", "b"])
+
+    owners = {b.name: b.props["Objects"] for b in app.boundaries}
+    assert owners["o1"] == ["a"]
+    assert owners["o2"] == ["b"]
+
+
+def test_assign_nets_from_ports_prefers_the_inner_conductor(warnings: list[str]):
+    """Both ends of a line enclosed by a ground plane name the line, once."""
+    app = MockQ3dGeometryApp(
+        {
+            "ground": [-100.0, -100.0, 0.0, 400.0, 100.0, 0.2],
+            "signal": [0.0, -5.0, 0.0, 300.0, 5.0, 0.2],
+        }
+    )
+    ports = _ports(("o1", (0, 0), 180), ("o2", (300, 0), 0))
+
+    nets = Q3D(app).assign_nets_from_ports(ports, ["ground", "signal"])
+
+    assert nets == ["o1"]
+    owners = {b.name: b.props["Objects"] for b in app.boundaries}
+    assert owners["o1"] == ["signal"]
+    assert owners["Net_ground"] == ["ground"]
+    assert any("'o2'" in message for message in warnings)
+
+
+@pytest.mark.parametrize(
+    ("units", "port_center", "match"),
+    [("furlong", (0, 0), "Unknown model length unit"), ("um", (5000, 0), "outside")],
+)
+def test_assign_nets_from_ports_rejects_mismatched_geometry(units, port_center, match):
+    """Unknown units, or a port nowhere near the conductors, fail loudly."""
+    app = MockQ3dGeometryApp({"a": [0.0, -5.0, 0.0, 10.0, 5.0, 0.2]}, units=units)
+
+    with pytest.raises(ValueError, match=match):
+        Q3D(app).assign_nets_from_ports(_ports(("o1", port_center, 0)), ["a"])
+
+
+def test_get_sparameter_results_returns_complex_s_not_db():
+    """S-parameters are read as S(i,j) real and imaginary parts, not dB."""
+    sweep = [1.0, 2.0, 3.0]
+    s11 = [0.1 + 0.2j, 0.3 - 0.1j, -0.5 + 0.0j]
+    s21 = [0.9 + 0.0j, 0.8 + 0.1j, 0.7 - 0.2j]
+    post = MockDrivenPost(
+        {
+            "S(1,1)": MockSParameterSolution("S(1,1)", sweep, s11),
+            "S(2,1)": MockSParameterSolution("S(2,1)", sweep, s21),
+        }
+    )
+    app = MockHfssDrivenApp(post)
+
+    df = HFSS(app).get_sparameter_results("DrivenSetup", "FrequencySweep")
+
+    assert app.trace_categories == ["S"]
+    assert df.columns == [
+        "frequency_ghz",
+        "re(S(1,1))",
+        "im(S(1,1))",
+        "re(S(2,1))",
+        "im(S(2,1))",
+    ]
+    assert all(dtype == pl.Float64 for dtype in df.dtypes)
+    assert_allclose(df["frequency_ghz"].to_numpy(), sweep)
+    rebuilt = df["re(S(2,1))"].to_numpy() + 1j * df["im(S(2,1))"].to_numpy()
+    assert_allclose(rebuilt, s21)
+    assert post.requests[0][1]["setup_sweep_name"] == "DrivenSetup : FrequencySweep"
+
+
+def test_get_sparameter_results_converts_the_sweep_unit():
+    """A sweep AEDT reports in MHz comes back in GHz."""
+    post = MockDrivenPost(
+        {"S(1,1)": MockSParameterSolution("S(1,1)", [500.0], [0.5j], "MHz")}
+    )
+
+    df = HFSS(MockHfssDrivenApp(post)).get_sparameter_results()
+
+    assert df["frequency_ghz"].to_list() == pytest.approx([0.5])
+
+
+@pytest.mark.parametrize("import_as_sheets", [False, True])
+def test_hfss_import_assigns_dielectric_materials(
+    tmp_path: Path, stack: LayerStack, import_as_sheets: bool
+):
+    """Dielectric levels get their material, which is added to the project first.
+
+    Sheets flatten only the conductors; the substrate keeps its thickness.
+    """
+    component = gf.components.rectangle(size=(10, 10), layer=METAL)
+    app = MockHfssImportApp(["signal1", "signal99"])
+
+    HFSS(app).import_component(
+        component,
+        stack,
+        import_as_sheets=import_as_sheets,
+        gds_path=tmp_path / "comp.gds",
+    )
+
+    assert app.assigned_materials == {"Substrate": "si"}
+    assert "si" in app.materials.material_names
+    assert app.import_kwargs["mapping_layers"][99] == (-500.0, 500.0)
+
+
+def test_hfss_import_raises_when_the_import_fails(tmp_path: Path, stack: LayerStack):
+    """A failed GDS import raises, as in Q3D, instead of returning False."""
+    app = MockHfssImportApp(["signal1"])
+    app.import_gds_3d = lambda **kwargs: False
+
+    with pytest.raises(RuntimeError, match="HFSS GDS import failed"):
+        HFSS(app).import_component(
+            gf.components.rectangle(size=(10, 10), layer=METAL),
+            stack,
+            gds_path=tmp_path / "comp.gds",
+        )
+
+
+@pytest.mark.parametrize("wrapper", [HFSS, Q3D])
+def test_import_rejects_units_other_than_um(wrapper, stack: LayerStack):
+    """The layer stack is in µm, so other geometry units would mis-scale it."""
+    with pytest.raises(ValueError, match="units='um'"):
+        wrapper(MockHfssImportApp([])).import_component(
+            gf.components.rectangle(size=(10, 10), layer=METAL), stack, units="mm"
+        )
+
+
+def test_layer_stack_to_gds_mapping_override_materials(stack: LayerStack):
+    """The thickness override can be limited to some materials."""
+    mapping = layer_stack_to_gds_mapping(
+        stack, thickness_override=0.0, override_materials={"Nb"}
+    )
+
+    assert mapping[1] == (0.0, 0.0)
+    assert mapping[99] == (-500.0, 500.0)
+
+
+def test_layer_stack_to_gds_mapping_warns_on_an_unresolvable_level(
+    warnings: list[str],
+):
+    """A level without a GDS layer number is reported, not silently dropped."""
+    level = _level(METAL, 0.0, 0.2, "Nb")
+    stack = LayerStack(layers={"M1": level, "Mystery": _level(METAL, 1.0, 0.2, "Nb")})
+    stack.layers["Mystery"].layer = None
+
+    mapping = layer_stack_to_gds_mapping(stack)
+
+    assert mapping == {1: (0.0, 0.2)}
+    assert any("'Mystery'" in message for message in warnings)
+
+
+def test_add_lumped_ports_draws_a_port_per_gdsfactory_port():
+    """Each port gets a sheet at the conductor's elevation and a lumped port."""
+    app = MockHfssApp()
+    ports = _ports(("o1", (0, 0), 180), ("o2", (300, 0), 0))
+
+    HFSS(app).add_lumped_ports(ports, cpw_gap=6.0, cpw_width=10.0, elevation=0.2)
+
+    assert [r.name for r in app.modeler.rectangles] == ["o1_face", "o2_face"]
+    assert app.modeler.rectangles[0].kwargs["origin"] == pytest.approx(
+        [-6.0, -5.0, 0.2]
+    )
+    assert [p["name"] for p in app.lumped_ports] == ["o1", "o2"]
+    assert app.lumped_ports[1]["assignment"] == "o2_face"
+
+
+def test_add_lumped_ports_rejects_a_port_without_orientation():
+    """An electrical port without orientation names itself in the error."""
+
+    class Port:
+        name = "e1"
+        center = (0.0, 0.0)
+        orientation = None
+
+    with pytest.raises(ValueError, match="Port 'e1': Port has no orientation"):
+        HFSS(MockHfssApp()).add_lumped_ports([Port()], cpw_gap=6.0, cpw_width=10.0)
+
+
+def test_add_air_region_adds_a_lateral_margin():
+    """The air box clears the component by the margin on every side."""
+    app = MockHfssApp()
+    component = gf.components.rectangle(size=(100, 50), layer=METAL)
+
+    name = HFSS(app).add_air_region(
+        component, height=200.0, substrate_thickness=300.0, lateral_margin=25.0
+    )
+
+    box = app.modeler.boxes[0]
+    assert name == box.name == "AirRegion"
+    assert box.kwargs["origin"] == pytest.approx([-25.0, -25.0, -300.0])
+    assert box.kwargs["sizes"] == pytest.approx([150.0, 100.0, 500.0])
+    assert app.perfect_e == {}
+
+    with pytest.raises(ValueError, match="lateral_margin"):
+        HFSS(app).add_air_region(component, lateral_margin=-1.0)
+
+
+def test_add_substrate_adds_its_material_to_the_project():
+    """The substrate's material exists in the project before the box uses it."""
+    app = MockHfssApp()
+    component = gf.components.rectangle(size=(100, 50), layer=METAL)
+
+    HFSS(app).add_substrate(component, thickness=500.0, material="silicon")
+
+    assert "silicon" in app.materials.material_names
+    assert app.modeler.boxes[0].kwargs["material"] == "silicon"
+
+
+def test_get_capacitance_matrix_rejects_an_unknown_unit():
+    """A unit the converter does not know raises instead of assuming pF."""
+    post = MockPost({"Capacitance": {"C(o1,o1)": 8.77}}, unit="zF")
+
+    with pytest.raises(ValueError, match="Unknown capacitance unit 'zF'"):
+        Q3D(MockQ3dNetsApp(post, ["o1"])).get_capacitance_matrix("Q3DSetup")
+
+
+def test_get_capacitance_matrix_reads_attofarads():
+    """Q3D reports small couplings in aF."""
+    post = MockPost({"Capacitance": {"C(o1,o1)": 5.0}}, unit="aF")
+
+    matrix = Q3D(MockQ3dNetsApp(post, ["o1"])).get_capacitance_matrix("Q3DSetup")
+
+    assert matrix.item(0, "C(o1,o1)") == pytest.approx(5e-18)
+
+
+def test_rename_imported_objects_names_objects_after_their_level(stack: LayerStack):
+    """signal<N> objects take the lowest non-vacuum level's name on that number."""
+    app = MockApp(non_graphical=True)
+    app.modeler = MockModeler(["signal1", "signal99_1", "other"])
+
+    renamed = rename_imported_objects(app, ["signal1", "signal99_1", "other"], stack)
+
+    assert renamed == ["M1", "Substrate_1", "other"]
+
+
+def test_rename_imported_objects_keeps_a_refused_name(stack: LayerStack):
+    """When AEDT refuses a rename, the object keeps its old name."""
+    app = MockApp(non_graphical=True)
+    app.modeler = MockModeler([])
+    app.modeler._objects["signal1"] = MockStubbornObject("signal1")
+
+    assert rename_imported_objects(app, ["signal1"], stack) == ["signal1"]
+
+
+def test_rename_imported_objects_propagates_aedt_errors(stack: LayerStack):
+    """An error from AEDT, e.g. a dead session, is not swallowed."""
+
+    class BrokenObject:
+        @property
+        def name(self) -> str:
+            return "signal1"
+
+        @name.setter
+        def name(self, value: str) -> None:
+            raise RuntimeError("gRPC session closed")
+
+    app = MockApp(non_graphical=True)
+    app.modeler = MockModeler([])
+    app.modeler._objects["signal1"] = BrokenObject()
+
+    with pytest.raises(RuntimeError, match="gRPC"):
+        rename_imported_objects(app, ["signal1"], stack)

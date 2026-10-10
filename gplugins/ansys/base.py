@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import re
 import tempfile
-from collections.abc import Generator, Mapping
+from collections.abc import Collection, Generator, Mapping
 from contextlib import contextmanager
 from operator import itemgetter
 from pathlib import Path
@@ -66,6 +66,30 @@ def _resolve_layer_stack(layer_stack: LayerStack | None) -> LayerStack:
             "No layer_stack given and the active PDK has none; pass a LayerStack."
         )
     return stack
+
+
+def _is_conductor(props: Mapping[str, float]) -> bool:
+    """Return whether a material's properties make it a perfect conductor."""
+    return props.get("relative_permittivity") == float("inf")
+
+
+def conductor_materials(
+    material_properties: MaterialProperties | None = None,
+) -> set[str]:
+    """Return the names of the perfect-conductor materials in a material table.
+
+    Args:
+        material_properties: Material table. Defaults to
+            :data:`DEFAULT_MATERIAL_PROPERTIES`.
+
+    Returns:
+        Material names with infinite relative permittivity.
+    """
+    return {
+        name
+        for name, props in _resolve_material_properties(material_properties).items()
+        if _is_conductor(props)
+    }
 
 
 def _resolve_material_properties(
@@ -121,6 +145,8 @@ def _get_layer_number_from_level(layer_level: LayerLevel) -> int | None:
 def layer_stack_to_gds_mapping(
     layer_stack: LayerStack | None = None,
     thickness_override: float | None = None,
+    *,
+    override_materials: Collection[str] | None = None,
 ) -> dict[int, tuple[float, float]]:
     """Convert a LayerStack to HFSS/Q3D GDS import mapping dictionary.
 
@@ -141,8 +167,11 @@ def layer_stack_to_gds_mapping(
 
     Args:
         layer_stack: Layer stack to map. Defaults to the active PDK's.
-        thickness_override: Thickness in µm for every level, e.g. ``0.0`` to
-            import sheets. None keeps each level's own thickness.
+        thickness_override: Thickness in µm, e.g. ``0.0`` to import sheets. None
+            keeps each level's own thickness.
+        override_materials: Apply ``thickness_override`` only to levels with one
+            of these materials, e.g. the conductors, so dielectric levels keep
+            their thickness. None applies it to every level.
 
     Returns:
         Dictionary mapping layer number to (elevation, thickness) tuple.
@@ -150,8 +179,8 @@ def layer_stack_to_gds_mapping(
     Raises:
         ValueError: If two levels share a GDS layer number but cannot be merged
             into a single (elevation, thickness) entry because their materials
-            differ (regardless of ``thickness_override``) or, with
-            ``thickness_override=None``, their z-spans do not join into a
+            differ (regardless of ``thickness_override``) or, for levels
+            without a thickness override, their z-spans do not join into a
             single box.
     """
     layer_stack = _resolve_layer_stack(layer_stack)
@@ -159,7 +188,7 @@ def layer_stack_to_gds_mapping(
     # Collect levels per layer number first, then process each number's levels
     # in zmin order so the result is independent of the layer stack's
     # insertion order.
-    levels_by_number: dict[int, list[tuple[str, LayerLevel, float, float]]] = {}
+    levels_by_number: dict[int, list[tuple[str, LayerLevel, float, float, bool]]] = {}
     for name, layer_level in layer_stack.layers.items():
         if layer_level.material == "vacuum":
             logger.info(
@@ -170,31 +199,34 @@ def layer_stack_to_gds_mapping(
 
         layer_number = _get_layer_number_from_level(layer_level)
         if layer_number is None:
+            logger.warning(
+                f"Layer level {name!r} has no resolvable GDS layer number and is"
+                " left out of the GDS import mapping, so its geometry is not"
+                " imported."
+            )
             continue
 
         elevation = layer_level.zmin if layer_level.zmin is not None else 0.0
+        overridden = thickness_override is not None and (
+            override_materials is None or layer_level.material in override_materials
+        )
         thickness = (
             thickness_override
-            if thickness_override is not None
+            if overridden and thickness_override is not None
             else (layer_level.thickness or 0.0)
         )
         levels_by_number.setdefault(layer_number, []).append(
-            (
-                name,
-                layer_level,
-                elevation,
-                thickness,
-            )
+            (name, layer_level, elevation, thickness, overridden)
         )
 
     mapping: dict[int, tuple[float, float]] = {}
     for layer_number, levels in levels_by_number.items():
         levels.sort(key=itemgetter(2))  # ascending zmin
 
-        prev_name, prev_level, prev_elevation, prev_thickness = levels[0]
+        prev_name, prev_level, prev_elevation, prev_thickness, _ = levels[0]
         mapping[layer_number] = (prev_elevation, prev_thickness)
 
-        for name, layer_level, elevation, thickness in levels[1:]:
+        for name, layer_level, elevation, thickness, overridden in levels[1:]:
             if prev_level.material != layer_level.material:
                 raise ValueError(
                     f"Layer levels {prev_name!r} ({prev_level.material!r}) and"
@@ -214,8 +246,9 @@ def layer_stack_to_gds_mapping(
             max_low = max(prev_elevation, elevation)
             min_high = min(prev_elevation + prev_thickness, elevation + thickness)
 
-            if thickness_override is not None:
-                # Sheets/forced thickness: colliding levels cannot keep distinct
+            if overridden:
+                # Levels sharing a number share a material, so both are
+                # overridden. Sheets/forced thickness: colliding levels cannot keep distinct
                 # z-spans, so collapse to the lowest elevation and warn loudly.
                 logger.warning(
                     f"Layer levels {prev_name!r} and {name!r} share GDS layer"
@@ -302,36 +335,53 @@ def _first_real_value(solution: Any) -> float | None:
     return float(values[0])
 
 
+def _level_names_by_number(layer_stack: LayerStack) -> dict[int, str]:
+    """Map each GDS layer number to the level the import mapping places on it.
+
+    Vacuum levels are skipped, as :func:`layer_stack_to_gds_mapping` skips them,
+    and of the levels sharing a number the lowest one names the imported object.
+
+    Returns:
+        Dictionary mapping GDS layer number to layer stack level name.
+    """
+    candidates: dict[int, list[tuple[float, str]]] = {}
+    for name, level in layer_stack.layers.items():
+        if level.material == "vacuum":
+            continue
+        layer_num = _get_layer_number_from_level(level)
+        if layer_num is not None:
+            zmin = level.zmin if level.zmin is not None else 0.0
+            candidates.setdefault(layer_num, []).append((zmin, name))
+    return {num: min(levels)[1] for num, levels in candidates.items()}
+
+
 def rename_imported_objects(
     app: Any,
     new_objects: list[str],
     layer_stack: LayerStack,
 ) -> list[str]:
-    """Rename imported GDS objects based on the layer stack.
+    """Rename imported ``signal<N>`` GDS objects after their layer stack level.
+
+    An object whose rename AEDT refuses (PyAEDT only logs a warning when the name
+    is taken) keeps its original name, which :func:`object_names_to_materials`
+    still resolves. Errors from AEDT itself propagate.
 
     Returns:
-        List of renamed object names.
+        List of the objects' names after renaming, in input order.
     """
-    num_to_name = {}
-    for name, level in layer_stack.layers.items():
-        layer_num = _get_layer_number_from_level(level)
-        if layer_num is not None and layer_num not in num_to_name:
-            num_to_name[layer_num] = name
+    num_to_name = _level_names_by_number(layer_stack)
 
     renamed_objects = []
     for obj_name in new_objects:
         match = re.match(r"^signal(\d+)(_.*)?$", obj_name)
         new_name = obj_name
-        if match:
-            layer_num = int(match.group(1))
-            suffix = match.group(2) or ""
-            if layer_num in num_to_name:
-                layer_name = num_to_name[layer_num]
-                new_name = f"{layer_name}{suffix}"
-                try:
-                    app.modeler[obj_name].name = new_name
-                except Exception:
-                    new_name = obj_name
+        if match and int(match.group(1)) in num_to_name:
+            obj = app.modeler[obj_name]
+            if obj is None:
+                logger.warning(f"Imported object {obj_name!r} not found; not renamed.")
+            else:
+                obj.name = f"{num_to_name[int(match.group(1))]}{match.group(2) or ''}"
+                new_name = obj.name
         renamed_objects.append(new_name)
 
     return renamed_objects
@@ -368,11 +418,7 @@ def object_names_to_materials(
             rather than failed.
     """
     material_properties = _resolve_material_properties(material_properties)
-    num_to_name: dict[int, str] = {}
-    for name, level in layer_stack.layers.items():
-        layer_num = _get_layer_number_from_level(level)
-        if layer_num is not None and layer_num not in num_to_name:
-            num_to_name[layer_num] = name
+    num_to_name = _level_names_by_number(layer_stack)
 
     def find_level(obj_name: str) -> LayerLevel | None:
         match = re.match(r"^signal(\d+)(_.*)?$", obj_name)
@@ -402,8 +448,7 @@ def object_names_to_materials(
                 "registered in material_properties; refusing to leave it with "
                 "the default material."
             )
-        is_conductor = props.get("relative_permittivity") == float("inf")
-        assignments[obj_name] = "pec" if is_conductor else material
+        assignments[obj_name] = "pec" if _is_conductor(props) else material
     return assignments
 
 
@@ -487,9 +532,13 @@ class AEDTBase:
     ) -> str:
         """Add a substrate box below the component geometry.
 
+        The material table is added to the project first, so ``material`` may be
+        any of its names.
+
         Returns:
             Name of the created substrate object.
         """
+        self.add_materials()
         bounds = component.bbox()
         x_min, y_min = bounds.p1.x, bounds.p1.y
         dx, dy = bounds.p2.x - x_min, bounds.p2.y - y_min
@@ -500,7 +549,6 @@ class AEDTBase:
             name=name,
             material=material,
         )
-        substrate.mesh_order = 4
         return substrate.name
 
     def save(self) -> None:

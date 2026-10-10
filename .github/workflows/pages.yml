@@ -86,7 +86,7 @@ jobs:
         run: |
           make test-data
           printf 'pdk="gdsfactory.gpdk"\nignore_sliver_differences=True\n' > .env
-          uv sync --extra dev --extra docs --extra elmer --extra emode --extra femwell --extra meow --extra sax --extra tidy3d --extra klayout --extra vlsir
+          uv sync --extra dev --extra docs --extra ansys --extra elmer --extra emode --extra femwell --extra meow --extra sax --extra tidy3d --extra klayout --extra vlsir
           uv run make nbdocs
           uv run zensical build --strict -f docs/zensical.yml
       - name: Upload artifact

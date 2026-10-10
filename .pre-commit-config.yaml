@@ -14,6 +14,8 @@ repos:
       - id: mixed-line-ending
       - id: name-tests-test
         args: ["--pytest-test-first"]
+        # Shared PyAEDT stand-ins imported by the ansys tests.
+        exclude: ^gplugins/ansys/tests/_mocks\.py$
       - id: trailing-whitespace
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
