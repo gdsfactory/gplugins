@@ -157,6 +157,7 @@ def test_create_sheet_dispatches_to_the_sheet_builder(
                 "air_height_um": 150.0,
                 "lateral_margin_um": 0.0,
                 "silicon_relative_permittivity": 11.7,
+                "air_relative_permittivity": 1.0,
             },
         )
     ]
