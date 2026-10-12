@@ -337,7 +337,7 @@ def get_farfield(wavelength: float = 1.55, **kwargs):
     """FIXME: figure out outputs.
 
     based on
-    http://www.simpetus.com/projects.html#meep_outcoupler
+    https://web.archive.org/web/20260612150937/http://www.simpetus.com/projects.html#meep_outcoupler
     """
     sim_dict = get_simulation_grating_farfield(**kwargs)
 
