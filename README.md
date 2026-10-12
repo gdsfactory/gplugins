@@ -22,6 +22,7 @@ Run simulations with GDSFactory by installing plugins.
         - `femwell` Finite Element Method Solver (heaters, modes, TCAD, RF waveguides).
         - `elmer` for electrostatic (capacitive) simulations.
         - `palace` for full-wave driven (S parameter) and electrostatic (capacitive) simulations.
+        - `ansys` Ansys HFSS (eigenmode, driven), Q3D Extractor (capacitance) and 2D Extractor (impedance) through PyAEDT (commercial).
         - `comsol` COMSOL Multiphysics through MPh: driven CPW S parameters and electrostatic capacitance (commercial).
     - EME
         - `meow` Eigen Mode Expansion (EME).
@@ -64,6 +65,7 @@ The following plugins require special installation as they can't be installed wi
 - For Meep and MPB you need to use `conda` or `mamba` on MacOS, Linux or [Windows WSL (Windows Subsystem for Linux)](https://learn.microsoft.com/en-us/windows/wsl/install) with `conda install pymeep=*=mpi_mpich_* -c conda-forge -y`
 - For Elmer, refer to [Elmer FEM – Installation](https://www.elmerfem.org/blog/binaries/) for installation or compilation instructions each platform. Gplugins assumes `ElmerSolver`, `ElmerSolver_mpi`, and `ElmerGrid` are available in your PATH environment variable.
 - For Palace, refer to [Palace – Installation](https://awslabs.github.io/palace/stable/install/) for compilation instructions using Spack or Singularity. Gplugins assumes `palace` is available in your PATH environment variable.
+- For Ansys HFSS, Q3D and 2D Extractor, install Ansys Electronics Desktop with a licence. `pip install "gplugins[ansys]"` adds the [PyAEDT](https://aedt.docs.pyansys.com/) client.
 - For COMSOL, install COMSOL Multiphysics with a licence (the RF and Design modules for the driven study and for layouts with holes). `pip install "gplugins[comsol]"` adds the [MPh](https://mph.readthedocs.io/en/stable/) client.
 
 ## Installation for contributors

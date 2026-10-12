@@ -33,6 +33,7 @@ name = "gdsfactory"
 file = "LICENSE"
 
 [project.optional-dependencies]
+ansys = ["polars", "pyaedt>=1.8.0"]
 comsol = ["MPh>=1.4,<2", "shapely"]
 dev = [
   "hypothesis",

@@ -63,7 +63,7 @@ notebooks:
 
 NOEXEC_PATTERNS = 01_pin_waveguide|1_fdtd_sparameters|2_interconnect|ray_optimiser|03_numerical_implantation|02_fullwave|fdtdz|meep_|meow_01|emode_01|luminescent|pso|mpb|palace_01_electrostatic|00_tidy3d|workflow_3_cascaded_mzi
 
-REQUIRED_PATTERNS = elmer_01_electrostatic
+REQUIRED_PATTERNS = elmer_01_electrostatic|ansys_01_aedt
 
 nbdocs:
 	@echo "Converting notebooks to markdown..."

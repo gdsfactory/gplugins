@@ -1,0 +1,1 @@
+Add `ansys` plugin: generic Ansys Electronics Desktop layout import with HFSS driven/eigenmode, Q3D capacitance and Q2D CPW cross-section helpers through [PyAEDT](https://aedt.docs.pyansys.com/).

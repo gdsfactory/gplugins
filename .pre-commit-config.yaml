@@ -14,6 +14,8 @@ repos:
       - id: mixed-line-ending
       - id: name-tests-test
         args: ["--pytest-test-first"]
+        # Shared PyAEDT stand-ins imported by the ansys tests.
+        exclude: ^gplugins/ansys/tests/_mocks\.py$
       - id: trailing-whitespace
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -21,9 +23,9 @@ repos:
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix, --config=pyproject.toml]
-        files: ^gplugins/(comsol|emode|femwell|gmsh|meow|sax|tidy3d|klayout|vlsir)/
+        files: ^gplugins/(ansys|comsol|emode|femwell|gmsh|meow|sax|tidy3d|klayout|vlsir)/
       - id: ruff-format
-        files: ^gplugins/(comsol|emode|femwell|gmsh|meow|sax|tidy3d|klayout|vlsir)/
+        files: ^gplugins/(ansys|comsol|emode|femwell|gmsh|meow|sax|tidy3d|klayout|vlsir)/
 
   # - repo: https://github.com/pre-commit/mirrors-mypy
   #   rev: "v1.16.0"
