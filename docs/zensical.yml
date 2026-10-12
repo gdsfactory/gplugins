@@ -41,6 +41,7 @@ nav:
           - notebooks/palace_01_electrostatic.md
           - notebooks/palace_02_fullwave.md
           - notebooks/ansys_01_aedt.md
+          - notebooks/comsol_01_cpw.md
       - Mode Solvers:
           - notebooks/femwell_01_modes.md
           - notebooks/mode_solver_fdfd.md
