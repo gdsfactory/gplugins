@@ -1,0 +1,1 @@
+Add `comsol` plugin: generic COMSOL Multiphysics layout extraction, driven CPW and electrostatic capacitance studies through the [MPh](https://mph.readthedocs.io/) client.
