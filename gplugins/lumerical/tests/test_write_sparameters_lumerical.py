@@ -10,6 +10,7 @@ from gplugins.lumerical.write_sparameters_lumerical import write_sparameters_lum
 class _Session:
     def __init__(self) -> None:
         self.ports = 0
+        self.layer_settings: list[tuple[object, ...]] = []
 
     def newproject(self) -> None:
         pass
@@ -31,6 +32,21 @@ class _Session:
 
     def gdsimport(self, *args: object) -> None:
         pass
+
+    def addlayerbuilder(self) -> None:
+        pass
+
+    def set(self, *args: object) -> None:
+        pass
+
+    def loadgdsfile(self, *args: object) -> None:
+        pass
+
+    def addlayer(self, *args: object) -> None:
+        pass
+
+    def setlayer(self, *args: object) -> None:
+        self.layer_settings.append(args)
 
     def addport(self) -> None:
         self.ports += 1
@@ -76,3 +92,30 @@ def test_keeps_ports_on_layers_not_in_layer_stack(monkeypatch, tmp_path) -> None
 
     assert result is session
     assert session.ports == 2
+
+
+def test_uses_layer_builder_for_sidewall_angle(monkeypatch, tmp_path) -> None:
+    monkeypatch.setitem(sys.modules, "lumapi", ModuleType("lumapi"))
+    component = gf.components.straight(length=10, cross_section="strip")
+    layer_stack = LayerStack(
+        layers={
+            "core": LayerLevel(
+                layer=(1, 0),
+                thickness=0.22,
+                zmin=0,
+                material="sio2",
+                sidewall_angle=10,
+            )
+        }
+    )
+    session = _Session()
+
+    write_sparameters_lumerical(
+        component,
+        session=session,
+        run=False,
+        dirpath=tmp_path,
+        layer_stack=layer_stack,
+    )
+
+    assert ("layer_1_0", "sidewall angle", 80) in session.layer_settings
