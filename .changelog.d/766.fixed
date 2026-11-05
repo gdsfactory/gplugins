@@ -1,0 +1,1 @@
+Lumerical port waveguides now extend beyond the FDTD PML when simulation margins are configured.

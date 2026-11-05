@@ -306,8 +306,14 @@ def write_sparameters_lumerical(
     if not ports:
         raise ValueError(f"{component.name!r} does not have any optical ports")
 
+    # The FDTD bounds add the requested margins around ``component_extended``.
+    # Include that headroom in the physical extension so every waveguide reaches
+    # beyond the PML, regardless of port orientation.
+    port_extension_beyond_pml = ss.port_extension + max(
+        xmargin_left, xmargin_right, ymargin_top, ymargin_bot
+    )
     component_extended_beyond_pml = gf.components.extension.extend_ports(
-        component=component_extended, length=ss.port_extension
+        component=component_extended, length=port_extension_beyond_pml
     )
     component_extended_beyond_pml = component_extended_beyond_pml.copy()
     component_extended_beyond_pml.flatten()
