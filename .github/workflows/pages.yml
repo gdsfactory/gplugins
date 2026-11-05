@@ -22,7 +22,7 @@ jobs:
       - parallel:
           - uses: astral-sh/setup-uv@v7
           - name: Setup Apptainer
-            uses: eWaterCycle/setup-apptainer@3f706d898c9db585b1d741b4692e66755f3a1b40
+            uses: eWaterCycle/setup-apptainer@95b5c781df5f72fd2271cc3cff06904a09d2a087
             with:
               apptainer-version: 1.4.2
           - name: Download Palace singularity definition
