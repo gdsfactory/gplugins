@@ -55,7 +55,7 @@ docs = [
   "pyvista[all]<=0.49.2",
   "bokeh",
   "scikit-learn",
-  "zensical>=0.0.46,<0.1.0"
+  "zensical>=0.0.46,<0.2.0"
 ]
 elmer = ["jinja2", "meshwell~=2.1.1", "nest-asyncio", "pandas"]
 emode = ["emodeconnection>=1.1.11"]
