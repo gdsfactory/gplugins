@@ -9,7 +9,7 @@ This module translates gdsfactory objects (:class:`~gdsfactory.CrossSection`,
 :class:`~gdsfactory.technology.LayerStack`) into EMode geometry. The
 translation itself is implemented as pure functions
 (:func:`get_emode_settings`, :func:`get_shapes_from_layer_stack`) that only
-require the pip-installable ``emodeconnection`` client. Creating an
+require the pip-installable ``emode`` client. Creating an
 :class:`EMode` session and running solvers requires a local EMode installation
 and license.
 """
@@ -19,7 +19,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Any
 
-import emodeconnection as emc
+import emode as emc
 import gdsfactory as gf
 from gdsfactory.technology import LayerLevel, LayerStack
 from gdsfactory.typings import CrossSectionSpec, LayerSpec
@@ -178,7 +178,7 @@ class EMode(emc.EMode):
 
     Creating an instance launches the EMode application and connects to it,
     so it requires a local EMode installation and license (the
-    ``emodeconnection`` client alone is not enough). Any EMode function can
+    ``emode`` client alone is not enough). Any EMode function can
     be called as a method, e.g. ``FDM()``, ``EME()``, ``report()``,
     ``plot()``; see https://docs.emodephotonix.com for the full API.
     """

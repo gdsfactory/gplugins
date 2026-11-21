@@ -1,6 +1,6 @@
 """CI-safe tests for the EMode plugin.
 
-These tests only require the pip-installable ``emodeconnection`` client. They
+These tests only require the pip-installable ``emode`` client. They
 exercise the pure gdsfactory-to-EMode translation functions and use a stub
 session to test ``EMode.build_waveguide`` without launching the EMode
 application (which requires a separate installation and license).
@@ -12,7 +12,7 @@ from typing import Any
 
 import pytest
 
-pytest.importorskip("emodeconnection")
+pytest.importorskip("emode")
 
 import gdsfactory as gf
 from gdsfactory.gpdk import LAYER_STACK
