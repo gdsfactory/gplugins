@@ -1,0 +1,1 @@
+The `emode` plugin imports the renamed `emode` client (`pip install emode`) instead of `emodeconnection`.
