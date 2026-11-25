@@ -50,9 +50,7 @@ def test_field_plot_crops_saved_export_and_uses_log_color(
     monkeypatch.setattr(plt, "show", lambda: None)
     before = set(plt.get_fignums())
     try:
-        draw_cut_plane_field(
-            export, "Resonator field", view_um=(-2, 2, -2, 2), stride=2
-        )
+        draw_cut_plane_field(export, "Resonator field", view_um=(-2, 2, -2, 2))
         number = next(iter(set(plt.get_fignums()) - before))
         fig = plt.figure(number)
         ax = fig.axes[0]
@@ -61,6 +59,47 @@ def test_field_plot_crops_saved_export_and_uses_log_color(
         assert ax.get_title() == "Resonator field"
         assert ax.collections
         assert fig.axes[1].get_ylabel() == r"$|\mathbf{E}|$ (V/m)"
+    finally:
+        for number in set(plt.get_fignums()) - before:
+            plt.close(number)
+
+
+def test_field_plot_fills_the_view_corners(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A window whose corners hold no node still fills to its corners.
+
+    The nodes inside the window lie on a circle, so a triangulation of those
+    alone would leave the corners outside its convex hull and draw them blank.
+    A NaN node outside the window must not blank the triangles around it.
+    """
+    angle = np.linspace(0, 2 * np.pi, 16, endpoint=False)
+    frame = np.linspace(-3, 3, 7)
+    x = np.concatenate(
+        (np.cos(angle), [0], frame, frame, -3 * np.ones(7), 3 * np.ones(7))
+    )
+    y = np.concatenate(
+        (np.sin(angle), [0], -3 * np.ones(7), 3 * np.ones(7), frame, frame)
+    )
+    field = np.column_stack((x, y, np.zeros(x.size), 1 + x**2 + y**2))
+    # A NaN node, a far node outside the margin, and a second value at the
+    # centre, as COMSOL exports on both sides of a metal edge.
+    field = np.vstack((field, [2.5, 0, 0, np.nan], [100, 100, 0, 1e12], [0, 0, 0, 0]))
+    export = tmp_path / "field.txt"
+    np.savetxt(export, field)
+    monkeypatch.setattr(plt, "show", lambda: None)
+    before = set(plt.get_fignums())
+    try:
+        draw_cut_plane_field(export, "Corners", view_um=(-1.5, 1.5, -1.5, 1.5))
+        number = next(iter(set(plt.get_fignums()) - before))
+        ax = plt.figure(number).axes[0]
+        assert ax.get_xlim() == (-1.5, 1.5)
+        assert ax.get_ylim() == (-1.5, 1.5)
+        paths = [
+            path for collection in ax.collections for path in collection.get_paths()
+        ]
+        for corner in [(-1.4, -1.4), (1.4, -1.4), (-1.4, 1.4), (1.4, 1.4), (1.4, 0)]:
+            assert any(path.contains_point(corner) for path in paths), corner
     finally:
         for number in set(plt.get_fignums()) - before:
             plt.close(number)
@@ -86,7 +125,7 @@ def test_field_plot_survives_mostly_zero_field(
     monkeypatch.setattr(plt, "show", lambda: None)
     before = set(plt.get_fignums())
     try:
-        draw_cut_plane_field(export, "Sparse", view_um=(-2, 2, -2, 2), stride=1)
+        draw_cut_plane_field(export, "Sparse", view_um=(-2, 2, -2, 2))
         assert set(plt.get_fignums()) - before
     finally:
         for number in set(plt.get_fignums()) - before:
