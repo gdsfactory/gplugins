@@ -64,36 +64,52 @@ def draw_cut_plane_field(
     title: str,
     *,
     view_um: tuple[float, float, float, float],
-    stride: int = 4,
     contour_levels: int = 30,
 ) -> None:
     """Draw a cropped ``emw.normE`` map from a COMSOL cut-plane export.
 
-    The export covers the whole prepared box, so the nodes are cropped to
-    ``view_um`` and, for display only, drawn on a fixed-stride subset with
-    percentiles of the cropped data as the colour limits. The stride changes what
-    is drawn, not what was solved.
+    The export holds field values at mesh nodes but not the mesh, so the plot
+    triangulates the nodes and then crops to ``view_um`` with the axis limits.
+    It triangulates the nodes within one window size of ``view_um`` on every
+    side, not only the nodes inside it: those alone would leave the window
+    corners outside their convex hull, and the corners would draw blank. Nodes
+    that share a position, as on a metal edge where the field jumps, are drawn
+    with their largest value. The colour limits are percentiles of the
+    positive field inside the window.
 
     Args:
         file: A ``emw.normE`` export on the cut plane, columns x, y, z, E.
         title: Figure title.
         view_um: ``(xmin, xmax, ymin, ymax)`` crop window, in µm.
-        stride: Drawing stride over the cropped nodes.
         contour_levels: Number of contour levels.
 
     Raises:
         ValueError: If the crop window holds no exported node, or no node with
             a positive field.
     """
-    field = np.loadtxt(file, comments="%")
-    field_x, field_y, field_e = field[:, 0], field[:, 1], field[:, 3]
-    inside = (
-        (field_x >= view_um[0])
-        & (field_x <= view_um[1])
-        & (field_y >= view_um[2])
-        & (field_y <= view_um[3])
+    field = np.loadtxt(file, comments="%", ndmin=2)
+    # COMSOL writes NaN where it cannot evaluate the expression. The
+    # triangulation reaches past the window, so a NaN node just outside it
+    # would still blank the triangles that cross its edge.
+    field = field[np.isfinite(field[:, [0, 1, 3]]).all(axis=1)]
+    xmin, xmax, ymin, ymax = view_um
+    margin = max(xmax - xmin, ymax - ymin)
+    near = (
+        (field[:, 0] >= xmin - margin)
+        & (field[:, 0] <= xmax + margin)
+        & (field[:, 1] >= ymin - margin)
+        & (field[:, 1] <= ymax + margin)
     )
-    view_x, view_y, view_e = field_x[inside], field_y[inside], field_e[inside]
+    # The triangulation keeps one node per position and would drop the rest
+    # silently, in export order.
+    positions, node = np.unique(field[near][:, :2], axis=0, return_inverse=True)
+    field_x, field_y = positions[:, 0], positions[:, 1]
+    field_e = np.full(len(positions), -np.inf)
+    np.maximum.at(field_e, node.ravel(), field[near][:, 3])
+    inside = (
+        (field_x >= xmin) & (field_x <= xmax) & (field_y >= ymin) & (field_y <= ymax)
+    )
+    view_e = field_e[inside]
     if view_e.size == 0:
         raise ValueError(f"No exported field nodes inside {view_um}")
 
@@ -112,32 +128,26 @@ def draw_cut_plane_field(
         # A uniform window would give a single contour level; widen it so the
         # levels still increase.
         color_max = color_min * 10.0
-    draw_x, draw_y, draw_e = view_x, view_y, view_e
-    if stride > 1 and view_e.size // stride >= 10:
-        draw_x = view_x[::stride]
-        draw_y = view_y[::stride]
-        draw_e = view_e[::stride]
-    # Zero and below-range nodes are drawn in the lowest colour, not left blank.
-    draw_e = np.maximum(draw_e, color_min)
+
     print(
-        f"Field nodes: {view_e.size} of {field_e.size} inside the view; "
-        f"{draw_e.size} drawn at stride {stride}; "
-        f"range {view_e.min():.3g} to {view_e.max():.3g} V/m, "
+        f"Field nodes: {view_e.size} inside the view, {field_e.size} "
+        f"triangulated; range {view_e.min():.3g} to {view_e.max():.3g} V/m, "
         f"1st to 99th percentile {color_min:.3g} to {color_max:.3g} V/m"
     )
 
     fig, ax = plt.subplots(figsize=(7, 5))
+    # Zero and below-range nodes are drawn in the lowest colour, not left blank.
     contour = ax.tricontourf(
-        draw_x,
-        draw_y,
-        draw_e,
+        field_x,
+        field_y,
+        np.maximum(field_e, color_min),
         levels=np.geomspace(color_min, color_max, contour_levels),
         norm=LogNorm(vmin=color_min, vmax=color_max),
         cmap="inferno",
         extend="both",
     )
-    ax.set_xlim(view_um[0], view_um[1])
-    ax.set_ylim(view_um[2], view_um[3])
+    ax.set_xlim(xmin, xmax)
+    ax.set_ylim(ymin, ymax)
     ax.set_aspect("equal")
     ax.set_xlabel("x (µm)")
     ax.set_ylabel("y (µm)")
