@@ -58,7 +58,7 @@ docs = [
   "zensical>=0.0.46,<0.1.0"
 ]
 elmer = ["jinja2", "meshwell~=2.1.1", "nest-asyncio", "pandas"]
-emode = ["emode>=1.1.26"]
+emode = ["emode>=1.1.27"]
 femwell = ["femwell~=0.1.11", "meshwell~=2.1.1"]
 gfviz = ["jinja2", "fastapi", "shapely", "natsort"]
 klayout = ["klayout", "pyvis<=0.3.2", "vlsir", "vlsirtools", "gitpython"]
