@@ -99,18 +99,29 @@ jobs:
           sudo apt-get install -y libglu1-mesa
       - name: Download Palace singularity definition
         run: wget https://raw.githubusercontent.com/awslabs/palace/refs/tags/v0.16.0/singularity/singularity.def # Newer versions of palace have deprecated singularity definitions, so we pin to a specific version. TODO: Update this
+      - name: Pin Palace source and fail hard on build errors
+        run: |
+          # The upstream definition clones the default branch, which needs C++20 and no longer
+          # builds with the container's GCC 11. Pin it to the release the definition comes from.
+          sed -i 's|git clone https://github.com/awslabs/palace.git /opt/palace-src|git clone --branch v0.16.0 --depth 1 https://github.com/awslabs/palace.git /opt/palace-src|' singularity.def
+          # Without -e a failed compile is masked by the later commands in %post, and the
+          # partially built image is cached and silently reused by every following run.
+          sed -i '/^%post -c \/bin\/bash$/a\    set -e' singularity.def
+          grep -q '^    set -e$' singularity.def
+          grep -q -- '--branch v0.16.0' singularity.def
       - name: Cache Palace container restore
         id: cache-palace-restore
         uses: actions/cache/restore@v6
         with:
           path: palace.sif
-          key: palace-container-${{ runner.os }}-${{ hashFiles('singularity.def') }}
+          key: palace-container-${{ runner.os }}-v0.16.0-${{ hashFiles('singularity.def') }}
       - name: Build palace from source
         if: steps.cache-palace-restore.outputs.cache-hit != 'true'
         run: |
           echo "Building Palace container from source (this may take a while)…"
           echo "Note: This is a one-time build that will be cached for future runs"
-          timeout 3600 sudo apptainer build palace.sif singularity.def || {
+          # sudo resets PATH, so apptainer from the action tool cache is not on it
+          timeout 3600 sudo env "PATH=$PATH" "$(command -v apptainer)" build palace.sif singularity.def || {
             echo "Build timed out or failed after 60 minutes. Palace tests will be skipped."
             exit 1
           }
@@ -119,7 +130,7 @@ jobs:
         if: steps.cache-palace-restore.outputs.cache-hit != 'true'
         with:
           path: palace.sif
-          key: palace-container-${{ runner.os }}-${{ hashFiles('singularity.def') }}
+          key: palace-container-${{ runner.os }}-v0.16.0-${{ hashFiles('singularity.def') }}
       - name: Create palace alias
         run: |
           # Create a shell script that acts as an alias for palace
@@ -129,8 +140,7 @@ jobs:
           echo "$GITHUB_WORKSPACE" >> $GITHUB_PATH
           echo "Palace executable created successfully"
       - name: Verify Palace installation
-        run: |
-          palace --help || echo "Palace help failed but container exists"
+        run: palace --version
       - name: Test with pytest
         run: sudo env "PATH=$PATH" "$(which uv)" run --extra dev --extra meshwell pytest gplugins/palace -v
 
