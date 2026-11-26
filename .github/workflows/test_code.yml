@@ -84,8 +84,9 @@ jobs:
           pytest gplugins/gmeep
 
   test_palace:
-    runs-on: ubuntu-latest
-    name: Test palace ubuntu-latest 3.11
+    # apptainer's deb depends on libfuse3-3, which Ubuntu 26.04 (current ubuntu-latest) dropped
+    runs-on: ubuntu-24.04
+    name: Test palace ubuntu-24.04 3.11
     continue-on-error: true
     steps:
       - uses: actions/checkout@v7
