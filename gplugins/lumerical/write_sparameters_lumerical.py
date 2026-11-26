@@ -459,6 +459,8 @@ def write_sparameters_lumerical(
 
     exclude_layers = exclude_layers or []
     polygons_per_layer = component_extended_beyond_pml.get_polygons_points(merge=True)
+    layer_builder_name = "gplugins_layer_builder"
+    has_layer_builder = False
 
     for level in layer_stack.layers.values():
         layer = level.layer
@@ -501,11 +503,33 @@ def write_sparameters_lumerical(
             zmax = zmin + thickness
             z = (zmax + zmin) / 2
 
-            s.gdsimport(str(gdspath), "top", f"{layer_tuple[0]}:{layer_tuple[1]}")
-            layername = f"GDS_LAYER_{layer_tuple[0]}:{layer_tuple[1]}"
-            s.setnamed(layername, "z", z * 1e-6)
-            s.setnamed(layername, "z span", thickness * 1e-6)
-            set_material(session=s, structure=layername, material=material)
+            if level.sidewall_angle:
+                if not has_layer_builder:
+                    s.addlayerbuilder()
+                    s.set("name", layer_builder_name)
+                    s.loadgdsfile(str(gdspath))
+                    has_layer_builder = True
+
+                layername = f"layer_{layer_tuple[0]}_{layer_tuple[1]}"
+                s.addlayer(layername)
+                s.setlayer(
+                    layername, "layer number", f"{layer_tuple[0]}:{layer_tuple[1]}"
+                )
+                s.setlayer(layername, "start position", zmin * 1e-6)
+                s.setlayer(layername, "thickness", thickness * 1e-6)
+                s.setlayer(layername, "sidewall angle", 90 - level.sidewall_angle)
+                if not isinstance(material, str):
+                    raise ValueError(
+                        "Layer Builder sidewall angles require a material database name. "
+                        f"Got {material!r} for layer {layer_tuple}."
+                    )
+                s.setlayer(layername, "pattern material", material)
+            else:
+                s.gdsimport(str(gdspath), "top", f"{layer_tuple[0]}:{layer_tuple[1]}")
+                layername = f"GDS_LAYER_{layer_tuple[0]}:{layer_tuple[1]}"
+                s.setnamed(layername, "z", z * 1e-6)
+                s.setnamed(layername, "z span", thickness * 1e-6)
+                set_material(session=s, structure=layername, material=material)
             logger.info(
                 f"adding {layer_tuple}, thickness = {thickness} um, zmin = {zmin} um "
             )
